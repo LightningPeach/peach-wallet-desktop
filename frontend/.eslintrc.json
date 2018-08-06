@@ -1,0 +1,36 @@
+{
+  "env": {"browser": true, "commonjs": true, "es6": true},
+  "extends": ["eslint:recommended", "plugin:react/recommended", "airbnb"],
+  "parserOptions": {
+    "ecmaFeatures": {"experimentalObjectRestSpread": true, "jsx": true},
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "plugins": ["react"],
+  "rules": {
+    "indent": ["error", 4, {"SwitchCase": 1}],
+    "jsx-a11y/anchor-is-valid": 0,
+    "jsx-a11y/click-events-have-key-events": 0,
+    "jsx-a11y/label-has-for": 0,
+    "jsx-a11y/no-static-element-interactions": 0,
+    "linebreak-style": 0,
+    "max-len": ["error", {"code": 120}],
+    "no-confusing-arrow": 0,
+    "no-console": 0,
+    "no-nested-ternary": 0,
+    "no-underscore-dangle": ["error", {"allowAfterThis": true, "allowAfterSuper": true}],
+    "no-unused-expressions": ["error", {"allowShortCircuit": true, "allowTernary": true}],
+    "no-unused-vars": 0,
+    "quotes": ["error", "double"],
+    "react/jsx-filename-extension": [1, {"extensions": [".js", ".jsx"]}],
+    "react/jsx-indent": ["error", 4],
+    "react/jsx-indent-props": ["error", 4],
+    "react/no-deprecated": 0,
+    "react/no-string-refs": 0,
+    "react/prop-types": 2,
+    "react/require-default-props": 0,
+    "semi": ["error", "always", {"omitLastInOneLineBlock": true}],
+    "sort-keys": ["error", "asc", {"caseSensitive": true, "natural": true}],
+    "strict": [2, "global"]
+  }
+}

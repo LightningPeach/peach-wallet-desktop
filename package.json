@@ -1,0 +1,166 @@
+{
+  "name": "lightning-peach-wallet",
+  "version": "0.1.0-testnet",
+  "main": "main.js",
+  "license": "MIT",
+  "description": "LightningPeach wallet",
+  "homepage": "lightningpeach.com",
+  "author": {
+    "name": "LightningPeach",
+    "email": "contact@lightningpeach.com",
+    "url": "lightningpeach.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lightningpeach/lightning-peach-wallet.git"
+  },
+  "private": true,
+  "scripts": {
+    "start": "webpack && npm run scss && electron .",
+    "build": "webpack && npm run scss && build",
+    "build:jenkins": "webpack && npm run scss && build --publish never",
+    "postinstall": "electron-builder install-app-deps",
+    "lint": "cross-env NODE_ENV=development eslint main.js test frontend server",
+    "lint:report": "npm run lint -- --format junit --output-file ./coverage/reports/eslint/eslint.xml",
+    "scss": "npm run scss:compile -- ",
+    "scss:compile": "node-sass ./public/assets/_builds --output ./public/assets/dist/ --source-map-embed --output-style compressed ",
+    "scss:watch": "npm run scss -- --watch",
+    "test": "npm run lint && npm run test:unit -- ",
+    "test:e2e": "cross-env NODE_ENV=spectron mocha --opts ./test/mocha.opts ./test/e2e",
+    "test:unit": "mocha --opts ./test/mocha.opts ./test/unit",
+    "test:coverage": "cross-env NODE_ENV=test nyc --reporter=text --reporter=html npm run test:unit",
+    "test:watch": "npm test -- --watch"
+  },
+  "build": {
+    "appId": "com.bitfury.lightning-peach.wallet.desktop",
+    "productName": "LightningPeach wallet",
+    "files": [
+      "**/*",
+      "!settings.local.ini",
+      "!settings.peach.local.json",
+      "!agreement.ini"
+    ],
+    "extraFiles": {
+      "from": "node_modules/executable",
+      "to": "resources/app.asar.unpacked/node_modules/executable",
+      "filter": [
+        "**/*"
+      ]
+    },
+    "extraResources": [
+      "settings.ini"
+    ],
+    "linux": {
+      "icon": "./public/app_icons/png",
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    },
+    "mac": {
+      "icon": "./public/app_icons/mac/app-icon.icns",
+      "category": "Utility",
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "icon": "./public/app_icons/win/app-icon.ico",
+      "target": [
+        "portable",
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "runAfterFinish": false,
+      "installerIcon": "./public/app_icons/win/app-icon.ico",
+      "uninstallerIcon": "./public/app_icons/win/app-icon.ico",
+      "license": "terms_and_conditions.html"
+    }
+  },
+  "devDependencies": {
+    "@types/react": "^16.0.40",
+    "babel": "^6.23.0",
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^8.2.2",
+    "babel-loader": "^7.1.4",
+    "babel-plugin-istanbul": "^4.1.6",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-runtime": "^6.23.0",
+    "chai": "^3.5.0",
+    "cross-env": "^3.2.4",
+    "electron": "^1.8.4",
+    "electron-builder": "^20.16.4",
+    "electron-rebuild": "^1.5.11",
+    "eslint": "^4.9.0",
+    "eslint-config-airbnb": "^16.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jsx-a11y": "^6.0.2",
+    "eslint-plugin-react": "^7.4.0",
+    "jsdom": "^11.10.0",
+    "mocha": "^4.1.0",
+    "nock": "^9.2.6",
+    "node-sass": "^4.9.0",
+    "nyc": "^11.7.3",
+    "path": "^0.12.7",
+    "react-hot-loader": "^1.3.1",
+    "redux-logger": "^2.10.2",
+    "redux-mock-store": "^1.5.1",
+    "sinon": "^4.5.0",
+    "sinon-chai": "^3.0.0",
+    "spectron": "^3.8.0",
+    "webpack": "4.12.1",
+    "webpack-cli": "^3.0.8"
+  },
+  "dependencies": {
+    "@exponent/electron-cookies": "^2.0.0",
+    "@journeyapps/sqlcipher": "^3.2.0",
+    "bitcoinjs-lib": "^3.3.2",
+    "body-parser": "^1.17.2",
+    "convict": "^4.3.1",
+    "electron-ipc-tunnel": "^3.1.0",
+    "event-stream": "^3.3.4",
+    "google-protobuf": "^3.3.0",
+    "grpc": "^1.12.4",
+    "ini": "^1.3.5",
+    "isomorphic-fetch": "^2.2.1",
+    "lodash": "^4.17.4",
+    "log4js": "^2.10.0",
+    "node-fetch": "^1.7.1",
+    "prop-types": "^15.6.0",
+    "protobufjs": "^6.8.0",
+    "rc-tooltip": "^3.4.2",
+    "react": "^16.0.0",
+    "react-addons-css-transition-group": "^15.6.2",
+    "react-debounce-input": "^3.2.0",
+    "react-dom": "^16.0.0",
+    "react-ga": "^2.4.1",
+    "react-notification-system": "^0.2.16",
+    "react-redux": "^4.4.5",
+    "react-router": "^3.2.0",
+    "react-router-redux": "^4.0.5",
+    "react-select": "^1.1.0",
+    "react-slick": "^0.23.1",
+    "react-table": "^6.7.4",
+    "react-tabs-redux": "^2.0.1",
+    "reconnecting-websocket": "^4.0.0-rc3",
+    "redux": "^3.6.0",
+    "redux-thunk": "^2.1.0",
+    "request": "^2.83.0",
+    "rimraf": "^2.6.2",
+    "typeorm": "^0.1.9",
+    "url-parse": "^1.4.1",
+    "ws": "^5.2.0",
+    "xregexp": "^4.1.1",
+    "yargs": "^11.0.0"
+  }
+}

@@ -1,0 +1,43 @@
+footer {
+    background: transparent;
+    font-size: 0;
+    width: 100%;
+    padding-top: 60px;
+    padding-bottom: 20px;
+
+    .title {
+        line-height: 1;
+        text-align: center;
+        padding-bottom: 10px;
+    }
+
+    .contact {
+        text-align: center;
+    }
+
+    .mailto {
+        color: #000000;
+        text-decoration: none;
+    }
+}
+
+.footer {
+    &__extra {
+        font-size: 16px;
+        padding-top: 27px;
+
+        &-row {
+            padding-top: 8px;
+        }
+    }
+
+    &__legal {
+        line-height: 1;
+        font-size: 16px;
+        height: auto;
+
+        &:hover{
+            text-decoration: none;
+        }
+    }
+}

@@ -1,0 +1,26 @@
+{
+  "lnd": {
+    "win32": {
+      "x32": {
+        "url": "https://github.com/lightningnetwork/lnd/releases/download/v0.3-alpha/lnd-windows-amd64-v0.3-alpha.zip",
+        "sha1": "4A848076D37346998C232B3C688BFE5033A3D665"
+      },
+      "x64": {
+        "url": "https://github.com/lightningnetwork/lnd/releases/download/v0.3-alpha/lnd-windows-amd64-v0.3-alpha.zip",
+        "sha1": "4A848076D37346998C232B3C688BFE5033A3D665"
+      }
+    }
+  },
+  "lis": {
+    "win32": {
+      "x32": {
+        "url": "https://github.com/lightningnetwork/lnd/releases/download/v0.3-alpha/lnd-windows-amd64-v0.3-alpha.zip",
+        "sha1": "4A848076D37346998C232B3C688BFE5033A3D665"
+      },
+      "x64": {
+        "url": "https://github.com/lightningnetwork/lnd/releases/download/v0.3-alpha/lnd-windows-amd64-v0.3-alpha.zip",
+        "sha1": "4A848076D37346998C232B3C688BFE5033A3D665"
+      }
+    }
+  }
+}

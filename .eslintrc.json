@@ -1,0 +1,27 @@
+{
+  "env": {"commonjs": true, "es6": true, "jquery": true, "node": true},
+  "extends": ["eslint:recommended", "plugin:react/recommended", "airbnb"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {"experimentalObjectRestSpread": true, "jsx": true},
+    "ecmaVersion": 2017,
+    "sourceType": "module"
+  },
+  "plugins": ["react"],
+  "rules": {
+    "class-methods-use-this": 0,
+    "import/extensions": ["off", "never"],
+    "import/no-extraneous-dependencies": ["error", {"peerDependencies": true}],
+    "indent": ["error", 4, {"SwitchCase": 1}],
+    "linebreak-style": 0,
+    "max-len": ["error", {"code": 120}],
+    "no-console": 0,
+    "no-underscore-dangle": 0,
+    "no-unused-vars": 0,
+    "quotes": ["error", "double"],
+    "semi": ["error", "always", {"omitLastInOneLineBlock": true}],
+    "strict": [2, "global"],
+    "vars-on-top": 2
+  },
+  "settings": {"import/resolver": {"node": {"paths": ["frontend"]}}}
+}

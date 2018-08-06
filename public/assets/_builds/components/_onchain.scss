@@ -1,0 +1,133 @@
+.onchain {
+    .container {
+        padding-top: 37px;
+
+        .tab-link {
+            color: $pumpkin-orange;
+        }
+    }
+
+    .send {
+        padding-top: 50px;
+        width: 420px;
+        max-width: 100%;
+    }
+
+    .ReactTable {
+        .rt-tbody {
+            .rt-td.name span {
+                /*padding-left: 21px;
+                position: relative;
+                display: inline-block;*/
+
+                &:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 100%;
+                    transform: translateY(-50%);
+                }
+            }
+
+            .rt-td.name,
+            .rt-td.amount,
+            .rt-td.to {
+                padding-right: 2%;
+            }
+        }
+
+        .block {
+            &__wrapper {
+                height: 14px;
+                width: 120px;
+
+                &.pending {
+                    .block__cell--active {
+                        background-color: $pumpkin-orange;
+                    }
+                }
+
+                &.sended {
+                    .block__cell--active {
+                        background-color: #7ed321;
+                    }
+                }
+            }
+
+            &__cell {
+                background-color: #d8d8d8;
+                margin-right: 6px;
+                border-radius: 2px;
+            }
+        }
+    }
+}
+
+.send-form {
+    &__row {
+        margin-top: 20px;
+        margin-bottom: 20px;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    &__label,
+    &__value {
+        float: left;
+        line-height: 1;
+    }
+
+    &__label {
+        width: 175px;
+    }
+
+    &__value {
+        width: calc(100% - 175px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &--no-overflow{
+            overflow: visible;
+            text-overflow: initial;
+        }
+    }
+
+    &__contact_name{
+        margin-bottom: 25px;
+    }
+
+    &__summary {
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.13;
+        text-align: left;
+        color: $pumpkin-orange;
+    }
+
+    &__separator {
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+@media screen and (max-width: 460px) {
+    .send-form {
+        &__label {
+            width: 145px;
+        }
+
+        &__value {
+            width: calc(100% - 145px);
+        }
+    }
+}

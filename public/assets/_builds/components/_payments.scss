@@ -1,0 +1,427 @@
+.pay-wallet__info {
+    padding: 0 rem(20px) rem(20px);
+    background-color: #f9f9f9;
+
+    &:after {
+        content: '';
+        clear: both;
+        display: block;
+    }
+}
+
+.pay-form {
+    width: 38%;
+    padding: rem(20px);
+    background-color: #eeeeee;
+    font-size: 0;
+    float: left;
+
+    &--onchain {
+        height: rem(653.98px);
+    }
+
+    &__col {
+        width: 100%;
+        display: inline-block;
+        font-size: initial;
+        vertical-align: top;
+
+        &--replenish {
+            margin-top: rem(88px);
+            margin-bottom: rem(88px);
+            height: rem(50px);
+
+            & button {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &__input {
+        margin: rem(5px) 0 rem(30px);
+        position: relative;
+
+        &:after {
+            content: '';
+            clear: both;
+            display: block;
+        }
+
+        & .field__error {
+            text-align: right;
+            bottom: -1.2rem;
+        }
+    }
+
+    &__input .g-input {
+        width: 100%;
+        float: left;
+
+        &:focus {
+            border-color: #000;
+        }
+    }
+
+    &__submit {
+        margin: 0 auto rem(30px);
+        display: block;
+
+        &--lightning {
+            margin-top: rem(31px);
+        }
+        &--onchain {
+            margin-top: rem(70px);
+        }
+    }
+
+    &__add-contact {
+        line-height: rem(25px);
+        display: flex;
+        color: #333333;
+        align-items: center;
+        justify-content: flex-end;
+        opacity: 0.4;
+        transition: opacity .2s;
+        margin-top: rem(-15px);
+
+        &:hover {
+            opacity: 1;
+        }
+
+        &--label {
+            padding-right: rem(10px);
+        }
+    }
+
+    &__separator {
+        height: 10px;
+        background-color: #ffffff;
+        margin: 0 rem(-20px);
+    }
+
+    &__replenish-status {
+        text-align: center;
+        display: block;
+        font-size: rem(14px);
+        color: #333333;
+    }
+}
+
+.pay-title {
+    color: black;
+    font-weight: 400;
+    font-size: rem(16px);
+    display: block;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.pay-header {
+    color: black;
+    font-weight: 500;
+    font-size: rem(20px);
+    display: block;
+    margin: 0 0 rem(25px);
+    line-height: 1.2;
+
+    &__history--mobile {
+        display: none;
+    }
+}
+
+.pay-history {
+    width: 62%;
+    background-color: #ffffff;
+    border: solid 1px #eeeeee;
+    border-left: 0;
+    padding: rem(20px);
+    float: left;
+
+    & .pay-header {
+        color: #777;
+        font-weight: 300;
+        font-size: rem(16px);
+        text-align: center;
+    }
+
+    &__row {
+        font-size: rem(16px);
+        line-height: rem(30px);
+
+        &:after {
+            content: '';
+            clear: both;
+            display: block;
+        }
+    }
+
+    &__amount,
+    &__transaction,
+    &__date {
+        float: left;
+        display: inline-block;
+        width: 30%;
+        color: #777;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__date {
+        font-size: rem(14px);
+        width: 25%;
+        text-align: right;
+        float: right;
+    }
+
+    &__amount {
+        width: 25%;
+        position: relative;
+        padding-right: rem(12px);
+
+        &:after {
+            position: absolute;
+            right: rem(5px);
+            top: rem(-2px);
+            font-size: rem(18px);
+            padding-left: rem(4px);
+        }
+
+        &--payment {
+            color: #e82d2d;
+
+            /*&:after {
+                content: '↑';
+            }*/
+        }
+        &--invoice {
+            color: #23b12d;
+
+            /*&:after {
+                content: '↓';
+            }*/
+        }
+        &--fail {
+            color: #000;
+        }
+    }
+
+    &__transaction {
+        width: 50%;
+        color: #3681c0;
+        transition: all .2s;
+        position: relative;
+
+        & .pro-row__value--btn {
+            position: absolute;
+            float: none;
+            width: rem(16px);
+            height: rem(19px);
+            opacity: 0;
+            right: 0;
+            margin-top: rem(2px);
+            transition: opacity .2s;
+        }
+
+        &:hover {
+            padding-right: rem(35px);
+
+            & .pro-row__value--btn {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+.pagination {
+    display: flex;
+    margin: 0 auto;
+    padding: 0;
+    justify-content: center;
+
+    & > li {
+        list-style: none;
+        font-size: rem(16px);
+        line-height: 1;
+        color: #2fa6e0;
+        font-weight: 400;
+        cursor: pointer;
+        transition: color .2s;
+        will-change: color;
+        padding: 1.68rem 0.5rem 0.5rem;
+
+        &:hover {
+            color: #333;
+        }
+
+        &.active {
+            color: #333;
+            font-weight: 600;
+        }
+    }
+}
+
+.pagination .disabled,
+.btn-last-page,
+.btn-first-page {
+    display: none;
+}
+
+#pay-contact__receiver {
+    &.hide-clear-cross .Select-clear {
+        display: none;
+    }
+
+    & > div {
+        width: 100%;
+    }
+}
+
+@mixin payments-phone() {
+    .pay {
+        &-wallet__info {
+            @extend .g-container--hack;
+        }
+
+        &-title {
+            font-size: rem(18px);
+            line-height: 1;
+        }
+
+        &-header {
+            text-align: center;
+            font-size: rem(18px);
+            line-height: (30px/18px);
+            margin-bottom: rem(20px);
+
+            &__history {
+                display: none;
+            }
+
+            &__history--mobile {
+                color: #2675cc;
+                font-weight: 500;
+                font-size: rem(16px);
+                display: inline-block;
+                position: relative;
+                margin: 0;
+                line-height: 1.9;
+
+                & + div {
+                    display: none;
+                }
+
+                &:after {
+                    content: '';
+                    display: inline-block;
+                    width: rem(8px);
+                    height: rem(8px);
+                    background: transparent;
+                    border-bottom: rem(2px) solid #2675cc;
+                    border-right: rem(2px) solid #2675cc;
+                    transform: rotate(45deg);
+                    transition: transform .2s;
+                    margin: 0 0 rem(2px) rem(10px);
+                }
+
+                &--expanded {
+                    margin-bottom: rem(30px);
+                    & + div {
+                        display: block;
+                    }
+
+                    &:after {
+                        transform: rotate(-135deg);
+                        margin-bottom: rem(-2px);
+                    }
+                }
+            }
+        }
+
+        &-form {
+            width: 100%;
+            padding: rem(30px) 0 0;
+
+            &__col {
+                width: 100%;
+            }
+
+            &__input {
+                margin-top: rem(13px);
+
+                & input {
+                    border-radius: 0;
+                    line-height: 2.55;
+                }
+            }
+
+            &__submit {
+                width: 100%;
+                line-height: rem(50px);
+                margin-top: rem(47px);
+            }
+
+            & .g-button__add--mobile {
+                position: relative;
+                top: initial;
+                right: initial;
+                margin: rem(-7px) auto;
+            }
+        }
+
+        &-history {
+            $padding: rem(40px);
+            @extend .g-container--hack;
+            width: calc(100% + #{$padding});
+            padding-top: rem(40px);
+            padding-bottom: rem(40px);
+            text-align: center;
+
+            &__row {
+                font-size: rem(16px);
+                line-height: 1.6;
+                margin-top: rem(15px);
+
+                &:first-child {
+                    margin-top: 0;
+                }
+            }
+
+            &__amount,
+            &__transaction,
+            &__date {
+                float: none;
+                width: 100%;
+                text-align: left;
+            }
+
+            &__amount {
+                padding-right: 0;
+                overflow: visible;
+                margin-bottom: rem(3px);
+
+                &--invoice {
+                    color: #90cc3c;
+                }
+
+                &:after {
+                    right: initial;
+                    left: 0;
+                    padding: 0;
+                    top: rem(24px);
+                }
+            }
+
+            &__date {
+                padding-left: 0;
+            }
+        }
+    }
+
+    .pagination {
+        & > li {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    }
+}

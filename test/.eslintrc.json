@@ -1,0 +1,23 @@
+{
+  "extends": "../.eslintrc.json",
+  "globals": {
+    "expect": true,
+    "window": true,
+    "document": true,
+    "sinon": false
+  },
+  "env": {
+    "mocha": true
+  },
+  "overrides": [
+    {
+      "files": "*.spec.js",
+      "rules": {
+        "import/first": "off",
+        "no-unused-expressions": "off"
+      }
+    }
+  ]
+}
+
+

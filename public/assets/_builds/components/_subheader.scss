@@ -1,0 +1,116 @@
+.subheader {
+    background-color: transparentize($greyish-50, 0.4);
+
+    & > .container > .row > div[class*="col-"] {
+        display: flex;
+        align-items: center;
+        min-height: 80px;
+    }
+
+    .balance {
+        font-size: 14px;
+        line-height: 1;
+        color: #000;
+        letter-spacing: -0.5px;
+
+        &__row {
+            padding: 5px 0;
+        }
+
+        &__title {
+            width: 200px;
+            display: inline-block;
+        }
+
+        &__value {
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+    }
+
+    &__exchange_rate {
+        text-align: right;
+        margin-left: auto;
+
+        .button {
+            vertical-align: middle;
+            margin-top: -4px;
+            letter-spacing: 0;
+        }
+
+        .exchange_rate {
+            font-size: 18px;
+            font-weight: 600;
+            color: $black;
+            vertical-align: middle;
+            display: inline-block;
+            letter-spacing: -0.3px;
+
+            &--with_btn {
+                margin-right: 20px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 740px) {
+    .subheader {
+        & > .container > .row > div[class*="col-"] {
+            align-items: flex-start;
+            padding-top: 16px;
+        }
+
+        &__exchange_rate {
+
+            .exchange_rate {
+                display: none;
+            }
+
+            .button {
+                margin-top: 2px;
+            }
+        }
+
+        .usd-part {
+            display: none;
+        }
+    }
+}
+
+@media screen and (max-width: 525px) {
+    .subheader {
+        & > .container > .row > div[class*="col-"] {
+            flex-direction: column;
+        }
+
+        &__exchange_rate {
+            .button {
+                margin: 10px 0;
+            }
+        }
+
+        .balance {
+            width: 100%;
+
+            &__title {
+                width: 170px;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .subheader {
+
+        .balance {
+            margin-right: -10px;
+            width: calc(100% + 10px);
+        }
+
+        &__exchange_rate {
+            .button {
+                float: right;
+            }
+        }
+    }
+}

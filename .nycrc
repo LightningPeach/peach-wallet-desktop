@@ -1,0 +1,17 @@
+{
+  "sourceMap": false,
+  "instrument": false,
+  "exclude": [
+    "./frontend/config",
+    "./frontend/components",
+    "./frontend/containers",
+    "./frontend/additional/index.js",
+    "./frontend/additional/analytics.js",
+    "./frontend/additional/db.js",
+    "./frontend/store"
+  ],
+  "include": [
+    "./frontend"
+  ],
+  "report-dir": "./coverage/nyc"
+}

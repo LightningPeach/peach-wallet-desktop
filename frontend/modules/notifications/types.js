@@ -1,0 +1,10 @@
+const $prefix = "app/notifications/";
+const SHOW_NOTIFICATION = `${$prefix}SHOW_NOTIFICATION`;
+const HIDE_NOTIFICATION = `${$prefix}HIDE_NOTIFICATION`;
+const REMOVE_ALL_NOTIFICATIONS = `${$prefix}REMOVE_ALL_NOTIFICATIONS`;
+
+export {
+    HIDE_NOTIFICATION,
+    SHOW_NOTIFICATION,
+    REMOVE_ALL_NOTIFICATIONS,
+};

@@ -1,0 +1,193 @@
+.ReactTable {
+    border: 0;
+
+    .rt-table {
+        overflow: inherit;
+    }
+
+    .rt-th,
+    .rt-td {
+        overflow: visible;
+    }
+
+    .rt-thead {
+        &.-header {
+            box-shadow: none;
+        }
+
+        .rt-th,
+        .rt-td {
+            border: 0;
+            box-shadow: none;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+            padding: 0;
+            text-align: left;
+            letter-spacing: -0.3px;
+
+            &.-sort-asc,
+            &.-sort-desc {
+                box-shadow: none;
+
+                .sortable {
+                    position: relative;
+
+                    &:after {
+                        content: "";
+                        position: absolute;
+                        width: 0;
+                        height: 0;
+                        border-style: solid;
+                        left: calc(100% + 10px);
+                        top: 7px;
+                        border-width: 0 3px 4px 3px;
+                        border-color: transparent transparent #071017 transparent;
+                        transition: transform .2s;
+                    }
+                }
+            }
+
+            &.-sort-asc .sortable:after {
+                transform: translateY(-10%);
+            }
+
+            &.-sort-desc .sortable:after {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .rt-tbody {
+        padding-top: 10px;
+        padding-bottom: 5px;
+        overflow: visible;
+
+        .rt-tr-group {
+            border: none;
+        }
+
+        .rt-td {
+            border: 0;
+            font-size: 14px;
+            line-height: 1;
+            padding: 11px 10px 9px 0;
+            letter-spacing: -0.5px;
+
+            &:first-child {
+                padding-right: 10px;
+            }
+
+            &:first-child > span {
+                /*padding-left: 17px;*/
+                position: relative;
+                display: inline-block;
+
+                &:before {
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    left: 0;
+                    top: 50%;
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 100%;
+                    transform: translateY(-50%);
+                }
+
+                &.green:before {
+                    /*background-color: #7ed321;*/
+                }
+
+                &.orange:before {
+                    /*background-color: #ff864b;*/
+                }
+
+                &.red:before {
+                    /*background-color: $scarlet;*/
+                }
+            }
+
+            .visible-on-hover:hover {
+                overflow: visible;
+
+                > * {
+                    background: #fff;
+                    z-index: 1;
+                    position: absolute;
+                    padding: 8px 10px;
+                    margin-top: -8px;
+                    margin-left: -10px;
+                    box-shadow: 0 2px 4px 0 $greyish-50;
+                }
+            }
+        }
+
+        .-padRow {
+            display: none;
+        }
+    }
+
+    .-pagination {
+        box-shadow: none;
+        border: 0;
+    }
+
+    .pagination-bottom {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 25px;
+        margin: 0 auto;
+        position: relative;
+
+        .pagination__item {
+            border: 0;
+            background: transparent;
+            font-size: 14px;
+            line-height: 1;
+            color: $black;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color .2s;
+
+            &:hover:not(.pagination__not-item),
+            &:focus:not(.pagination__not-item),
+            &.pagination__current {
+                color: $pumpkin-orange;
+            }
+
+            &.pagination__prev,
+            &.pagination__next {
+                position: absolute;
+                font-size: 20px;
+                margin-top: -2px;
+            }
+
+            &.pagination__prev {
+                left: -21px;
+            }
+
+            &.pagination__next {
+                right: -21px;
+            }
+        }
+
+        .pagination__not-item {
+            cursor: default;
+        }
+    }
+}
+
+@media screen and (max-width: 980px) {
+    .ReactTable {
+        overflow-y: visible;
+        padding-bottom: 50px;
+    }
+}
+
+@media screen and (max-width: 840px) {
+    .ReactTable .rt-tbody .rt-td .visible-on-hover:hover > * {
+        position: initial;
+    }
+}

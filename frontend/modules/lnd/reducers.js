@@ -1,0 +1,38 @@
+import * as accountTypes from "modules/account/types";
+import * as types from "./types";
+
+export const initStateLnd = {
+    initStatus: "",
+    lndBlocks: 0,
+    lndInitError: null,
+    lndIniting: false,
+    lndSyncedToChain: false,
+    networkBlocks: 0,
+};
+
+const defaultState = JSON.parse(JSON.stringify(initStateLnd));
+
+const lndReducer = (state = defaultState, action) => {
+    switch (action.type) {
+        case accountTypes.LOGOUT_ACCOUNT:
+            return defaultState;
+        case types.LND_SYNCED:
+            return { ...state, lndSyncedToChain: true };
+        case types.LND_INITING_ERROR:
+            return { ...state, lndInitError: action.payload, lndIniting: false };
+        case types.START_INIT_LND:
+            return { ...state, lndInitError: null, lndIniting: true };
+        case types.LND_INITING_SUCCESS:
+            return { ...state, lndInitError: null, lndIniting: false };
+        case types.SET_LND_INIT_STATUS:
+            return { ...state, initStatus: action.payload };
+        case types.SET_NETWORK_BLOCKS:
+            return { ...state, networkBlocks: parseInt(action.payload, 10) };
+        case types.SET_LND_BLOCKS:
+            return { ...state, lndBlocks: parseInt(action.payload, 10) };
+        default:
+            return state;
+    }
+};
+
+export default lndReducer;

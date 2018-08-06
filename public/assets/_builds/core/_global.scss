@@ -1,0 +1,16 @@
+* {
+    box-sizing: border-box;
+    font-family: $Geometria;
+    &:focus,
+    &:active {
+        outline: none;
+    }
+}
+
+html {
+    font-size: 14px;
+}
+
+button, input, optgroup, select, textarea {
+    font-family: $Geometria;
+}

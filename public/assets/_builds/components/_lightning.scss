@@ -1,0 +1,126 @@
+.lightning {
+    .container {
+        padding-top: 37px;
+    }
+
+    .send {
+        padding-top: 23px;
+        width: 420px;
+        max-width: 100%;
+    }
+
+    .tabs {
+        &__wrapper {
+            min-height: 27px;
+        }
+        &__container {
+            width: 368px;
+            position: absolute;
+            right: 100%;
+            margin-right: -388px;
+
+            &:after {
+                content: "";
+                clear: both;
+                display: inline-block;
+            }
+        }
+    }
+
+    .tab-content {
+        position: relative;
+    }
+
+    .start,
+    .pause,
+    .stop {
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        background-size: contain;
+        cursor: pointer;
+        margin-left: 9px;
+        float: left;
+    }
+
+    .start {
+        background: url(../images/play.svg) no-repeat center;
+        margin-left: -3px;
+    }
+
+    .pause {
+        background: url(../images/pause.svg) no-repeat center;
+    }
+
+    .stop {
+        background: url(../images/stop.svg) no-repeat center;
+    }
+
+    .stream {
+        &__disabled {
+            position: absolute;
+            top: 0;
+            display: flex;
+            width: 420px;
+            max-width: 100%;
+            height: 100%;
+            align-items: center;
+            font-size: 18px;
+            text-align: center;
+            justify-content: center;
+        }
+
+        &__form {
+            position: relative;
+
+            &--disabled {
+                opacity: .3;
+                pointer-events: none;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .stream {
+        &__price-time {
+            padding-right: 5px;
+        }
+
+        &__time {
+            padding-left: 5px;
+        }
+    }
+}
+
+@media screen and (max-width: 406px) {
+    .tabs {
+        &__wrapper {
+            overflow: hidden;
+        }
+
+        &__container {
+            transition: right .2s ease-in-out, margin .2s ease-in-out;
+
+            &.tabs__stream {
+                right: 20px;
+                margin: 0;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 406px) {
+    .stream {
+        &__price-time {
+            width: 100%;
+            padding-right: 20px;
+        }
+
+        &__time {
+            width: 100%;
+            margin-top: 14px;
+            padding-left: 20px;
+        }
+    }
+}

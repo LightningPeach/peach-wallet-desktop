@@ -1,0 +1,6 @@
+--exit
+--recursive
+--renderer
+--require babel-polyfill
+--require babel-core/register
+--require test/setup.js

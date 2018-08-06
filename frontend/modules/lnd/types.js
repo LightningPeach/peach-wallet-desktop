@@ -1,0 +1,18 @@
+const $prefix = "app/lnd/";
+const LND_SYNCED = `${$prefix}LND_SYNCED`;
+const START_INIT_LND = `${$prefix}START_INIT_LND`;
+const LND_INITING_SUCCESS = `${$prefix}LND_INITING_SUCCESS`;
+const LND_INITING_ERROR = `${$prefix}LND_INITING_ERROR`;
+const SET_LND_INIT_STATUS = `${$prefix}SET_LND_INIT_STATUS`;
+const SET_NETWORK_BLOCKS = `${$prefix}SET_NETWORK_BLOCKS`;
+const SET_LND_BLOCKS = `${$prefix}SET_LND_BLOCKS`;
+
+export {
+    LND_SYNCED,
+    START_INIT_LND,
+    LND_INITING_SUCCESS,
+    LND_INITING_ERROR,
+    SET_LND_INIT_STATUS,
+    SET_NETWORK_BLOCKS,
+    SET_LND_BLOCKS,
+};

@@ -1,0 +1,169 @@
+import fetch from "isomorphic-fetch";
+import urlParse from "url-parse";
+import { push } from "react-router-redux";
+import * as statusCodes from "config/status-codes";
+import { USD_PER_BTC_URL, LIGHTNING_ID_LENGTH, ONLY_LETTERS_AND_NUMBERS } from "config/consts";
+import { store } from "store/configure-store";
+import { db, errorPromise, successPromise, helpers } from "additional";
+import { info, error } from "modules/notifications";
+import { lightningActions } from "modules/lightning";
+import { WalletPath } from "routes";
+import * as actions from "./actions";
+import * as types from "./types";
+
+function closeModal() {
+    return dispatch => dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
+}
+
+function openChangePasswordModal() {
+    return dispatch => dispatch(actions.setModalState(types.PROFILE_CHANGE_PASS_MODAL_STATE));
+}
+
+function openLogoutModal() {
+    return dispatch => dispatch(actions.setModalState(types.LOGOUT_MODAL_STATE));
+}
+
+function openForceLogoutModal() {
+    return (dispatch, getState) => {
+        if (getState().account.isLogined) {
+            dispatch(actions.setModalState(types.MODAL_STATE_FORCE_LOGOUT));
+        }
+    };
+}
+
+function openDeepLinkLightningModal() {
+    return dispatch => dispatch(actions.setModalState(types.DEEP_LINK_LIGHTNING_MODAL_STATE));
+}
+
+function openLegalModal() {
+    return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_LEGAL));
+}
+
+function usdBtcRate() {
+    return async (dispatch, getState) => {
+        let response;
+        try {
+            response = await fetch(USD_PER_BTC_URL, { method: "GET" });
+            response = await response.json();
+        } catch (e) {
+            dispatch(actions.setUsdPerBtc(0));
+            return successPromise();
+        }
+        dispatch(actions.setUsdPerBtc(response.USD.last));
+        return successPromise();
+    };
+}
+
+function copyToClipboard(data, message = "") {
+    return (dispatch) => {
+        let newMsg = message;
+        const textArea = document.createElement("textarea");
+        textArea.value = data;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand("copy");
+        } catch (err) {
+            newMsg = "Error while copying to clipboard";
+            console.error(err);
+        }
+        document.body.removeChild(textArea);
+        dispatch(info({
+            message: newMsg || "Copied",
+            uid: newMsg.toString() || "Copied",
+        }));
+    };
+}
+
+function convertToSatoshi(value) {
+    return (dispatch, getState) => {
+        const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
+        return Math.round(parseFloat(value) / currentMultiplier);
+    };
+}
+
+function convertSatoshiToCurrentMeasure(value) {
+    return (dispatch, getState) => {
+        const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
+        const toFixed = getState().account.toFixedMeasure;
+        return helpers.noExponents(parseFloat((parseInt(value, 10) * currentMultiplier).toFixed(toFixed)));
+    };
+}
+
+const validateLightning = lightningId => (dispatch, getState) => {
+    if (!lightningId) {
+        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+    } else if (lightningId.length !== LIGHTNING_ID_LENGTH) {
+        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+    } else if (lightningId === getState().account.lightningID) {
+        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF;
+    } else if (!ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
+        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+    }
+    return null;
+};
+
+function openDb(username, password) {
+    return async (dispatch) => {
+        const response = await db.dbStart(username, password);
+        if (!response.ok) {
+            dispatch(actions.dbSetStatus(types.DB_CLOSED));
+            return errorPromise(response.error, openDb);
+        }
+        dispatch(actions.dbSetStatus(types.DB_OPENED));
+        return successPromise();
+    };
+}
+
+function closeDb() {
+    return async (dispatch) => {
+        dispatch(actions.dbSetStatus(types.DB_CLOSING));
+        await db.dbClose();
+        dispatch(actions.dbSetStatus(types.DB_CLOSED));
+    };
+}
+
+window.ipcRenderer.on("forceLogout", (event, status) => {
+    store.dispatch(actions.setForceLogoutError(status));
+    store.dispatch(openForceLogoutModal());
+});
+
+window.ipcRenderer.on("setPeerPort", (event, status) => {
+    store.dispatch(actions.setPeerPort(status));
+});
+
+window.ipcRenderer.on("isDefaultLightningApp", (event, status) => {
+    store.dispatch(actions.setAppAsDefaultStatus(status));
+    if (!status) {
+        store.dispatch(openDeepLinkLightningModal());
+    }
+});
+
+window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
+    const parsed = urlParse(status);
+    const paymentRequest = parsed.hostname || parsed.pathname;
+    if (parsed.protocol !== "lightning:") {
+        store.dispatch(error({ message: "Incorrect payment protocol" }));
+        return;
+    }
+    store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));
+    if (store.getState().account.isLogined) {
+        store.dispatch(push(WalletPath));
+    }
+});
+
+export {
+    closeModal,
+    openChangePasswordModal,
+    usdBtcRate,
+    copyToClipboard,
+    convertToSatoshi,
+    convertSatoshiToCurrentMeasure,
+    openForceLogoutModal,
+    openDeepLinkLightningModal,
+    openLogoutModal,
+    validateLightning,
+    openDb,
+    closeDb,
+    openLegalModal,
+};

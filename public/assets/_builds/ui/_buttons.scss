@@ -1,0 +1,157 @@
+.button_with_spinner {
+    position: relative;
+    display: inline-block;
+
+    .spinner {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 20px;
+        height: 20px;
+    }
+}
+
+.button {
+    cursor: pointer;
+    user-select: none;
+    transition: box-shadow .2s, background-color .2s, color .2s;
+    text-decoration: none;
+    position: relative;
+    border: 0;
+    line-height: 40px;
+    height: 40px;
+    display: inline-block;
+    letter-spacing: -0.3px;
+
+    & + .button,
+    & + .button_with_spinner {
+        margin-left: 20px;
+    }
+
+    &__orange {
+        background: $pumpkin-orange;
+        font-weight: 600;
+        color: $white;
+        border-radius: $border-radius;
+        padding: 0 15px;
+        font-size: 14px;
+        text-transform: uppercase;
+
+        &:hover,
+        &:focus {
+            background-color: $pastel-orange;
+        }
+
+        &.disabled,
+        &:disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        &:active {
+            box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+            background-color: $orange;
+        }
+    }
+
+    &__scarlett-two {
+        padding: 0 49px;
+        background: $scarlet-two;
+        font-weight: 600;
+        color: $white;
+        border-radius: $border-radius;
+        font-size: 14px;
+        text-transform: uppercase;
+
+        &:hover,
+        &:focus {
+            background-color: $darkish-pink;
+        }
+
+        &:active {
+            box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+            background-color: $scarlet-two;
+        }
+    }
+
+    &__link {
+        color: $pumpkin-orange;
+        font-size: 12px;
+        background: none;
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        letter-spacing: -0.4px;
+
+        &:hover,
+        &:focus {
+            color: $pastel-orange;
+            text-decoration: underline;
+        }
+
+        &:active {
+            color: $orange;
+        }
+
+        &:disabled {
+            opacity: 0.3;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        &--logout {
+            padding-left: 25px;
+            background: url(../images/logout.svg) no-repeat left center;
+            color: $scarlet;
+            font-size: 14px;
+
+            &:hover,
+            &:focus {
+                color: $darkish-pink;
+            }
+
+            &:active {
+                color: $scarlet-two;
+            }
+        }
+
+        &--red {
+            color: $scarlet-two;
+
+            &:hover,
+            &:focus {
+                color: $darkish-pink;
+            }
+
+            &:active {
+                color: $scarlet-two;
+            }
+        }
+    }
+
+    &__under-button {
+        margin-top: 5px;
+    }
+
+    &__fullwide {
+        width: 100%;
+    }
+
+    &__create {
+        padding: 0 30px;
+        letter-spacing: 0.5px;
+    }
+
+    &__close {
+        padding: 0 35px;
+    }
+
+    &__side-padding45 {
+        padding: 0 45px;
+    }
+
+    &__side-padding50 {
+        padding: 0 50px;
+    }
+}

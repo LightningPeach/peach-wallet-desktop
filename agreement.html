@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Peach wallet EULA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <link href="public/assets/dist/agreement.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="root"></div>
+
+<script>
+    window.STATIC_FILES = "";
+    window.SERVER_PORT = "3000";
+    if (typeof module === "object") {
+        window.module = module;
+        module = undefined;
+    }
+</script>
+<script src="public/assets/scripts/jquery-3.3.1.min.js" type="text/javascript"></script>
+<script src="public/assets/dist/agreement.js"></script>
+<script>
+    //Disable drag & drop
+    document.addEventListener("dragover", e => {
+        e.preventDefault();
+        return false;
+    }, false);
+    document.addEventListener("drop", e => {
+        e.preventDefault();
+        return false;
+    }, false);
+</script>
+
+</body>
+</html>

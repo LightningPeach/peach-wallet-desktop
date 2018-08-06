@@ -1,0 +1,14 @@
+{
+  "presets": ["es2015", "react", "stage-0"],
+  "plugins": [
+    [
+      "module-resolver",
+      {"root": ["./frontend"]}
+    ]
+  ],
+  "env": {
+    "test": {
+      "plugins": ["istanbul"]
+    }
+  }
+}

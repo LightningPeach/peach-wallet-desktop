@@ -1,0 +1,28 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/wallet
+    docker:
+      - image: circleci/node:8.10
+    steps:
+      - checkout
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: Lint test
+          command: npm run lint:report
+      - run:
+          name: Coverage test
+          command: npm run test:coverage
+      - store_artifacts:
+          path: ~/wallet/coverage/nyc
+          destination: coverage
+      - store_test_results:
+          path: ~/wallet/coverage/reports

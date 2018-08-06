@@ -1,0 +1,130 @@
+.notifications {
+    &-bc {
+        position: fixed;
+        width: 541px;
+        max-width: calc(100% - 40px);
+        padding: 0;
+        z-index: 9998;
+        box-sizing: border-box;
+        height: auto;
+        top: auto;
+        bottom: 25px;
+        margin: 0 auto 0px -270px;
+        left: 50%;
+    }
+}
+
+.notification {
+    position: relative;
+    width: 100%;
+    border-radius: 2px;
+    padding: 14px 40px;
+    display: block;
+    box-sizing: border-box;
+    transition: 0.3s ease-in-out;
+    transform: translate3d(0px, 0px, 0px);
+    will-change: transform, opacity;
+    color: #000;
+    bottom: 0;
+    opacity: 0;
+    margin-top: 10px;
+
+    &-success {
+        box-shadow: rgba(94, 164, 0, 0.9) 0 0 1px;
+        border-top: 2px solid rgb(94, 164, 0);
+        background-color: rgb(240, 245, 234);
+    }
+
+    &-error {
+        cursor: pointer;
+        background: #f1b2b9;
+        display: flex;
+        align-items: center;
+
+        .notification-message {
+            padding-left: 50px;
+            background: url(../images/error-message.svg) no-repeat left center;
+            color: $scarlet;
+            flex: 1;
+        }
+    }
+
+    &-info {
+        background-color: rgba(255, 119, 0, .5);
+        text-align: center;
+    }
+
+    &-visible {
+        opacity: 1;
+    }
+
+    &-message {
+        margin: 0;
+        padding: 0;
+        display: inline-block;
+        font-size: 14px;
+        line-height: 2.15;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        max-height: 90px;
+
+        &:first-letter {
+            text-transform: uppercase;
+        }
+    }
+
+    &-dismiss {
+        display: none;
+        font-family: Arial, serif;
+        font-size: 17px;
+        position: absolute;
+        top: 4px;
+        right: 5px;
+        line-height: 15px;
+        background-color: rgb(176, 202, 146);
+        color: rgb(240, 245, 234);
+        border-radius: 50%;
+        width: 14px;
+        height: 14px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    &-action-wrapper {
+        margin: 0;
+        padding: 0 0 0 15px;
+    }
+
+    &-action-button {
+        margin: 0;
+        border: 0;
+        background: none;
+        padding: 0;
+        font-size: 14px;
+        line-height: 2.15;
+        color: $black;
+        font-weight: 400;
+        cursor: pointer;
+        text-transform: uppercase;
+    }
+}
+
+@media screen and (max-width: 581px) {
+    .notifications {
+        &-bc {
+            margin: 0 auto;
+            transform: translateX(-50%);
+        }
+    }
+
+    .notification{
+        &-message {
+            max-height: 130px;
+        }
+
+        &-action-wrapper {
+            padding-left: 5px;
+        }
+    }
+}

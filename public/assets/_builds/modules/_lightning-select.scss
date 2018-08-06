@@ -1,0 +1,90 @@
+.l-select {
+    position: relative;
+
+    &__arrow {
+        content: "";
+        background: url(../images/drop-arrow-icon-black.svg) no-repeat no-repeat 11px 18px;
+        transition: transform .2s;
+        position: absolute;
+        width: 30px;
+        right: 0;
+        height: 39px;
+        top: 0;
+        cursor: pointer;
+
+        &--opened {
+            transform: rotate(180deg);
+            top: 1px;
+        }
+    }
+
+    .l-select__clear {
+        position: absolute;
+        right: 28px;
+        top: 12px;
+        cursor: pointer;
+
+        + .l-select__input {
+            padding-right: 42px;
+        }
+    }
+
+    .l-select__input {
+        padding-right: 28px;
+    }
+
+    &__options {
+        position: absolute;
+        background: #fff;
+        z-index: 1;
+        width: 100%;
+        border-radius: 2px;
+        padding-top: 1px;
+        box-shadow: 0 2px 4px 0 rgba(176, 176, 176, 0.5);
+        max-height: 110px;
+        overflow-y: auto;
+    }
+
+    &__option {
+        line-height: 26px;
+        height: 30px;
+        padding: 3px 10px 0;
+        transition: background .2s;
+        cursor: pointer;
+        overflow: hidden;
+
+        > span {
+            flex-shrink: 1;
+            white-space: nowrap;
+
+            &.word {
+                flex-shrink: 2;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                font-weight: 600;
+                padding-left: 4px;
+                padding-right: 4px;
+                line-height: 27px;
+            }
+        }
+
+        &:hover {
+            background: rgba(255, 119, 0, .1);
+        }
+
+        &--create {
+            color: $pumpkin-orange;
+            display: flex;
+        }
+
+        &--placeholder {
+            color: transparentize($ultrablack, .7);
+            cursor: default;
+
+            &:hover {
+                cursor: default;
+                background: transparent;
+            }
+        }
+    }
+}
