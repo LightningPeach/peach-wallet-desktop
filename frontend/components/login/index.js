@@ -190,8 +190,8 @@ class Login extends Component {
                     </div>
                 </div>
                 <div className="row signup">
-                    <div className="col-xs-12">
-                        <div className="home__restore-block pull-left">
+                    <div className="col-xs-12 home__restore">
+                        <div className="home__restore-block">
                             <button
                                 type="button"
                                 className="button button__link"
