@@ -376,8 +376,8 @@ class Profile extends Component {
                         />
                     </div>
                 </div>
-                <div className="row profile__row">
-                    <div className="col-xs-12">
+                <div className="row profile__row profile__row profile__row--wrap">
+                    <div className="col-xs-12 profile__flex">
                         {
                             appAsDefaultStatus ?
                                 <span className="profile__app-status">
@@ -392,7 +392,7 @@ class Profile extends Component {
                                 </button>
                         }
                         <button
-                            className="button button__link button__link--logout pull-right"
+                            className="button button__link button__link--logout"
                             type="button"
                             onClick={() => {
                                 analytics.event({
