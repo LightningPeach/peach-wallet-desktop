@@ -5,6 +5,8 @@
         display: flex;
         align-items: center;
         min-height: 80px;
+        padding-top: 3px;
+        padding-bottom: 3px;
     }
 
     .balance {
@@ -15,16 +17,19 @@
 
         &__row {
             padding: 5px 0;
+            white-space: nowrap;
         }
 
         &__title {
-            width: 200px;
+            width: 190px;
             display: inline-block;
+            white-space: nowrap;
         }
 
         &__value {
             font-weight: 600;
             letter-spacing: -0.2px;
+            white-space: nowrap;
         }
     }
 
@@ -47,7 +52,12 @@
             letter-spacing: -0.3px;
 
             &--with_btn {
-                margin-right: 20px;
+
+                & + .button {
+                    margin-left: 20px;
+                    margin-top: 5px;
+                    margin-bottom: 5px;
+                }
             }
         }
     }
@@ -56,8 +66,7 @@
 @media screen and (max-width: 740px) {
     .subheader {
         & > .container > .row > div[class*="col-"] {
-            align-items: flex-start;
-            padding-top: 16px;
+            flex-wrap: wrap;
         }
 
         &__exchange_rate {
@@ -80,6 +89,7 @@
 @media screen and (max-width: 525px) {
     .subheader {
         & > .container > .row > div[class*="col-"] {
+            align-items: flex-start;
             flex-direction: column;
         }
 
@@ -105,6 +115,10 @@
         .balance {
             margin-right: -10px;
             width: calc(100% + 10px);
+
+            &__row {
+                white-space: normal;
+            }
         }
 
         &__exchange_rate {
