@@ -80,12 +80,15 @@ let lastError;
  * @return {Promise<any>}
  */
 const awaitTlsGen = async name => new Promise((resolve) => {
-    const intervalId = setInterval(() => {
+    let intervalId;
+    const intervalTick = () => {
         if (fs.existsSync(path.join(settings.get.dataPath, name, LND_CERT_FILE))) {
             clearInterval(intervalId);
             resolve();
         }
-    }, 500);
+        intervalId = setTimeout(intervalTick, 500);
+    };
+    intervalId = setTimeout(intervalTick, 500);
 });
 
 const isLndPortsAvailable = async (peerPort) => {
@@ -486,7 +489,8 @@ class Lnd extends Exec {
      */
     async _waitRpcAvailability() {
         return new Promise((resolve) => {
-            const intervalId = setInterval(async () => {
+            let intervalId;
+            const intervalTick = async () => {
                 const response = await this.call("getInfo");
                 if (response.ok) {
                     clearInterval(intervalId);
@@ -494,8 +498,10 @@ class Lnd extends Exec {
                 } else {
                     logger.debug("[LND] Waiting grpc Lightning");
                     this._client = await getRpcService(this.name, "Lightning");
+                    intervalId = setInterval(intervalTick, 1000);
                 }
-            }, 1000);
+            };
+            intervalId = setInterval(intervalTick, 1000);
         });
     }
 

@@ -178,15 +178,14 @@ const requestInvoice = async (amount, lightningId, memo) => {
         const response = await new Promise((resolve, reject) => {
             const retries = 40;
             let currentRetry = 0;
-            const intervalId = setInterval(async () => {
+            let intervalId;
+            const makeRequest = async () => {
                 currentRetry += 1;
                 if (currentRetry >= retries) {
-                    clearInterval(intervalId);
                     reject(new Error(types.ERROR_INVOICE_MAX_RETRIES));
                     return;
                 }
                 if (invoiceResponse[key]) {
-                    clearInterval(intervalId);
                     logger.info("Invoice received:", key, invoiceResponse[key]);
                     const payReq = await lnd.call("decodePayReq", {
                         pay_req: invoiceResponse[key].invoice.payment_request,
@@ -208,8 +207,11 @@ const requestInvoice = async (amount, lightningId, memo) => {
                         invoiceResponse[key].invoice,
                         { decodedPaymentRequest: payReq.response },
                     ));
+                    return;
                 }
-            }, 250);
+                intervalId = setTimeout(makeRequest, 250);
+            };
+            intervalId = setTimeout(makeRequest, 250);
         });
         delete invoiceResponse[key];
         return { ok: true, response: Object.assign({}, response) };
