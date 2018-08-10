@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
+import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -26,6 +27,7 @@ import {
     BALANCE_INTERVAL_TIMEOUT,
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -34,6 +36,7 @@ class WalletPage extends Component {
         this.balanceIntervalId = 0;
         this.channelsIntervalId = 0;
         this.usdPerBtcIntervalId = 0;
+        this.lndSyncStatusIntervalId = 0;
     }
 
     componentWillMount() {
@@ -46,6 +49,7 @@ class WalletPage extends Component {
         this.channelsIntervalId = setInterval(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         this.balanceIntervalId = setInterval(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         this.usdPerBtcIntervalId = setInterval(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.lndSyncStatusIntervalId = setInterval(this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -69,6 +73,7 @@ class WalletPage extends Component {
         clearInterval(this.balanceIntervalId);
         clearInterval(this.channelsIntervalId);
         clearInterval(this.usdPerBtcIntervalId);
+        clearInterval(this.lndSyncStatusIntervalId);
     }
 
     checkUsdBtcRate = () => {
@@ -89,6 +94,13 @@ class WalletPage extends Component {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
             dispatch(channelsOperations.getChannels());
+        }
+    };
+
+    checkLndSyncStatus = () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            dispatch(lndOperations.checkLndSync());
         }
     };
 

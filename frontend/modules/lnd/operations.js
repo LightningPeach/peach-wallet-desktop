@@ -37,7 +37,29 @@ function waitLndSync() {
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_FULLY_SYNCED));
             }
         }
-        dispatch(actions.lndSynced());
+        dispatch(actions.lndSynced(true));
+        return successPromise();
+    };
+}
+
+function checkLndSync() {
+    return async (dispatch, getState) => {
+        let response = await window.ipcClient("getInfo");
+        if (!response.ok) {
+            return errorPromise(response.error, checkLndSync);
+        }
+        const synced = response.response.synced_to_chain;
+        dispatch(actions.setLndBlocksHeight(response.response.block_height));
+        console.log("LND SYNCED: ", synced);
+        if (!synced) {
+            dispatch(actions.lndSynced(false));
+            dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
+            await delay(window.LND_SYNC_TIMEOUT);
+            response = await dispatch(waitLndSync());
+            if (!response.ok) {
+                return errorPromise(response.error, checkLndSync);
+            }
+        }
         return successPromise();
     };
 }
@@ -99,6 +121,7 @@ window.ipcRenderer.on("setLndInitStatus", (event, status) => {
 export {
     getBlocksHeight,
     waitLndSync,
+    checkLndSync,
     getSeed,
     clearLndData,
     startLnd,
