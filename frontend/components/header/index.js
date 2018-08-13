@@ -5,8 +5,16 @@ import { Link } from "react-router";
 import { accountOperations } from "modules/account";
 import { channelsActions, channelsTypes } from "modules/channels";
 import {
-    WalletPath, OnchainFullPath, ChannelsFullPath, AddressBookFullPath, ProfileFullPath,
-    LightningPanel, OnchainPanel, ChannelsPanel, AddressBookPanel, ProfilePanel,
+    WalletPath,
+    OnchainFullPath,
+    ChannelsFullPath,
+    AddressBookFullPath,
+    ProfileFullPath,
+    LightningPanel,
+    OnchainPanel,
+    ChannelsPanel,
+    AddressBookPanel,
+    ProfilePanel,
     HomeFullPath,
 } from "routes";
 

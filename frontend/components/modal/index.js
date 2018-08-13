@@ -6,14 +6,14 @@ import { appOperations } from "modules/app";
 
 class Modal extends Component {
     componentDidMount() {
-        document.addEventListener("keydown", this.onEscClick, false);
+        document.addEventListener("keydown", this.onKeyClick, false);
     }
 
     componentWillUnmount() {
-        document.removeEventListener("keydown", this.onEscClick, false);
+        document.removeEventListener("keydown", this.onKeyClick, false);
     }
 
-    onEscClick = (e) => {
+    onKeyClick = (e) => {
         if (e.keyCode === 27) {
             analytics.event({ action: "Modal", category: "Modal windows", label: "Close with ESC" });
             this.props.dispatch(appOperations.closeModal());
