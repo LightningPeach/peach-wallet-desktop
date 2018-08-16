@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
+import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -26,6 +27,7 @@ import {
     BALANCE_INTERVAL_TIMEOUT,
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -34,6 +36,7 @@ class WalletPage extends Component {
         this.balanceIntervalId = 0;
         this.channelsIntervalId = 0;
         this.usdPerBtcIntervalId = 0;
+        this.lndSyncStatusIntervalId = 0;
     }
 
     componentWillMount() {
@@ -43,9 +46,10 @@ class WalletPage extends Component {
             dispatch(accountOperations.logout());
             return;
         }
-        this.channelsIntervalId = setInterval(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        this.balanceIntervalId = setInterval(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        this.usdPerBtcIntervalId = setInterval(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.channelsIntervalId = setTimeout(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
+        this.balanceIntervalId = setTimeout(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
+        this.usdPerBtcIntervalId = setTimeout(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.lndSyncStatusIntervalId = setTimeout(this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -66,30 +70,42 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
-        clearInterval(this.balanceIntervalId);
-        clearInterval(this.channelsIntervalId);
-        clearInterval(this.usdPerBtcIntervalId);
+        clearTimeout(this.balanceIntervalId);
+        clearTimeout(this.channelsIntervalId);
+        clearTimeout(this.usdPerBtcIntervalId);
+        clearTimeout(this.lndSyncStatusIntervalId);
     }
 
-    checkUsdBtcRate = () => {
+    checkUsdBtcRate = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
             dispatch(appOperations.usdBtcRate());
         }
+        this.channelsIntervalId = setTimeout(this.checkLndSyncStatus, CHANNELS_INTERVAL_TIMEOUT);
     };
 
-    checkYourBalance = () => {
+    checkYourBalance = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
             dispatch(accountOperations.checkBalance());
         }
+        this.balanceIntervalId = setTimeout(this.checkLndSyncStatus, BALANCE_INTERVAL_TIMEOUT);
     };
 
-    checkChannels = () => {
+    checkChannels = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
             dispatch(channelsOperations.getChannels());
         }
+        this.usdPerBtcIntervalId = setTimeout(this.checkLndSyncStatus, USD_PER_BTC_INTERVAL_TIMEOUT);
+    };
+
+    checkLndSyncStatus = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(lndOperations.checkLndSync());
+        }
+        this.lndSyncStatusIntervalId = setTimeout(this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     };
 
     render() {
