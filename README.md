@@ -1,3 +1,5 @@
+<img src="https://circleci.com/gh/LightningPeach/lightning-peach-wallet/tree/master.svg?style=svg">
+
 <h1 align="center">
   <img src="docs/peach_logo.png" alt="peach logo" />
 </h1>
