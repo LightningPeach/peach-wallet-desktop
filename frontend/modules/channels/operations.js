@@ -77,7 +77,6 @@ function getChannels() {
                                 .insert()
                                 .values({
                                     activeStatus: channel.active,
-                                    blockHeight,
                                     fundingTxid: chanTxid,
                                     name: chanName,
                                     status: "active",
@@ -101,7 +100,7 @@ function getChannels() {
                     };
                 });
         };
-        const getPendingChannels = async (dbChannels, blockHeight) => {
+        const getPendingChannels = async (dbChannels) => {
             const response = await window.ipcClient("pendingChannels");
             return response.response.pending_open_channels.map((channel) => {
                 let chanName;
@@ -131,7 +130,6 @@ function getChannels() {
                             .insert()
                             .values({
                                 activeStatus: false,
-                                blockHeight,
                                 fundingTxid: chanTxid,
                                 name: chanName,
                                 status: "pending",
@@ -315,7 +313,6 @@ function createNewChannel() {
                 .insert()
                 .values({
                     activeStatus: false,
-                    blockHeight: responseChannels.block_height,
                     fundingTxid,
                     name: newChannelDetails.name,
                     status: "pending",

@@ -15,10 +15,6 @@ module.exports = {
             type: "varchar",
             default: "pending",
         },
-        blockHeight: {
-            type: "integer",
-            default: 0,
-        },
         activeStatus: {
             type: "integer",
             default: 0,
