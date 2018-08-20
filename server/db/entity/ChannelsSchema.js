@@ -19,5 +19,9 @@ module.exports = {
             type: "integer",
             default: 0,
         },
+        activeStatus: {
+            type: "integer",
+            default: 0,
+        },
     },
 };

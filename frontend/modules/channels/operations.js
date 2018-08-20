@@ -1,11 +1,11 @@
 import keyBy from "lodash/keyBy";
 import has from "lodash/has";
+import isEqual from "lodash/isEqual";
 import * as statusCodes from "config/status-codes";
 import { appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise } from "additional";
 import { CHANNEL_CLOSE_CONFIRMATION } from "config/consts";
-import isEqual from "lodash/isEqual";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -57,7 +57,18 @@ function getChannels() {
                     let chanName;
                     const chanTxid = channel.channel_point.split(":")[0];
                     if (has(dbChannels, chanTxid)) {
-                        chanName = dbChannels[chanTxid].name;
+                        const dbChan = dbChannels[chanTxid];
+                        chanName = dbChan.name;
+                        if (dbChan.status !== "active" || dbChan.activeStatus !== channel.active) {
+                            db.channelsBuilder()
+                                .update()
+                                .set({
+                                    activeStatus: channel.active,
+                                    status: "active",
+                                })
+                                .where("fundingTxid = :txID", { txID: chanTxid })
+                                .execute();
+                        }
                     } else {
                         chanName = `CHANNEL ${namelessChannelCount += 1}`;
                         // TODO: time race between creating channel and getchannels
@@ -65,6 +76,7 @@ function getChannels() {
                             db.channelsBuilder()
                                 .insert()
                                 .values({
+                                    activeStatus: channel.active,
                                     blockHeight,
                                     fundingTxid: chanTxid,
                                     name: chanName,
@@ -98,10 +110,19 @@ function getChannels() {
                 if (has(dbChannels, chanTxid)) {
                     const dbChan = dbChannels[chanTxid];
                     chanName = dbChan.name;
-                    // maturity = blockHeight - dbChannels[channel.channel.channel_point].blockHeight;
                     maturity = getState().onchain.history
-                        .filter(txn => txn.tx_hash === dbChan.fundingTxid.split(":")[0])
+                        .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
+                    if (dbChan.status !== "pending" || dbChan.activeStatus !== false) {
+                        db.channelsBuilder()
+                            .update()
+                            .set({
+                                activeStatus: false,
+                                status: "pending",
+                            })
+                            .where("fundingTxid = :txID", { txID: chanTxid })
+                            .execute();
+                    }
                 } else {
                     chanName = `CHANNEL ${namelessChannelCount += 1}`;
                     // TODO: time race between creating channel and pendingchannels
@@ -109,6 +130,7 @@ function getChannels() {
                         db.channelsBuilder()
                             .insert()
                             .values({
+                                activeStatus: false,
                                 blockHeight,
                                 fundingTxid: chanTxid,
                                 name: chanName,
@@ -228,8 +250,11 @@ function closeChannel(channel, force = false) {
         try {
             await db.channelsBuilder()
                 .update()
-                .set({ status: "deleted" })
-                .where("fundingTxid = :txID", { txID: channel.channel_point })
+                .set({
+                    activeStatus: false,
+                    status: "deleted",
+                })
+                .where("fundingTxid = :txID", { txID })
                 .execute();
             await db.onchainBuilder()
                 .insert()
@@ -283,12 +308,13 @@ function createNewChannel() {
             dispatch(actions.endCreateNewChannel());
             return errorPromise(responseChannels.error, createNewChannel);
         }
-        const fundingTxid = responseChannels.funding_txid_str;
+        const fundingTxid = responseChannels.funding_txid_str.split(":")[0];
         creatingChannelPoint = fundingTxid;
         try {
             await db.channelsBuilder()
                 .insert()
                 .values({
+                    activeStatus: false,
                     blockHeight: responseChannels.block_height,
                     fundingTxid,
                     name: newChannelDetails.name,
@@ -356,7 +382,6 @@ function hideShowCreateTutorial() {
 
 function shouldShowLightningTutorial() {
     return async (dispatch, getState) => {
-        // dispatch(actions.updateLightningTutorialStatus(types.SHOW));
         getState()
             .channels
             .channels
