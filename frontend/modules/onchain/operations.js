@@ -152,22 +152,6 @@ function sendCoins() {
     };
 }
 
-/* function getInitOnChainFee() {
-    return async (dispatch, getState) => {
-        const response = await window.ipcClient("get-onchain-fee");
-        dispatch(actions.setOnChainFee(parseInt(response.response.fee_per_kb, 10)));
-        return successPromise();
-    };
-}
-
-function setOnChainFee(fee) {
-    return async (dispatch, getState) => {
-        await window.ipcClient("set-onchain-fee", { fee });
-        const response = await window.ipcClient("get-onchain-fee");
-        return successPromise();
-    };
-} */
-
 function clearSendCoinsError() {
     return dispatch => dispatch(actions.setSendCoinsPaymentDetails(""));
 }
@@ -195,8 +179,6 @@ export {
     prepareSendCoins,
     clearSendCoinsDetails,
     sendCoins,
-    // getInitOnChainFee,
-    // setOnChainFee,
     clearSendCoinsError,
     subscribeTransactions,
     unSubscribeTransactions,

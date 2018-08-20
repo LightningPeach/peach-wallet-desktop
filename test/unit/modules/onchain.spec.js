@@ -287,38 +287,6 @@ describe("OnChain Unit Tests", () => {
             expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
-        /* it("getInitOnChainFee()", async () => {
-            data.response = {
-                response: {
-                    fee_per_kb: "123",
-                },
-            };
-            window.ipcClient
-                .withArgs("get-onchain-fee")
-                .returns(data.response);
-            expectedData = { ...successResp };
-            expectedActions = [
-                {
-                    payload: 123,
-                    type: types.SET_ONCHAIN_FEE,
-                },
-            ];
-            expect(await store.dispatch(operations.getInitOnChainFee())).to.deep.equal(expectedData);
-            expect(store.getActions()).to.deep.equal(expectedActions);
-            expect(window.ipcClient).to.be.calledWith("get-onchain-fee");
-            expect(window.ipcClient).to.be.calledOnce;
-        });
-
-        it("setOnChainFee()", async () => {
-            window.ipcClient.returns({});
-            expectedData = { ...successResp };
-            expect(await store.dispatch(operations.setOnChainFee())).to.deep.equal(expectedData);
-            expect(store.getActions()).to.deep.equal(expectedActions);
-            expect(window.ipcClient).to.be.calledWith("set-onchain-fee");
-            expect(window.ipcClient).to.be.calledWith("get-onchain-fee");
-            expect(window.ipcClient).to.be.calledTwice;
-        }); */
-
         describe("prepareSendCoins()", () => {
             beforeEach(() => {
                 initState.account = {
