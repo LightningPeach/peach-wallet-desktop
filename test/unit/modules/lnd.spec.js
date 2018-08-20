@@ -45,11 +45,9 @@ describe("Lnd Unit Tests", () => {
             expect(actions.lndInitingError(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to set lnd synched status", () => {
-            expectedData = {
-                type: types.LND_SYNCED,
-            };
-            expect(actions.lndSynced()).to.deep.equal(expectedData);
+        it("should create an action to set lnd synced status", () => {
+            expectedData.type = types.LND_SYNCED;
+            expect(actions.lndSynced(data)).to.deep.equal(expectedData);
         });
 
         it("should create an action to set lnd initialization status", () => {
@@ -270,10 +268,124 @@ describe("Lnd Unit Tests", () => {
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {
+                        payload: true,
                         type: types.LND_SYNCED,
                     },
                 ];
                 expect(await store.dispatch(operations.waitLndSync())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+            });
+        });
+
+        describe("checkLndSync()", () => {
+            beforeEach(() => {
+                window.ipcClient
+                    .withArgs("getInfo")
+                    .onFirstCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: false,
+                            block_height: 50,
+                        },
+                    })
+                    .onSecondCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: true,
+                            block_height: 100,
+                        },
+                    });
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("getInfo")
+                    .onFirstCall()
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    ...errorResp,
+                    f: "checkLndSync",
+                };
+                expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+            });
+
+            it("not synced in check -> ipc error in wait sync", async () => {
+                window.ipcClient
+                    .withArgs("getInfo")
+                    .onFirstCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: false,
+                            block_height: 50,
+                        },
+                    })
+                    .onSecondCall()
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    ...errorResp,
+                    f: "checkLndSync",
+                };
+                expectedActions = [
+                    {
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS,
+                    },
+                    {
+                        payload: false,
+                        type: types.LND_SYNCED,
+                    },
+                    {
+                        payload: statusCodes.STATUS_LND_SYNCING,
+                        type: types.SET_LND_INIT_STATUS,
+                    },
+                ];
+                expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+            });
+
+            it("not synced in check -> synced in wait sync", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS,
+                    },
+                    {
+                        payload: false,
+                        type: types.LND_SYNCED,
+                    },
+                    {
+                        payload: statusCodes.STATUS_LND_SYNCING,
+                        type: types.SET_LND_INIT_STATUS,
+                    },
+                    {
+                        payload: 100,
+                        type: types.SET_LND_BLOCKS,
+                    },
+                    {
+                        payload: statusCodes.STATUS_LND_FULLY_SYNCED,
+                        type: types.SET_LND_INIT_STATUS,
+                    },
+                    {
+                        payload: true,
+                        type: types.LND_SYNCED,
+                    },
+                ];
+                expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
@@ -396,10 +508,8 @@ describe("Lnd Unit Tests", () => {
         });
 
         it("should handle LND_SYNCED action", () => {
-            action = {
-                type: types.LND_SYNCED,
-            };
-            expectedData.lndSyncedToChain = true;
+            action.type = types.LND_SYNCED;
+            expectedData.lndSyncedToChain = data;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
 
