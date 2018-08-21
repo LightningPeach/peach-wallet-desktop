@@ -87,7 +87,7 @@ class CreateChannel extends Component {
 
     addChannel = async (e) => {
         e.preventDefault();
-        const { dispatch, namelessChannelCount } = this.props;
+        const { dispatch, firstEmptyChannelDefaultName } = this.props;
         this.setState({ processing: true });
         analytics.event({ action: "Create Channel Modal", category: "Channels", label: "Create" });
         let name = this.channel__name.value.trim();
@@ -113,7 +113,7 @@ class CreateChannel extends Component {
             peer = [PEACH.host, PEACH.peerPort].join(":");
         }
         amount = dispatch(appOperations.convertToSatoshi(amount));
-        name = name || `CHANNEL ${namelessChannelCount + 1}`;
+        name = name || `CHANNEL ${firstEmptyChannelDefaultName}`;
         dispatch(appOperations.closeModal());
         let response = await dispatch(operations.prepareNewChannel(lightningId, amount, peer, name, this.state.custom));
         if (!response.ok) {
@@ -131,7 +131,7 @@ class CreateChannel extends Component {
 
     render() {
         const {
-            prepareNewChannel, bitcoinMeasureType, namelessChannelCount, toCurMeasure,
+            prepareNewChannel, bitcoinMeasureType, firstEmptyChannelDefaultName, toCurMeasure,
         } = this.props;
         let customLightningHost = null;
         let helpText = "* To create a channel, you need to specify the amount you want to transfer from Onchain";
@@ -164,7 +164,7 @@ class CreateChannel extends Component {
                                     id="channel__name"
                                     className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                     name="channel_name"
-                                    placeholder={`CHANNEL ${namelessChannelCount + 1}`}
+                                    placeholder={`CHANNEL ${firstEmptyChannelDefaultName}`}
                                     ref={(ref) => {
                                         this.channel__name = ref;
                                     }}
@@ -263,7 +263,7 @@ CreateChannel.propTypes = {
     bitcoinBalance: PropTypes.number.isRequired,
     bitcoinMeasureType: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
-    namelessChannelCount: PropTypes.number,
+    firstEmptyChannelDefaultName: PropTypes.number,
     prepareNewChannel: PropTypes.shape({
         capacity: PropTypes.number.isRequired,
         custom: PropTypes.bool.isRequired,
@@ -277,7 +277,7 @@ CreateChannel.propTypes = {
 const mapStateToProps = state => ({
     bitcoinBalance: state.account.bitcoinBalance,
     bitcoinMeasureType: state.account.bitcoinMeasureType,
-    namelessChannelCount: selectors.getCountNamelessChannels(state.channels.channels),
+    firstEmptyChannelDefaultName: selectors.getFirstNotInUseDefaultChannelName(state.channels.channels),
     prepareNewChannel: state.channels.prepareNewChannel,
 });
 

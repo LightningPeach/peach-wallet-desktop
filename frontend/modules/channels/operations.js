@@ -41,7 +41,7 @@ function getChannels() {
         if (getState().app.dbStatus !== appTypes.DB_OPENED || getState().channels.creatingNewChannel) {
             return;
         }
-        let namelessChannelCount = selectors.getCountNamelessChannels(getState().channels.channels);
+        const namelessChannelCount = selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels);
         await dispatch(onChainOperations.getOnchainHistory());
         const getActiveChannels = async (dbChannels, blockHeight) => {
             const response = await window.ipcClient("listChannels");
@@ -70,7 +70,7 @@ function getChannels() {
                                 .execute();
                         }
                     } else {
-                        chanName = `CHANNEL ${namelessChannelCount += 1}`;
+                        chanName = `CHANNEL ${namelessChannelCount}`;
                         // TODO: time race between creating channel and getchannels
                         if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                             db.channelsBuilder()
@@ -123,7 +123,7 @@ function getChannels() {
                             .execute();
                     }
                 } else {
-                    chanName = `CHANNEL ${namelessChannelCount += 1}`;
+                    chanName = `CHANNEL ${namelessChannelCount}`;
                     // TODO: time race between creating channel and pendingchannels
                     if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                         db.channelsBuilder()
@@ -196,7 +196,7 @@ function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
             custom,
             host: peerAddress,
             lightningID,
-            name: name || `Channel ${selectors.getCountNamelessChannels(getState().channels.channels) + 1}`,
+            name: name || `Channel ${selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels)}`,
         };
         dispatch(actions.newChannelPreparing(newChannel));
         return successPromise();

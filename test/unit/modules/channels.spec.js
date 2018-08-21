@@ -1387,10 +1387,10 @@ describe("Channels Unit Tests", () => {
             });
         });
 
-        describe("getCountNamelessChannels()", () => {
+        describe("getFirstNotInUseDefaultChannelName()", () => {
             it("no channels", () => {
-                expectedData = 0;
-                expect(selectors.getCountNamelessChannels()).to.deep.equal(expectedData);
+                expectedData = 1;
+                expect(selectors.getFirstNotInUseDefaultChannelName()).to.deep.equal(expectedData);
             });
 
             it("should return the only default name", () => {
@@ -1404,8 +1404,28 @@ describe("Channels Unit Tests", () => {
                     { name: "" },
                     { name: "channel 6" },
                 ];
-                expectedData = 6;
-                expect(selectors.getCountNamelessChannels(channels)).to.deep.equal(expectedData);
+                expectedData = 1;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct position after sorting", () => {
+                channels = [
+                    { name: "CHANNEL 6" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 1" },
+                ];
+                expectedData = 3;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct name with all custom channels", () => {
+                channels = [
+                    { name: "test" },
+                    { name: "" },
+                ];
+                expectedData = 1;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels)).to.deep.equal(expectedData);
             });
         });
     });
