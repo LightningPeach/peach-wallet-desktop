@@ -245,6 +245,13 @@ describe("Channels Unit Tests", () => {
                             execute: data.channelsBuilder.execute,
                         }),
                     }),
+                    update: data.channelsBuilder.update.returns({
+                        set: data.channelsBuilder.set.returns({
+                            where: data.channelsBuilder.where.returns({
+                                execute: data.channelsBuilder.execute,
+                            }),
+                        }),
+                    }),
                 });
                 history = [];
                 initState = {
@@ -352,6 +359,13 @@ describe("Channels Unit Tests", () => {
                             execute: data.channelsBuilder.execute,
                         }),
                     }),
+                    update: data.channelsBuilder.update.returns({
+                        set: data.channelsBuilder.set.returns({
+                            where: data.channelsBuilder.where.returns({
+                                execute: data.channelsBuilder.execute,
+                            }),
+                        }),
+                    }),
                 });
                 expectedActions = [
                     successResp,
@@ -395,20 +409,36 @@ describe("Channels Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("pendingChannels");
                 expect(window.ipcClient).to.be.calledWith("listChannels");
-                expect(fakeDB.channelsBuilder).to.be.calledTwice;
+                expect(fakeDB.channelsBuilder).to.be.calledThrice;
                 expect(data.channelsBuilder.insert).to.be.calledOnce;
                 expect(data.channelsBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
                 expect(data.channelsBuilder.values).to.be.calledOnce;
                 expect(data.channelsBuilder.values).to.be.calledImmediatelyAfter(data.channelsBuilder.insert);
                 expect(data.channelsBuilder.values)
                     .to.be.calledWithExactly({
-                        blockHeight: 100,
+                        activeStatus: false,
                         fundingTxid: "3",
                         name: "CHANNEL 1",
                         status: "pending",
                     });
-                expect(data.channelsBuilder.execute).to.be.calledOnce;
+                expect(data.channelsBuilder.update).to.be.calledOnce;
+                expect(data.channelsBuilder.update).to.be.calledAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.set).to.be.calledOnce;
+                expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
+                expect(data.channelsBuilder.set)
+                    .to.be.calledWithExactly({
+                        activeStatus: false,
+                        status: "pending",
+                    });
+                expect(data.channelsBuilder.where).to.be.calledOnce;
+                expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
+                expect(data.channelsBuilder.where)
+                    .to.be.calledWithExactly("fundingTxid = :txID", {
+                        txID: "4",
+                    });
+                expect(data.channelsBuilder.execute).to.be.calledTwice;
                 expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.values);
+                expect(data.channelsBuilder.execute).to.be.calledAfter(data.channelsBuilder.where);
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
             });
 
@@ -458,6 +488,13 @@ describe("Channels Unit Tests", () => {
                             execute: data.channelsBuilder.execute,
                         }),
                     }),
+                    update: data.channelsBuilder.update.returns({
+                        set: data.channelsBuilder.set.returns({
+                            where: data.channelsBuilder.where.returns({
+                                execute: data.channelsBuilder.execute,
+                            }),
+                        }),
+                    }),
                 });
                 expectedActions = [
                     successResp,
@@ -501,20 +538,36 @@ describe("Channels Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("pendingChannels");
                 expect(window.ipcClient).to.be.calledWith("listChannels");
-                expect(fakeDB.channelsBuilder).to.be.calledTwice;
+                expect(fakeDB.channelsBuilder).to.be.calledThrice;
                 expect(data.channelsBuilder.insert).to.be.calledOnce;
-                expect(data.channelsBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.insert).to.be.calledAfter(fakeDB.channelsBuilder);
                 expect(data.channelsBuilder.values).to.be.calledOnce;
                 expect(data.channelsBuilder.values).to.be.calledImmediatelyAfter(data.channelsBuilder.insert);
                 expect(data.channelsBuilder.values)
                     .to.be.calledWithExactly({
-                        blockHeight: 100,
+                        activeStatus: false,
                         fundingTxid: "3",
                         name: "CHANNEL 1",
                         status: "active",
                     });
-                expect(data.channelsBuilder.execute).to.be.calledOnce;
-                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.values);
+                expect(data.channelsBuilder.update).to.be.calledOnce;
+                expect(data.channelsBuilder.update).to.be.calledAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.set).to.be.calledOnce;
+                expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
+                expect(data.channelsBuilder.set)
+                    .to.be.calledWithExactly({
+                        activeStatus: true,
+                        status: "active",
+                    });
+                expect(data.channelsBuilder.where).to.be.calledOnce;
+                expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
+                expect(data.channelsBuilder.where)
+                    .to.be.calledWithExactly("fundingTxid = :txID", {
+                        txID: "4",
+                    });
+                expect(data.channelsBuilder.execute).to.be.calledTwice;
+                expect(data.channelsBuilder.execute).to.be.calledAfter(data.channelsBuilder.values);
+                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
             });
 
@@ -711,8 +764,11 @@ describe("Channels Unit Tests", () => {
                 };
                 data.channelsBuilder = {
                     ...data.channelsBuilder,
-                    setValues: { status: "deleted" },
-                    whereValues: ["fundingTxid = :txID", { txID: data.channel.channel_point }],
+                    setValues: {
+                        activeStatus: false,
+                        status: "deleted",
+                    },
+                    whereValues: ["fundingTxid = :txID", { txID: data.channel.channel_point.split(":")[0] }],
                 };
                 data.onchainBuilder = {
                     ...data.onchainBuilder,
@@ -800,47 +856,6 @@ describe("Channels Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("closeChannel", { ...data.closeChannel, force: true });
-            });
-
-            it("success close channel", async () => {
-                window.ipcClient
-                    .withArgs("closeChannel")
-                    .returns({ ok: true, txid: data.txid });
-                expectedData = { ...successResp };
-                expectedActions = [
-                    {
-                        payload: data.channel.channel_point,
-                        type: types.ADD_TO_DELETE,
-                    },
-                    {
-
-                        payload: data.channel.channel_point,
-                        type: types.REMOVE_FROM_DELETE,
-                    },
-                ];
-                expect(await store.dispatch(operations.closeChannel(data.channel))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("closeChannel", data.closeChannel);
-                expect(fakeDB.channelsBuilder).to.be.calledOnce;
-                expect(data.channelsBuilder.update).to.be.calledOnce;
-                expect(data.channelsBuilder.update).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
-                expect(data.channelsBuilder.set).to.be.calledOnce;
-                expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
-                expect(data.channelsBuilder.set).to.be.calledWith(data.channelsBuilder.setValues);
-                expect(data.channelsBuilder.where).to.be.calledOnce;
-                expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
-                expect(data.channelsBuilder.where).to.be.calledWith(...data.channelsBuilder.whereValues);
-                expect(data.channelsBuilder.execute).to.be.calledOnce;
-                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
-                expect(fakeDB.onchainBuilder).to.be.calledOnce;
-                expect(data.onchainBuilder.insert).to.be.calledOnce;
-                expect(data.onchainBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.onchainBuilder);
-                expect(data.onchainBuilder.values).to.be.calledOnce;
-                expect(data.onchainBuilder.values).to.be.calledImmediatelyAfter(data.onchainBuilder.insert);
-                expect(data.onchainBuilder.values).to.be.calledWith(data.onchainBuilder.setValues);
-                expect(data.onchainBuilder.execute).to.be.calledOnce;
-                expect(data.onchainBuilder.execute).to.be.calledImmediatelyAfter(data.onchainBuilder.values);
             });
 
             it("success close channel", async () => {
@@ -1038,7 +1053,7 @@ describe("Channels Unit Tests", () => {
                 expect(data.channelsBuilder.values).to.be.calledOnce;
                 expect(data.channelsBuilder.values)
                     .to.be.calledWith({
-                        blockHeight: data.blockHeight,
+                        activeStatus: false,
                         fundingTxid: data.txid,
                         name: data.channelName,
                         status: "pending",
