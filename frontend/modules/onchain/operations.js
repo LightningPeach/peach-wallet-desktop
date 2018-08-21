@@ -10,7 +10,6 @@ import has from "lodash/has";
 import * as actions from "./actions";
 import * as types from "./types";
 
-
 function openSendCoinsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SEND_COINS));
 }
@@ -65,6 +64,51 @@ function getOnchainHistory() {
                     blockHash = chainTxns[txn].block_hash;
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
+                    if (!has(dbTxns, txn)) {
+                        db.onchainBuilder()
+                            .insert()
+                            .values({
+                                address,
+                                amount,
+                                blockHash,
+                                blockHeight,
+                                name: "Regular payment",
+                                numConfirmations: Math.min(numConfirmations, 6),
+                                status,
+                                timeStamp: chainTxns[txn].time_stamp,
+                                totalFees,
+                                txHash: txn,
+                            })
+                            .execute();
+                    } else if (
+                        dbTxns[txn].amount !== amount
+                        || dbTxns[txn].blockHeight !== blockHeight
+                        || dbTxns[txn].blockHash !== blockHash
+                        || dbTxns[txn].status !== status
+                        || dbTxns[txn].timeStamp !== chainTxns[txn].time_stamp
+                        || dbTxns[txn].totalFees !== totalFees
+                        || dbTxns[txn].name === ""
+                        || (
+                            dbTxns[txn].numConfirmations < 6
+                            && dbTxns[txn].numConfirmations !== numConfirmations
+                        )
+                    ) {
+                        db.onchainBuilder()
+                            .update()
+                            .set({
+                                amount,
+                                blockHash,
+                                blockHeight,
+                                name: dbTxns[txn].name ? dbTxns[txn].name : "Regular payment",
+                                numConfirmations: Math.min(numConfirmations, 6),
+                                status,
+                                timeStamp: chainTxns[txn].time_stamp,
+                                totalFees,
+                                txHash: txn,
+                            })
+                            .where("txHash = :txID", { txID: txn })
+                            .execute();
+                    }
                 } else {
                     amount = parseInt(dbTxns[txn].amount, 10);
                     ({
@@ -133,7 +177,7 @@ function sendCoins() {
                         amount: -amount - getState().onchain.fee,
                         blockHash: "",
                         blockHeight: 0,
-                        name,
+                        name: name || "Regular payment",
                         numConfirmations: 0,
                         status: "pending",
                         timeStamp: Math.floor(Date.now() / 1000),
