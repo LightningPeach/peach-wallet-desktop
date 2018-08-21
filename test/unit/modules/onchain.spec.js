@@ -177,10 +177,13 @@ describe("OnChain Unit Tests", () => {
             fakeStore = sandbox.stub(defaultStore);
             data = {
                 onchainBuilder: {
-                    getMany: sinon.stub(),
+                    update: sinon.stub(),
+                    set: sinon.stub(),
+                    where: sinon.stub(),
                     insert: sinon.stub(),
                     values: sinon.stub(),
                     execute: sinon.stub(),
+                    getMany: sinon.stub(),
                 },
             };
             initState = {
@@ -423,6 +426,7 @@ describe("OnChain Unit Tests", () => {
                 );
                 expect(fakeDB.onchainBuilder).to.be.calledOnce;
                 expect(data.onchainBuilder.insert).to.be.calledOnce;
+                expect(data.onchainBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.onchainBuilder);
                 expect(data.onchainBuilder.values).to.be.calledOnce;
                 expect(data.onchainBuilder.values).to.be.calledImmediatelyAfter(data.onchainBuilder.insert);
                 expect(data.onchainBuilder.execute).to.be.calledOnce;
@@ -480,6 +484,18 @@ describe("OnChain Unit Tests", () => {
                 };
                 fakeDB.onchainBuilder.returns({
                     getMany: data.onchainBuilder.getMany.returns(dbTxns),
+                    insert: data.onchainBuilder.insert.returns({
+                        values: data.onchainBuilder.values.returns({
+                            execute: data.onchainBuilder.execute,
+                        }),
+                    }),
+                    update: data.onchainBuilder.insert.returns({
+                        set: data.onchainBuilder.values.returns({
+                            where: data.onchainBuilder.execute.returns({
+                                execute: data.onchainBuilder.execute,
+                            }),
+                        }),
+                    }),
                 });
                 window.ipcClient
                     .withArgs("getTransactions")
@@ -516,6 +532,21 @@ describe("OnChain Unit Tests", () => {
             });
 
             it("success", async () => {
+                fakeDB.onchainBuilder.returns({
+                    getMany: data.onchainBuilder.getMany.returns(dbTxns),
+                    insert: data.onchainBuilder.insert.returns({
+                        values: data.onchainBuilder.values.returns({
+                            execute: data.onchainBuilder.execute,
+                        }),
+                    }),
+                    update: data.onchainBuilder.update.returns({
+                        set: data.onchainBuilder.set.returns({
+                            where: data.onchainBuilder.where.returns({
+                                execute: data.onchainBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
@@ -562,6 +593,46 @@ describe("OnChain Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.getOnchainHistory())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.onchainBuilder).to.be.calledThrice;
+                expect(data.onchainBuilder.getMany).to.be.calledOnce;
+                expect(data.onchainBuilder.getMany).to.be.calledAfter(fakeDB.onchainBuilder);
+                expect(data.onchainBuilder.insert).to.be.calledOnce;
+                expect(data.onchainBuilder.insert).to.be.calledAfter(fakeDB.onchainBuilder);
+                expect(data.onchainBuilder.values).to.be.calledOnce;
+                expect(data.onchainBuilder.values).to.be.calledImmediatelyAfter(data.onchainBuilder.insert);
+                expect(data.onchainBuilder.values).to.be.calledWithExactly({
+                    address: "-",
+                    amount: 100,
+                    blockHash: 400,
+                    blockHeight: 500,
+                    name: "Regular payment",
+                    numConfirmations: 6,
+                    status: "sended",
+                    timeStamp: 200,
+                    totalFees: 600,
+                    txHash: "baz",
+                });
+                expect(data.onchainBuilder.update).to.be.calledOnce;
+                expect(data.onchainBuilder.update).to.be.calledImmediatelyAfter(fakeDB.onchainBuilder);
+                expect(data.onchainBuilder.set).to.be.calledOnce;
+                expect(data.onchainBuilder.set).to.be.calledImmediatelyAfter(data.onchainBuilder.update);
+                expect(data.onchainBuilder.set).to.be.calledWithExactly({
+                    amount: 101,
+                    blockHash: 401,
+                    blockHeight: 501,
+                    name: "Regular payment",
+                    numConfirmations: 6,
+                    status: "sended",
+                    timeStamp: 201,
+                    totalFees: 601,
+                    txHash: "foo",
+                });
+                expect(data.onchainBuilder.where).to.be.calledOnce;
+                expect(data.onchainBuilder.where).to.be.calledImmediatelyAfter(data.onchainBuilder.set);
+                expect(data.onchainBuilder.where).to.be.calledWithExactly("txHash = :txID", { txID: "foo" });
+                expect(data.onchainBuilder.execute).to.be.calledTwice;
+                expect(data.onchainBuilder.execute).to.be.calledAfter(data.onchainBuilder.values);
+                expect(data.onchainBuilder.execute).to.be.calledImmediatelyAfter(data.onchainBuilder.where);
             });
         });
     });
