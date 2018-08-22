@@ -1,5 +1,9 @@
 const {
-    app, Menu, ipcMain, BrowserWindow,
+    app,
+    Menu,
+    BrowserWindow,
+    ipcMain,
+    Notification,
 } = require("electron");
 const path = require("path");
 const url = require("url");
@@ -14,12 +18,13 @@ const logger = baseLogger.child("electron");
 
 let mainWindow = null;
 let agreementWindow = null;
+let notification = null;
 
 let deepLinkUrl;
 
 const template = [
     {
-        label: app.getName(),
+        label: "LightningPeach wallet",
         submenu: [
             { label: "Hide", accelerator: "CmdOrCtrl+H", role: "hide" },
             { label: "Minimize", accelerator: "CmdOrCtrl+M", role: "minimize" },
@@ -174,20 +179,37 @@ app.on("activate", () => {
     }
 });
 
+app.on("browser-window-focus", () => {
+    if (process.platform === "darwin") {
+        app.dock.setBadge("");
+    }
+});
+
 app.on("before-quit", async (e) => {
     e.preventDefault();
     await server.shutdown();
     app.exit();
 });
 
-app.on("open-url", (event, arg) => {
-    event.preventDefault();
+app.on("open-url", (e, arg) => {
+    e.preventDefault();
     deepLinkUrl = arg;
     helpers.ipcSend("handleUrlReceive", deepLinkUrl);
 });
 
-ipcMain.on("setDefaultLightningApp", () => {
-    app.setAsDefaultProtocolClient("lightning");
+ipcMain.on("showNotification", (event, sender) => {
+    if (!mainWindow.isFocused()) {
+        notification = new Notification({
+            title: sender.title || "LightningPeach wallet",
+            subtitle: sender.subtitle,
+            body: sender.body,
+            silent: sender.silent,
+        });
+        notification.show();
+        if (process.platform === "darwin") {
+            app.dock.setBadge("•");
+        }
+    }
 });
 
 process.on("unhandledRejection", (error) => {
