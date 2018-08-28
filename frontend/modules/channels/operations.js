@@ -2,7 +2,7 @@ import keyBy from "lodash/keyBy";
 import has from "lodash/has";
 import isEqual from "lodash/isEqual";
 import * as statusCodes from "config/status-codes";
-import { appActions, appTypes } from "modules/app";
+import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise } from "additional";
 import { CHANNEL_CLOSE_CONFIRMATION } from "config/consts";
@@ -56,14 +56,61 @@ function getChannels() {
                     const maturity = blockHeight;
                     let chanName;
                     const chanTxid = channel.channel_point.split(":")[0];
+                    const totalBalance = channel.local_balance + channel.remote_balance;
                     if (has(dbChannels, chanTxid)) {
                         const dbChan = dbChannels[chanTxid];
                         chanName = dbChan.name;
-                        if (dbChan.status !== "active" || dbChan.activeStatus !== channel.active) {
+                        if (dbChan.status === "pending") {
+                            window.ipcRenderer.send("showNotification", {
+                                body: "Channel has been opened",
+                                title: `Channel ${chanName}`,
+                            });
+                        }
+                        if (!!dbChan.activeStatus !== channel.active) {
+                            if (channel.active) {
+                                window.ipcRenderer.send("showNotification", {
+                                    body: "Channel becomes active",
+                                    title: `Channel ${chanName}`,
+                                });
+                            } else {
+                                window.ipcRenderer.send("showNotification", {
+                                    body: "Channel becomes inactive",
+                                    title: `Channel ${chanName}`,
+                                });
+                            }
+                        }
+                        if (
+                            dbChan.localBalance / totalBalance > 0.1
+                            && channel.local_balance / totalBalance <= 0.1
+                        ) {
+                            const amount =
+                                dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance));
+                            window.ipcRenderer.send("showNotification", {
+                                body:
+                                    `You have only ${amount} ${getState().account.bitcoinMeasureType} left in channel`,
+                                title: `Channel ${chanName}`,
+                            });
+                        }
+                        if (dbChan.status === "active" && dbChan.localBalance < channel.local_balance) {
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance - dbChan.localBalance)); // eslint-disable-line
+                            window.ipcRenderer.send("showNotification", {
+                                body:
+                                    `You received ${amount} ${getState().account.bitcoinMeasureType} by Lightning`,
+                                title: `Channel ${chanName}`,
+                            });
+                        }
+                        if (
+                            dbChan.status !== "active"
+                            || !!dbChan.activeStatus !== channel.active
+                            || dbChan.localBalance !== channel.local_balance
+                            || dbChan.remoteBalance !== channel.remote_balance
+                        ) {
                             db.channelsBuilder()
                                 .update()
                                 .set({
                                     activeStatus: channel.active,
+                                    localBalance: channel.local_balance,
+                                    remoteBalance: channel.remote_balance,
                                     status: "active",
                                 })
                                 .where("fundingTxid = :txID", { txID: chanTxid })
@@ -78,7 +125,9 @@ function getChannels() {
                                 .values({
                                     activeStatus: channel.active,
                                     fundingTxid: chanTxid,
+                                    localBalance: channel.local_balance,
                                     name: chanName,
+                                    remoteBalance: channel.remote_balance,
                                     status: "active",
                                 })
                                 .execute();
@@ -112,11 +161,24 @@ function getChannels() {
                     maturity = getState().onchain.history
                         .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
-                    if (dbChan.status !== "pending" || dbChan.activeStatus !== false) {
+                    if (dbChan.status === "active") {
+                        window.ipcRenderer.send("showNotification", {
+                            body: "Channel has been closed by counterparty",
+                            title: `Channel ${chanName}`,
+                        });
+                    }
+                    if (
+                        dbChan.status !== "pending"
+                        || !!dbChan.activeStatus !== false
+                        || dbChan.localBalance !== channel.channel.local_balance
+                        || dbChan.remoteBalance !== channel.channel.remote_balance
+                    ) {
                         db.channelsBuilder()
                             .update()
                             .set({
                                 activeStatus: false,
+                                localBalance: channel.channel.local_balance,
+                                remoteBalance: channel.channel.remote_balance,
                                 status: "pending",
                             })
                             .where("fundingTxid = :txID", { txID: chanTxid })
@@ -131,7 +193,9 @@ function getChannels() {
                             .values({
                                 activeStatus: false,
                                 fundingTxid: chanTxid,
+                                localBalance: channel.channel.local_balance,
                                 name: chanName,
+                                remoteBalance: channel.channel.remote_balance,
                                 status: "pending",
                             })
                             .execute();
@@ -314,7 +378,9 @@ function createNewChannel() {
                 .values({
                     activeStatus: false,
                     fundingTxid,
+                    localBalance: 0,
                     name: newChannelDetails.name,
+                    remoteBalance: 0,
                     status: "pending",
                 })
                 .execute();

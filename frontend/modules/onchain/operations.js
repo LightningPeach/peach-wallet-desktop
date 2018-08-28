@@ -1,5 +1,5 @@
 import * as statusCodes from "config/status-codes";
-import { appActions } from "modules/app";
+import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, unsuccessPromise } from "additional";
 import { store } from "store/configure-store";
@@ -65,6 +65,13 @@ function getOnchainHistory() {
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
                     if (!has(dbTxns, txn)) {
+                        if (amount > 0) {
+                            window.ipcRenderer.send("showNotification", {
+                                body:
+                                    `You received ${amount} ${getState().account.bitcoinMeasureType} Onchain`,
+                                title: "Incoming Onchain Transaction",
+                            });
+                        }
                         db.onchainBuilder()
                             .insert()
                             .values({

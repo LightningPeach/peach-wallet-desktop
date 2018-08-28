@@ -19,5 +19,13 @@ module.exports = {
             type: "integer",
             default: 0,
         },
+        localBalance: {
+            type: "integer",
+            default: 0,
+        },
+        remoteBalance: {
+            type: "integer",
+            default: 0,
+        },
     },
 };

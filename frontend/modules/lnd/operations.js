@@ -52,6 +52,10 @@ function checkLndSync() {
         dispatch(actions.setLndBlocksHeight(response.response.block_height));
         console.log("LND SYNCED: ", synced);
         if (!synced) {
+            window.ipcRenderer.send("showNotification", {
+                body: "Please, wait until synchronization will be restored",
+                title: "Synchronization to blockchain lost",
+            });
             dispatch(actions.lndSynced(false));
             dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
             await delay(window.LND_SYNC_TIMEOUT);
@@ -59,6 +63,10 @@ function checkLndSync() {
             if (!response.ok) {
                 return errorPromise(response.error, checkLndSync);
             }
+            window.ipcRenderer.send("showNotification", {
+                body: "Node is fully synchronized to blockchain now",
+                title: "Synchronization restored",
+            });
         }
         return successPromise();
     };
