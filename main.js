@@ -8,9 +8,11 @@ const contextMenu = require("./server/utils/context-menu");
 const server = require("./server/ipc");
 const settings = require("./server/settings");
 const helpers = require("./server/utils/helpers");
+const { updaterManager } = require("./server/utils/updater");
 
 const APP_ICON = path.join(__dirname, "public", "app_icons", "png", "256x256.png");
 const logger = baseLogger.child("electron");
+const updater = updaterManager();
 
 let mainWindow = null;
 let agreementWindow = null;
@@ -50,6 +52,14 @@ const template = [
                         mainWindow.webContents.openDevTools();
                     }
                 },
+            },
+        ],
+    },
+    {
+        label: "About",
+        submenu: [
+            {
+                label: "Check update", click: updater.manualCheckUpdate,
             },
         ],
     },
@@ -128,6 +138,7 @@ function createWindow() {
 
         const isDefautLighningProtocol = app.isDefaultProtocolClient("lightning");
         helpers.ipcSend("isDefaultLightningApp", isDefautLighningProtocol);
+        updater.init();
     });
 
     mainWindow.webContents.on("new-window", event => event.preventDefault());
