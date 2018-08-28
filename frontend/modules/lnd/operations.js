@@ -19,10 +19,12 @@ function getBlocksHeight() {
     };
 }
 
-function waitLndSync() {
+function waitLndSync(restoreConnection = false) {
     return async (dispatch, getState) => {
         let synced = false;
+        let tickNumber = 0;
         while (!synced) {
+            tickNumber += 1;
             const response = await window.ipcClient("getInfo"); // eslint-disable-line
             if (!response.ok) {
                 return errorPromise(response.error, waitLndSync);
@@ -31,11 +33,23 @@ function waitLndSync() {
             dispatch(actions.setLndBlocksHeight(response.response.block_height));
             console.log("LND SYNCED: ", synced);
             if (!synced) {
+                if (tickNumber === 2 && restoreConnection) {
+                    window.ipcRenderer.send("showNotification", {
+                        body: "Please, wait until synchronization will be restored",
+                        title: "Synchronization to blockchain lost",
+                    });
+                }
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
                 await delay(window.LND_SYNC_TIMEOUT); // eslint-disable-line
             } else {
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_FULLY_SYNCED));
             }
+        }
+        if (tickNumber > 1 && restoreConnection) {
+            window.ipcRenderer.send("showNotification", {
+                body: "Node is fully synchronized to blockchain now",
+                title: "Synchronization restored",
+            });
         }
         dispatch(actions.lndSynced(true));
         return successPromise();
@@ -52,21 +66,13 @@ function checkLndSync() {
         dispatch(actions.setLndBlocksHeight(response.response.block_height));
         console.log("LND SYNCED: ", synced);
         if (!synced) {
-            window.ipcRenderer.send("showNotification", {
-                body: "Please, wait until synchronization will be restored",
-                title: "Synchronization to blockchain lost",
-            });
             dispatch(actions.lndSynced(false));
             dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
             await delay(window.LND_SYNC_TIMEOUT);
-            response = await dispatch(waitLndSync());
+            response = await dispatch(waitLndSync(true));
             if (!response.ok) {
                 return errorPromise(response.error, checkLndSync);
             }
-            window.ipcRenderer.send("showNotification", {
-                body: "Node is fully synchronized to blockchain now",
-                title: "Synchronization restored",
-            });
         }
         return successPromise();
     };

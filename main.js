@@ -198,14 +198,14 @@ app.on("open-url", (e, arg) => {
 });
 
 ipcMain.on("showNotification", (event, sender) => {
+    notification = new Notification({
+        title: sender.title || "LightningPeach wallet",
+        subtitle: sender.subtitle,
+        body: sender.body,
+        silent: sender.silent,
+    });
+    notification.show();
     if (!mainWindow.isFocused()) {
-        notification = new Notification({
-            title: sender.title || "LightningPeach wallet",
-            subtitle: sender.subtitle,
-            body: sender.body,
-            silent: sender.silent,
-        });
-        notification.show();
         if (process.platform === "darwin") {
             app.dock.setBadge("•");
         }
