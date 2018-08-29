@@ -60,16 +60,22 @@ function createNewBitcoinAccount() {
     };
 }
 
-async function setInitConfig(lightningId) {
-    await db.configBuilder()
-        .insert()
-        .values({
-            activeMeasure: ALL_MEASURES[0].btc,
-            createChannelViewed: 0,
-            lightningId,
-            systemNotifications: "disabled",
-        })
-        .execute();
+function setInitConfig(lightningId) {
+    return async (dispatch) => {
+        await db.configBuilder()
+            .insert()
+            .values({
+                activeMeasure: ALL_MEASURES[0].btc,
+                createChannelViewed: 0,
+                lightningId,
+                systemNotifications: 3,
+            })
+            .execute();
+        dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
+        dispatch(accountActions.setSystemNotificationsStatus(3));
+        dispatch(openSystemNotificationsModal());
+        return successPromise();
+    };
 }
 
 function loadAccountSettings() {
@@ -85,30 +91,12 @@ function loadAccountSettings() {
                 if (response.createChannelViewed) {
                     dispatch(actions.updateCreateTutorialStatus(types.HIDE));
                 }
-                let systemNotificationsStatus;
-                switch (response.systemNotifications) {
-                    case "disabledDontAsk":
-                        systemNotificationsStatus = types.DISABLED_DONT_ASK;
-                        break;
-                    case "enabled":
-                        systemNotificationsStatus = types.ENABLED;
-                        break;
-                    case "enabledSilent":
-                        systemNotificationsStatus = types.ENABLED_SILENT;
-                        break;
-                    case "disabledSilent":
-                        systemNotificationsStatus = types.DISABLED_SILENT;
-                        break;
-                    default:
-                        systemNotificationsStatus = types.DISABLED;
-                }
-                if (systemNotificationsStatus === types.DISABLED) {
+                if (response.systemNotifications === 3) {
                     dispatch(openSystemNotificationsModal());
                 }
-                dispatch(accountActions.setSystemNotificationsStatus(systemNotificationsStatus));
+                dispatch(accountActions.setSystemNotificationsStatus(response.systemNotifications));
             } else {
-                await setInitConfig(lightningID);
-                dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
+                await dispatch(setInitConfig(lightningID));
             }
             return successPromise();
         } catch (e) {
@@ -278,6 +266,23 @@ function setBitcoinMeasure(value) {
     };
 }
 
+function setSystemNotificationsStatus(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(accountActions.setSystemNotificationsStatus(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ systemNotifications: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setSystemNotificationsStatus);
+        }
+    };
+}
+
 function getPeers() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("listPeers");
@@ -423,4 +428,5 @@ export {
     checkBalance,
     setBitcoinMeasure,
     openSystemNotificationsModal,
+    setSystemNotificationsStatus,
 };

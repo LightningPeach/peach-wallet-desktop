@@ -16,8 +16,8 @@ module.exports = {
             default: "mBTC",
         },
         systemNotifications: {
-            type: "varchar",
-            default: "disabled",
+            type: "integer",
+            default: "0",
         },
     },
 };

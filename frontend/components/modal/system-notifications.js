@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
-import { accountActions, accountTypes } from "modules/account";
+import { accountOperations, accountTypes } from "modules/account";
 import { HomePath } from "routes";
 import Modal from "components/modal";
 import Checkbox from "components/ui/checkbox";
@@ -13,7 +13,7 @@ class SystemNotifications extends Component {
         super(props);
 
         this.state = {
-            showAgain: false,
+            showAgain: true,
         };
 
         analytics.pageview(`${HomePath}/enable-system-notifications`, "Set system notifications status");
@@ -27,11 +27,32 @@ class SystemNotifications extends Component {
 
     resolveNotifications = () => {
         const { dispatch } = this.props;
+        analytics.event({
+            action: "System Notifications Modal",
+            category: "Modal Windows",
+            label: "Enable notifications",
+        });
+        dispatch(accountOperations.setSystemNotificationsStatus(6));
         dispatch(appOperations.closeModal());
     };
 
     rejectNotifications = () => {
         const { dispatch } = this.props;
+        if (this.state.showAgain) {
+            analytics.event({
+                action: "System Notifications Modal",
+                category: "Modal Windows",
+                label: "Disable notifications",
+            });
+            dispatch(accountOperations.setSystemNotificationsStatus(3));
+        } else {
+            analytics.event({
+                action: "System Notifications Modal",
+                category: "Modal Windows",
+                label: "Disable notifications, never ask again",
+            });
+            dispatch(accountOperations.setSystemNotificationsStatus(2));
+        }
         dispatch(appOperations.closeModal());
     };
 
@@ -55,7 +76,7 @@ class SystemNotifications extends Component {
                         <div className="col-xs-12">
                             <Checkbox
                                 text="Never ask this question again"
-                                checked={this.state.showAgain}
+                                checked={!this.state.showAgain}
                                 onChange={this.toggleShowAgain}
                                 class="label_line channels__custom"
                             />
@@ -70,14 +91,14 @@ class SystemNotifications extends Component {
                                 type="button"
                                 onClick={this.rejectNotifications}
                             >
-                                Cancel
+                                Disable
                             </button>
                             <button
                                 className="button button__orange button__create"
                                 type="button"
                                 onClick={this.resolveNotifications}
                             >
-                                Yes
+                                Enable
                             </button>
                         </div>
                     </div>

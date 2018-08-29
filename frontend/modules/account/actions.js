@@ -207,7 +207,7 @@ const errorCheckBalance = error => ({
 
 const setSystemNotificationsStatus = status => ({
     payload: status,
-    type: types.ERROR_CHECK_BALANCE,
+    type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
 });
 
 export {
