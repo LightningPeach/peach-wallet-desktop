@@ -13,7 +13,7 @@ import * as selectors from "./selectors";
 
 let creatingChannelPoint;
 
-function streamWarningModal() {
+function openStreamWarningModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_WARNING));
 }
 
@@ -458,7 +458,7 @@ function shouldShowLightningTutorial() {
 }
 
 export {
-    streamWarningModal,
+    openStreamWarningModal,
     openNewChannelModal,
     openDeleteChannelModal,
     openForceDeleteChannelModal,

@@ -22,6 +22,7 @@ import ProfilePage from "components/profile";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
+import SystemNotifications from "components/modal/system-notifications";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
@@ -126,6 +127,9 @@ class WalletPage extends Component {
                 break;
             case appTypes.MODAL_STATE_FORCE_LOGOUT:
                 modal = <ForceLogout />;
+                break;
+            case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
+                modal = <SystemNotifications />;
                 break;
             default:
                 modal = null;

@@ -1,5 +1,5 @@
 import { hashHistory } from "react-router";
-import { appOperations } from "modules/app";
+import { appOperations, appActions } from "modules/app";
 import { lndActions, lndOperations } from "modules/lnd";
 import { notificationsActions } from "modules/notifications";
 import { channelsOperations } from "modules/channels";
@@ -45,6 +45,10 @@ window.ipcRenderer.on("lis-down", () => {
     store.dispatch(accountActions.setLisStatus(types.LIS_DOWN));
 });
 
+function openSystemNotificationsModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+}
+
 function createNewBitcoinAccount() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("newAddress");
@@ -62,8 +66,8 @@ async function setInitConfig(lightningId) {
         .values({
             activeMeasure: ALL_MEASURES[0].btc,
             createChannelViewed: 0,
-            enableNotifications: 0,
             lightningId,
+            systemNotifications: "disabled",
         })
         .execute();
 }
@@ -81,24 +85,27 @@ function loadAccountSettings() {
                 if (response.createChannelViewed) {
                     dispatch(actions.updateCreateTutorialStatus(types.HIDE));
                 }
-                let notificationsStatus;
-                switch (response.enableNotifications) {
+                let systemNotificationsStatus;
+                switch (response.systemNotifications) {
                     case "disabledDontAsk":
-                        notificationsStatus = types.DISABLED_DONT_ASK;
+                        systemNotificationsStatus = types.DISABLED_DONT_ASK;
                         break;
                     case "enabled":
-                        notificationsStatus = types.ENABLED;
+                        systemNotificationsStatus = types.ENABLED;
                         break;
                     case "enabledSilent":
-                        notificationsStatus = types.ENABLED_SILENT;
+                        systemNotificationsStatus = types.ENABLED_SILENT;
                         break;
                     case "disabledSilent":
-                        notificationsStatus = types.DISABLED_SILENT;
+                        systemNotificationsStatus = types.DISABLED_SILENT;
                         break;
                     default:
-                        notificationsStatus = types.DISABLED;
+                        systemNotificationsStatus = types.DISABLED;
                 }
-                dispatch(accountActions.setSystemNotificationsStatus(notificationsStatus));
+                if (systemNotificationsStatus === types.DISABLED) {
+                    dispatch(openSystemNotificationsModal());
+                }
+                dispatch(accountActions.setSystemNotificationsStatus(systemNotificationsStatus));
             } else {
                 await setInitConfig(lightningID);
                 dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
@@ -415,4 +422,5 @@ export {
     checkAmount,
     checkBalance,
     setBitcoinMeasure,
+    openSystemNotificationsModal,
 };

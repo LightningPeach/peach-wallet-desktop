@@ -900,20 +900,8 @@
     cursor: pointer;
 }
 
-/*
-::-webkit-scrollbar {
-  -webkit-appearance: none;
-  width: initial;
-  background: #fafafa;
+.mt {
+    &-12 {
+        margin-top: 12px;
+    }
 }
-
-::-webkit-scrollbar-thumb {
-  border-radius: 8px;
-  border: 4px solid transparent;
-  background-color: #c1c1c1;
-  background-clip: content-box;
- }
-::-webkit-scrollbar-track {
-  border-left: 1px solid #e8e8e8;
-}
-*/

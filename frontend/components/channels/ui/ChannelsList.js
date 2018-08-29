@@ -51,7 +51,7 @@ class ChannelsList extends Component {
         analytics.event({ action: "Close channel", category: "Channels", label: "Close Channel" });
         const { dispatch, isActiveStreamRunning } = this.props;
         if (isActiveStreamRunning) {
-            dispatch(operations.streamWarningModal());
+            dispatch(operations.openStreamWarningModal());
             return;
         }
         dispatch(operations.setCurrentChannel(parseInt(id, 10)));

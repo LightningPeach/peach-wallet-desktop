@@ -184,10 +184,10 @@ describe("Channels Unit Tests", () => {
             beforeEach(() => {
                 expectedData = { type: appTypes.SET_MODAL_STATE };
             });
-            it("streamWarningModal()", async () => {
+            it("openStreamWarningModal()", async () => {
                 expectedData.payload = types.MODAL_WARNING;
                 expectedActions = [expectedData];
-                expect(await store.dispatch(operations.streamWarningModal())).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.openStreamWarningModal())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
