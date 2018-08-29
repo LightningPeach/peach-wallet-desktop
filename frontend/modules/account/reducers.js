@@ -9,6 +9,7 @@ export const initStateAccount = {
     bitcoinMeasureType: ALL_MEASURES[0].btc,
     channelDetails: [],
     channels: [],
+    systemNotifications: types.DISABLED,
     errorAmountEnter: "",
     expectedBitcoinBalance: 0,
     isConnectedToKernel: false,
@@ -97,6 +98,8 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, ...action.payload };
         case types.SET_LIS_STATUS:
             return { ...state, lisStatus: action.payload };
+        case types.SET_SYSTEM_NOTIFICATIONS_STATUS:
+            return { ...state, systemNotifications: action.payload };
         default:
             return state;
     }

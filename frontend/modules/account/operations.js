@@ -21,6 +21,7 @@ import {
 import * as statusCodes from "config/status-codes";
 import * as accountActions from "./actions";
 import * as types from "./types";
+import * as actions from "../channels/actions";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
@@ -61,13 +62,13 @@ async function setInitConfig(lightningId) {
         .values({
             activeMeasure: ALL_MEASURES[0].btc,
             createChannelViewed: 0,
+            enableNotifications: 0,
             lightningId,
-            lightningPaymentViewed: 0,
         })
         .execute();
 }
 
-function loadBitcoinMeasure() {
+function loadAccountSettings() {
     return async (dispatch, getState) => {
         try {
             const { lightningID } = getState().account;
@@ -77,13 +78,34 @@ function loadBitcoinMeasure() {
                 .getOne();
             if (response) {
                 dispatch(accountActions.setBitcoinMeasure(response.activeMeasure));
+                if (response.createChannelViewed) {
+                    dispatch(actions.updateCreateTutorialStatus(types.HIDE));
+                }
+                let notificationsStatus;
+                switch (response.enableNotifications) {
+                    case "disabledDontAsk":
+                        notificationsStatus = types.DISABLED_DONT_ASK;
+                        break;
+                    case "enabled":
+                        notificationsStatus = types.ENABLED;
+                        break;
+                    case "enabledSilent":
+                        notificationsStatus = types.ENABLED_SILENT;
+                        break;
+                    case "disabledSilent":
+                        notificationsStatus = types.DISABLED_SILENT;
+                        break;
+                    default:
+                        notificationsStatus = types.DISABLED;
+                }
+                dispatch(accountActions.setSystemNotificationsStatus(notificationsStatus));
             } else {
                 await setInitConfig(lightningID);
                 dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
             }
             return successPromise();
         } catch (e) {
-            return errorPromise(e.message, loadBitcoinMeasure);
+            return errorPromise(e.message, loadAccountSettings);
         }
     };
 }
@@ -214,7 +236,7 @@ function initAccount(login, newAccount = false) {
             dispatch(channelsOperations.shouldShowLightningTutorial()),
             dispatch(appOperations.usdBtcRate()),
             dispatch(createNewBitcoinAccount()),
-            dispatch(loadBitcoinMeasure()),
+            dispatch(loadAccountSettings()),
         ]);
         return successPromise();
     };
@@ -380,7 +402,7 @@ function checkBalance() {
 
 export {
     setInitConfig,
-    loadBitcoinMeasure,
+    loadAccountSettings,
     connectKernel,
     connectServerLnd,
     getLightningID,

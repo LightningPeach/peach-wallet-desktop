@@ -1,9 +1,9 @@
 class Config {
-    constructor(lightningId, createChannelViewed, lightningPaymentViewed, activeMeasure) {
+    constructor(lightningId, createChannelViewed, activeMeasure, enableNotifications) {
         this.lightningId = lightningId;
         this.createChannelViewed = createChannelViewed;
-        this.lightningPaymentViewed = lightningPaymentViewed;
         this.activeMeasure = activeMeasure;
+        this.enableNotifications = enableNotifications;
     }
 }
 

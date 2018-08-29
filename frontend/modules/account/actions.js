@@ -205,7 +205,13 @@ const errorCheckBalance = error => ({
     type: types.ERROR_CHECK_BALANCE,
 });
 
+const setSystemNotificationsStatus = status => ({
+    payload: status,
+    type: types.ERROR_CHECK_BALANCE,
+});
+
 export {
+    setSystemNotificationsStatus,
     setLightningID,
     createAccount,
     successCreatenewAccount,
