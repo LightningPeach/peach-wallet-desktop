@@ -3,6 +3,7 @@ import fetch from "isomorphic-fetch";
 import { delay, successPromise, errorPromise } from "additional";
 import { store } from "store/configure-store";
 import { BLOCK_HEIGHT_URL } from "config/node-settings";
+import { appOperations } from "modules/app";
 import * as actions from "./actions";
 
 function getBlocksHeight() {
@@ -34,10 +35,10 @@ function waitLndSync(restoreConnection = false) {
             console.log("LND SYNCED: ", synced);
             if (!synced) {
                 if (tickNumber === 2 && restoreConnection) {
-                    window.ipcRenderer.send("showNotification", {
-                        body: "Please, wait until synchronization will be restored",
-                        title: "Synchronization to blockchain lost",
-                    });
+                    dispatch(appOperations.sendSystemNotification({
+                        body: "Please wait for synchronization recovery",
+                        title: "Synchronization is lost",
+                    }));
                 }
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
                 await delay(window.LND_SYNC_TIMEOUT); // eslint-disable-line
@@ -46,10 +47,10 @@ function waitLndSync(restoreConnection = false) {
             }
         }
         if (tickNumber > 1 && restoreConnection) {
-            window.ipcRenderer.send("showNotification", {
-                body: "Node is fully synchronized to blockchain now",
-                title: "Synchronization restored",
-            });
+            dispatch(appOperations.sendSystemNotification({
+                body: "The node has been fully synchronized with blockchain",
+                title: "Synchronization is recovered",
+            }));
         }
         dispatch(actions.lndSynced(true));
         return successPromise();

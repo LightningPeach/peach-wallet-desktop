@@ -61,22 +61,22 @@ function getChannels() {
                         const dbChan = dbChannels[chanTxid];
                         chanName = dbChan.name;
                         if (dbChan.status === "pending") {
-                            window.ipcRenderer.send("showNotification", {
+                            dispatch(appOperations.sendSystemNotification({
                                 body: "Channel has been opened",
-                                title: `Channel ${chanName}`,
-                            });
+                                title: chanName,
+                            }));
                         }
                         if (!!dbChan.activeStatus !== channel.active) {
                             if (channel.active) {
-                                window.ipcRenderer.send("showNotification", {
+                                dispatch(appOperations.sendSystemNotification({
                                     body: "Channel becomes active",
-                                    title: `Channel ${chanName}`,
-                                });
+                                    title: chanName,
+                                }));
                             } else {
-                                window.ipcRenderer.send("showNotification", {
+                                dispatch(appOperations.sendSystemNotification({
                                     body: "Channel becomes inactive",
-                                    title: `Channel ${chanName}`,
-                                });
+                                    title: chanName,
+                                }));
                             }
                         }
                         if (
@@ -85,19 +85,18 @@ function getChannels() {
                         ) {
                             const amount =
                                 dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance));
-                            window.ipcRenderer.send("showNotification", {
-                                body:
-                                    `You have only ${amount} ${getState().account.bitcoinMeasureType} left in channel`,
-                                title: `Channel ${chanName}`,
-                            });
+                            const measure = getState().account.bitcoinMeasureType;
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You have only ${amount} ${measure} left in the channel`,
+                                title: chanName,
+                            }));
                         }
                         if (dbChan.status === "active" && dbChan.localBalance < channel.local_balance) {
                             const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance - dbChan.localBalance)); // eslint-disable-line
-                            window.ipcRenderer.send("showNotification", {
-                                body:
-                                    `You received ${amount} ${getState().account.bitcoinMeasureType} by Lightning`,
-                                title: `Channel ${chanName}`,
-                            });
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                title: chanName,
+                            }));
                         }
                         if (
                             dbChan.status !== "active"
@@ -162,10 +161,10 @@ function getChannels() {
                         .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
                     if (dbChan.status === "active") {
-                        window.ipcRenderer.send("showNotification", {
+                        dispatch(appOperations.sendSystemNotification({
                             body: "Channel has been closed by counterparty",
-                            title: `Channel ${chanName}`,
-                        });
+                            title: chanName,
+                        }));
                     }
                     if (
                         dbChan.status !== "pending"

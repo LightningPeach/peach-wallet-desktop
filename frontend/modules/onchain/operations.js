@@ -66,11 +66,10 @@ function getOnchainHistory() {
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
                     if (!has(dbTxns, txn)) {
                         if (amount > 0) {
-                            window.ipcRenderer.send("showNotification", {
-                                body:
-                                    `You received ${amount} ${getState().account.bitcoinMeasureType} Onchain`,
-                                title: "Incoming Onchain Transaction",
-                            });
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                title: "Incoming Onchain transaction",
+                            }));
                         }
                         db.onchainBuilder()
                             .insert()
