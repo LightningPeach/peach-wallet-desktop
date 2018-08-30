@@ -10,7 +10,7 @@ const ipcTunnelClient = new IpcClient();
 // Constants
 window.INIT_LISTEN_PORT = settings.preload.getInitListenPort;
 window.ELECTRON_SHELL = electron.shell;
-window.LND_SYNC_TIMEOUT = 5000;
+window.LND_SYNC_TIMEOUT = 15000;
 window.AGREEMENT = settings.preload.getAgreement;
 window.ANALYTICS = settings.preload.getAnalytics;
 window.PEACH = settings.preload.getPeach;

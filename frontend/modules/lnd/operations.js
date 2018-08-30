@@ -34,7 +34,8 @@ function waitLndSync(restoreConnection = false) {
             dispatch(actions.setLndBlocksHeight(response.response.block_height));
             console.log("LND SYNCED: ", synced);
             if (!synced) {
-                if (tickNumber === 2 && restoreConnection) {
+                if (tickNumber && restoreConnection) {
+                    dispatch(actions.lndSynced(false));
                     dispatch(appOperations.sendSystemNotification({
                         body: "Please wait for synchronization recovery",
                         title: "Synchronization is lost",
@@ -42,7 +43,7 @@ function waitLndSync(restoreConnection = false) {
                 }
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
                 await delay(window.LND_SYNC_TIMEOUT); // eslint-disable-line
-            } else {
+            } else if (!restoreConnection || tickNumber > 1) {
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_FULLY_SYNCED));
             }
         }
@@ -65,10 +66,7 @@ function checkLndSync() {
         }
         const synced = response.response.synced_to_chain;
         dispatch(actions.setLndBlocksHeight(response.response.block_height));
-        console.log("LND SYNCED: ", synced);
         if (!synced) {
-            dispatch(actions.lndSynced(false));
-            dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
             await delay(window.LND_SYNC_TIMEOUT);
             response = await dispatch(waitLndSync(true));
             if (!response.ok) {
