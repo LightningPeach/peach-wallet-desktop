@@ -226,7 +226,7 @@ function initAccount(login, newAccount = false) {
         dispatch(lightningOperations.subscribeInvoices());
         await Promise.all([
             dispatch(contactsOperations.getContacts()),
-            dispatch(channelsOperations.getChannels()),
+            dispatch(channelsOperations.getChannels(true)),
             dispatch(channelsOperations.shouldShowCreateTutorial()),
             dispatch(channelsOperations.shouldShowLightningTutorial()),
             dispatch(appOperations.usdBtcRate()),

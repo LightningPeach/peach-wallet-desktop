@@ -36,7 +36,7 @@ async function getDbChannels() {
     return keyBy(response, "fundingTxid");
 }
 
-function getChannels() {
+function getChannels(initAccount = false) {
     return async (dispatch, getState) => {
         if (getState().app.dbStatus !== appTypes.DB_OPENED || getState().channels.creatingNewChannel) {
             return;
@@ -66,7 +66,7 @@ function getChannels() {
                                 title: chanName,
                             }));
                         }
-                        if (!!dbChan.activeStatus !== channel.active) {
+                        if (!!dbChan.activeStatus !== channel.active && !initAccount) {
                             if (channel.active) {
                                 dispatch(appOperations.sendSystemNotification({
                                     body: "Channel becomes active",
@@ -172,13 +172,14 @@ function getChannels() {
                         || dbChan.localBalance !== channel.channel.local_balance
                         || dbChan.remoteBalance !== channel.channel.remote_balance
                     ) {
+                        const status = dbChan.status === "active" ? "deleted" : "pending";
                         db.channelsBuilder()
                             .update()
                             .set({
                                 activeStatus: false,
                                 localBalance: channel.channel.local_balance,
                                 remoteBalance: channel.channel.remote_balance,
-                                status: "pending",
+                                status,
                             })
                             .where("fundingTxid = :txID", { txID: chanTxid })
                             .execute();
