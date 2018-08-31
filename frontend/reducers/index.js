@@ -10,12 +10,14 @@ import channelsReducer from "modules/channels/reducers";
 import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
+import chatReducer from "modules/chat/reducers";
 
 export default combineReducers({
     account: accountReducer,
     app: appReducer,
     auth: authReducer,
     channels: channelsReducer,
+    chat: chatReducer,
     contacts: contactsReducer,
     lightning: lightningReducer,
     lnd: lndReducer,

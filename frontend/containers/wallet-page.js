@@ -11,6 +11,7 @@ import {
     OnchainPanel,
     ChannelsPanel,
     AddressBookPanel,
+    ChatPanel,
     ProfilePanel,
 } from "routes";
 import Lightning from "components/lightning";
@@ -18,6 +19,7 @@ import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
 import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
+import ChatPage from "components/chat";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
@@ -126,6 +128,9 @@ class WalletPage extends Component {
         }
         if (ProfilePanel.includes(path)) {
             Panel = <ProfilePage />;
+        }
+        if (ChatPanel.includes(path)) {
+            Panel = <ChatPage />;
         }
 
         return (

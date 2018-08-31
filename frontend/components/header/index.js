@@ -2,12 +2,11 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router";
-import { accountOperations } from "modules/account";
-import { channelsActions, channelsTypes } from "modules/channels";
+import { channelsTypes } from "modules/channels";
 import {
     WalletPath, OnchainFullPath, ChannelsFullPath, AddressBookFullPath, ProfileFullPath,
-    LightningPanel, OnchainPanel, ChannelsPanel, AddressBookPanel, ProfilePanel,
-    HomeFullPath,
+    ChatFullPath, LightningPanel, OnchainPanel, ChannelsPanel, AddressBookPanel, ProfilePanel,
+    ChatPanel,
 } from "routes";
 
 class Header extends Component {
@@ -36,6 +35,7 @@ class Header extends Component {
         let onchainClass = "";
         let channelsClass = "";
         let addressClass = "";
+        let chatClass = "";
         let pageName = "";
         const path = this.props.location.pathname;
         if (LightningPanel.includes(path)) {
@@ -57,6 +57,10 @@ class Header extends Component {
         if (ProfilePanel.includes(path)) {
             pageName = "Profile";
             profileClass = "active";
+        }
+        if (ChatPanel.includes(path)) {
+            pageName = "Chat";
+            chatClass = "active";
         }
         let navClass = this.state.burgerState;
         if (this.props.skipCreateTutorial === channelsTypes.SHOW) {
@@ -109,6 +113,13 @@ class Header extends Component {
                                     onClick={this.hideBurger}
                                 >
                                     Address Book
+                                </Link>
+                                <Link
+                                    to={ChatFullPath}
+                                    className={`chat ${chatClass}`}
+                                    onClick={this.hideBurger}
+                                >
+                                    Chat
                                 </Link>
                                 <span className="separator" />
                                 <Link

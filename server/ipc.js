@@ -213,8 +213,11 @@ registerIpc("sendPayment", async (event, arg) => {
     if (payment.response.payment_error) {
         return { ok: false, error: lnd.prettifyMessage(payment.response.payment_error) };
     }
-    const payReq = await lnd.call("decodePayReq", { pay_req: arg.payment_request });
-    return { ok: true, payment_hash: payReq.response.payment_hash };
+    if (arg.payment_request) {
+        const payReq = await lnd.call("decodePayReq", { pay_req: arg.payment_request });
+        return { ok: true, payment_hash: payReq.response.payment_hash };
+    }
+    return { ok: true };
 });
 
 

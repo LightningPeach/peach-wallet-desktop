@@ -9,6 +9,7 @@ import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
 import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
+import ChatPage from "components/chat";
 
 import { Route, IndexRoute, IndexRedirect } from "react-router";
 
@@ -25,6 +26,7 @@ export const LightningPath = "lightning";
 export const OnchainPath = "onchain";
 export const ChannelsPath = "channels";
 export const AddressBookPath = "addressbook";
+export const ChatPath = "chat";
 export const GuidePath = "/tourgide";
 
 export const HomeFullPath = HomePath;
@@ -40,6 +42,7 @@ export const LightningFullPath = `${WalletPath}/${LightningPath}`;
 export const OnchainFullPath = `${WalletPath}/${OnchainPath}`;
 export const ChannelsFullPath = `${WalletPath}/${ChannelsPath}`;
 export const AddressBookFullPath = `${WalletPath}/${AddressBookPath}`;
+export const ChatFullPath = `${WalletPath}/${ChatPath}`;
 
 export const ProfilePanel = [ProfileFullPath];
 export const PaymentsPanel = [WalletPath];
@@ -51,6 +54,7 @@ export const LightningPanel = [WalletPath];
 export const OnchainPanel = [OnchainFullPath];
 export const ChannelsPanel = [ChannelsFullPath];
 export const AddressBookPanel = [AddressBookFullPath];
+export const ChatPanel = [ChatFullPath];
 
 export default (
     <Route path="/" component={App}>
@@ -62,6 +66,7 @@ export default (
             <Route path={ChannelsPath} component={ChannelsPage} />
             <Route path={AddressBookPath} component={ContactsPage} />
             <Route path={ProfilePath} component={ProfilePage} />
+            <Route path={ChatPath} components={ChatPage} />
         </Route>
         <Route path={HomePath} component={HomePage} />
         <Route path={GuidePath} component={GuidePage} />
