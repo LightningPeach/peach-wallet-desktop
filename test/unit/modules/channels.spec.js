@@ -10,7 +10,7 @@ import {
 } from "modules/channels";
 import channelsReducer, { initStateChannels } from "modules/channels/reducers";
 import { accountTypes } from "modules/account";
-import { appTypes } from "modules/app";
+import { appTypes, appOperations } from "modules/app";
 import { onChainOperations } from "modules/onchain";
 import { db, errorPromise, successPromise } from "additional";
 
@@ -133,6 +133,7 @@ describe("Channels Unit Tests", () => {
         let fakeDispatchReturnError;
         let fakeDispatchReturnSuccess;
         let fakeOnchain;
+        let fakeApp;
         let fakeDB;
 
         beforeEach(async () => {
@@ -142,6 +143,7 @@ describe("Channels Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             sandbox = sinon.sandbox.create();
             fakeOnchain = sandbox.stub(onChainOperations);
+            fakeApp = sandbox.stub(appOperations);
             fakeDB = sandbox.stub(db);
             window.ipcClient.reset();
             data = {
@@ -237,6 +239,8 @@ describe("Channels Unit Tests", () => {
 
             beforeEach(() => {
                 fakeOnchain.getOnchainHistory.returns(successResp);
+                fakeApp.sendSystemNotification.returns(successResp);
+                fakeApp.convertSatoshiToCurrentMeasure.returns("amount");
                 channs = [{ fundingTxid: 4 }, { fundingTxid: 1 }];
                 fakeDB.channelsBuilder.returns({
                     getMany: data.channelsBuilder.getMany.returns(channs),
@@ -257,6 +261,9 @@ describe("Channels Unit Tests", () => {
                 initState = {
                     app: {
                         dbStatus: appTypes.DB_OPENED,
+                    },
+                    account: {
+                        bitcoinMeasureType: "mBTC",
                     },
                     channels: {
                         creatingNewChannel: false,
@@ -283,6 +290,7 @@ describe("Channels Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.channelsBuilder).not.to.be.called;
+                expect(fakeApp.sendSystemNotification).not.to.be.called;
             });
 
             it("do nothing if channel creation in process", async () => {
@@ -292,6 +300,7 @@ describe("Channels Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.channelsBuilder).not.to.be.called;
+                expect(fakeApp.sendSystemNotification).not.to.be.called;
             });
 
             it("getInfo error", async () => {
@@ -309,9 +318,10 @@ describe("Channels Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(fakeApp.sendSystemNotification).not.to.be.called;
             });
 
-            it("success with pending channels", async () => {
+            it("success with pending channels and closed channel by counterparty", async () => {
                 history = [
                     { tx_hash: "4", num_confirmations: "1" },
                     { tx_hash: "4", num_confirmations: "2" },
@@ -348,10 +358,26 @@ describe("Channels Unit Tests", () => {
                                         remote_node_pub: "bar",
                                     },
                                 },
+                                {
+                                    commit_fee: 21,
+                                    commit_weight: 22,
+                                    fee_per_kw: 23,
+                                    channel: {
+                                        capacity: 24,
+                                        channel_point: "5",
+                                        local_balance: 6,
+                                        remote_balance: 25,
+                                        remote_node_pub: "bar",
+                                    },
+                                },
                             ],
                         },
                     });
-                channs = [{ fundingTxid: "4", name: "test" }, { fundingTxid: "1" }];
+                channs = [
+                    { fundingTxid: "4", name: "test" },
+                    { fundingTxid: "1" },
+                    { fundingTxid: "5", status: "active", name: "notify" },
+                ];
                 fakeDB.channelsBuilder.returns({
                     getMany: data.channelsBuilder.getMany.returns(channs),
                     insert: data.channelsBuilder.insert.returns({
@@ -368,6 +394,7 @@ describe("Channels Unit Tests", () => {
                     }),
                 });
                 expectedActions = [
+                    successResp,
                     successResp,
                     {
                         payload: [
@@ -399,6 +426,20 @@ describe("Channels Unit Tests", () => {
                                 remote_pubkey: "bar",
                                 status: types.CHANNEL_STATUS_PENDING,
                             },
+                            {
+                                capacity: 24,
+                                chan_id: 0,
+                                channel_point: "5",
+                                commit_fee: 21,
+                                commit_weight: 22,
+                                fee_per_kw: 23,
+                                local_balance: 6,
+                                maturity: 0,
+                                name: "notify",
+                                remote_balance: 25,
+                                remote_pubkey: "bar",
+                                status: types.CHANNEL_STATUS_PENDING,
+                            },
                         ],
                         type: types.SET_CHANNELS,
                     },
@@ -409,37 +450,46 @@ describe("Channels Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("pendingChannels");
                 expect(window.ipcClient).to.be.calledWith("listChannels");
-                expect(fakeDB.channelsBuilder).to.be.calledThrice;
+                expect(fakeDB.channelsBuilder).to.be.callCount(4);
                 expect(data.channelsBuilder.insert).to.be.calledOnce;
-                expect(data.channelsBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.insert).to.be.calledAfter(fakeDB.channelsBuilder);
                 expect(data.channelsBuilder.values).to.be.calledOnce;
                 expect(data.channelsBuilder.values).to.be.calledImmediatelyAfter(data.channelsBuilder.insert);
                 expect(data.channelsBuilder.values)
                     .to.be.calledWithExactly({
                         activeStatus: false,
                         fundingTxid: "3",
+                        localBalance: 6,
                         name: "CHANNEL 1",
+                        remoteBalance: 25,
                         status: "pending",
                     });
-                expect(data.channelsBuilder.update).to.be.calledOnce;
-                expect(data.channelsBuilder.update).to.be.calledAfter(fakeDB.channelsBuilder);
-                expect(data.channelsBuilder.set).to.be.calledOnce;
+                expect(data.channelsBuilder.update).to.be.calledTwice;
+                expect(data.channelsBuilder.update).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.set).to.be.calledTwice;
                 expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
                 expect(data.channelsBuilder.set)
                     .to.be.calledWithExactly({
                         activeStatus: false,
+                        localBalance: 5,
+                        remoteBalance: 15,
                         status: "pending",
                     });
-                expect(data.channelsBuilder.where).to.be.calledOnce;
+                expect(data.channelsBuilder.where).to.be.calledTwice;
                 expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
                 expect(data.channelsBuilder.where)
                     .to.be.calledWithExactly("fundingTxid = :txID", {
                         txID: "4",
                     });
-                expect(data.channelsBuilder.execute).to.be.calledTwice;
-                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.values);
-                expect(data.channelsBuilder.execute).to.be.calledAfter(data.channelsBuilder.where);
+                expect(data.channelsBuilder.execute).to.be.calledThrice;
+                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
+                expect(data.channelsBuilder.execute).to.be.calledAfter(data.channelsBuilder.values);
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
+                expect(fakeApp.sendSystemNotification).to.be.calledOnce;
+                expect(fakeApp.sendSystemNotification).to.be.calledWithExactly({
+                    title: "notify",
+                    body: "Channel has been closed by counterparty",
+                });
             });
 
             it("success with active channels", async () => {
@@ -547,7 +597,9 @@ describe("Channels Unit Tests", () => {
                     .to.be.calledWithExactly({
                         activeStatus: false,
                         fundingTxid: "3",
+                        localBalance: 6,
                         name: "CHANNEL 1",
+                        remoteBalance: 25,
                         status: "active",
                     });
                 expect(data.channelsBuilder.update).to.be.calledOnce;
@@ -557,6 +609,8 @@ describe("Channels Unit Tests", () => {
                 expect(data.channelsBuilder.set)
                     .to.be.calledWithExactly({
                         activeStatus: true,
+                        localBalance: 5,
+                        remoteBalance: 15,
                         status: "active",
                     });
                 expect(data.channelsBuilder.where).to.be.calledOnce;
@@ -569,6 +623,203 @@ describe("Channels Unit Tests", () => {
                 expect(data.channelsBuilder.execute).to.be.calledAfter(data.channelsBuilder.values);
                 expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
+                expect(fakeApp.sendSystemNotification).not.to.be.called;
+            });
+
+            it("success with handling channels system notifications", async () => {
+                fakeApp.convertSatoshiToCurrentMeasure.returns(successResp);
+                channs = [
+                    {
+                        fundingTxid: "1",
+                        name: "test1",
+                        status: "pending",
+                    },
+                    {
+                        fundingTxid: "2",
+                        name: "test2",
+                        activeStatus: true,
+                        localBalance: 5,
+                        status: "active",
+                    },
+                    {
+                        fundingTxid: "3",
+                        name: "test3",
+                        activeStatus: false,
+                        localBalance: 2000,
+                        status: "active",
+                    },
+                ];
+                fakeDB.channelsBuilder.returns({
+                    getMany: data.channelsBuilder.getMany.returns(channs),
+                    insert: data.channelsBuilder.insert.returns({
+                        values: data.channelsBuilder.values.returns({
+                            execute: data.channelsBuilder.execute,
+                        }),
+                    }),
+                    update: data.channelsBuilder.update.returns({
+                        set: data.channelsBuilder.set.returns({
+                            where: data.channelsBuilder.where.returns({
+                                execute: data.channelsBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
+                window.ipcClient
+                    .withArgs("listChannels")
+                    .returns({
+                        ok: true,
+                        response: {
+                            channels: [
+                                {
+                                    capacity: 14,
+                                    chan_id: 2,
+                                    channel_point: "2",
+                                    commit_fee: 11,
+                                    commit_weight: 12,
+                                    fee_per_kw: 13,
+                                    local_balance: 1,
+                                    maturity: 1,
+                                    remote_balance: 15,
+                                    remote_pubkey: "foo",
+                                    active: false,
+                                },
+                                {
+                                    capacity: 24,
+                                    chan_id: 1,
+                                    channel_point: "1",
+                                    commit_fee: 21,
+                                    commit_weight: 22,
+                                    fee_per_kw: 23,
+                                    local_balance: 6,
+                                    maturity: 0,
+                                    remote_balance: 25,
+                                    remote_pubkey: "bar",
+                                    active: true,
+                                },
+                                {
+                                    capacity: 34,
+                                    chan_id: 3,
+                                    channel_point: "3",
+                                    commit_fee: 33,
+                                    commit_weight: 35,
+                                    fee_per_kw: 36,
+                                    local_balance: 8000,
+                                    maturity: 0,
+                                    remote_balance: 25000,
+                                    remote_pubkey: "bar",
+                                    active: true,
+                                },
+                            ],
+                        },
+                    });
+                expectedActions = [
+                    successResp,
+                    successResp,
+                    successResp,
+                    successResp,
+                    successResp,
+                    successResp,
+                    successResp,
+                    successResp,
+                    {
+                        payload: [
+                            {
+                                capacity: 24,
+                                chan_id: 1,
+                                channel_point: "1",
+                                commit_fee: 21,
+                                commit_weight: 22,
+                                fee_per_kw: 23,
+                                local_balance: 6,
+                                maturity: 100,
+                                name: "test1",
+                                remote_balance: 25,
+                                remote_pubkey: "bar",
+                                status: types.CHANNEL_STATUS_ACTIVE,
+                            },
+                            {
+                                capacity: 14,
+                                chan_id: 2,
+                                channel_point: "2",
+                                commit_fee: 11,
+                                commit_weight: 12,
+                                fee_per_kw: 13,
+                                local_balance: 1,
+                                maturity: 100,
+                                name: "test2",
+                                remote_balance: 15,
+                                remote_pubkey: "foo",
+                                status: types.CHANNEL_STATUS_NOT_ACTIVE,
+                            },
+                            {
+                                capacity: 34,
+                                chan_id: 3,
+                                channel_point: "3",
+                                commit_fee: 33,
+                                commit_weight: 35,
+                                fee_per_kw: 36,
+                                local_balance: 8000,
+                                maturity: 100,
+                                name: "test3",
+                                remote_balance: 25000,
+                                remote_pubkey: "bar",
+                                status: types.CHANNEL_STATUS_ACTIVE,
+                            },
+                        ],
+                        type: types.SET_CHANNELS,
+                    },
+                ];
+                expect(await store.dispatch(operations.getChannels())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledThrice;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(window.ipcClient).to.be.calledWith("pendingChannels");
+                expect(window.ipcClient).to.be.calledWith("listChannels");
+                expect(fakeDB.channelsBuilder).to.be.callCount(4);
+                expect(data.channelsBuilder.insert).not.to.be.called;
+                expect(data.channelsBuilder.update).to.be.calledThrice;
+                expect(data.channelsBuilder.update).to.be.calledAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.set).to.be.calledThrice;
+                expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
+                expect(data.channelsBuilder.set)
+                    .to.be.calledWithExactly({
+                        activeStatus: true,
+                        localBalance: 6,
+                        remoteBalance: 25,
+                        status: "active",
+                    });
+                expect(data.channelsBuilder.set)
+                    .to.be.calledWithExactly({
+                        activeStatus: false,
+                        localBalance: 1,
+                        remoteBalance: 15,
+                        status: "active",
+                    });
+                expect(data.channelsBuilder.set)
+                    .to.be.calledWithExactly({
+                        activeStatus: true,
+                        localBalance: 8000,
+                        remoteBalance: 25000,
+                        status: "active",
+                    });
+                expect(data.channelsBuilder.where).to.be.calledThrice;
+                expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
+                expect(data.channelsBuilder.where)
+                    .to.be.calledWithExactly("fundingTxid = :txID", {
+                        txID: "1",
+                    });
+                expect(data.channelsBuilder.where)
+                    .to.be.calledWithExactly("fundingTxid = :txID", {
+                        txID: "2",
+                    });
+                expect(data.channelsBuilder.where)
+                    .to.be.calledWithExactly("fundingTxid = :txID", {
+                        txID: "3",
+                    });
+                expect(data.channelsBuilder.execute).to.be.calledThrice;
+                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
+                expect(data.channelsBuilder.getMany).to.be.calledOnce;
+                expect(fakeApp.sendSystemNotification).to.be.callCount(5);
             });
 
             it("success and not dispatch any actions if channels equivalent", async () => {
@@ -582,6 +833,7 @@ describe("Channels Unit Tests", () => {
                 expect(fakeDB.channelsBuilder).to.be.calledOnce;
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
                 expect(data.channelsBuilder.getMany).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
+                expect(fakeApp.sendSystemNotification).not.to.be.called;
             });
         });
 
@@ -1055,7 +1307,9 @@ describe("Channels Unit Tests", () => {
                     .to.be.calledWith({
                         activeStatus: false,
                         fundingTxid: data.txid,
+                        localBalance: 0,
                         name: data.channelName,
+                        remoteBalance: 0,
                         status: "pending",
                     });
                 expect(data.channelsBuilder.values).to.be.calledImmediatelyAfter(data.channelsBuilder.insert);

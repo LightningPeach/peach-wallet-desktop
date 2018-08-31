@@ -7,7 +7,7 @@ import * as statusCodes from "config/status-codes";
 import { onChainActions as actions, onChainTypes as types, onChainOperations as operations } from "modules/onchain";
 import onChainReducer, { initStateOnchain } from "modules/onchain/reducers";
 import { accountTypes, accountOperations } from "modules/account";
-import { appTypes } from "modules/app";
+import { appOperations, appTypes } from "modules/app";
 import { store as defaultStore } from "store/configure-store";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
 
@@ -157,6 +157,7 @@ describe("OnChain Unit Tests", () => {
         let successResp;
         let unsuccessResp;
         let fakeAccount;
+        let fakeApp;
         let fakeDispatchReturnError;
         let fakeDispatchReturnSuccess;
         let fakeDispatchReturnUnsuccess;
@@ -173,6 +174,7 @@ describe("OnChain Unit Tests", () => {
             window.ipcClient.reset();
             window.ipcRenderer.send.reset();
             fakeAccount = sandbox.stub(accountOperations);
+            fakeApp = sandbox.stub(appOperations);
             fakeDB = sandbox.stub(db);
             fakeStore = sandbox.stub(defaultStore);
             data = {
@@ -187,6 +189,9 @@ describe("OnChain Unit Tests", () => {
                 },
             };
             initState = {
+                account: {
+                    bitcoinMeasureType: "mBTC",
+                },
                 onchain: { ...initStateOnchain },
             };
             expectedData = undefined;
@@ -500,6 +505,7 @@ describe("OnChain Unit Tests", () => {
                 window.ipcClient
                     .withArgs("getTransactions")
                     .returns(chainTxns);
+                fakeApp.sendSystemNotification.returns(fakeDispatchReturnSuccess);
             });
 
             it("throw error", async () => {
@@ -633,6 +639,11 @@ describe("OnChain Unit Tests", () => {
                 expect(data.onchainBuilder.execute).to.be.calledTwice;
                 expect(data.onchainBuilder.execute).to.be.calledAfter(data.onchainBuilder.values);
                 expect(data.onchainBuilder.execute).to.be.calledImmediatelyAfter(data.onchainBuilder.where);
+                expect(fakeApp.sendSystemNotification).to.be.calledOnce;
+                expect(fakeApp.sendSystemNotification).to.be.calledWithExactly({
+                    body: "You received 100 mBTC",
+                    title: "Incoming Onchain transaction",
+                });
             });
         });
     });

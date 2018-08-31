@@ -6,6 +6,7 @@ import * as statusCodes from "config/status-codes";
 import { lndActions as actions, lndTypes as types, lndOperations as operations } from "modules/lnd";
 import lndReducer, { initStateLnd } from "modules/lnd/reducers";
 import { accountTypes } from "modules/account";
+import { appOperations } from "modules/app";
 import { BLOCK_HEIGHT_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
 import { store as defaultStore } from "store/configure-store";
@@ -80,6 +81,7 @@ describe("Lnd Unit Tests", () => {
         let fakeDispatchReturnSuccess;
         let fakeDispatchReturnUnsuccess;
         let fakeStore;
+        let fakeApp;
 
         beforeEach(async () => {
             errorResp = await errorPromise(undefined, { name: undefined });
@@ -92,6 +94,7 @@ describe("Lnd Unit Tests", () => {
             window.ipcClient.reset();
             window.ipcRenderer.send.reset();
             fakeStore = sandbox.stub(defaultStore);
+            fakeApp = sandbox.stub(appOperations);
             data = {};
             initState = {
                 lnd: { ...initStateLnd },
@@ -246,6 +249,7 @@ describe("Lnd Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
             });
 
             it("not synced -> synced in retry", async () => {
@@ -276,6 +280,7 @@ describe("Lnd Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
             });
         });
 
@@ -295,10 +300,19 @@ describe("Lnd Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            synced_to_chain: false,
+                            block_height: 75,
+                        },
+                    })
+                    .onThirdCall()
+                    .returns({
+                        ok: true,
+                        response: {
                             synced_to_chain: true,
                             block_height: 100,
                         },
                     });
+                fakeApp.sendSystemNotification.returns(fakeDispatchReturnSuccess);
             });
 
             it("ipc error", async () => {
@@ -316,6 +330,7 @@ describe("Lnd Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
             });
 
             it("not synced in check -> ipc error in wait sync", async () => {
@@ -342,19 +357,12 @@ describe("Lnd Unit Tests", () => {
                         payload: 50,
                         type: types.SET_LND_BLOCKS,
                     },
-                    {
-                        payload: false,
-                        type: types.LND_SYNCED,
-                    },
-                    {
-                        payload: statusCodes.STATUS_LND_SYNCING,
-                        type: types.SET_LND_INIT_STATUS,
-                    },
                 ];
                 expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
             });
 
             it("not synced in check -> synced in wait sync", async () => {
@@ -362,6 +370,10 @@ describe("Lnd Unit Tests", () => {
                 expectedActions = [
                     {
                         payload: 50,
+                        type: types.SET_LND_BLOCKS,
+                    },
+                    {
+                        payload: 75,
                         type: types.SET_LND_BLOCKS,
                     },
                     {
@@ -387,8 +399,17 @@ describe("Lnd Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledThrice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).to.be.calledTwice;
+                expect(appOperations.sendSystemNotification).to.be.calledWithExactly({
+                    body: "Please wait for synchronization recovery",
+                    title: "Synchronization is lost",
+                });
+                expect(appOperations.sendSystemNotification).to.be.calledWithExactly({
+                    body: "The node has been fully synchronized with blockchain",
+                    title: "Synchronization is recovered",
+                });
             });
         });
 
