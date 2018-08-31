@@ -2,7 +2,7 @@ import { hashHistory } from "react-router";
 import { appOperations, appActions } from "modules/app";
 import { lndActions, lndOperations } from "modules/lnd";
 import { notificationsActions } from "modules/notifications";
-import { channelsOperations } from "modules/channels";
+import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { lightningOperations } from "modules/lightning";
 import { contactsOperations } from "modules/contacts";
 import { onChainOperations } from "modules/onchain";
@@ -89,12 +89,12 @@ function loadAccountSettings() {
             if (response) {
                 dispatch(accountActions.setBitcoinMeasure(response.activeMeasure));
                 if (response.createChannelViewed) {
-                    dispatch(actions.updateCreateTutorialStatus(types.HIDE));
+                    dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));
                 }
+                dispatch(accountActions.setSystemNotificationsStatus(response.systemNotifications));
                 if (response.systemNotifications === 3) {
                     dispatch(openSystemNotificationsModal());
                 }
-                dispatch(accountActions.setSystemNotificationsStatus(response.systemNotifications));
             } else {
                 await dispatch(setInitConfig(lightningID));
             }

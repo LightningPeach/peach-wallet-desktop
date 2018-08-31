@@ -398,19 +398,19 @@ class Profile extends Component {
                 </div>
                 <div className="row profile__row">
                     <div className="col-xs-12">
-                        <div className="profile__switcher">
-                            <div className="profile__switcher-text">System notifications</div>
+                        <div className="profile__switcher switcher">
+                            <div className="switcher-text">System notifications</div>
                             <div
-                                className={`profile__switcher-toggle ${this.state.notifications ? "active" : ""}`}
+                                className={`switcher-toggle ${this.state.notifications ? "active" : ""}`}
                                 onClick={this.toggleNotifications}
                             />
                         </div>
                     </div>
                     <div className="col-xs-12">
-                        <div className={`profile__switcher ${this.state.notifications ? "" : "disabled"}`}>
-                            <div className="profile__switcher-text">Sounds</div>
+                        <div className={`profile__switcher switcher ${this.state.notifications ? "" : "disabled"}`}>
+                            <div className="switcher-text">Sounds</div>
                             <div
-                                className={`profile__switcher-toggle ${this.state.sound ? "active" : ""}`}
+                                className={`switcher-toggle ${this.state.sound ? "active" : ""}`}
                                 onClick={this.toggleSound}
                             />
                         </div>

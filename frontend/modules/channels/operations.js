@@ -66,7 +66,7 @@ function getChannels(initAccount = false) {
                                 title: chanName,
                             }));
                         }
-                        if (!!dbChan.activeStatus !== channel.active && !initAccount) {
+                        if (dbChan.status === "active" && !!dbChan.activeStatus !== channel.active && !initAccount) {
                             if (channel.active) {
                                 dispatch(appOperations.sendSystemNotification({
                                     body: "Channel becomes active",
