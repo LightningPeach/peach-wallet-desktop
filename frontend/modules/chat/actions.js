@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import * as types from "./types";
 
 const addMsg = (amt, lightningId, msg) => ({
@@ -11,6 +12,5 @@ const addMsg = (amt, lightningId, msg) => ({
     type: types.ADD_MESSAGE,
 });
 
-export {
-    addMsg,
-};
+export { addMsg };
+/* eslint-enable import/prefer-default-export */

@@ -4,9 +4,11 @@ import {
     MIN_PASS_LENGTH, USERNAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
     ONLY_LETTERS_AND_NUMBERS, LIGHTNING_ID_LENGTH, SEED_COUNT,
 } from "config/consts";
+import isNil from "lodash/isNil";
+import isString from "lodash/isString";
 
 const validateRequired = (value) => {
-    if (!String(value).trim()) {
+    if (isNil(value) || (isString(value) && value.trim().length === 0)) {
         return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
     }
     return null;

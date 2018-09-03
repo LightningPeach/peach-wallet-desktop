@@ -1,3 +1,4 @@
+/* eslint-disable import/prefer-default-export */
 import { errorPromise, successPromise } from "additional";
 
 import * as actions from "./actions";
@@ -18,6 +19,5 @@ function sendMsg(lightningId, msg) {
     };
 }
 
-export {
-    sendMsg,
-};
+export { sendMsg };
+/* eslint-enable import/prefer-default-export */

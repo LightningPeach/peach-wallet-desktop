@@ -13,6 +13,39 @@ describe("Validators Unit Tests", () => {
         window.ipcClient.reset();
     });
 
+    describe("validateRequired", () => {
+        it("should return null for string", () => {
+            const value = "test";
+            const valid = validators.validateRequired(value);
+            expect(valid).to.equal(null);
+        });
+        it("should return null for integer", () => {
+            const value = 123;
+            const valid = validators.validateRequired(value);
+            expect(valid).to.equal(null);
+        });
+        it("should return null for object", () => {
+            const value = { a: "test" };
+            const valid = validators.validateRequired(value);
+            expect(valid).to.equal(null);
+        });
+        it("should return error for empty string", () => {
+            const value = "  ";
+            const valid = validators.validateRequired(value);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+        });
+        it("should return error for null", () => {
+            const value = null;
+            const valid = validators.validateRequired(value);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+        });
+        it("should return error for undefined", () => {
+            const value = undefined;
+            const valid = validators.validateRequired(value);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+        });
+    });
+
     describe("validateBitcoinAddr()", () => {
         it("should return null for simnet lncli p2wkh with simnet network", () => {
             const addr = "sb1qkk0f8qhfwtz534hvyuppdfjtufflcupygegrjx";
