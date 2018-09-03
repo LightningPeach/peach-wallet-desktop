@@ -5,6 +5,13 @@ import {
     ONLY_LETTERS_AND_NUMBERS, LIGHTNING_ID_LENGTH, SEED_COUNT,
 } from "config/consts";
 
+const validateRequired = (value) => {
+    if (!String(value).trim()) {
+        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+    }
+    return null;
+};
+
 /**
  * @param {string} addr - Bitcoin address
  * @param {object} network - Network params
@@ -174,6 +181,7 @@ const validateSeed = (seed) => {
 };
 
 export {
+    validateRequired,
     validateBitcoinAddr,
     validateChannelHost,
     validateName,

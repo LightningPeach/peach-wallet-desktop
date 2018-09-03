@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import orderBy from "lodash/orderBy";
 import isEqual from "lodash/isEqual";
 import { helpers, validators } from "additional";
+import { appOperations } from "modules/app";
 import { chatOperations, chatSelectors } from "modules/chat";
 import { LIGHTNING_ID_LENGTH } from "config/consts";
 
@@ -18,6 +19,7 @@ class ChatPage extends Component {
             disabled: false,
             lightningIdError: null,
             messages: orderBy([...this.props.messages, ...this.props.sendedMessages], "date", "asc"),
+            msgError: null,
         };
     }
 
@@ -35,9 +37,10 @@ class ChatPage extends Component {
         this.setState({ disabled: true });
         const lightningId = this.lightningId.value.trim();
         const msg = this.msg.value.trim();
-        const lightningIdError = validators.validateLightning(lightningId);
-        if (!msg || lightningIdError) {
-            this.setState({ disabled: false, lightningIdError });
+        const lightningIdError = this.props.validateLightning(lightningId);
+        const msgError = validators.validateRequired(msg);
+        if (msgError || lightningIdError) {
+            this.setState({ disabled: false, lightningIdError, msgError });
             return;
         }
         await this.props.sendMsg(lightningId, msg);
@@ -114,8 +117,10 @@ class ChatPage extends Component {
                                         }}
                                         className="form-textarea"
                                         placeholder="Write here"
+                                        onChange={() => this.setState({ msgError: null })}
                                         disabled={disabled}
                                     />
+                                    <ErrorFieldTooltip text={this.state.msgError} />
                                 </div>
                             </div>
                             <div className="row form-row">
@@ -141,6 +146,7 @@ ChatPage.propTypes = {
     messages: PropTypes.arrayOf(PropTypes.shape()).isRequired,
     sendMsg: PropTypes.func.isRequired,
     sendedMessages: PropTypes.arrayOf(PropTypes.shape()).isRequired,
+    validateLightning: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -150,6 +156,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
     sendMsg: (lightningId, msg) => dispatch(chatOperations.sendMsg(lightningId, msg)),
+    validateLightning: lightningId => dispatch(appOperations.validateLightning(lightningId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ChatPage);

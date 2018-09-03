@@ -64,6 +64,10 @@ header {
                 line-height: 0.89;
                 letter-spacing: -0.3px;
             }
+
+            &.chat{
+                padding-left: 20px;
+            }
         }
 
         .separator {
@@ -77,7 +81,7 @@ header {
     }
 }
 
-@media screen and (max-width: 799px) {
+@media screen and (max-width: 850px) {
     header {
         nav {
             flex-direction: column;
