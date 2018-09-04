@@ -93,8 +93,8 @@ describe("Contacts Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             sandbox = sinon.sandbox.create();
             fakeDB = sandbox.stub(db);
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             data = {
                 contactsBuilder: {
                     getMany: sinon.stub(),

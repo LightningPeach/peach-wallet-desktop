@@ -143,7 +143,7 @@ describe("Channels Unit Tests", () => {
             sandbox = sinon.sandbox.create();
             fakeOnchain = sandbox.stub(onChainOperations);
             fakeDB = sandbox.stub(db);
-            window.ipcClient.reset();
+            window.ipcClient.resetHistory();
             data = {
                 configBuilder: {
                     update: sinon.stub(),

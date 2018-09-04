@@ -235,8 +235,8 @@ describe("Lightning Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeDB = sandbox.stub(db);
             fakeAccount = sandbox.stub(accountOperations);
             fakeStore = sandbox.stub(defaultStore);

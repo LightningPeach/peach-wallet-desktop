@@ -64,7 +64,7 @@ describe("Auth Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
+            window.ipcClient.resetHistory();
             fakeApp = sandbox.stub(appOperations);
             fakeApp.openDb.returns(fakeDispatchReturnSuccess);
             fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
