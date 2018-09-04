@@ -221,7 +221,7 @@ describe("Validators Unit Tests", () => {
             expect(valid).to.equal(statusCodes.EXCEPTION_PASSWORD_WRONG_MIN_LENGTH);
         });
         it("should return error for incorrect chars in password", () => {
-            const valid = validators.validatePass("<html>12345678Qasd</html>");
+            const valid = validators.validatePass("<html>12345 678Qasd</html>");
             expect(valid).to.equal(statusCodes.EXCEPTION_PASSWORD_WRONG_FORMAT);
         });
         it("should return error for password without uppercase chars", () => {
