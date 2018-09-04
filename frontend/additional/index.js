@@ -1,4 +1,5 @@
 import React from "react";
+import { NODE_ENV } from "config/node-settings";
 import { SUCCESS_RESPONSE, UNSUCCESS_RESPONSE, PENDING_RESPONSE } from "config/consts";
 import * as validators from "./validators";
 import * as helpers from "./helpers";
@@ -6,6 +7,19 @@ import * as analytics from "./analytics";
 import * as db from "./db";
 
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+export const logger = {
+    error: (args) => {
+        if (NODE_ENV !== "test") {
+            console.log(args);
+        }
+    },
+    log: (args) => {
+        if (NODE_ENV !== "test") {
+            console.log(args);
+        }
+    },
+};
 
 export const getCookie = (name) => {
     let cookieValue = null;
@@ -45,8 +59,8 @@ export const unsuccessPromise = f => Promise.resolve({
 });
 
 export const errorPromise = (error, f) => {
-    console.error(`Error in ${f.name}`);
-    console.error(error);
+    logger.error(`Error in ${f.name}`);
+    logger.error(error);
     return Promise.resolve({
         error,
         f: f.name,

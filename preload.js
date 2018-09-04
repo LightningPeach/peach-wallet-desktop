@@ -8,6 +8,7 @@ const settings = electron.remote.require("./server/settings");
 const ipcTunnelClient = new IpcClient();
 
 // Constants
+window.env = process.env;
 window.INIT_LISTEN_PORT = settings.preload.getInitListenPort;
 window.ELECTRON_SHELL = electron.shell;
 window.LND_SYNC_TIMEOUT = 5000;

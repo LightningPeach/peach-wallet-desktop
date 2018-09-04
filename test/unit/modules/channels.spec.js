@@ -169,6 +169,7 @@ describe("Channels Unit Tests", () => {
                 },
             };
             initState = {
+                app: { dbStatus: appTypes.DB_OPENED },
                 channels: { ...initStateChannels },
             };
             expectedData = undefined;
