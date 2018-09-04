@@ -91,8 +91,8 @@ describe("Lnd Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeStore = sandbox.stub(defaultStore);
             data = {};
             initState = {

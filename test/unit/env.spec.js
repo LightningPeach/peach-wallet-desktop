@@ -1,8 +1,3 @@
-// const path = require("path");
-// const PropertiesReader = require("properties-reader");
-//
-// const settings = PropertiesReader(path.join(__dirname, "../../settings.ini"));
-
 const fs = require("fs");
 const ini = require("ini");
 const path = require("path");

@@ -74,8 +74,8 @@ describe("App Unit Tests", () => {
             successResp = await successPromise();
             unsuccessResp = await unsuccessPromise({ name: undefined });
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeDB = sandbox.stub(db);
             fakeStore = sandbox.stub(defaultStore);
             data = {};

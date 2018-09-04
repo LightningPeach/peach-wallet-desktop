@@ -386,8 +386,8 @@ describe("Stream Payment Unit Tests", () => {
             fakeDB = sandbox.stub(db);
             fakeAccount = sandbox.stub(accountOperations);
             fakeStore = sandbox.stub(defaultStore);
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeLightning = sandbox.stub(lightningOperations);
             data = {
                 streamBuilder: {

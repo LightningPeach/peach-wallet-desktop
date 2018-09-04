@@ -170,8 +170,8 @@ describe("OnChain Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeAccount = sandbox.stub(accountOperations);
             fakeDB = sandbox.stub(db);
             fakeStore = sandbox.stub(defaultStore);
