@@ -1,5 +1,5 @@
 import * as statusCodes from "config/status-codes";
-import { errorPromise, successPromise } from "additional";
+import { errorPromise, successPromise, logger } from "additional";
 import { accountActions, accountOperations } from "modules/account";
 import { lndOperations } from "modules/lnd";
 import { appOperations } from "modules/app";
@@ -55,9 +55,9 @@ function regStartLnd(username) {
 function regFinish(username, password, seed, recovery = false) {
     return async (dispatch) => {
         dispatch(accountActions.startInitAccount());
-        console.log("Create lnd wallet");
+        logger.log("Create lnd wallet");
         let response = await window.ipcClient("createLndWallet", { password, recovery, seed });
-        console.log(response);
+        logger.log(response);
         if (!response.ok) {
             dispatch(accountActions.finishInitAccount());
             return errorPromise(response.error, regFinish);
@@ -111,10 +111,10 @@ function login(username, password) {
             dispatch(accountActions.finishInitAccount());
             return errorPromise(response.error, login);
         }
-        console.log("Unlock lnd");
+        logger.log("Unlock lnd");
         const params = { password };
         response = await window.ipcClient("unlockLnd", params);
-        console.log(response);
+        logger.log(response);
         if (!response.ok) {
             const error = statusCodes.EXCEPTION_USERNAME_PASSWORD_WRONG;
             dispatch(accountActions.finishInitAccount());

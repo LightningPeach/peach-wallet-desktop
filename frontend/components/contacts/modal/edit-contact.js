@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, logger } from "additional";
 import { appOperations } from "modules/app";
 import {
     contactsActions as actions,
@@ -85,7 +85,7 @@ class EditContact extends Component {
     render() {
         const { currentContact } = this.props;
         if (!currentContact) {
-            console.log("Cant show Edit contact 'cause currentContact not provided");
+            logger.log("Cant show Edit contact 'cause currentContact not provided");
             return null;
         }
         return (

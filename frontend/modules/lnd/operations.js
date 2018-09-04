@@ -1,6 +1,6 @@
 import * as statusCodes from "config/status-codes";
 import fetch from "isomorphic-fetch";
-import { delay, successPromise, errorPromise } from "additional";
+import { delay, successPromise, errorPromise, logger } from "additional";
 import { store } from "store/configure-store";
 import { BLOCK_HEIGHT_URL } from "config/node-settings";
 import * as actions from "./actions";
@@ -29,7 +29,7 @@ function waitLndSync() {
             }
             synced = response.response.synced_to_chain;
             dispatch(actions.setLndBlocksHeight(response.response.block_height));
-            console.log("LND SYNCED: ", synced);
+            logger.log("LND SYNCED: ", synced);
             if (!synced) {
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
                 await delay(window.LND_SYNC_TIMEOUT); // eslint-disable-line
@@ -44,20 +44,20 @@ function waitLndSync() {
 
 function startLnd(username, toCheckUser = true) {
     return async (dispatch) => {
-        console.log("Check user existance");
+        logger.log("Check user existance");
         let response;
         if (toCheckUser) {
             response = await window.ipcClient("checkUser", { username });
-            console.log(response);
+            logger.log(response);
             if (!response.ok) {
                 dispatch(actions.setLndInitStatus(""));
                 return errorPromise(response.error, startLnd);
             }
         }
         dispatch(actions.startInitLnd());
-        console.log("Lnd start resp");
+        logger.log("Lnd start resp");
         response = await window.ipcClient("startLnd", { username });
-        console.log(response);
+        logger.log(response);
         if (!response.ok) {
             dispatch(actions.setLndInitStatus(""));
             dispatch(actions.lndInitingError(response.error));
@@ -70,9 +70,9 @@ function startLnd(username, toCheckUser = true) {
 
 function getSeed() {
     return async () => {
-        console.log("Get seed");
+        logger.log("Get seed");
         const response = await window.ipcClient("genSeed");
-        console.log(response);
+        logger.log(response);
         if (!response.ok) {
             return errorPromise(response.error, getSeed);
         }

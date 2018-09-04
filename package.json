@@ -27,7 +27,7 @@
     "scss:watch": "npm run scss -- --watch",
     "test": "npm run lint && npm run test:unit -- ",
     "test:e2e": "cross-env NODE_ENV=spectron mocha --opts ./test/mocha.opts ./test/e2e",
-    "test:unit": "mocha --opts ./test/mocha.opts ./test/unit",
+    "test:unit": "cross-env NODE_ENV=test mocha --opts ./test/mocha.opts ./test/unit",
     "test:coverage": "cross-env NODE_ENV=test nyc --reporter=text --reporter=html npm run test:unit",
     "test:watch": "npm test -- --watch"
   },
