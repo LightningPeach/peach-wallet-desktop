@@ -65,6 +65,11 @@ describe("Lnd Unit Tests", () => {
             expectedData.type = types.SET_LND_BLOCKS_HEIGHT;
             expect(actions.setLndBlocksHeight(data)).to.deep.equal(expectedData);
         });
+
+        it("should create an action to set lnd blocks height on login", () => {
+            expectedData.type = types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN;
+            expect(actions.setLndBlocksHeightOnLogin(data)).to.deep.equal(expectedData);
+        });
     });
 
     describe("Operations tests", () => {
@@ -255,6 +260,10 @@ describe("Lnd Unit Tests", () => {
             it("not synced -> synced in retry", async () => {
                 expectedData = { ...successResp };
                 expectedActions = [
+                    {
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN,
+                    },
                     {
                         payload: 50,
                         type: types.SET_LND_BLOCKS_HEIGHT,
@@ -578,6 +587,13 @@ describe("Lnd Unit Tests", () => {
             action.type = types.SET_LND_BLOCKS_HEIGHT;
             action.payload = 10;
             expectedData.lndBlocks = 10;
+            expect(lndReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_LND_BLOCKS_HEIGHT_ON_LOGIN action", () => {
+            action.type = types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN;
+            action.payload = 10;
+            expectedData.lndBlocksOnLogin = 10;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
     });
