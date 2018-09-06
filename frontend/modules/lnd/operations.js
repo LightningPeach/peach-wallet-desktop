@@ -30,6 +30,9 @@ function waitLndSync(restoreConnection = false) {
             if (!response.ok) {
                 return errorPromise(response.error, waitLndSync);
             }
+            if (!restoreConnection && tickNumber === 1) {
+                dispatch(actions.setLndBlocksHeightOnLogin(response.response.block_height));
+            }
             synced = response.response.synced_to_chain;
             dispatch(actions.setLndBlocksHeight(response.response.block_height));
             console.log("LND SYNCED: ", synced);
