@@ -13,6 +13,7 @@ import {
 import streamPaymentReducer, { initStateStreamPayment } from "modules/streamPayments/reducers";
 import { accountOperations, accountTypes } from "modules/account";
 import { appTypes } from "modules/app";
+import { channelsOperations } from "modules/channels";
 import { notificationsTypes } from "modules/notifications";
 import { lightningOperations } from "modules/lightning";
 import { store as defaultStore } from "store/configure-store";
@@ -376,6 +377,7 @@ describe("Stream Payment Unit Tests", () => {
         let fakeDispatchReturnSuccess;
         let fakeStore;
         let fakeAccount;
+        let fakeChannels;
 
         beforeEach(async () => {
             errorResp = await errorPromise(undefined, { name: undefined });
@@ -389,6 +391,7 @@ describe("Stream Payment Unit Tests", () => {
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
             fakeLightning = sandbox.stub(lightningOperations);
+            fakeChannels = sandbox.stub(channelsOperations);
             data = {
                 streamBuilder: {
                     insert: sinon.stub(),
@@ -562,16 +565,15 @@ describe("Stream Payment Unit Tests", () => {
                 data.streamId = "test";
                 data.sec = 5;
                 fakeAccount.checkBalance.returns({ ok: true, type: SUCCESS_RESPONSE });
+                fakeChannels.getChannels.returns({ ok: true, type: SUCCESS_RESPONSE });
                 window.ipcRenderer.send("ipcMain:updateStreamSec", { streamId: data.streamId, sec: data.sec });
                 expectedActions = [
-                    {
-                        ok: true,
-                        type: SUCCESS_RESPONSE,
-                    },
+                    successResp,
                     {
                         payload: { currentPart: data.sec, streamId: data.streamId },
                         type: types.STREAM_CURRENT_SEC,
                     },
+                    successResp,
                 ];
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.on).to.be.called.calledWith("ipcMain:updateStreamSec");
