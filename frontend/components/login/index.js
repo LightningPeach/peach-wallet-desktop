@@ -84,12 +84,18 @@ class Login extends Component {
             initStatus,
             isIniting,
             lndBlocks,
+            lndBlocksOnLogin,
             lndSyncedToChain,
         } = this.props;
         if (!isIniting) {
             return null;
         }
-        let percent = networkBlocks < 1 ? "" : Math.min(Math.round((lndBlocks * 100) / networkBlocks), 99);
+        let percent = networkBlocks < 1
+            ? ""
+            : Math.min(
+                Math.round(((lndBlocks - lndBlocksOnLogin) * 100) / Math.max(networkBlocks - lndBlocksOnLogin, 1)),
+                99,
+            );
         if (lndSyncedToChain) {
             percent = 100;
         }
@@ -237,6 +243,7 @@ Login.propTypes = {
     initStatus: PropTypes.string,
     isIniting: PropTypes.bool,
     lndBlocks: PropTypes.number.isRequired,
+    lndBlocksOnLogin: PropTypes.number.isRequired,
     lndSyncedToChain: PropTypes.bool,
     networkBlocks: PropTypes.number.isRequired,
 };
@@ -245,6 +252,7 @@ const mapStateToProps = state => ({
     initStatus: state.lnd.initStatus,
     isIniting: state.account.isIniting,
     lndBlocks: state.lnd.lndBlocks,
+    lndBlocksOnLogin: state.lnd.lndBlocksOnLogin,
     lndSyncedToChain: state.lnd.lndSyncedToChain,
     networkBlocks: state.lnd.networkBlocks,
 });
