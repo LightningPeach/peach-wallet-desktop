@@ -34,7 +34,7 @@ function waitLndSync(restoreConnection = false) {
             dispatch(actions.setLndBlocksHeight(response.response.block_height));
             console.log("LND SYNCED: ", synced);
             if (!synced) {
-                if (tickNumber && restoreConnection) {
+                if (tickNumber === 1 && restoreConnection) {
                     dispatch(actions.lndSynced(false));
                     dispatch(appOperations.sendSystemNotification({
                         body: "Please wait for synchronization recovery",
