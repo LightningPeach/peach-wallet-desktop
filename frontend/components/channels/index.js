@@ -13,6 +13,7 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import { ChannelsFullPath } from "routes";
 import CreateChannel from "./modal/create-channel";
+import EditChannel from "./modal/edit-channel";
 import CloseChannel from "./modal/close-channel";
 import StreamWarning from "./modal/stream-warning";
 import ChannelsList from "./ui/ChannelsList";
@@ -52,6 +53,9 @@ class ChannelsPage extends Component {
                 break;
             case types.MODAL_STATE_DELETE_CHANNEL:
                 modal = <CloseChannel />;
+                break;
+            case types.MODAL_STATE_EDIT_CHANNEL:
+                modal = <EditChannel />;
                 break;
             case types.MODAL_WARNING:
                 modal = <StreamWarning />;

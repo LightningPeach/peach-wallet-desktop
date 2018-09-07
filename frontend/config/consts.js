@@ -62,6 +62,7 @@ export const USD_PER_BTC_INTERVAL_TIMEOUT = 60 * 60 * 1000;
 export const CHANNEL_CLOSE_CONFIRMATION = 6;
 export const MIN_CHANNEL_SIZE = 2e4;
 export const USERNAME_MAX_LENGTH = 100;
+export const ELEMENT_NAME_MAX_LENGTH = 100;
 export const LIGHTNING_ID_LENGTH = 66;
 export const PAYMENT_REQUEST_LENGTH = 124;
 export const MODAL_ANIMATION_TIMEOUT = 200;

@@ -25,6 +25,10 @@ function openDeleteChannelModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_DELETE_CHANNEL));
 }
 
+function openEditChannelModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_EDIT_CHANNEL));
+}
+
 function openForceDeleteChannelModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_FORCE_DELETE_CHANNEL));
 }
@@ -413,6 +417,21 @@ function createNewChannel() {
     };
 }
 
+function updateChannelOnServer(name, txId) {
+    return async (dispatch, getState) => {
+        try {
+            await db.channelsBuilder()
+                .update()
+                .set({ name })
+                .where("fundingTxId = :txId", { txId })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, updateChannelOnServer);
+        }
+    };
+}
+
 function shouldShowCreateTutorial() {
     return async (dispatch, getState) => {
         const { lightningID } = getState().account;
@@ -461,6 +480,7 @@ export {
     openStreamWarningModal,
     openNewChannelModal,
     openDeleteChannelModal,
+    openEditChannelModal,
     openForceDeleteChannelModal,
     getDbChannels,
     getChannels,
@@ -471,6 +491,7 @@ export {
     closeChannel,
     createNewChannel,
     clearNewChannel,
+    updateChannelOnServer,
     shouldShowCreateTutorial,
     shouldShowLightningTutorial,
     hideShowCreateTutorial,

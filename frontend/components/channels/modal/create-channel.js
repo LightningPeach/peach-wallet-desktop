@@ -7,7 +7,7 @@ import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { MAX_CHANNEL_SIZE, USERNAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
+import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
 import * as statusCodes from "config/status-codes";
 import { PEACH } from "config/node-settings";
 import { ChannelsFullPath } from "routes";
@@ -78,7 +78,6 @@ class CreateChannel extends Component {
         } else if (amountInStoshi > bitcoinBalance) {
             return statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
         } else if (amountInStoshi > MAX_CHANNEL_SIZE) {
-            const amountSize = `${amount} ${bitcoinMeasureType}`;
             const channelSize = `${toCurMeasure(MAX_CHANNEL_SIZE)} ${bitcoinMeasureType}`;
             return statusCodes.EXCEPTION_AMOUNT_MORE_MAX_CHANNEL(channelSize);
         }
@@ -87,15 +86,22 @@ class CreateChannel extends Component {
 
     addChannel = async (e) => {
         e.preventDefault();
-        const { dispatch, firstEmptyChannelDefaultName } = this.props;
+        const { dispatch, firstEmptyChannelDefaultName, channels } = this.props;
         this.setState({ processing: true });
         analytics.event({ action: "Create Channel Modal", category: "Channels", label: "Create" });
         let name = this.channel__name.value.trim();
         let amount = parseFloat(this.channel__amount.value.trim());
         const lightning = this.channel__lightningId.value.trim();
-        const nameError = validators.validateName(name);
+        let nameError = validators.validateName(name);
         const amountError = this._validateAmount(amount);
         const lightningError = this.state.custom ? validators.validateChannelHost(lightning) : null;
+        if (channels) {
+            channels.forEach((channel) => {
+                if (name === channel.name) {
+                    nameError = statusCodes.EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS;
+                }
+            });
+        }
         if (nameError || amountError || lightningError) {
             this.setState({
                 amountError, lightningError, nameError, processing: false,
@@ -170,8 +176,8 @@ class CreateChannel extends Component {
                                     }}
                                     defaultValue={prepareNewChannel ? prepareNewChannel.name : null}
                                     disabled={this.state.processing}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />
@@ -262,6 +268,14 @@ class CreateChannel extends Component {
 CreateChannel.propTypes = {
     bitcoinBalance: PropTypes.number.isRequired,
     bitcoinMeasureType: PropTypes.string.isRequired,
+    channels: PropTypes.arrayOf(PropTypes.shape({
+        capacity: PropTypes.number.isRequired,
+        channel_point: PropTypes.string.isRequired,
+        commit_fee: PropTypes.number.isRequired,
+        local_balance: PropTypes.number.isRequired,
+        remote_pubkey: PropTypes.string.isRequired,
+        status: PropTypes.string.isRequired,
+    })),
     dispatch: PropTypes.func.isRequired,
     firstEmptyChannelDefaultName: PropTypes.number,
     prepareNewChannel: PropTypes.shape({
@@ -277,6 +291,7 @@ CreateChannel.propTypes = {
 const mapStateToProps = state => ({
     bitcoinBalance: state.account.bitcoinBalance,
     bitcoinMeasureType: state.account.bitcoinMeasureType,
+    channels: state.channels.channels,
     firstEmptyChannelDefaultName: selectors.getFirstNotInUseDefaultChannelName(state.channels.channels),
     prepareNewChannel: state.channels.prepareNewChannel,
 });
