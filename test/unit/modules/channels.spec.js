@@ -1742,6 +1742,39 @@ describe("Channels Unit Tests", () => {
                 expectedData = 1;
                 expect(selectors.getFirstNotInUseDefaultChannelName(channels)).to.deep.equal(expectedData);
             });
+
+            it("should return correct number empty name in second group", () => {
+                channels = [
+                    { name: "CHANNEL 1" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 7" },
+                ];
+                expectedData = 6;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels, 3)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct number for first after last empty name", () => {
+                channels = [
+                    { name: "CHANNEL 1" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 6" },
+                ];
+                expectedData = 7;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels, 3)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct number for high index", () => {
+                channels = [
+                    { name: "CHANNEL 1" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 6" },
+                ];
+                expectedData = 104;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels, 100)).to.deep.equal(expectedData);
+            });
         });
     });
 });

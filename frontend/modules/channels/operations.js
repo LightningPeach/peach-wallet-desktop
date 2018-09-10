@@ -45,7 +45,7 @@ function getChannels(initAccount = false) {
         if (getState().app.dbStatus !== appTypes.DB_OPENED || getState().channels.creatingNewChannel) {
             return;
         }
-        const namelessChannelCount = selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels);
+        let emptyChannelIndex = 1;
         await dispatch(onChainOperations.getOnchainHistory());
         const getActiveChannels = async (dbChannels, blockHeight) => {
             const response = await window.ipcClient("listChannels");
@@ -120,7 +120,12 @@ function getChannels(initAccount = false) {
                                 .execute();
                         }
                     } else {
-                        chanName = `CHANNEL ${namelessChannelCount}`;
+                        const notInUseChannelName = selectors.getFirstNotInUseDefaultChannelName(
+                            getState().channels.channels,
+                            emptyChannelIndex,
+                        );
+                        chanName = `CHANNEL ${notInUseChannelName}`;
+                        emptyChannelIndex += 1;
                         // TODO: time race between creating channel and getchannels
                         if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                             db.channelsBuilder()
@@ -189,7 +194,10 @@ function getChannels(initAccount = false) {
                             .execute();
                     }
                 } else {
-                    chanName = `CHANNEL ${namelessChannelCount}`;
+                    const notInUseChannelName =
+                        selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels, emptyChannelIndex);
+                    emptyChannelIndex += 1;
+                    chanName = `CHANNEL ${notInUseChannelName}`;
                     // TODO: time race between creating channel and pendingchannels
                     if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                         db.channelsBuilder()
