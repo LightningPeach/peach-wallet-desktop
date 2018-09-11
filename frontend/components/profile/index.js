@@ -38,10 +38,6 @@ class Profile extends Component {
                 ],
             },
         };
-        this.cachedSelection = {
-            end: 0,
-            start: 0,
-        };
 
         analytics.pageview(ProfileFullPath, "Profile");
     }

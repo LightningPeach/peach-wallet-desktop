@@ -5,8 +5,16 @@
 
     .send {
         padding-top: 23px;
-        width: 420px;
+        width: 613px;
         max-width: 100%;
+
+        &.new-stream {
+            width: initial;
+        }
+
+        .Select.has-value .Select-control {
+            border: 1px solid rgba(74,74,74,0.3);
+        }
     }
 
     .tabs {
@@ -14,10 +22,6 @@
             min-height: 27px;
         }
         &__container {
-            width: 368px;
-            position: absolute;
-            right: 100%;
-            margin-right: -388px;
 
             &:after {
                 content: "";

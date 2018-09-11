@@ -28,6 +28,7 @@ import Ellipsis from "components/common/ellipsis";
 import ChannelWarning from "./modal/channel_warning";
 import RegularPayment from "./regular";
 import StreamPayment from "./stream";
+import NewStreamPayment from "./stream-new";
 
 class Lightning extends Component {
     constructor(props) {
@@ -64,6 +65,9 @@ class Lightning extends Component {
             } else if (this.state.activeTab === "stream") {
                 path = `${LightningFullPath}/stream`;
                 title = "Lightning / Stream Payment";
+            } else if (this.state.activeTab === "new-stream") {
+                path = `${LightningFullPath}/new-stream`;
+                title = "Lightning / New Stream Payment";
             }
             analytics.pageview(path, title);
         }
@@ -309,6 +313,9 @@ class Lightning extends Component {
             } else if (tab === "stream") {
                 path = `${LightningFullPath}/stream`;
                 title = "Lightning / Stream Payment";
+            } else if (tab === "new-stream") {
+                path = `${LightningFullPath}/new-stream`;
+                title = "Lightning / New Stream Payment";
             }
             analytics.pageview(path, title);
         }
@@ -338,6 +345,9 @@ class Lightning extends Component {
             case "stream":
                 tabContent = <StreamPayment />;
                 break;
+            case "new-stream":
+                tabContent = <NewStreamPayment />;
+                break;
             default:
                 tabContent = null;
                 break;
@@ -361,6 +371,12 @@ class Lightning extends Component {
                                         onClick={() => this.handleTabClick("stream")}
                                     >
                                         Stream payment
+                                    </a>
+                                    <a
+                                        className={`tab-link ${activeTab === "new-stream" ? "tab-link-active" : ""}`}
+                                        onClick={() => this.handleTabClick("new-stream")}
+                                    >
+                                        New Stream payment
                                     </a>
                                 </div>
                             </div>
