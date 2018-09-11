@@ -113,16 +113,13 @@ class NewStreamPayment extends Component {
         return { contactName, lightningId };
     };
 
-    _validateTime = (time, amount) => {
-        const { dispatch, lightningBalance } = this.props;
+    _validateTime = (time) => {
         if (!time) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return null;
         } else if (!Number.isFinite(time)) {
             return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
         } else if (time <= 0) {
             return statusCodes.EXCEPTION_TIME_NEGATIVE;
-        } else if (dispatch(appOperations.convertToSatoshi(time * amount)) > lightningBalance) {
-            return statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
         }
         return null;
     };
@@ -144,12 +141,12 @@ class NewStreamPayment extends Component {
         const name = this.name.value.trim();
         let to = contact.lightningId || this.state.toValue;
         let amount = parseFloat(this.amount.value.trim());
-        const time = Math.round(parseInt(this.time.value.trim(), 10));
+        const time = Math.round(parseInt(this.time.value.trim(), 10)) || 0;
 
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
         const amountError = dispatch(accountOperations.checkAmount(amount));
-        const timeError = this._validateTime(time, amount);
+        const timeError = this._validateTime(time);
 
         if (nameError || toError || amountError || timeError) {
             this.setState({
@@ -461,7 +458,6 @@ NewStreamPayment.propTypes = {
     })),
     dispatch: PropTypes.func.isRequired,
     isThereActiveChannel: PropTypes.bool,
-    lightningBalance: PropTypes.number.isRequired,
     lisStatus: PropTypes.string.isRequired,
     modalState: PropTypes.string.isRequired,
 };
@@ -470,7 +466,6 @@ const mapStateToProps = state => ({
     bitcoinMeasureType: state.account.bitcoinMeasureType,
     contacts: state.contacts.contacts,
     isThereActiveChannel: channelsSelectors.isThereActiveChannel(state),
-    lightningBalance: state.account.lightningBalance,
     lisStatus: state.account.lisStatus,
     modalState: state.app.modalState,
 });
