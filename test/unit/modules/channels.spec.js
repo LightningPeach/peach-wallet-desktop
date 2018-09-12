@@ -450,7 +450,7 @@ describe("Channels Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("pendingChannels");
                 expect(window.ipcClient).to.be.calledWith("listChannels");
-                expect(fakeDB.channelsBuilder).to.be.callCount(4);
+                expect(fakeDB.channelsBuilder).to.be.callCount(5);
                 expect(data.channelsBuilder.insert).to.be.calledOnce;
                 expect(data.channelsBuilder.insert).to.be.calledAfter(fakeDB.channelsBuilder);
                 expect(data.channelsBuilder.values).to.be.calledOnce;
@@ -464,9 +464,9 @@ describe("Channels Unit Tests", () => {
                         remoteBalance: 25,
                         status: "pending",
                     });
-                expect(data.channelsBuilder.update).to.be.calledTwice;
+                expect(data.channelsBuilder.update).to.be.calledThrice;
                 expect(data.channelsBuilder.update).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
-                expect(data.channelsBuilder.set).to.be.calledTwice;
+                expect(data.channelsBuilder.set).to.be.calledThrice;
                 expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
                 expect(data.channelsBuilder.set)
                     .to.be.calledWithExactly({
@@ -475,13 +475,13 @@ describe("Channels Unit Tests", () => {
                         remoteBalance: 15,
                         status: "pending",
                     });
-                expect(data.channelsBuilder.where).to.be.calledTwice;
+                expect(data.channelsBuilder.where).to.be.calledThrice;
                 expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
                 expect(data.channelsBuilder.where)
                     .to.be.calledWithExactly("fundingTxid = :txID", {
                         txID: "4",
                     });
-                expect(data.channelsBuilder.execute).to.be.calledThrice;
+                expect(data.channelsBuilder.execute).to.be.callCount(4);
                 expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
                 expect(data.channelsBuilder.execute).to.be.calledAfter(data.channelsBuilder.values);
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
