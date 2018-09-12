@@ -56,7 +56,7 @@ function getChannels(initAccount = false) {
                     const maturity = blockHeight;
                     let chanName;
                     const chanTxid = channel.channel_point.split(":")[0];
-                    const totalBalance = channel.local_balance + channel.remote_balance;
+                    const totalBalance = parseInt(channel.local_balance, 10) + parseInt(channel.remote_balance, 10);
                     if (has(dbChannels, chanTxid)) {
                         const dbChan = dbChannels[chanTxid];
                         chanName = dbChan.name;
@@ -66,7 +66,7 @@ function getChannels(initAccount = false) {
                                 title: chanName,
                             }));
                         }
-                        if (dbChan.status === "active" && !!dbChan.activeStatus !== channel.active && !initAccount) {
+                        if (!initAccount && dbChan.status === "active" && !!dbChan.activeStatus !== channel.active) {
                             if (channel.active) {
                                 dispatch(appOperations.sendSystemNotification({
                                     body: "Channel becomes active",
@@ -79,20 +79,23 @@ function getChannels(initAccount = false) {
                                 }));
                             }
                         }
+
                         if (
                             dbChan.localBalance / totalBalance > 0.1
-                            && channel.local_balance / totalBalance <= 0.1
+                            && parseInt(channel.local_balance, 10) / totalBalance <= 0.1
                         ) {
-                            const amount =
-                                dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance));
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(
+                                channel.local_balance,
+                                10,
+                            )));
                             const measure = getState().account.bitcoinMeasureType;
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You have only ${amount} ${measure} left in the channel`,
                                 title: chanName,
                             }));
                         }
-                        if (dbChan.status === "active" && dbChan.localBalance < channel.local_balance) {
-                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance - dbChan.localBalance)); // eslint-disable-line
+                        if (dbChan.status === "active" && dbChan.localBalance < parseInt(channel.local_balance, 10)) {
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
                                 title: chanName,
@@ -101,8 +104,8 @@ function getChannels(initAccount = false) {
                         if (
                             dbChan.status !== "active"
                             || !!dbChan.activeStatus !== channel.active
-                            || dbChan.localBalance !== channel.local_balance
-                            || dbChan.remoteBalance !== channel.remote_balance
+                            || dbChan.localBalance !== parseInt(channel.local_balance, 10)
+                            || dbChan.remoteBalance !== parseInt(channel.remote_balance, 10)
                         ) {
                             db.channelsBuilder()
                                 .update()
@@ -169,8 +172,8 @@ function getChannels(initAccount = false) {
                     if (
                         dbChan.status !== "pending"
                         || !!dbChan.activeStatus !== false
-                        || dbChan.localBalance !== channel.channel.local_balance
-                        || dbChan.remoteBalance !== channel.channel.remote_balance
+                        || dbChan.localBalance !== parseInt(channel.channel.local_balance, 10)
+                        || dbChan.remoteBalance !== parseInt(channel.channel.remote_balance, 10)
                     ) {
                         const status = dbChan.status === "active" ? "deleted" : "pending";
                         db.channelsBuilder()
