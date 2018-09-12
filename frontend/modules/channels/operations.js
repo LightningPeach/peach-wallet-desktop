@@ -50,6 +50,23 @@ function getChannels(initAccount = false) {
                 const bChan = b.chan_id;
                 return aChan < bChan ? -1 : 1;
             };
+            const keyByListChannels = keyBy(response.response.channels, channel => channel.channel_point.split(":")[0]);
+            Object.values(dbChannels).forEach((dbChan) => {
+                if (dbChan.status === "active" && !has(keyByListChannels, dbChan.fundingTxid)) {
+                    dispatch(appOperations.sendSystemNotification({
+                        body: "Channel has been closed by counterparty",
+                        title: dbChan.name,
+                    }));
+                    db.channelsBuilder()
+                        .update()
+                        .set({
+                            activeStatus: false,
+                            status: "deleted",
+                        })
+                        .where("fundingTxid = :txID", { txID: dbChan.fundingTxid })
+                        .execute();
+                }
+            });
             return response.response.channels.sort(sort)
                 .map((channel) => {
                     const status = channel.active ? types.CHANNEL_STATUS_ACTIVE : types.CHANNEL_STATUS_NOT_ACTIVE;
@@ -163,26 +180,19 @@ function getChannels(initAccount = false) {
                     maturity = getState().onchain.history
                         .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
-                    if (dbChan.status === "active") {
-                        dispatch(appOperations.sendSystemNotification({
-                            body: "Channel has been closed by counterparty",
-                            title: chanName,
-                        }));
-                    }
                     if (
                         dbChan.status !== "pending"
                         || !!dbChan.activeStatus !== false
                         || dbChan.localBalance !== parseInt(channel.channel.local_balance, 10)
                         || dbChan.remoteBalance !== parseInt(channel.channel.remote_balance, 10)
                     ) {
-                        const status = dbChan.status === "active" ? "deleted" : "pending";
                         db.channelsBuilder()
                             .update()
                             .set({
                                 activeStatus: false,
                                 localBalance: channel.channel.local_balance,
                                 remoteBalance: channel.channel.remote_balance,
-                                status,
+                                status: "pending",
                             })
                             .where("fundingTxid = :txID", { txID: chanTxid })
                             .execute();
