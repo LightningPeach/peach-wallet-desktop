@@ -266,6 +266,7 @@ describe("Channels Unit Tests", () => {
                         bitcoinMeasureType: "mBTC",
                     },
                     channels: {
+                        ...initStateChannels,
                         creatingNewChannel: false,
                         channels: [],
                     },
@@ -327,6 +328,7 @@ describe("Channels Unit Tests", () => {
                     { tx_hash: "4", num_confirmations: "2" },
                 ];
                 initState.onchain = { history };
+                initState.channels.deleteQueue = ["4:1"];
                 store = mockStore(initState);
                 window.ipcClient
                     .withArgs("pendingChannels")

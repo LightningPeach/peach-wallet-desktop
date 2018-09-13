@@ -52,7 +52,12 @@ function getChannels(initAccount = false) {
             };
             const keyByListChannels = keyBy(response.response.channels, channel => channel.channel_point.split(":")[0]);
             Object.values(dbChannels).forEach((dbChan) => {
-                if (dbChan.status === "active" && !has(keyByListChannels, dbChan.fundingTxid)) {
+                if (
+                    dbChan.status === "active"
+                    && !has(keyByListChannels, dbChan.fundingTxid)
+                    && getState().channels.deleteQueue.filter(channel =>
+                        channel.split(":")[0] === dbChan.fundingTxid).length === 0
+                ) {
                     dispatch(appOperations.sendSystemNotification({
                         body: "Channel has been closed by counterparty",
                         title: dbChan.name,
@@ -318,8 +323,8 @@ function closeChannel(channel, force = false) {
             params.force = true;
         }
         const response = await window.ipcClient("closeChannel", params);
-        dispatch(actions.removeFromDelete(channel.channel_point));
         if (!response.ok) {
+            dispatch(actions.removeFromDelete(channel.channel_point));
             return errorPromise(response.error, closeChannel);
         }
         try {
@@ -350,6 +355,7 @@ function closeChannel(channel, force = false) {
             /* istanbul ignore next */
             console.error(statusCodes.EXCEPTION_EXTRA, e);
         }
+        dispatch(actions.removeFromDelete(channel.channel_point));
         return successPromise();
     };
 }

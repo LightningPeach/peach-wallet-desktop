@@ -65,7 +65,7 @@ function getOnchainHistory() {
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
                     if (!has(dbTxns, txn)) {
-                        if (amount > 0) {
+                        if (amount > 0 && numConfirmations >= 3) {
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
                                 title: "Incoming Onchain transaction",
@@ -99,6 +99,15 @@ function getOnchainHistory() {
                             && dbTxns[txn].numConfirmations !== numConfirmations
                         )
                     ) {
+                        if (
+                            (!dbTxns[txn].numConfirmations || dbTxns[txn].numConfirmations < 3)
+                            && numConfirmations >= 3
+                        ) {
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                title: "Incoming Onchain transaction",
+                            }));
+                        }
                         db.onchainBuilder()
                             .update()
                             .set({
