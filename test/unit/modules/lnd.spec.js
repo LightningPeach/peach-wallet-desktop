@@ -6,7 +6,7 @@ import * as statusCodes from "config/status-codes";
 import { lndActions as actions, lndTypes as types, lndOperations as operations } from "modules/lnd";
 import lndReducer, { initStateLnd } from "modules/lnd/reducers";
 import { accountTypes } from "modules/account";
-import { BLOCK_HEIGHT_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
+import { PEACH_API_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
 import { store as defaultStore } from "store/configure-store";
 
@@ -187,7 +187,7 @@ describe("Lnd Unit Tests", () => {
 
         describe("getBlocksHeight()", () => {
             it("error response", async () => {
-                nock(BLOCK_HEIGHT_HOST).get(BLOCK_HEIGHT_QUERY).reply(404);
+                nock(PEACH_API_HOST).get(BLOCK_HEIGHT_QUERY).reply(404);
                 expectedData = {
                     payload: 0,
                     type: types.SET_NETWORK_BLOCKS,
@@ -198,7 +198,7 @@ describe("Lnd Unit Tests", () => {
             });
 
             it("success", async () => {
-                nock(BLOCK_HEIGHT_HOST).get(BLOCK_HEIGHT_QUERY).reply(200, { height: 1000000 });
+                nock(PEACH_API_HOST).get(BLOCK_HEIGHT_QUERY).reply(200, { height: 1000000 });
                 expectedData = { ...successResp };
                 expectedActions = [
                     {

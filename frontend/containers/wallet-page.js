@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
+import { hubOperations } from "modules/hub";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -12,12 +13,14 @@ import {
     ChannelsPanel,
     AddressBookPanel,
     ProfilePanel,
+    MerchantsPanel,
 } from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
 import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
+import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
@@ -43,6 +46,7 @@ class WalletPage extends Component {
             dispatch(accountOperations.logout());
             return;
         }
+        dispatch(hubOperations.getMerchants());
         this.channelsIntervalId = setInterval(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         this.balanceIntervalId = setInterval(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         this.usdPerBtcIntervalId = setInterval(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
@@ -126,6 +130,9 @@ class WalletPage extends Component {
         }
         if (ProfilePanel.includes(path)) {
             Panel = <ProfilePage />;
+        }
+        if (MerchantsPanel.includes(path)) {
+            Panel = <MerchantsPage />;
         }
 
         return (

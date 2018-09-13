@@ -10,6 +10,7 @@ import channelsReducer from "modules/channels/reducers";
 import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
+import hubReducer from "modules/hub/reducers";
 
 export default combineReducers({
     account: accountReducer,
@@ -17,6 +18,7 @@ export default combineReducers({
     auth: authReducer,
     channels: channelsReducer,
     contacts: contactsReducer,
+    hub: hubReducer,
     lightning: lightningReducer,
     lnd: lndReducer,
     notifications: notificationsReducer,

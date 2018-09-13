@@ -1,0 +1,54 @@
+.merchants {
+    &__item {
+        margin-bottom: 10px;
+
+        &--opened {
+            margin-bottom: 20px;
+            .merchants__info {
+                max-height: 500px;
+            }
+        }
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+    &__logo {
+        max-width: 110px;
+        margin-right: 10px;
+    }
+
+    &__img {
+        display: block;
+        max-width: 100%;
+    }
+
+    &__name {
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    &__info {
+        max-height: 0;
+        transition: max-height .3s ease-in-out;
+        overflow: hidden;
+    }
+
+    &__row {
+        display: flex;
+        padding-bottom: 10px;
+    }
+
+    &__label {
+        font-weight: 800;
+        width: 120px;
+    }
+
+    &__value {
+        flex: 1;
+    }
+}

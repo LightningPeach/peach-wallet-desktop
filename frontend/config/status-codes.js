@@ -138,6 +138,10 @@ const EXCEPTION_CONTACT_CREATE_ID_EXISTS = "Unable to create contact. This Light
 const EXCEPTION_LIS_DOWN_DURING_TX =
     "Local Invoice Server is not running, please use payment request instead of Lightning ID.";
 
+// MERCHANTS
+// Merchants api unavailable, exception or 404
+const EXCEPTION_HUB_UNAVAILABLE = "Hub api unavailable";
+
 /**
  * STATUS NOTIFICATIONS
  */
@@ -192,4 +196,5 @@ export {
     EXCEPTION_LIS_DOWN_DURING_TX,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
+    EXCEPTION_HUB_UNAVAILABLE,
 };

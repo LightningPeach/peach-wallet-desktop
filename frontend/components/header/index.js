@@ -7,7 +7,7 @@ import { channelsActions, channelsTypes } from "modules/channels";
 import {
     WalletPath, OnchainFullPath, ChannelsFullPath, AddressBookFullPath, ProfileFullPath,
     LightningPanel, OnchainPanel, ChannelsPanel, AddressBookPanel, ProfilePanel,
-    HomeFullPath,
+    MerchantsFullPath, MerchantsPanel,
 } from "routes";
 
 class Header extends Component {
@@ -36,6 +36,7 @@ class Header extends Component {
         let onchainClass = "";
         let channelsClass = "";
         let addressClass = "";
+        let merchantsClass = "";
         let pageName = "";
         const path = this.props.location.pathname;
         if (LightningPanel.includes(path)) {
@@ -57,6 +58,10 @@ class Header extends Component {
         if (ProfilePanel.includes(path)) {
             pageName = "Profile";
             profileClass = "active";
+        }
+        if (MerchantsPanel.includes(path)) {
+            pageName = "Merchants";
+            merchantsClass = "active";
         }
         let navClass = this.state.burgerState;
         if (this.props.skipCreateTutorial === channelsTypes.SHOW) {
@@ -109,6 +114,13 @@ class Header extends Component {
                                     onClick={this.hideBurger}
                                 >
                                     Address Book
+                                </Link>
+                                <Link
+                                    to={MerchantsFullPath}
+                                    className={`contacts ${merchantsClass}`}
+                                    onClick={this.hideBurger}
+                                >
+                                    Merchants
                                 </Link>
                                 <span className="separator" />
                                 <Link
