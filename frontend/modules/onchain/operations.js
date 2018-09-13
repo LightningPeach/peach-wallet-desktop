@@ -65,7 +65,7 @@ function getOnchainHistory() {
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
                     if (!has(dbTxns, txn)) {
-                        if (amount > 0 && numConfirmations >= 3) {
+                        if (amount > 0 && numConfirmations >= 1) {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
@@ -102,8 +102,8 @@ function getOnchainHistory() {
                     ) {
                         if (
                             amount > 0
-                            && (!dbTxns[txn].numConfirmations || dbTxns[txn].numConfirmations < 3)
-                            && numConfirmations >= 3
+                            && (!dbTxns[txn].numConfirmations || dbTxns[txn].numConfirmations < 1)
+                            && numConfirmations >= 1
                         ) {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
