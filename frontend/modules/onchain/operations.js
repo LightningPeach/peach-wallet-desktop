@@ -101,7 +101,8 @@ function getOnchainHistory() {
                         )
                     ) {
                         if (
-                            (!dbTxns[txn].numConfirmations || dbTxns[txn].numConfirmations < 3)
+                            amount > 0
+                            && (!dbTxns[txn].numConfirmations || dbTxns[txn].numConfirmations < 3)
                             && numConfirmations >= 3
                         ) {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
