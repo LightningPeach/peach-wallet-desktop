@@ -66,8 +66,9 @@ function getOnchainHistory() {
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
                     if (!has(dbTxns, txn)) {
                         if (amount > 0 && numConfirmations >= 3) {
+                            const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
-                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
                                 title: "Incoming Onchain transaction",
                             }));
                         }
@@ -103,8 +104,9 @@ function getOnchainHistory() {
                             (!dbTxns[txn].numConfirmations || dbTxns[txn].numConfirmations < 3)
                             && numConfirmations >= 3
                         ) {
+                            const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
-                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
                                 title: "Incoming Onchain transaction",
                             }));
                         }

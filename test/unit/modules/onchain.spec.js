@@ -539,6 +539,8 @@ describe("OnChain Unit Tests", () => {
             });
 
             it("success", async () => {
+                fakeApp.convertSatoshiToCurrentMeasure
+                    .returns(fakeDispatchReturnSuccess);
                 fakeDB.onchainBuilder.returns({
                     getMany: data.onchainBuilder.getMany.returns(dbTxns),
                     insert: data.onchainBuilder.insert.returns({
@@ -641,10 +643,6 @@ describe("OnChain Unit Tests", () => {
                 expect(data.onchainBuilder.execute).to.be.calledAfter(data.onchainBuilder.values);
                 expect(data.onchainBuilder.execute).to.be.calledImmediatelyAfter(data.onchainBuilder.where);
                 expect(fakeApp.sendSystemNotification).to.be.calledTwice;
-                expect(fakeApp.sendSystemNotification).to.be.calledWithExactly({
-                    body: "You received 100 mBTC",
-                    title: "Incoming Onchain transaction",
-                });
             });
         });
     });
