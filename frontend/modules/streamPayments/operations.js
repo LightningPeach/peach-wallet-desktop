@@ -128,11 +128,11 @@ function prepareStreamPayment(
     };
 }
 
-function submitStreamPayment() {
+function addStreamPaymentToList() {
     return async (dispatch, getState) => {
         const details = getState().streamPayment.streamDetails;
         if (!details) {
-            return errorPromise(statusCodes.EXCEPTION_STREAM_DETAILS_REQUIRED, submitStreamPayment);
+            return errorPromise(statusCodes.EXCEPTION_STREAM_DETAILS_REQUIRED, addStreamPaymentToList);
         }
         window.ipcRenderer.send("addStream", {
             currentPart: details.currentPart,
@@ -168,28 +168,6 @@ function submitStreamPayment() {
     };
 }
 
-function updateStreamPayment(streamId, title) {
-    return (dispatch) => {
-        dispatch(actions.streamPaymentUpdate(streamId, title));
-    };
-}
-
-function deleteStreamPayment(streamId) {
-    return (dispatch, getState) => {
-        const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId);
-        if (!payment[0]) {
-            return;
-        }
-        window.ipcRenderer.send("endStream", { uuid: payment[0].uuid });
-        db.streamBuilder()
-            .update()
-            .set({ status: "end" })
-            .where("id = :id", { id: payment[0].uuid })
-            .execute();
-        dispatch(actions.streamPaymentDelete(streamId));
-    };
-}
-
 function stopStreamPayment(streamId) {
     return (dispatch, getState) => {
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId);
@@ -217,13 +195,6 @@ function startStreamPayment(streamId) {
             return;
         }
         dispatch(actions.streamPaymentStatus(payment[0].streamId, types.STREAM_PAYMENT_STREAMING));
-        window.ipcRenderer.send("startStream", {
-            currentPart: payment[0].currentPart,
-            delay: payment[0].delay,
-            streamId: payment[0].streamId,
-            totalParts: payment[0].totalParts,
-            uuid: payment[0].uuid,
-        });
         db.streamBuilder()
             .update()
             .set({ currentPart: payment[0].currentPart, status: "run" })
@@ -344,13 +315,11 @@ window.ipcRenderer.on("ipcMain:saveStreamPart", (event, streamId, paymentHash) =
 export {
     afterCrash,
     prepareStreamPayment,
-    updateStreamPayment,
-    deleteStreamPayment,
     startStreamPayment,
     stopStreamPayment,
     pauseStreamPayment,
     openStreamPaymentDetailsModal,
-    submitStreamPayment,
+    addStreamPaymentToList,
     loadStreams,
     clearPrepareStreamPayment,
     pauseAllStream,

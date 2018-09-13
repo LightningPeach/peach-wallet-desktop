@@ -35,7 +35,6 @@ class LightningDetails extends Component {
         const { dispatch } = this.props;
         this.setState({ processing: true });
         analytics.event({ action: "Regular Payment Modal", category: "Lightning", label: "Pay" });
-        dispatch(lightningOperations.pendingPayment());
         const response = await dispatch(lightningOperations.makePayment());
         dispatch(lightningOperations.getHistory());
         this.setState({ processing: false });

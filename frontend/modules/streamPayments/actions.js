@@ -1,26 +1,8 @@
 import * as types from "./types";
 
-const setStreamPage = streamId => ({
-    payload: streamId,
-    type: types.SET_STREAM_PAGE,
-});
-
 const streamPaymentPrepare = streamDetails => ({
     payload: streamDetails,
     type: types.STREAM_PAYMENT_PREPARE,
-});
-
-const streamPaymentUpdate = (streamId, title) => ({
-    payload: {
-        streamId,
-        title,
-    },
-    type: types.STREAM_PAYMENT_UPDATE,
-});
-
-const streamPaymentDelete = streamId => ({
-    payload: streamId,
-    type: types.STREAM_PAYMENT_DELETE,
 });
 
 const streamPaymentSuccessFinish = streamId => ({
@@ -59,10 +41,7 @@ const setStreams = streams => ({
 });
 
 export {
-    setStreamPage,
     streamPaymentPrepare,
-    streamPaymentUpdate,
-    streamPaymentDelete,
     streamPaymentSuccessFinish,
     streamPaymentFailFinish,
     streamPaymentStatus,

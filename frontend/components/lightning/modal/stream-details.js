@@ -25,7 +25,7 @@ class StreamDetails extends Component {
 
     addToList = async () => {
         const { dispatch, onClose } = this.props;
-        await dispatch(streamPaymentOperations.submitStreamPayment());
+        await dispatch(streamPaymentOperations.addStreamPaymentToList());
         dispatch(streamPaymentOperations.clearPrepareStreamPayment());
         if (onClose) {
             onClose();

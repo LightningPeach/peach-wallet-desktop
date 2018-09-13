@@ -20,8 +20,6 @@ const streamPaymentReducer = (state = defaultState, action) => {
                 streams: state.streams.map(item =>
                     item.streamId === action.payload ? { ...item, status: types.FINISHED_STREAM_PAYMENT } : item),
             };
-        case types.SET_STREAM_PAGE:
-            return { ...state, streamId: action.payload };
         case types.STREAM_PAYMENT_STATUS:
             return {
                 ...state,
@@ -30,18 +28,6 @@ const streamPaymentReducer = (state = defaultState, action) => {
             };
         case types.STREAM_PAYMENT_PREPARE:
             return { ...state, streamDetails: action.payload };
-        case types.STREAM_PAYMENT_UPDATE:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.streamId === action.payload.streamId ? { ...item, title: action.payload.title } : item),
-            };
-        case types.STREAM_PAYMENT_DELETE:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.streamId === action.payload ? { ...item, status: types.DELETED_STREAM_PAYMENT } : item),
-            };
         case types.STREAM_CURRENT_SEC:
             return {
                 ...state,
