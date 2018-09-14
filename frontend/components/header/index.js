@@ -25,7 +25,30 @@ class Header extends Component {
         this.hideBurger = this.hideBurger.bind(this);
         this.state = {
             burgerState: "close",
+            pageAddressList: [
+                { fullPath: WalletPath, name: "lightning" },
+                { fullPath: OnchainFullPath, name: "onchain" },
+                { fullPath: ChannelsFullPath, name: "channels" },
+                { fullPath: AddressBookFullPath, name: "address" },
+                { fullPath: ProfileFullPath, name: "profile" },
+            ],
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { location } = nextProps;
+        const { pageAddressList } = this.state;
+        if (location !== this.props.location) {
+            const path = location.pathname;
+            let index = -1;
+            while (index < pageAddressList.length) {
+                index += 1;
+                if (pageAddressList[index].fullPath.includes(path)) {
+                    this.wrapper.children[index + 1].focus();
+                    break;
+                }
+            }
+        }
     }
 
     toggleClass(e) {
@@ -78,7 +101,10 @@ class Header extends Component {
                             <Link to={WalletPath} className="logo" />
                         </div>
                         <div className="col-xs-9">
-                            <nav className={navClass}>
+                            <nav
+                                className={navClass}
+                                ref={(ref) => { this.wrapper = ref }}
+                            >
                                 <div
                                     className={`burger burger__${this.state.burgerState}`}
                                     onClick={this.toggleClass}
