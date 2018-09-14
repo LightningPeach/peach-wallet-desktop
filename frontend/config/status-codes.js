@@ -88,6 +88,11 @@ const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline";
 // CHANNELS
 // No channel upon set channel event
 const EXCEPTION_CHANNEL_ABSENT = "There is no such channel";
+// Attempt to create channel - channel with such name already exists
+const EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS = "Unable to create channel. This name already exists.";
+// Attempt to edit channel - channel with such name already exists
+const EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS = "Unable to edit channel. This name already exists.";
+
 
 // TRANSACITONS
 // Empty stream details
@@ -186,6 +191,8 @@ export {
     EXCEPTION_REMOTE_OFFLINE,
     EXCEPTION_ACCOUNT_NO_KERNEL,
     EXCEPTION_CHANNEL_ABSENT,
+    EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS,
+    EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS,
     EXCEPTION_EXTRA,
     EXCEPTION_PASSWORD_DIFF,
     EXCEPTION_TIME_NEGATIVE,

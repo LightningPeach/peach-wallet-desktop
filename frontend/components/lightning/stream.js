@@ -12,7 +12,7 @@ import { lightningOperations } from "modules/lightning";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations } from "modules/app";
 import * as statusCodes from "config/status-codes";
-import { LIGHTNING_ID_LENGTH, MODAL_ANIMATION_TIMEOUT, USERNAME_MAX_LENGTH } from "config/consts";
+import { LIGHTNING_ID_LENGTH, MODAL_ANIMATION_TIMEOUT, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
@@ -184,8 +184,8 @@ class StreamPayment extends Component {
                             }}
                             onChange={() => this.setState({ nameError: null })}
                             disabled={this.state.processing}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
+                            max={ELEMENT_NAME_MAX_LENGTH}
+                            maxLength={ELEMENT_NAME_MAX_LENGTH}
                         />
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>

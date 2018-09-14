@@ -282,6 +282,44 @@ describe("App Unit Tests", () => {
             });
         });
 
+        describe("sendSystemNotification", () => {
+            beforeEach(() => {
+                initState = {
+                    account: {
+                        systemNotifications: 6,
+                    },
+                    app: { ...initStateApp },
+                };
+                store = mockStore(initState);
+                data = {
+                    body: "body",
+                    silent: false,
+                    subtitle: "subtitle",
+                    title: "title",
+                };
+            });
+
+            it("notifications disabled", () => {
+                initState = {
+                    account: {
+                        systemNotifications: 2,
+                    },
+                    app: { ...initStateApp },
+                };
+                store = mockStore(initState);
+                expect(store.dispatch(operations.sendSystemNotification(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+
+            it("notifications disabled", () => {
+                expect(store.dispatch(operations.sendSystemNotification(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).to.be.calledOnce;
+                expect(window.ipcRenderer.send).to.be.calledWithExactly("showNotification", data);
+            });
+        });
+
         describe("usdBtcRate()", () => {
             beforeEach(() => {
                 expectedData = { ...successResp };

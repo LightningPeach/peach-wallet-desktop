@@ -17,7 +17,7 @@ const lndReducer = (state = defaultState, action) => {
         case accountTypes.LOGOUT_ACCOUNT:
             return defaultState;
         case types.LND_SYNCED:
-            return { ...state, lndSyncedToChain: true };
+            return { ...state, ...state, lndSyncedToChain: action.payload };
         case types.LND_INITING_ERROR:
             return { ...state, lndInitError: action.payload, lndIniting: false };
         case types.START_INIT_LND:

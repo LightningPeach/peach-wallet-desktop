@@ -1,5 +1,5 @@
 import * as statusCodes from "config/status-codes";
-import { appActions } from "modules/app";
+import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
 import { store } from "store/configure-store";
@@ -9,7 +9,6 @@ import uniq from "lodash/uniq";
 import has from "lodash/has";
 import * as actions from "./actions";
 import * as types from "./types";
-
 
 function openSendCoinsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SEND_COINS));
@@ -65,6 +64,57 @@ function getOnchainHistory() {
                     blockHash = chainTxns[txn].block_hash;
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
+                    if (!has(dbTxns, txn)) {
+                        if (amount > 0) {
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                title: "Incoming Onchain transaction",
+                            }));
+                        }
+                        db.onchainBuilder()
+                            .insert()
+                            .values({
+                                address,
+                                amount,
+                                blockHash,
+                                blockHeight,
+                                name: "Regular payment",
+                                numConfirmations: Math.min(numConfirmations, 6),
+                                status,
+                                timeStamp: chainTxns[txn].time_stamp,
+                                totalFees,
+                                txHash: txn,
+                            })
+                            .execute();
+                    } else if (
+                        dbTxns[txn].amount !== amount
+                        || dbTxns[txn].blockHeight !== blockHeight
+                        || dbTxns[txn].blockHash !== blockHash
+                        || dbTxns[txn].status !== status
+                        || dbTxns[txn].timeStamp !== chainTxns[txn].time_stamp
+                        || dbTxns[txn].totalFees !== totalFees
+                        || dbTxns[txn].name === ""
+                        || (
+                            dbTxns[txn].numConfirmations < 6
+                            && dbTxns[txn].numConfirmations !== numConfirmations
+                        )
+                    ) {
+                        db.onchainBuilder()
+                            .update()
+                            .set({
+                                amount,
+                                blockHash,
+                                blockHeight,
+                                name: dbTxns[txn].name ? dbTxns[txn].name : "Regular payment",
+                                numConfirmations: Math.min(numConfirmations, 6),
+                                status,
+                                timeStamp: chainTxns[txn].time_stamp,
+                                totalFees,
+                                txHash: txn,
+                            })
+                            .where("txHash = :txID", { txID: txn })
+                            .execute();
+                    }
                 } else {
                     amount = parseInt(dbTxns[txn].amount, 10);
                     ({
@@ -133,7 +183,7 @@ function sendCoins() {
                         amount: -amount - getState().onchain.fee,
                         blockHash: "",
                         blockHeight: 0,
-                        name,
+                        name: name || "Regular payment",
                         numConfirmations: 0,
                         status: "pending",
                         timeStamp: Math.floor(Date.now() / 1000),
@@ -151,22 +201,6 @@ function sendCoins() {
         return errorPromise(response.error, sendCoins);
     };
 }
-
-/* function getInitOnChainFee() {
-    return async (dispatch, getState) => {
-        const response = await window.ipcClient("get-onchain-fee");
-        dispatch(actions.setOnChainFee(parseInt(response.response.fee_per_kb, 10)));
-        return successPromise();
-    };
-}
-
-function setOnChainFee(fee) {
-    return async (dispatch, getState) => {
-        await window.ipcClient("set-onchain-fee", { fee });
-        const response = await window.ipcClient("get-onchain-fee");
-        return successPromise();
-    };
-} */
 
 function clearSendCoinsError() {
     return dispatch => dispatch(actions.setSendCoinsPaymentDetails(""));
@@ -195,8 +229,6 @@ export {
     prepareSendCoins,
     clearSendCoinsDetails,
     sendCoins,
-    // getInitOnChainFee,
-    // setOnChainFee,
     clearSendCoinsError,
     subscribeTransactions,
     unSubscribeTransactions,

@@ -1,8 +1,8 @@
 import { hashHistory } from "react-router";
-import { appOperations } from "modules/app";
+import { appOperations, appActions } from "modules/app";
 import { lndActions, lndOperations } from "modules/lnd";
 import { notificationsActions } from "modules/notifications";
-import { channelsOperations } from "modules/channels";
+import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { lightningOperations } from "modules/lightning";
 import { contactsOperations } from "modules/contacts";
 import { onChainOperations } from "modules/onchain";
@@ -22,6 +22,7 @@ import {
 import * as statusCodes from "config/status-codes";
 import * as accountActions from "./actions";
 import * as types from "./types";
+import * as actions from "../channels/actions";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
@@ -45,6 +46,10 @@ window.ipcRenderer.on("lis-down", () => {
     store.dispatch(accountActions.setLisStatus(types.LIS_DOWN));
 });
 
+function openSystemNotificationsModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+}
+
 function createNewBitcoinAccount() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("newAddress");
@@ -56,19 +61,25 @@ function createNewBitcoinAccount() {
     };
 }
 
-async function setInitConfig(lightningId) {
-    await db.configBuilder()
-        .insert()
-        .values({
-            activeMeasure: ALL_MEASURES[0].btc,
-            createChannelViewed: 0,
-            lightningId,
-            lightningPaymentViewed: 0,
-        })
-        .execute();
+function setInitConfig(lightningId) {
+    return async (dispatch) => {
+        await db.configBuilder()
+            .insert()
+            .values({
+                activeMeasure: ALL_MEASURES[0].btc,
+                createChannelViewed: 0,
+                lightningId,
+                systemNotifications: 3,
+            })
+            .execute();
+        dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
+        dispatch(accountActions.setSystemNotificationsStatus(3));
+        dispatch(openSystemNotificationsModal());
+        return successPromise();
+    };
 }
 
-function loadBitcoinMeasure() {
+function loadAccountSettings() {
     return async (dispatch, getState) => {
         try {
             const { lightningID } = getState().account;
@@ -78,13 +89,19 @@ function loadBitcoinMeasure() {
                 .getOne();
             if (response) {
                 dispatch(accountActions.setBitcoinMeasure(response.activeMeasure));
+                if (response.createChannelViewed) {
+                    dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));
+                }
+                dispatch(accountActions.setSystemNotificationsStatus(response.systemNotifications));
+                if (response.systemNotifications === 3) {
+                    dispatch(openSystemNotificationsModal());
+                }
             } else {
-                await setInitConfig(lightningID);
-                dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
+                await dispatch(setInitConfig(lightningID));
             }
             return successPromise();
         } catch (e) {
-            return errorPromise(e.message, loadBitcoinMeasure);
+            return errorPromise(e.message, loadAccountSettings);
         }
     };
 }
@@ -210,12 +227,12 @@ function initAccount(login, newAccount = false) {
         dispatch(lightningOperations.subscribeInvoices());
         await Promise.all([
             dispatch(contactsOperations.getContacts()),
-            dispatch(channelsOperations.getChannels()),
+            dispatch(channelsOperations.getChannels(true)),
             dispatch(channelsOperations.shouldShowCreateTutorial()),
             dispatch(channelsOperations.shouldShowLightningTutorial()),
             dispatch(appOperations.usdBtcRate()),
             dispatch(createNewBitcoinAccount()),
-            dispatch(loadBitcoinMeasure()),
+            dispatch(loadAccountSettings()),
         ]);
         return successPromise();
     };
@@ -246,6 +263,23 @@ function setBitcoinMeasure(value) {
             return successPromise();
         } catch (e) {
             return errorPromise(e.message, setBitcoinMeasure);
+        }
+    };
+}
+
+function setSystemNotificationsStatus(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(accountActions.setSystemNotificationsStatus(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ systemNotifications: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setSystemNotificationsStatus);
         }
     };
 }
@@ -381,7 +415,7 @@ function checkBalance() {
 
 export {
     setInitConfig,
-    loadBitcoinMeasure,
+    loadAccountSettings,
     connectKernel,
     connectServerLnd,
     getLightningID,
@@ -394,4 +428,6 @@ export {
     checkAmount,
     checkBalance,
     setBitcoinMeasure,
+    openSystemNotificationsModal,
+    setSystemNotificationsStatus,
 };

@@ -45,13 +45,22 @@ class ChannelsList extends Component {
         this.setState({ hideInformer });
     };
 
+    editChannel = (e, id) => {
+        e.preventDefault();
+        e.stopPropagation();
+        analytics.event({ action: "Edit channel", category: "Channels", label: "Edit" });
+        const { dispatch } = this.props;
+        dispatch(operations.setCurrentChannel(id));
+        dispatch(operations.openEditChannelModal());
+    };
+
     closeChannel = (e, id) => {
         e.preventDefault();
         e.stopPropagation();
         analytics.event({ action: "Close channel", category: "Channels", label: "Close Channel" });
         const { dispatch, isActiveStreamRunning } = this.props;
         if (isActiveStreamRunning) {
-            dispatch(operations.streamWarningModal());
+            dispatch(operations.openStreamWarningModal());
             return;
         }
         dispatch(operations.setCurrentChannel(parseInt(id, 10)));
@@ -80,6 +89,7 @@ class ChannelsList extends Component {
                     key={channel.channel_point}
                     clickClose={e => this.closeChannel(e, key)}
                     clickCopy={() => this.copyPubKey(channel.remote_pubkey)}
+                    clickEdit={e => this.editChannel(e, key)}
                     channel={channel}
                     isDeleting={deleteQueue.indexOf(channel.channel_point) !== -1}
                     {...this.props}

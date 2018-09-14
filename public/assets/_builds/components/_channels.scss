@@ -30,7 +30,7 @@
         box-shadow: 1px 1px 10px 0 rgba(225, 225, 225, 0.5);
         cursor: pointer;
 
-        .channel__close {
+        .channel__button {
             z-index: 1;
             opacity: 1;
         }
@@ -85,6 +85,33 @@
         span {
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+    }
+
+    &__button {
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1.5;
+        opacity: 0;
+        z-index: -10;
+        position: relative;
+        transition: opacity .3s ease-in-out;
+        padding-top: 5px;
+        letter-spacing: 0.2px;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        margin: -2px -5px 0 auto;
+
+        &:hover,
+        &:active {
+            z-index: 1;
+            opacity: 1;
+            text-decoration: underline;
+        }
+
+        &--edit {
+            margin-right: 0;
         }
     }
 

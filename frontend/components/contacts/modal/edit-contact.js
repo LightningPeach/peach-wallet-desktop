@@ -12,7 +12,7 @@ import { AddressBookFullPath } from "routes";
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import * as statusCodes from "config/status-codes";
-import { USERNAME_MAX_LENGTH } from "config/consts";
+import { ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 
 class EditContact extends Component {
     constructor(props) {
@@ -23,6 +23,17 @@ class EditContact extends Component {
 
         analytics.pageview(`${AddressBookFullPath}/update-contact`, "Update contact");
     }
+
+    showErrorNotification = (text) => {
+        const { dispatch } = this.props;
+        dispatch(error({
+            action: {
+                callback: () => dispatch(operations.openNewContactModal()),
+                label: "Retry",
+            },
+            message: text,
+        }));
+    };
 
     closeModal = () => {
         const { dispatch } = this.props;
@@ -64,13 +75,7 @@ class EditContact extends Component {
         ));
         dispatch(appOperations.closeModal());
         if (!response.ok) {
-            dispatch(error({
-                action: {
-                    callback: () => dispatch(operations.openEditContactModal()),
-                    label: "Retry",
-                },
-                message: response.error,
-            }));
+            this.showErrorNotification(response.error);
             return;
         }
 
@@ -110,8 +115,8 @@ class EditContact extends Component {
                                         this.contact__name = input;
                                     }}
                                     defaultValue={currentContact.name}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />

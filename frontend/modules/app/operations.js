@@ -123,6 +123,22 @@ function closeDb() {
     };
 }
 
+function sendSystemNotification(sender) {
+    return (dispatch, getState) => {
+        const notifications = getState().account.systemNotifications;
+        const access = (notifications >> 2) & 1; // eslint-disable-line
+        const sound = (notifications >> 1) & 1; // eslint-disable-line
+        if (access) {
+            window.ipcRenderer.send("showNotification", {
+                body: sender.body,
+                silent: !sound,
+                subtitle: sender.subtitle,
+                title: sender.title,
+            });
+        }
+    };
+}
+
 window.ipcRenderer.on("forceLogout", (event, status) => {
     store.dispatch(actions.setForceLogoutError(status));
     store.dispatch(openForceLogoutModal());
@@ -153,6 +169,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
 });
 
 export {
+    sendSystemNotification,
     closeModal,
     openChangePasswordModal,
     usdBtcRate,

@@ -24,7 +24,9 @@ class Profile extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            notifications: (props.systemNotifications >> 2) & 1, // eslint-disable-line
             payReqAmountError: null,
+            sound: (props.systemNotifications >> 1) & 1, // eslint-disable-line
             tooltips: {
                 address: "Generate new BTC address",
                 copy: "Copy to clipboard",
@@ -111,6 +113,24 @@ class Profile extends Component {
         const { dispatch } = this.props;
         window.ipcRenderer.send("setDefaultLightningApp");
         dispatch(appActions.setAppAsDefaultStatus(true));
+    };
+
+    toggleNotifications = () => {
+        const { dispatch, systemNotifications } = this.props;
+        this.setState({
+            notifications: !this.state.notifications,
+        });
+        dispatch(accountOperations.setSystemNotificationsStatus(systemNotifications ^ 4)); // eslint-disable-line
+    };
+
+    toggleSound = () => {
+        if (this.state.notifications) {
+            const { dispatch, systemNotifications } = this.props;
+            this.setState({
+                sound: !this.state.sound,
+            });
+            dispatch(accountOperations.setSystemNotificationsStatus(systemNotifications ^ 2)); // eslint-disable-line
+        }
     };
 
     renderProfile = () => {
@@ -376,8 +396,28 @@ class Profile extends Component {
                         />
                     </div>
                 </div>
-                <div className="row profile__row profile__row profile__row--wrap">
-                    <div className="col-xs-12 profile__flex">
+                <div className="row profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__switcher switcher">
+                            <div className="switcher-text">System notifications</div>
+                            <div
+                                className={`switcher-toggle ${this.state.notifications ? "active" : ""}`}
+                                onClick={this.toggleNotifications}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <div className={`profile__switcher switcher ${this.state.notifications ? "" : "disabled"}`}>
+                            <div className="switcher-text">Sounds</div>
+                            <div
+                                className={`switcher-toggle ${this.state.sound ? "active" : ""}`}
+                                onClick={this.toggleSound}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="row profile__row">
+                    <div className="col-xs-12">
                         {
                             appAsDefaultStatus ?
                                 <span className="profile__app-status">
@@ -460,6 +500,7 @@ Profile.propTypes = {
     modalState: PropTypes.string.isRequired,
     paymentRequest: PropTypes.string,
     paymentRequestAmount: PropTypes.number,
+    systemNotifications: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -471,6 +512,7 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
     paymentRequest: state.lightning.paymentRequest,
     paymentRequestAmount: state.lightning.paymentRequestAmount,
+    systemNotifications: state.account.systemNotifications,
 });
 
 export default connect(mapStateToProps)(Profile);

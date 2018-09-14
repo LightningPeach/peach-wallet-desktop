@@ -12,7 +12,7 @@ import {
     PAYMENT_REQUEST_LENGTH,
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,
-    USERNAME_MAX_LENGTH,
+    ELEMENT_NAME_MAX_LENGTH,
 } from "config/consts";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations, appTypes } from "modules/app";
@@ -282,8 +282,8 @@ class RegularPayment extends Component {
                             })}
                             value={this.state.regularName}
                             disabled={this.state.processing}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
+                            max={ELEMENT_NAME_MAX_LENGTH}
+                            maxLength={ELEMENT_NAME_MAX_LENGTH}
                         />
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>

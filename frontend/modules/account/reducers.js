@@ -30,6 +30,7 @@ export const initStateAccount = {
     },
     peers: [],
     signedMessage: null,
+    systemNotifications: types.DISABLED,
     toFixedMeasure: ALL_MEASURES[0].toFixed,
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,
@@ -97,6 +98,8 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, ...action.payload };
         case types.SET_LIS_STATUS:
             return { ...state, lisStatus: action.payload };
+        case types.SET_SYSTEM_NOTIFICATIONS_STATUS:
+            return { ...state, systemNotifications: action.payload };
         default:
             return state;
     }
