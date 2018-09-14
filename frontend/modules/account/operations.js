@@ -1,5 +1,6 @@
 import { hashHistory } from "react-router";
 import { appOperations, appActions } from "modules/app";
+import { accountActions, accountTypes } from "modules/account";
 import { lndActions, lndOperations } from "modules/lnd";
 import { notificationsActions } from "modules/notifications";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
@@ -19,9 +20,6 @@ import {
     ALL_MEASURES,
 } from "config/consts";
 import * as statusCodes from "config/status-codes";
-import * as accountActions from "./actions";
-import * as types from "./types";
-import * as actions from "../channels/actions";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
@@ -32,21 +30,21 @@ window.ipcRenderer.on("lnd-up", () => {
 });
 
 window.ipcRenderer.on("lis-up", () => {
-    if (store.getState().account.lisStatus === types.LIS_UP) {
+    if (store.getState().account.lisStatus === accountTypes.LIS_UP) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(types.LIS_UP));
+    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_UP));
 });
 
 window.ipcRenderer.on("lis-down", () => {
-    if (store.getState().account.lisStatus === types.LIS_DOWN) {
+    if (store.getState().account.lisStatus === accountTypes.LIS_DOWN) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(types.LIS_DOWN));
+    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_DOWN));
 });
 
 function openSystemNotificationsModal() {
-    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+    return dispatch => dispatch(appActions.setModalState(accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS));
 }
 
 function createNewBitcoinAccount() {
@@ -72,7 +70,7 @@ function setInitConfig(lightningId) {
             })
             .execute();
         dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
-        dispatch(accountActions.setSystemNotificationsStatus(3));
+        dispatch(accountActions.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
         dispatch(openSystemNotificationsModal());
         return successPromise();
     };

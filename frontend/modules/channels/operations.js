@@ -5,7 +5,7 @@ import * as statusCodes from "config/status-codes";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise } from "additional";
-import { CHANNEL_CLOSE_CONFIRMATION } from "config/consts";
+import { CHANNEL_CLOSE_CONFIRMATION, CHANNEL_LEFT_AMOUNT_TO_NOTIFY } from "config/consts";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -52,6 +52,9 @@ function getChannels(initAccount = false) {
             };
             const keyByListChannels = keyBy(response.response.channels, channel => channel.channel_point.split(":")[0]);
             Object.values(dbChannels).forEach((dbChan) => {
+                // Check if channel in database marked as active, not found in listchannels
+                // and channel hasn't been closed from our side(not in delete queue, while tx not in pool)
+                // then show notification about channel closing by counterparty
                 if (
                     dbChan.status === "active"
                     && !has(keyByListChannels, dbChan.fundingTxid)
@@ -103,8 +106,8 @@ function getChannels(initAccount = false) {
                         }
 
                         if (
-                            dbChan.localBalance / totalBalance > 0.1
-                            && parseInt(channel.local_balance, 10) / totalBalance <= 0.1
+                            dbChan.localBalance / totalBalance > CHANNEL_LEFT_AMOUNT_TO_NOTIFY
+                            && parseInt(channel.local_balance, 10) / totalBalance <= CHANNEL_LEFT_AMOUNT_TO_NOTIFY
                         ) {
                             const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(
                                 channel.local_balance,
@@ -182,6 +185,7 @@ function getChannels(initAccount = false) {
                 if (has(dbChannels, chanTxid)) {
                     const dbChan = dbChannels[chanTxid];
                     chanName = dbChan.name;
+                    // Return maturity of current channels' opening transaction
                     maturity = getState().onchain.history
                         .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
