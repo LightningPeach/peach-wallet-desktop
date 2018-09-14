@@ -14,6 +14,7 @@ import {
     db,
     successPromise,
     unsuccessPromise,
+    logger,
 } from "additional";
 import {
     MAX_PAYMENT_REQUEST,
@@ -157,7 +158,7 @@ function logout(keepModalState = false) {
                     .serverSocket
                     .close();
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
         }
         await dispatch(onChainOperations.unSubscribeTransactions());
@@ -183,15 +184,15 @@ function initAccount(login, newAccount = false) {
     };
     return async (dispatch, getState) => {
         await dispatch(lndOperations.getBlocksHeight());
-        console.log("Check is LND synced to chain");
+        logger.log("Check is LND synced to chain");
         let response = await dispatch(lndOperations.waitLndSync());
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
-        console.log("LND synced succesfully");
+        logger.log("LND synced succesfully");
         tempNewAcc = false;
         response = await window.ipcClient("startLis");
-        console.log("LIS start");
+        logger.log("LIS start");
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
@@ -200,14 +201,14 @@ function initAccount(login, newAccount = false) {
             return handleError(dispatch, getState, response.error);
         }
         response = await dispatch(getLightningID());
-        console.log("Have got lightning id");
-        console.log(response);
+        logger.log("Have got lightning id");
+        logger.log(response);
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
         response = await dispatch(lightningOperations.getHistory());
-        console.log("Have got history");
-        console.log(response);
+        logger.log("Have got history");
+        logger.log(response);
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
@@ -239,7 +240,7 @@ function signMessage(message) {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("signMessage", { message });
         if (!response.ok) {
-            console.error("Error on signMessage", response.error);
+            logger.error("Error on signMessage", response.error);
             return errorPromise(response.error, signMessage);
         }
         dispatch(accountActions.successSignMessage(response.response.signature));

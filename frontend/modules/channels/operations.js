@@ -4,7 +4,7 @@ import isEqual from "lodash/isEqual";
 import * as statusCodes from "config/status-codes";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
-import { db, successPromise, errorPromise } from "additional";
+import { db, successPromise, errorPromise, logger } from "additional";
 import { CHANNEL_CLOSE_CONFIRMATION, CHANNEL_LEFT_AMOUNT_TO_NOTIFY } from "config/consts";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
@@ -25,6 +25,10 @@ function openDeleteChannelModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_DELETE_CHANNEL));
 }
 
+function openEditChannelModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_EDIT_CHANNEL));
+}
+
 function openForceDeleteChannelModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_FORCE_DELETE_CHANNEL));
 }
@@ -41,7 +45,7 @@ function getChannels(initAccount = false) {
         if (getState().app.dbStatus !== appTypes.DB_OPENED || getState().channels.creatingNewChannel) {
             return;
         }
-        const namelessChannelCount = selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels);
+        let emptyChannelIndex = 1;
         await dispatch(onChainOperations.getOnchainHistory());
         const getActiveChannels = async (dbChannels, blockHeight) => {
             const response = await window.ipcClient("listChannels");
@@ -144,7 +148,12 @@ function getChannels(initAccount = false) {
                                 .execute();
                         }
                     } else {
-                        chanName = `CHANNEL ${namelessChannelCount}`;
+                        const notInUseChannelName = selectors.getFirstNotInUseDefaultChannelName(
+                            getState().channels.channels,
+                            emptyChannelIndex,
+                        );
+                        chanName = `CHANNEL ${notInUseChannelName}`;
+                        emptyChannelIndex += 1;
                         // TODO: time race between creating channel and getchannels
                         if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                             db.channelsBuilder()
@@ -207,7 +216,10 @@ function getChannels(initAccount = false) {
                             .execute();
                     }
                 } else {
-                    chanName = `CHANNEL ${namelessChannelCount}`;
+                    const notInUseChannelName =
+                        selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels, emptyChannelIndex);
+                    emptyChannelIndex += 1;
+                    chanName = `CHANNEL ${notInUseChannelName}`;
                     // TODO: time race between creating channel and pendingchannels
                     if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                         db.channelsBuilder()
@@ -242,7 +254,7 @@ function getChannels(initAccount = false) {
 
         const info = await window.ipcClient("getInfo");
         if (!info.ok) {
-            console.error(info);
+            logger.error(info);
             return;
         }
         const dbChans = await getDbChannels();
@@ -357,7 +369,7 @@ function closeChannel(channel, force = false) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         dispatch(actions.removeFromDelete(channel.channel_point));
         return successPromise();
@@ -425,14 +437,29 @@ function createNewChannel() {
             creatingChannelPoint = null;
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         const expectedBitcoinBalance = getState().account.bitcoinBalance - newChannelDetails.capacity;
         dispatch(actions.successCreateNewChannel(expectedBitcoinBalance));
         dispatch(actions.endCreateNewChannel());
         dispatch(actions.clearNewChannelPreparing());
-        console.log(`TXN FOR CHANNEL OPENING: ${responseChannels.funding_txid_str}`);
+        logger.log(`TXN FOR CHANNEL OPENING: ${responseChannels.funding_txid_str}`);
         return successPromise({ trnID: responseChannels.funding_txid_str });
+    };
+}
+
+function updateChannelOnServer(name, txId) {
+    return async (dispatch, getState) => {
+        try {
+            await db.channelsBuilder()
+                .update()
+                .set({ name })
+                .where("fundingTxId = :txId", { txId })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, updateChannelOnServer);
+        }
     };
 }
 
@@ -484,6 +511,7 @@ export {
     openStreamWarningModal,
     openNewChannelModal,
     openDeleteChannelModal,
+    openEditChannelModal,
     openForceDeleteChannelModal,
     getDbChannels,
     getChannels,
@@ -494,6 +522,7 @@ export {
     closeChannel,
     createNewChannel,
     clearNewChannel,
+    updateChannelOnServer,
     shouldShowCreateTutorial,
     shouldShowLightningTutorial,
     hideShowCreateTutorial,

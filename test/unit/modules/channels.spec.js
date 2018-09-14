@@ -122,6 +122,8 @@ describe("Channels Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
+        const txId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+        const name = "waldo";
         let sandbox;
         let data;
         let store;
@@ -145,7 +147,7 @@ describe("Channels Unit Tests", () => {
             fakeOnchain = sandbox.stub(onChainOperations);
             fakeApp = sandbox.stub(appOperations);
             fakeDB = sandbox.stub(db);
-            window.ipcClient.reset();
+            window.ipcClient.resetHistory();
             data = {
                 configBuilder: {
                     update: sinon.stub(),
@@ -171,6 +173,7 @@ describe("Channels Unit Tests", () => {
                 },
             };
             initState = {
+                app: { dbStatus: appTypes.DB_OPENED },
                 channels: { ...initStateChannels },
             };
             expectedData = undefined;
@@ -197,6 +200,13 @@ describe("Channels Unit Tests", () => {
                 expectedData.payload = types.MODAL_STATE_NEW_CHANNEL;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openNewChannelModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("openEditChannelModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_EDIT_CHANNEL;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openEditChannelModal())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
@@ -1321,6 +1331,58 @@ describe("Channels Unit Tests", () => {
             });
         });
 
+        describe("updateChannelOnServer()", () => {
+            beforeEach(() => {
+                data.response = [{ data: "foo" }];
+                fakeDB.channelsBuilder.returns({
+                    update: data.channelsBuilder.update.returns({
+                        set: data.channelsBuilder.set.returns({
+                            where: data.channelsBuilder.where.returns({
+                                execute: data.channelsBuilder.execute.returns(data.response),
+                            }),
+                        }),
+                    }),
+                });
+            });
+
+            it("db error", async () => {
+                fakeDB.channelsBuilder.throws(new Error("foo"));
+                expectedData = {
+                    ...errorResp,
+                    error: "foo",
+                    f: "updateChannelOnServer",
+                };
+                expect(await store.dispatch(operations.updateChannelOnServer(
+                    name,
+                    txId,
+                ))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.channelsBuilder).to.be.calledOnce;
+                expect(data.channelsBuilder.update).not.to.be.called;
+            });
+
+            it("success", async () => {
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.updateChannelOnServer(
+                    name,
+                    txId,
+                ))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.channelsBuilder).to.be.calledOnce;
+                expect(data.channelsBuilder.update).to.be.calledOnce;
+                expect(data.channelsBuilder.update).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.set).to.be.calledOnce;
+                expect(data.channelsBuilder.set).to.be.calledImmediatelyAfter(data.channelsBuilder.update);
+                expect(data.channelsBuilder.set).to.be.calledWith({ name });
+                expect(data.channelsBuilder.where).to.be.calledOnce;
+                expect(data.channelsBuilder.where).to.be.calledImmediatelyAfter(data.channelsBuilder.set);
+                expect(data.channelsBuilder.where).to.be.calledWith("fundingTxId = :txId", { txId });
+                expect(data.channelsBuilder.execute).to.be.calledOnce;
+                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
+            });
+        });
+
+
         describe("shouldShowCreateTutorial()", () => {
             beforeEach(() => {
                 initState.account = { lightningID: "foo" };
@@ -1682,6 +1744,39 @@ describe("Channels Unit Tests", () => {
                 ];
                 expectedData = 1;
                 expect(selectors.getFirstNotInUseDefaultChannelName(channels)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct number empty name in second group", () => {
+                channels = [
+                    { name: "CHANNEL 1" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 7" },
+                ];
+                expectedData = 6;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels, 3)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct number for first after last empty name", () => {
+                channels = [
+                    { name: "CHANNEL 1" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 6" },
+                ];
+                expectedData = 7;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels, 3)).to.deep.equal(expectedData);
+            });
+
+            it("should return correct number for high index", () => {
+                channels = [
+                    { name: "CHANNEL 1" },
+                    { name: "CHANNEL 2" },
+                    { name: "CHANNEL 4" },
+                    { name: "CHANNEL 6" },
+                ];
+                expectedData = 104;
+                expect(selectors.getFirstNotInUseDefaultChannelName(channels, 100)).to.deep.equal(expectedData);
             });
         });
     });

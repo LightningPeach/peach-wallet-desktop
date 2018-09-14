@@ -3,7 +3,7 @@ import { appActions } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
-import { db, successPromise, errorPromise } from "additional";
+import { db, successPromise, errorPromise, logger } from "additional";
 import orderBy from "lodash/orderBy";
 import { error } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
@@ -18,7 +18,7 @@ async function afterCrash() {
             .where("status = :status", { status: "run" })
             .execute();
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
 }
 
@@ -162,7 +162,7 @@ function submitStreamPayment() {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         return successPromise();
     };
@@ -236,8 +236,8 @@ window.ipcRenderer.on("ipcMain:pauseStream", async (event, streamId) => {
     const payment = store.getState().streamPayment.streams.filter(item => item.streamId === streamId);
     /* istanbul ignore if */
     if (!payment[0]) {
-        console.error("STREAM PAUSED BUT STREAM NOT FOUND IN STORE");
-        console.error(`Stream uuid: ${streamId}`);
+        logger.error("STREAM PAUSED BUT STREAM NOT FOUND IN STORE");
+        logger.error(`Stream uuid: ${streamId}`);
         return;
     }
     store.dispatch(actions.streamPaymentStatus(streamId, types.STREAM_PAYMENT_PAUSE));
@@ -252,8 +252,8 @@ window.ipcRenderer.on("ipcMain:endStream", async (event, streamId) => {
     const payment = store.getState().streamPayment.streams.filter(item => item.streamId === streamId);
     /* istanbul ignore if */
     if (!payment[0]) {
-        console.error("STREAM ENDED BUT STREAM NOT FOUND IN STORE");
-        console.error(`Stream uuid: ${streamId}`);
+        logger.error("STREAM ENDED BUT STREAM NOT FOUND IN STORE");
+        logger.error(`Stream uuid: ${streamId}`);
         return;
     }
     store.dispatch(actions.streamPaymentSuccessFinish(streamId));
@@ -268,8 +268,8 @@ window.ipcRenderer.on("ipcMain:finishStream", async (event, streamId) => {
     const payment = store.getState().streamPayment.streams.filter(item => item.streamId === streamId);
     /* istanbul ignore if */
     if (!payment[0]) {
-        console.error("STREAM ENDED BUT STREAM NOT FOUND IN STORE");
-        console.error(`Stream uuid: ${streamId}`);
+        logger.error("STREAM ENDED BUT STREAM NOT FOUND IN STORE");
+        logger.error(`Stream uuid: ${streamId}`);
         return;
     }
     store.dispatch(actions.streamPaymentSuccessFinish(streamId));
@@ -284,12 +284,12 @@ window.ipcRenderer.on("ipcMain:errorStream", async (event, streamId, err) => {
     const payment = store.getState().streamPayment.streams.filter(item => item.streamId === streamId);
     if (!payment[0]) {
         /* istanbul ignore next */
-        console.error("ERROR ON STREAM PAYMENT BUT STREAM NOT FOUND IN STORE");
-        console.error(err);
+        logger.error("ERROR ON STREAM PAYMENT BUT STREAM NOT FOUND IN STORE");
+        logger.error(err);
         return;
     }
-    console.error("ERROR ON STREAM PAYMENT");
-    console.error(err);
+    logger.error("ERROR ON STREAM PAYMENT");
+    logger.error(err);
     store.dispatch(actions.streamPaymentStatus(streamId, types.STREAM_PAYMENT_PAUSE));
     store.dispatch(error({
         message: err,
@@ -306,8 +306,8 @@ window.ipcRenderer.on("ipcMain:updateStreamSec", (event, streamId, sec) => {
     const payment = store.getState().streamPayment.streams.filter(item => item.streamId === streamId);
     /* istanbul ignore if */
     if (!payment[0]) {
-        console.error("SAVE STREAM PART BUT STREAM NOT FOUND IN STORE");
-        console.error(`Stream uuid: ${streamId}`);
+        logger.error("SAVE STREAM PART BUT STREAM NOT FOUND IN STORE");
+        logger.error(`Stream uuid: ${streamId}`);
         return;
     }
     store.dispatch(accountOperations.checkBalance());
@@ -324,8 +324,8 @@ window.ipcRenderer.on("ipcMain:saveStreamPart", (event, streamId, paymentHash) =
     const payment = store.getState().streamPayment.streams.filter(item => item.streamId === streamId);
     /* istanbul ignore if */
     if (!payment[0]) {
-        console.error("SAVE STREAM PART BUT STREAM NOT FOUND IN STORE");
-        console.error(`Stream uuid: ${streamId}`);
+        logger.error("SAVE STREAM PART BUT STREAM NOT FOUND IN STORE");
+        logger.error(`Stream uuid: ${streamId}`);
     }
     try {
         db.streamPartBuilder()
@@ -337,7 +337,7 @@ window.ipcRenderer.on("ipcMain:saveStreamPart", (event, streamId, paymentHash) =
             .execute();
     } catch (e) {
         /* istanbul ignore next */
-        console.error(statusCodes.EXCEPTION_EXTRA, e);
+        logger.error(statusCodes.EXCEPTION_EXTRA, e);
     }
 });
 

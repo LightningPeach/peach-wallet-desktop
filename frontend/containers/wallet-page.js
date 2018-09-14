@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { logger } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
@@ -43,7 +44,7 @@ class WalletPage extends Component {
     componentWillMount() {
         const { dispatch, isLogined, isIniting } = this.props;
         if (!isLogined && !isIniting) {
-            console.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
+            logger.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
             dispatch(accountOperations.logout());
             return;
         }

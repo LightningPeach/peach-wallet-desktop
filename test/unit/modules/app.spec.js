@@ -74,8 +74,8 @@ describe("App Unit Tests", () => {
             successResp = await successPromise();
             unsuccessResp = await unsuccessPromise({ name: undefined });
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeDB = sandbox.stub(db);
             fakeStore = sandbox.stub(defaultStore);
             data = {};
@@ -538,11 +538,20 @@ describe("App Unit Tests", () => {
             expect(appReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle LOGOUT_ACCOUNT action", () => {
+        it("should handle LOGOUT_ACCOUNT action, app not deep link default", () => {
             action.type = accountTypes.LOGOUT_ACCOUNT;
             state = JSON.parse(JSON.stringify(initStateApp));
             state.dbStatus = types.DB_OPENED;
             state.usdPerBtc = "bar";
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle LOGOUT_ACCOUNT action, app is deep link default", () => {
+            action.type = accountTypes.LOGOUT_ACCOUNT;
+            state = JSON.parse(JSON.stringify(initStateApp));
+            state.dbStatus = types.DB_OPENED;
+            state.appAsDefaultStatus = true;
+            expectedData.appAsDefaultStatus = true;
             expect(appReducer(state, action)).to.deep.equal(expectedData);
         });
 
