@@ -147,7 +147,7 @@ describe("Channels Unit Tests", () => {
             fakeOnchain = sandbox.stub(onChainOperations);
             fakeApp = sandbox.stub(appOperations);
             fakeDB = sandbox.stub(db);
-            window.ipcClient.reset();
+            window.ipcClient.resetHistory();
             data = {
                 configBuilder: {
                     update: sinon.stub(),
@@ -173,6 +173,7 @@ describe("Channels Unit Tests", () => {
                 },
             };
             initState = {
+                app: { dbStatus: appTypes.DB_OPENED },
                 channels: { ...initStateChannels },
             };
             expectedData = undefined;

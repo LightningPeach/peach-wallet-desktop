@@ -370,7 +370,7 @@ describe("Account Unit Tests", () => {
             sandbox = sinon.sandbox.create();
             fakeDB = sandbox.stub(db);
             window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcRenderer.send.resetHistory();
             data = {
                 configBuilder: {
                     select: sinon.stub(),
@@ -400,7 +400,6 @@ describe("Account Unit Tests", () => {
             fakeStore = sandbox.stub(defaultStore);
             fakeStore.dispatch = store.dispatch;
             fakeStore.getState = store.getState;
-            window.ipcRenderer.send.reset();
         });
 
         afterEach(() => {

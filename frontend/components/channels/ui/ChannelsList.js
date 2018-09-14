@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { analytics, helpers } from "additional";
+import { analytics, helpers, logger } from "additional";
 import { connect } from "react-redux";
 import { Link } from "react-router";
 import { channelsTypes as types, channelsOperations as operations, channelsActions as actions } from "modules/channels";
@@ -106,7 +106,7 @@ class ChannelsList extends Component {
     );
 
     render() {
-        console.log("CHANNELS LIST RENDERING");
+        logger.log("CHANNELS LIST RENDERING");
         const {
             dispatch, channels, skipCreateTutorial, skipLightningTutorial,
         } = this.props;

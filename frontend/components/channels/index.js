@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, logger } from "additional";
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
 import {
@@ -44,7 +44,7 @@ class ChannelsPage extends Component {
     };
 
     render() {
-        console.log("CHANNELS CONTAINER RENDERING");
+        logger.log("CHANNELS CONTAINER RENDERING");
         const { modalState } = this.props;
         let modal;
         switch (modalState) {

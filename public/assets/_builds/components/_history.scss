@@ -16,22 +16,4 @@
         font-size: 12px;
         letter-spacing: -0.4px;
     }
-
-    .ReactTable {
-        .rt-table {
-            overflow: initial;
-        }
-    }
-}
-
-@media screen and (max-width: 799px) {
-    .history {
-        overflow-x: visible;
-    }
-}
-
-@media screen and (max-width: 980px) {
-    .ReactTable {
-        overflow-y: auto;
-    }
 }

@@ -1,7 +1,7 @@
 import * as statusCodes from "config/status-codes";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
-import { db, successPromise, errorPromise, unsuccessPromise } from "additional";
+import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
 import { store } from "store/configure-store";
 import orderBy from "lodash/orderBy";
 import keyBy from "lodash/keyBy";
@@ -19,13 +19,13 @@ function openWarningModal() {
 }
 
 async function getChainTxns() {
-    console.log("LND ONCHAIN TRANSACTIONS");
+    logger.log("LND ONCHAIN TRANSACTIONS");
     const response = await window.ipcClient("getTransactions");
     if (!response.ok) {
-        console.error(response);
+        logger.error(response);
         return errorPromise(response.error, getChainTxns);
     }
-    console.log(response);
+    logger.log(response);
     return successPromise({ chainTxns: keyBy(response.response.transactions, "tx_hash") });
 }
 
@@ -193,7 +193,7 @@ function sendCoins() {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                console.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(statusCodes.EXCEPTION_EXTRA, e);
             }
             return successPromise({ amount, tx_hash: txHash });
         }

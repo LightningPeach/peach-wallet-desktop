@@ -432,7 +432,7 @@ class Profile extends Component {
                                 </button>
                         }
                         <button
-                            className="button button__link button__link--logout pull-right"
+                            className="button button__link button__link--logout"
                             type="button"
                             onClick={() => {
                                 analytics.event({

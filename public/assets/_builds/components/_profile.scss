@@ -47,6 +47,16 @@
         &:last-child {
             padding-bottom: 0;
         }
+
+        &--wrap {
+            .profile {
+                &__flex {
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                }
+            }
+        }
     }
 
     &__flex {
@@ -66,7 +76,7 @@
     }
 
     &__value {
-        margin: 2px 0 0;
+        margin: 0;
         letter-spacing: 0.2px;
         flex: 1;
         display: inline-flex;
@@ -81,7 +91,16 @@
 
     &__app-status {
         font-size: 14px;
-        line-height: 40px;
+        margin-right: 20px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        white-space: normal;
+        line-height: 20px;
+        text-align: left;
+
+        &.button + .button {
+            margin-left: 0;
+        }
     }
 
     &__switcher {

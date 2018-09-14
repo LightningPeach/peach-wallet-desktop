@@ -4,7 +4,7 @@ import isEqual from "lodash/isEqual";
 import * as statusCodes from "config/status-codes";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
-import { db, successPromise, errorPromise } from "additional";
+import { db, successPromise, errorPromise, logger } from "additional";
 import { CHANNEL_CLOSE_CONFIRMATION } from "config/consts";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
@@ -232,7 +232,7 @@ function getChannels(initAccount = false) {
 
         const info = await window.ipcClient("getInfo");
         if (!info.ok) {
-            console.error(info);
+            logger.error(info);
             return;
         }
         const dbChans = await getDbChannels();
@@ -347,7 +347,7 @@ function closeChannel(channel, force = false) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         return successPromise();
     };
@@ -414,13 +414,13 @@ function createNewChannel() {
             creatingChannelPoint = null;
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         const expectedBitcoinBalance = getState().account.bitcoinBalance - newChannelDetails.capacity;
         dispatch(actions.successCreateNewChannel(expectedBitcoinBalance));
         dispatch(actions.endCreateNewChannel());
         dispatch(actions.clearNewChannelPreparing());
-        console.log(`TXN FOR CHANNEL OPENING: ${responseChannels.funding_txid_str}`);
+        logger.log(`TXN FOR CHANNEL OPENING: ${responseChannels.funding_txid_str}`);
         return successPromise({ trnID: responseChannels.funding_txid_str });
     };
 }

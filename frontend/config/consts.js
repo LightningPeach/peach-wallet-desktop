@@ -70,7 +70,7 @@ export const USD_PER_BTC_HOST = "https://blockchain.info";
 export const USD_PER_BTC_QUERY = "/ru/ticker";
 export const USD_PER_BTC_URL = `${USD_PER_BTC_HOST}${USD_PER_BTC_QUERY}`;
 export const MIN_PASS_LENGTH = 8;
-export const VALIDATE_PASS_REGEXP = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+export const VALIDATE_PASS_REGEXP = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[$-/:-?{-~!"^_`\[\]a-zA-Z\d]{8,}$/; // eslint-disable-line
 export const ONLY_LETTERS_AND_NUMBERS = /^[a-z0-9]+$/i;
 export const ONLY_UNICODE_LETTERS_AND_NUMBERS = XRegExp("^[\\pL0-9]+$");
 export const SEED_COUNT = 24;
