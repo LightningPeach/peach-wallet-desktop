@@ -181,7 +181,7 @@ class Lightning extends Component {
                     {tempAddress}
                 </span>
             );
-            if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSE) {
+            if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED) {
                 type = (
                     <Fragment>
                         <span

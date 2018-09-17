@@ -75,7 +75,7 @@ module.exports = () => {
                 return;
             }
             stream.currentPart += 1;
-            stream.sender.send("ipcMain:updateStreamSec", stream.streamId, stream.currentPart);
+            stream.sender.send("ipcMain:setStreamCurrentIteration", stream.streamId, stream.currentPart);
             await helpers.delay(stream.delay);
             streamPay(id);
         });

@@ -777,7 +777,7 @@ describe("Account Unit Tests", () => {
                 fakeApp.closeModal.returns(fakeDispatchReturnSuccess);
                 fakeApp.usdBtcRate.returns(fakeDispatchReturnSuccess);
                 fakeStreamOperations = sandbox.stub(streamPaymentOperations);
-                fakeStreamOperations.pauseAllStream.returns(fakeDispatchReturnSuccess);
+                fakeStreamOperations.pauseAllStreams.returns(fakeDispatchReturnSuccess);
                 fakeLightning = sandbox.stub(lightningOperations);
                 fakeLightning.getHistory.returns(fakeDispatchReturnSuccess);
                 fakeLightning.subscribeInvoices.returns(fakeDispatchReturnSuccess);

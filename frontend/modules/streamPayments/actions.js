@@ -1,51 +1,39 @@
 import * as types from "./types";
 
-const streamPaymentPrepare = streamDetails => ({
+const prepareStreamPayment = streamDetails => ({
     payload: streamDetails,
-    type: types.STREAM_PAYMENT_PREPARE,
+    type: types.PREPARE_STREAM_PAYMENT,
 });
 
-const streamPaymentSuccessFinish = streamId => ({
-    payload: streamId,
-    type: types.STREAM_PAYMENT_SUCCESS_FINISH,
-});
-
-const streamPaymentFailFinish = streamId => ({
-    payload: streamId,
-    type: types.STREAM_PAYMENT_FAIL_FINISH,
-});
-
-const streamPaymentStatus = (streamId, status) => ({
+const setStreamPaymentStatus = (streamId, status) => ({
     payload: {
         status,
         streamId,
     },
-    type: types.STREAM_PAYMENT_STATUS,
+    type: types.SET_STREAM_PAYMENT_STATUS,
 });
 
-const streamCurrentSec = (streamId, sec) => ({
+const setStreamCurrentIteration = (streamId, sec) => ({
     payload: {
         currentPart: sec,
         streamId,
     },
-    type: types.STREAM_CURRENT_SEC,
+    type: types.SET_STREAM_CURRENT_ITERATION,
 });
 
-const addStreamToList = () => ({
-    type: types.ADD_STREAM_TO_LIST,
+const addStreamPaymentToList = () => ({
+    type: types.ADD_STREAM_PAYMENT_TO_LIST,
 });
 
-const setStreams = streams => ({
+const setStreamPayments = streams => ({
     payload: streams,
-    type: types.SET_STREAMS,
+    type: types.SET_STREAM_PAYMENTS,
 });
 
 export {
-    streamPaymentPrepare,
-    streamPaymentSuccessFinish,
-    streamPaymentFailFinish,
-    streamPaymentStatus,
-    streamCurrentSec,
-    addStreamToList,
-    setStreams,
+    prepareStreamPayment,
+    setStreamPaymentStatus,
+    setStreamCurrentIteration,
+    addStreamPaymentToList,
+    setStreamPayments,
 };
