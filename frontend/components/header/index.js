@@ -40,13 +40,13 @@ class Header extends Component {
         const { pageAddressList } = this.state;
         if (location !== this.props.location) {
             const path = location.pathname;
-            let index = -1;
+            let index = 0;
             while (index < pageAddressList.length) {
-                index += 1;
                 if (pageAddressList[index].fullPath.includes(path)) {
-                    this.wrapper.children[index + 1].focus();
+                    this.wrapper.querySelectorAll("a")[index].focus();
                     break;
                 }
+                index += 1;
             }
         }
     }
