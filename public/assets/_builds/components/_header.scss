@@ -11,6 +11,28 @@ header {
         width: 139px;
         margin: 17px 0;
         float: left;
+
+        &:after {
+            content: "lnd not synced";
+            display: block;
+            position: absolute;
+            left: 52px;
+            bottom: 6px;
+            color: $scarlet;
+            text-transform: uppercase;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity .2s ease-in;
+        }
+
+        &--unsynced {
+            background: url(./../images/logo-error.svg) no-repeat left center;
+            background-size: cover;
+            &:after {
+                opacity: 1;
+            }
+        }
     }
 
     .header-pagename {

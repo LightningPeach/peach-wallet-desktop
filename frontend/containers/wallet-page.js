@@ -2,9 +2,11 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
+import { logger } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
+import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -28,11 +30,13 @@ import ProfilePage from "components/profile";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
+import SystemNotifications from "components/modal/system-notifications";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -68,18 +72,20 @@ class WalletPage extends Component {
         this.balanceIntervalId = 0;
         this.channelsIntervalId = 0;
         this.usdPerBtcIntervalId = 0;
+        this.lndSyncStatusIntervalId = 0;
     }
 
     componentWillMount() {
         const { dispatch, isLogined, isIniting } = this.props;
         if (!isLogined && !isIniting) {
-            console.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
+            logger.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
             dispatch(accountOperations.logout());
             return;
         }
-        this.channelsIntervalId = setInterval(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        this.balanceIntervalId = setInterval(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        this.usdPerBtcIntervalId = setInterval(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
     componentDidMount() {
@@ -95,7 +101,7 @@ class WalletPage extends Component {
             return;
         }
         this.checkYourBalance();
-        this.checkChannels();
+        this.checkChannels(false);
 
         if (location !== this.props.location) {
             const path = location.pathname;
@@ -121,9 +127,10 @@ class WalletPage extends Component {
 
     componentWillUnmount() {
         document.removeEventListener("keydown", this.onKeyClick, false);
-        clearInterval(this.balanceIntervalId);
-        clearInterval(this.channelsIntervalId);
-        clearInterval(this.usdPerBtcIntervalId);
+        clearTimeout(this.balanceIntervalId);
+        clearTimeout(this.channelsIntervalId);
+        clearTimeout(this.usdPerBtcIntervalId);
+        clearTimeout(this.lndSyncStatusIntervalId);
     }
 
     onKeyClick = (e) => {
@@ -139,24 +146,39 @@ class WalletPage extends Component {
         }
     };
 
-    checkUsdBtcRate = () => {
+    setAsyncInterval = (holder, func, timeout) => {
+        const intervalTick = async () => {
+            await func();
+            this[holder] = setTimeout(intervalTick, timeout);
+        };
+        intervalTick();
+    };
+
+    checkUsdBtcRate = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
-            dispatch(appOperations.usdBtcRate());
+            await dispatch(appOperations.usdBtcRate());
         }
     };
 
-    checkYourBalance = () => {
+    checkYourBalance = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
-            dispatch(accountOperations.checkBalance());
+            await dispatch(accountOperations.checkBalance());
         }
     };
 
-    checkChannels = () => {
+    checkChannels = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
-            dispatch(channelsOperations.getChannels());
+            await dispatch(channelsOperations.getChannels());
+        }
+    };
+
+    checkLndSyncStatus = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(lndOperations.checkLndSync());
         }
     };
 
@@ -175,6 +197,9 @@ class WalletPage extends Component {
                 break;
             case appTypes.MODAL_STATE_FORCE_LOGOUT:
                 modal = <ForceLogout />;
+                break;
+            case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
+                modal = <SystemNotifications />;
                 break;
             default:
                 modal = null;

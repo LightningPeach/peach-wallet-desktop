@@ -1,4 +1,6 @@
-const { ipcMain } = require("electron");
+const {
+    app, ipcMain,
+} = require("electron");
 const helpers = require("./utils/helpers");
 const Lnd = require("./binaries/Lnd");
 const localInvoiceServer = require("./binaries/LocalInvoiceServer");
@@ -29,6 +31,11 @@ ipcMain.on("agreement-checked", async (event, arg) => {
         event.sender.send("error", err);
     }
 });
+
+ipcMain.on("setDefaultLightningApp", () => {
+    app.setAsDefaultProtocolClient("lightning");
+});
+
 
 registerIpc("startLnd", async (event, arg) => {
     console.log("Stating lnd");

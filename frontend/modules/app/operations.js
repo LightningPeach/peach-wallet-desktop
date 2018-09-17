@@ -4,7 +4,7 @@ import { push } from "react-router-redux";
 import * as statusCodes from "config/status-codes";
 import { USD_PER_BTC_URL, LIGHTNING_ID_LENGTH, ONLY_LETTERS_AND_NUMBERS } from "config/consts";
 import { store } from "store/configure-store";
-import { db, errorPromise, successPromise, helpers } from "additional";
+import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
 import { lightningActions } from "modules/lightning";
 import { WalletPath } from "routes";
@@ -65,7 +65,7 @@ function copyToClipboard(data, message = "") {
             document.execCommand("copy");
         } catch (err) {
             newMsg = "Error while copying to clipboard";
-            console.error(err);
+            logger.error(err);
         }
         document.body.removeChild(textArea);
         dispatch(info({
@@ -123,6 +123,22 @@ function closeDb() {
     };
 }
 
+function sendSystemNotification(sender) {
+    return (dispatch, getState) => {
+        const notifications = getState().account.systemNotifications;
+        const access = (notifications >> 2) & 1; // eslint-disable-line
+        const sound = (notifications >> 1) & 1; // eslint-disable-line
+        if (access) {
+            window.ipcRenderer.send("showNotification", {
+                body: sender.body,
+                silent: !sound,
+                subtitle: sender.subtitle,
+                title: sender.title,
+            });
+        }
+    };
+}
+
 window.ipcRenderer.on("forceLogout", (event, status) => {
     store.dispatch(actions.setForceLogoutError(status));
     store.dispatch(openForceLogoutModal());
@@ -153,6 +169,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
 });
 
 export {
+    sendSystemNotification,
     closeModal,
     openChangePasswordModal,
     usdBtcRate,

@@ -57,10 +57,12 @@ export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnect
 
 export const BALANCE_INTERVAL_TIMEOUT = 30000;
 export const CHANNELS_INTERVAL_TIMEOUT = 30000;
+export const LND_SYNC_STATUS_INTERVAL_TIMEOUT = 15000;
 export const USD_PER_BTC_INTERVAL_TIMEOUT = 60 * 60 * 1000;
 export const CHANNEL_CLOSE_CONFIRMATION = 6;
 export const MIN_CHANNEL_SIZE = 2e4;
 export const USERNAME_MAX_LENGTH = 100;
+export const ELEMENT_NAME_MAX_LENGTH = 100;
 export const LIGHTNING_ID_LENGTH = 66;
 export const PAYMENT_REQUEST_LENGTH = 124;
 export const MODAL_ANIMATION_TIMEOUT = 200;
@@ -68,7 +70,7 @@ export const USD_PER_BTC_HOST = "https://blockchain.info";
 export const USD_PER_BTC_QUERY = "/ru/ticker";
 export const USD_PER_BTC_URL = `${USD_PER_BTC_HOST}${USD_PER_BTC_QUERY}`;
 export const MIN_PASS_LENGTH = 8;
-export const VALIDATE_PASS_REGEXP = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+export const VALIDATE_PASS_REGEXP = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[$-/:-?{-~!"^_`\[\]a-zA-Z\d]{8,}$/; // eslint-disable-line
 export const ONLY_LETTERS_AND_NUMBERS = /^[a-z0-9]+$/i;
 export const ONLY_UNICODE_LETTERS_AND_NUMBERS = XRegExp("^[\\pL0-9]+$");
 export const SEED_COUNT = 24;

@@ -11,12 +11,13 @@ module.exports = {
         createChannelViewed: {
             type: "integer",
         },
-        lightningPaymentViewed: {
-            type: "integer",
-        },
         activeMeasure: {
             type: "varchar",
             default: "mBTC",
+        },
+        systemNotifications: {
+            type: "integer",
+            default: "0",
         },
     },
 };

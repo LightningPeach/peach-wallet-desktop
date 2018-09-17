@@ -13,7 +13,8 @@ const lndInitingError = error => ({
     type: types.LND_INITING_ERROR,
 });
 
-const lndSynced = () => ({
+const lndSynced = payload => ({
+    payload,
     type: types.LND_SYNCED,
 });
 
