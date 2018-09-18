@@ -55,13 +55,13 @@ describe("Stream Payment Unit Tests", () => {
         it("should create an action to set stream current sec", () => {
             data = {
                 streamId: "foo",
-                currentPart: "bar",
+                partsPaid: "bar",
             };
             expectedData = {
                 payload: data,
-                type: types.SET_STREAM_CURRENT_ITERATION,
+                type: types.CHANGE_STREAM_PARTS_PAID,
             };
-            expect(actions.setStreamCurrentIteration(data.streamId, data.currentPart)).to.deep.equal(expectedData);
+            expect(actions.changeStreamPartsPaid(data.streamId, data.partsPaid)).to.deep.equal(expectedData);
         });
 
         it("should create an action to add stream to list", () => {
@@ -144,33 +144,33 @@ describe("Stream Payment Unit Tests", () => {
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle SET_STREAM_CURRENT_ITERATION action", () => {
+        it("should handle CHANGE_STREAM_PARTS_PAID action", () => {
             data = {
                 streamId: "qux",
-                currentPart: "quux",
+                partsPaid: "quux",
             };
             action = {
                 payload: data,
-                type: types.SET_STREAM_CURRENT_ITERATION,
+                type: types.CHANGE_STREAM_PARTS_PAID,
             };
             state = JSON.parse(JSON.stringify(initStateStreamPayment));
             state.streams = [
                 {
-                    currentPart: "foo",
+                    partsPaid: "foo",
                     streamId: "bar",
                 },
                 {
-                    currentPart: "baz",
+                    partsPaid: "baz",
                     streamId: "qux",
                 },
             ];
             expectedData.streams = [
                 {
-                    currentPart: "foo",
+                    partsPaid: "foo",
                     streamId: "bar",
                 },
                 {
-                    currentPart: "quux",
+                    partsPaid: "quux",
                     streamId: "qux",
                 },
             ];
@@ -330,7 +330,7 @@ describe("Stream Payment Unit Tests", () => {
                     {
                         payload: {
                             contact_name: "",
-                            currentPart: 0,
+                            partsPaid: 0,
                             delay: 1000,
                             fee: "fee",
                             lightningID: data.lightningID,
@@ -369,13 +369,13 @@ describe("Stream Payment Unit Tests", () => {
                         body: "foo-body",
                         streamId: "foo",
                         uuid: "foo-uuid",
-                        currentPart: 0,
+                        partsPaid: 0,
                     },
                     {
                         body: "bar-body",
                         streamId: "bar",
                         uuid: "bar-uuid",
-                        currentPart: 0,
+                        partsPaid: 0,
                     },
                 ];
                 store = mockStore(initState);
@@ -410,7 +410,7 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
                 expect(data.streamBuilder.set)
-                    .to.be.calledWithExactly({ currentPart: 0, status: "pause" });
+                    .to.be.calledWithExactly({ partsPaid: 0, status: "pause" });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo-uuid" });
@@ -436,14 +436,14 @@ describe("Stream Payment Unit Tests", () => {
                         body: "foo-body",
                         streamId: "foo",
                         uuid: "foo-uuid",
-                        currentPart: 0,
+                        partsPaid: 0,
                         status: types.STREAM_PAYMENT_STREAMING,
                     },
                     {
                         body: "bar-body",
                         streamId: "bar",
                         uuid: "bar-uuid",
-                        currentPart: 0,
+                        partsPaid: 0,
                         status: types.STREAM_PAYMENT_PAUSED,
                     },
                 ];
@@ -479,7 +479,7 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
                 expect(data.streamBuilder.set)
-                    .to.be.calledWithExactly({ currentPart: 0, status: "pause" });
+                    .to.be.calledWithExactly({ partsPaid: 0, status: "pause" });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo-uuid" });
@@ -599,7 +599,7 @@ describe("Stream Payment Unit Tests", () => {
             });
         });
 
-        describe("stopStreamPayment()", () => {
+        describe("finishStreamPayment()", () => {
             let streams;
 
             beforeEach(() => {
@@ -611,7 +611,7 @@ describe("Stream Payment Unit Tests", () => {
                         id: 1,
                         uuid: "baz",
                         streamId: "baz",
-                        currentPart: 1,
+                        partsPaid: 1,
                     },
                 ];
                 initState.streamPayment.streams = streams;
@@ -633,7 +633,7 @@ describe("Stream Payment Unit Tests", () => {
                 streams = [];
                 initState.streamPayment.streams = streams;
                 store = mockStore(initState);
-                expect(await store.dispatch(operations.stopStreamPayment(0))).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.finishStreamPayment(0))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
             });
@@ -648,7 +648,7 @@ describe("Stream Payment Unit Tests", () => {
                         type: types.SET_STREAM_PAYMENT_STATUS,
                     },
                 ];
-                expect(await store.dispatch(operations.stopStreamPayment("baz"))).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.finishStreamPayment("baz"))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
@@ -656,7 +656,7 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ currentPart: 1, status: "end" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "end" });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "baz" });
@@ -671,7 +671,7 @@ describe("Stream Payment Unit Tests", () => {
             beforeEach(() => {
                 streams = [
                     {
-                        currentPart: 1,
+                        partsPaid: 1,
                         delay: 1000,
                         totalParts: 2,
                         uuid: "baz",

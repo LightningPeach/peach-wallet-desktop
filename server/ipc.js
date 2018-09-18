@@ -8,13 +8,11 @@ const baseLogger = require("./utils/logger");
 const path = require("path");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const settings = require("./settings");
-const streams = require("./ipc/streams-manager");
 
 const logger = baseLogger.child("ipc");
 const grpcStatus = require("grpc").status;
 
 const lnd = new Lnd();
-let streamsManager = null;
 
 registerIpc("validateBinaries", async () => ({ ok: true }));
 
@@ -69,12 +67,6 @@ registerIpc("createLndWallet", async (event, arg) => lnd.createWallet(arg.passwo
 registerIpc("startLis", async (event, arg) => {
     console.log("Starting local invoice server");
     await localInvoiceServer.openConnection(arg.username);
-    return { ok: true };
-});
-
-registerIpc("startStreamManager", () => {
-    streamsManager = streams();
-    streamsManager.init();
     return { ok: true };
 });
 
@@ -304,7 +296,7 @@ registerIpc("clearLndData", async () => {
 });
 
 /**
- * Clear all streams calls, db connection, stopping lnd && lis
+ * Clear db connection, stopping lnd && lis
  * @return {Promise<{ok: boolean}>}
  */
 module.exports.shutdown = async () => {
@@ -314,10 +306,6 @@ module.exports.shutdown = async () => {
         }
         if (subscribeInvoicesCall) {
             subscribeInvoicesCall.stream.cancel();
-        }
-        if (streamsManager) {
-            await streamsManager.shutdown();
-            streamsManager = null;
         }
         await localInvoiceServer.closeConnection();
         await lnd.stop();

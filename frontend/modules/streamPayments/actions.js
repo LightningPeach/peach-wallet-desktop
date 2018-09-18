@@ -1,7 +1,7 @@
 import * as types from "./types";
 
-const prepareStreamPayment = streamDetails => ({
-    payload: streamDetails,
+const prepareStreamPayment = payload => ({
+    payload,
     type: types.PREPARE_STREAM_PAYMENT,
 });
 
@@ -13,27 +13,54 @@ const setStreamPaymentStatus = (streamId, status) => ({
     type: types.SET_STREAM_PAYMENT_STATUS,
 });
 
-const setStreamCurrentIteration = (streamId, sec) => ({
+const changeStreamPartsPaid = (streamId, change) => ({
     payload: {
-        currentPart: sec,
+        change,
         streamId,
     },
-    type: types.SET_STREAM_CURRENT_ITERATION,
+    type: types.CHANGE_STREAM_PARTS_PAID,
+});
+
+const changeStreamPartsPending = (streamId, change) => ({
+    payload: {
+        change,
+        streamId,
+    },
+    type: types.CHANGE_STREAM_PARTS_PENDING,
 });
 
 const addStreamPaymentToList = () => ({
     type: types.ADD_STREAM_PAYMENT_TO_LIST,
 });
 
-const setStreamPayments = streams => ({
-    payload: streams,
+const setStreamPayments = payload => ({
+    payload,
     type: types.SET_STREAM_PAYMENTS,
+});
+
+const setStreamPaymentIntervalId = (streamId, paymentIntervalId) => ({
+    payload: {
+        paymentIntervalId,
+        streamId,
+    },
+    type: types.SET_STREAM_PAYMENT_INTERVAL_ID,
+});
+
+const setStreamErrorTimeoutId = (streamId, errorTimeoutId) => ({
+    payload: {
+        errorTimeoutId,
+        streamId,
+    },
+    type: types.SET_STREAM_ERROR_TIMEOUT_ID,
 });
 
 export {
     prepareStreamPayment,
     setStreamPaymentStatus,
-    setStreamCurrentIteration,
+    changeStreamPartsPaid,
+    changeStreamPartsPending,
     addStreamPaymentToList,
     setStreamPayments,
+    setStreamPaymentIntervalId,
+    setStreamErrorTimeoutId,
 };

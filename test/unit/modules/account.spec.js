@@ -855,11 +855,11 @@ describe("Account Unit Tests", () => {
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
             });
 
-            it("error startStreamManager", async () => {
+            it("error getLightningID", async () => {
                 window.ipcClient
                     .withArgs("startLis")
                     .returns({ ok: true })
-                    .withArgs("startStreamManager")
+                    .withArgs("getInfo")
                     .returns({ ok: false });
                 expectedData = { ...errorResp, f: "initAccount" };
                 expectedActions = [
@@ -882,49 +882,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("startLis");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
-                expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
-                expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
-                expect(fakeLnd.waitLndSync).to.be.calledOnce;
-            });
-
-            it("error getLightningID", async () => {
-                window.ipcClient
-                    .withArgs("startLis")
-                    .returns({ ok: true })
-                    .withArgs("getInfo")
-                    .returns({ ok: false })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
-                expectedData = { ...errorResp, f: "initAccount" };
-                expectedActions = [
-                    {
-                        type: types.FINISH_INIT_ACCOUNT,
-                    },
-                    {
-                        type: types.START_LOGOUT,
-                    },
-                    {
-                        payload: true,
-                        type: types.LOGOUT_ACCOUNT,
-                    },
-                    {
-                        type: types.FINISH_LOGOUT,
-                    },
-                    {
-                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
-                    },
-                ];
-                expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(4);
+                expect(window.ipcClient).to.be.callCount(3);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
             });
@@ -934,9 +895,7 @@ describe("Account Unit Tests", () => {
                     .withArgs("startLis")
                     .returns({ ok: true })
                     .withArgs("getInfo")
-                    .returns({ ok: true, response: { identity_pubkey: lightningId } })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
+                    .returns({ ok: true, response: { identity_pubkey: lightningId } });
                 fakeLightning.getHistory.returns(fakeDispatchReturnError);
                 expectedData = { ...errorResp, f: "initAccount" };
                 expectedActions = [
@@ -963,11 +922,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(4);
+                expect(window.ipcClient).to.be.callCount(3);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;
@@ -981,9 +939,7 @@ describe("Account Unit Tests", () => {
                     .onFirstCall()
                     .returns({ ok: true, response: { identity_pubkey: lightningId } })
                     .onSecondCall()
-                    .returns({ ok: false })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
+                    .returns({ ok: false });
                 expectedData = { ...errorResp, f: "initAccount" };
                 expectedActions = [
                     {
@@ -1013,11 +969,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(5);
+                expect(window.ipcClient).to.be.callCount(4);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;
@@ -1031,9 +986,7 @@ describe("Account Unit Tests", () => {
                     .withArgs("getInfo")
                     .returns({ ok: true, response: { identity_pubkey: lightningId } })
                     .withArgs("newAddress")
-                    .returns({ ok: true, response: { address: data.new_adress } })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
+                    .returns({ ok: true, response: { address: data.new_adress } });
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
@@ -1064,11 +1017,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(5);
+                expect(window.ipcClient).to.be.callCount(4);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("newAddress");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.subscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;

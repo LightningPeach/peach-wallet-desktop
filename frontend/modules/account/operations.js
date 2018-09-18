@@ -197,10 +197,6 @@ function initAccount(login, newAccount = false) {
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
-        response = await window.ipcClient("startStreamManager");
-        if (!response.ok) {
-            return handleError(dispatch, getState, response.error);
-        }
         response = await dispatch(getLightningID());
         console.log("Have got lightning id");
         console.log(response);

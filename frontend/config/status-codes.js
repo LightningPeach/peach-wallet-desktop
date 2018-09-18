@@ -79,21 +79,29 @@ const EXCEPTION_USERNAME_EXISTS = "User already exist.";
 
 // ACCOUNT
 // Account not connected to kernel
-const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND";
+const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND.";
 
 // REMOTE ACTIONS
 // Invalid reponse upon remote invoice add
-const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline";
+const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline.";
+
+// LND Status
+// LND not responding
+const EXCEPTION_LND_NOT_RESPONDING = "LND is not responding.";
 
 // CHANNELS
 // No channel upon set channel event
-const EXCEPTION_CHANNEL_ABSENT = "There is no such channel";
+const EXCEPTION_CHANNEL_ABSENT = "There is no such channel.";
+
+// STREAM PAYMENTS
+// Stream not found in store
+const EXCEPTION_STREAM_NOT_IN_STORE = "Stream Payment not found in store.";
 
 // TRANSACITONS
 // Empty stream details
-const EXCEPTION_STREAM_DETAILS_REQUIRED = "There are no stream details";
+const EXCEPTION_STREAM_DETAILS_REQUIRED = "There are no stream details.";
 // Empty send coin details
-const EXCEPTION_SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty";
+const EXCEPTION_SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty.";
 // Amount is less than fee for operation
 const EXCEPTION_AMOUNT_LESS_THAN_FEE = (currentFee = 0, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `Your payment must be greater than ${currentFee} ${bitcoinMeasureType} fee.`;
@@ -190,6 +198,8 @@ export {
     EXCEPTION_PASSWORD_DIFF,
     EXCEPTION_TIME_NEGATIVE,
     EXCEPTION_LIS_DOWN_DURING_TX,
+    EXCEPTION_LND_NOT_RESPONDING,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
+    EXCEPTION_STREAM_NOT_IN_STORE,
 };

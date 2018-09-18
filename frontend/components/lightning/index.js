@@ -161,8 +161,8 @@ class Lightning extends Component {
                     tempAddress = contact.name;
                 }
             });
-            let price = item.price * (!item.currentPart ? item.totalParts : item.currentPart);
-            let seconds = !item.currentPart ? item.totalParts : item.currentPart;
+            let price = item.price * (!item.partsPaid ? item.totalParts : item.partsPaid);
+            let seconds = !item.partsPaid ? item.totalParts : item.partsPaid;
             const address = (
                 <span
                     onClick={() => {
@@ -207,7 +207,7 @@ class Lightning extends Component {
                                     category: "Lightning",
                                     label: "Stop",
                                 });
-                                dispatch(streamOperations.stopStreamPayment(item.streamId));
+                                dispatch(streamOperations.finishStreamPayment(item.streamId));
                             }}
                         />
                     </Fragment>
@@ -233,7 +233,7 @@ class Lightning extends Component {
             } else {
                 type = "Stream";
                 ({ price } = item);
-                seconds = item.currentPart;
+                seconds = item.partsPaid;
                 price *= seconds;
             }
             const [ymd, hms] = helpers.formatDate(date).split(" ");
@@ -420,12 +420,12 @@ Lightning.propTypes = {
     modalState: PropTypes.string,
     streams: PropTypes.arrayOf(PropTypes.shape({
         comment: PropTypes.string,
-        currentPart: PropTypes.number.isRequired,
         date: PropTypes.number.isRequired,
         delay: PropTypes.number,
         description: PropTypes.string,
         lightningID: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
+        partsPaid: PropTypes.number.isRequired,
         price: PropTypes.number.isRequired,
         status: PropTypes.string.isRequired,
         totalParts: PropTypes.number.isRequired,

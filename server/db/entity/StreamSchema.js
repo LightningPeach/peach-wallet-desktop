@@ -15,7 +15,7 @@ module.exports = {
         totalParts: {
             type: "integer",
         },
-        currentPart: {
+        partsPaid: {
             type: "integer",
         },
         price: {

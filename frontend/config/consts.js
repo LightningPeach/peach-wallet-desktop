@@ -55,6 +55,7 @@ export const ALL_MEASURES = [MBTC_MEASURE, BTC_MEASURE, SATOSHI_MEASURE];
 
 export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnectInterval: 3000 };
 
+export const STREAM_ERROR_TIMEOUT = 10000;
 export const BALANCE_INTERVAL_TIMEOUT = 30000;
 export const CHANNELS_INTERVAL_TIMEOUT = 30000;
 export const LND_SYNC_STATUS_INTERVAL_TIMEOUT = 15000;
