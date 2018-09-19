@@ -134,7 +134,7 @@ const validateName = (
         return statusCodes.EXCEPTION_USERNAME_WRONG_MAX_LENGTH(maxChars);
     }
     if (withSeparators) {
-        tempName = tempName.replace(/[$-/:-?{-~!"^_`\[\]]/g, ""); // eslint-disable-line
+        tempName = tempName.replace(/[!-\/:-@[-`{-~]/g, ""); // eslint-disable-line
     }
     if (allUnicodeLettersAndNumbers) {
         if (!ONLY_UNICODE_LETTERS_AND_NUMBERS.test(tempName)) {

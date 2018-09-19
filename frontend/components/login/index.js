@@ -20,6 +20,12 @@ class Login extends Component {
             passwordError: null,
             processing: false,
             tooltips: {
+                password: [
+                    "The password must be at least 8 characters and contain",
+                    "minimum 1 uppercase letter [A-Z], 1 lower case letter [a-z]",
+                    "and 1 digit [0-9]. Also, you can use special characters",
+                    "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+                ],
                 recover_wallet: [
                     "You can use wallet recovery procedure in 2 situations:",
                     "1) If you want to use your existing Bitcoin wallet for Lightning payments,",
@@ -117,7 +123,7 @@ class Login extends Component {
         return (
             <form onSubmit={this.handleLogin}>
                 <div className="home__title">
-                    Sign in and start working with peach wallet
+                    Sign in and start working with LightningPeach wallet
                 </div>
                 <div className="row form-row">
                     <div className="col-xs-12">
@@ -158,7 +164,21 @@ class Login extends Component {
                 <div className="row form-row">
                     <div className="col-xs-12">
                         <div className="form-label">
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password">
+                                Password
+                            </label>
+                            <Tooltip
+                                placement="right"
+                                overlay={helpers.formatTooltips(this.state.tooltips.password)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info" />
+                            </Tooltip>
                         </div>
                     </div>
                     <div className="col-xs-12">
