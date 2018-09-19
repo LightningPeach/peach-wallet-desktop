@@ -2,6 +2,7 @@ import * as statusCodes from "config/status-codes";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
+import { MAX_DB_NUM_CONFIRMATIONS, TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY } from "config/consts";
 import { store } from "store/configure-store";
 import orderBy from "lodash/orderBy";
 import keyBy from "lodash/keyBy";
@@ -65,9 +66,10 @@ function getOnchainHistory() {
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
                     if (!has(dbTxns, txn)) {
-                        if (amount > 0) {
+                        if (amount > 0 && numConfirmations >= TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY) {
+                            const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
-                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
                                 title: "Incoming Onchain transaction",
                             }));
                         }
@@ -79,7 +81,7 @@ function getOnchainHistory() {
                                 blockHash,
                                 blockHeight,
                                 name: "Regular payment",
-                                numConfirmations: Math.min(numConfirmations, 6),
+                                numConfirmations: Math.min(numConfirmations, MAX_DB_NUM_CONFIRMATIONS),
                                 status,
                                 timeStamp: chainTxns[txn].time_stamp,
                                 totalFees,
@@ -95,10 +97,22 @@ function getOnchainHistory() {
                         || dbTxns[txn].totalFees !== totalFees
                         || dbTxns[txn].name === ""
                         || (
-                            dbTxns[txn].numConfirmations < 6
+                            dbTxns[txn].numConfirmations < MAX_DB_NUM_CONFIRMATIONS
                             && dbTxns[txn].numConfirmations !== numConfirmations
                         )
                     ) {
+                        if (
+                            amount > 0
+                            && (!dbTxns[txn].numConfirmations
+                                || dbTxns[txn].numConfirmations < TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY)
+                            && numConfirmations >= TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY
+                        ) {
+                            const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
+                                title: "Incoming Onchain transaction",
+                            }));
+                        }
                         db.onchainBuilder()
                             .update()
                             .set({
@@ -106,7 +120,7 @@ function getOnchainHistory() {
                                 blockHash,
                                 blockHeight,
                                 name: dbTxns[txn].name ? dbTxns[txn].name : "Regular payment",
-                                numConfirmations: Math.min(numConfirmations, 6),
+                                numConfirmations: Math.min(numConfirmations, MAX_DB_NUM_CONFIRMATIONS),
                                 status,
                                 timeStamp: chainTxns[txn].time_stamp,
                                 totalFees,

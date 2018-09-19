@@ -32,7 +32,7 @@ class SystemNotifications extends Component {
             category: "Modal Windows",
             label: "Enable notifications",
         });
-        dispatch(accountOperations.setSystemNotificationsStatus(6));
+        dispatch(accountOperations.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.ENABLED_LOUD_DONT_SHOW_AGAIN)); // eslint-disable-line
         dispatch(appOperations.closeModal());
     };
 
@@ -44,14 +44,14 @@ class SystemNotifications extends Component {
                 category: "Modal Windows",
                 label: "Disable notifications",
             });
-            dispatch(accountOperations.setSystemNotificationsStatus(3));
+            dispatch(accountOperations.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN)); // eslint-disable-line
         } else {
             analytics.event({
                 action: "System Notifications Modal",
                 category: "Modal Windows",
                 label: "Disable notifications, never ask again",
             });
-            dispatch(accountOperations.setSystemNotificationsStatus(2));
+            dispatch(accountOperations.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_DONT_SHOW_AGAIN)); // eslint-disable-line
         }
         dispatch(appOperations.closeModal());
     };

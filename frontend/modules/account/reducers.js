@@ -30,7 +30,7 @@ export const initStateAccount = {
     },
     peers: [],
     signedMessage: null,
-    systemNotifications: types.DISABLED,
+    systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
     toFixedMeasure: ALL_MEASURES[0].toFixed,
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,

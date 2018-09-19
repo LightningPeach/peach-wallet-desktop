@@ -5,7 +5,7 @@ import * as statusCodes from "config/status-codes";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
-import { CHANNEL_CLOSE_CONFIRMATION } from "config/consts";
+import { CHANNEL_CLOSE_CONFIRMATION, CHANNEL_LEFT_AMOUNT_TO_NOTIFY } from "config/consts";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -54,13 +54,38 @@ function getChannels(initAccount = false) {
                 const bChan = b.chan_id;
                 return aChan < bChan ? -1 : 1;
             };
+            const keyByListChannels = keyBy(response.response.channels, channel => channel.channel_point.split(":")[0]);
+            Object.values(dbChannels).forEach((dbChan) => {
+                // Check if channel in database marked as active, not found in listchannels
+                // and channel hasn't been closed from our side(not in delete queue, while tx not in pool)
+                // then show notification about channel closing by counterparty
+                if (
+                    dbChan.status === "active"
+                    && !has(keyByListChannels, dbChan.fundingTxid)
+                    && getState().channels.deleteQueue.filter(channel =>
+                        channel.split(":")[0] === dbChan.fundingTxid).length === 0
+                ) {
+                    dispatch(appOperations.sendSystemNotification({
+                        body: "Channel has been closed by counterparty",
+                        title: dbChan.name,
+                    }));
+                    db.channelsBuilder()
+                        .update()
+                        .set({
+                            activeStatus: false,
+                            status: "deleted",
+                        })
+                        .where("fundingTxid = :txID", { txID: dbChan.fundingTxid })
+                        .execute();
+                }
+            });
             return response.response.channels.sort(sort)
                 .map((channel) => {
                     const status = channel.active ? types.CHANNEL_STATUS_ACTIVE : types.CHANNEL_STATUS_NOT_ACTIVE;
                     const maturity = blockHeight;
                     let chanName;
                     const chanTxid = channel.channel_point.split(":")[0];
-                    const totalBalance = channel.local_balance + channel.remote_balance;
+                    const totalBalance = parseInt(channel.local_balance, 10) + parseInt(channel.remote_balance, 10);
                     if (has(dbChannels, chanTxid)) {
                         const dbChan = dbChannels[chanTxid];
                         chanName = dbChan.name;
@@ -70,7 +95,7 @@ function getChannels(initAccount = false) {
                                 title: chanName,
                             }));
                         }
-                        if (dbChan.status === "active" && !!dbChan.activeStatus !== channel.active && !initAccount) {
+                        if (!initAccount && dbChan.status === "active" && !!dbChan.activeStatus !== channel.active) {
                             if (channel.active) {
                                 dispatch(appOperations.sendSystemNotification({
                                     body: "Channel becomes active",
@@ -83,20 +108,23 @@ function getChannels(initAccount = false) {
                                 }));
                             }
                         }
+
                         if (
-                            dbChan.localBalance / totalBalance > 0.1
-                            && channel.local_balance / totalBalance <= 0.1
+                            dbChan.localBalance / totalBalance > CHANNEL_LEFT_AMOUNT_TO_NOTIFY
+                            && parseInt(channel.local_balance, 10) / totalBalance <= CHANNEL_LEFT_AMOUNT_TO_NOTIFY
                         ) {
-                            const amount =
-                                dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance));
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(
+                                channel.local_balance,
+                                10,
+                            )));
                             const measure = getState().account.bitcoinMeasureType;
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You have only ${amount} ${measure} left in the channel`,
                                 title: chanName,
                             }));
                         }
-                        if (dbChan.status === "active" && dbChan.localBalance < channel.local_balance) {
-                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(channel.local_balance - dbChan.localBalance)); // eslint-disable-line
+                        if (dbChan.status === "active" && dbChan.localBalance < parseInt(channel.local_balance, 10)) {
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
                                 title: chanName,
@@ -105,8 +133,8 @@ function getChannels(initAccount = false) {
                         if (
                             dbChan.status !== "active"
                             || !!dbChan.activeStatus !== channel.active
-                            || dbChan.localBalance !== channel.local_balance
-                            || dbChan.remoteBalance !== channel.remote_balance
+                            || dbChan.localBalance !== parseInt(channel.local_balance, 10)
+                            || dbChan.remoteBalance !== parseInt(channel.remote_balance, 10)
                         ) {
                             db.channelsBuilder()
                                 .update()
@@ -166,29 +194,23 @@ function getChannels(initAccount = false) {
                 if (has(dbChannels, chanTxid)) {
                     const dbChan = dbChannels[chanTxid];
                     chanName = dbChan.name;
+                    // Return maturity of current channels' opening transaction
                     maturity = getState().onchain.history
                         .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
-                    if (dbChan.status === "active") {
-                        dispatch(appOperations.sendSystemNotification({
-                            body: "Channel has been closed by counterparty",
-                            title: chanName,
-                        }));
-                    }
                     if (
                         dbChan.status !== "pending"
                         || !!dbChan.activeStatus !== false
-                        || dbChan.localBalance !== channel.channel.local_balance
-                        || dbChan.remoteBalance !== channel.channel.remote_balance
+                        || dbChan.localBalance !== parseInt(channel.channel.local_balance, 10)
+                        || dbChan.remoteBalance !== parseInt(channel.channel.remote_balance, 10)
                     ) {
-                        const status = dbChan.status === "active" ? "deleted" : "pending";
                         db.channelsBuilder()
                             .update()
                             .set({
                                 activeStatus: false,
                                 localBalance: channel.channel.local_balance,
                                 remoteBalance: channel.channel.remote_balance,
-                                status,
+                                status: "pending",
                             })
                             .where("fundingTxid = :txID", { txID: chanTxid })
                             .execute();
@@ -317,8 +339,8 @@ function closeChannel(channel, force = false) {
             params.force = true;
         }
         const response = await window.ipcClient("closeChannel", params);
-        dispatch(actions.removeFromDelete(channel.channel_point));
         if (!response.ok) {
+            dispatch(actions.removeFromDelete(channel.channel_point));
             return errorPromise(response.error, closeChannel);
         }
         try {
@@ -349,6 +371,7 @@ function closeChannel(channel, force = false) {
             /* istanbul ignore next */
             logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
+        dispatch(actions.removeFromDelete(channel.channel_point));
         return successPromise();
     };
 }
