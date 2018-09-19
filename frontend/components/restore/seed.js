@@ -35,9 +35,7 @@ class Seed extends Component {
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({
-                autoDismiss: 5,
                 message: init.error,
-                position: "bc",
             }));
             return;
         }

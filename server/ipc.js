@@ -118,7 +118,11 @@ registerIpc("listInvoices", async () => lnd.call("listInvoices"));
 
 registerIpc("listFailedPayments", async () => lnd.call("listFailedPayments"));
 
-registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(arg.value, arg.lightning_id));
+registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(
+    arg.value,
+    arg.lightning_id,
+    arg.memo,
+));
 
 registerIpc("addInvoice", async (event, arg) => lnd.call("addInvoice", arg));
 
