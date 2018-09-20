@@ -43,7 +43,7 @@ class Modal extends Component {
                                 prefixCls="rc-tooltip__small rc-tooltip"
                                 mouseLeaveDelay={0}
                             >
-                                <i className="form-label__icon form-label__icon--info" />
+                                <i className="form-label__icon form-label__icon--info form-label__icon--large" />
                             </Tooltip>
                             }
                         </span>
@@ -84,7 +84,10 @@ Modal.propTypes = {
     showCloseButton: PropTypes.bool,
     styleSet: PropTypes.string,
     title: PropTypes.string,
-    titleTooltip: PropTypes.string,
+    titleTooltip: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.string),
+        PropTypes.string,
+    ]).isRequired,
 };
 
 export default connect(null)(Modal);
