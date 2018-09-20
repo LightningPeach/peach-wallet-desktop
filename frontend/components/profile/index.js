@@ -36,11 +36,15 @@ class Profile extends Component {
                     "Lightning Network will have possibility to pay",
                     "generated invoice (one payment for each request).",
                 ],
+                sounds: "Enable or disable sounds of system notifications.",
+                systemNotifications: [
+                    "Enable or disable system notifications. When enabled",
+                    "they will be shown as push messages on your PC. System",
+                    "notifications will inform you about incoming payments,",
+                    "opening and closing channels and other types of the",
+                    "wallet activities.",
+                ],
             },
-        };
-        this.cachedSelection = {
-            end: 0,
-            start: 0,
         };
 
         analytics.pageview(ProfileFullPath, "Profile");
@@ -399,7 +403,21 @@ class Profile extends Component {
                 <div className="row profile__row">
                     <div className="col-xs-12">
                         <div className="profile__switcher switcher">
-                            <div className="switcher-text">System notifications</div>
+                            <div className="switcher-text">
+                                System notifications
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatTooltips(this.state.tooltips.systemNotifications)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="form-label__icon form-label__icon--info" />
+                                </Tooltip>
+                            </div>
                             <div
                                 className={`switcher-toggle ${this.state.notifications ? "active" : ""}`}
                                 onClick={this.toggleNotifications}
@@ -408,7 +426,21 @@ class Profile extends Component {
                     </div>
                     <div className="col-xs-12">
                         <div className={`profile__switcher switcher ${this.state.notifications ? "" : "disabled"}`}>
-                            <div className="switcher-text">Sounds</div>
+                            <div className="switcher-text">
+                                Sounds
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatTooltips(this.state.tooltips.sounds)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="form-label__icon form-label__icon--info" />
+                                </Tooltip>
+                            </div>
                             <div
                                 className={`switcher-toggle ${this.state.sound ? "active" : ""}`}
                                 onClick={this.toggleSound}
@@ -416,8 +448,8 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row profile__row">
-                    <div className="col-xs-12">
+                <div className="row profile__row profile__row--wrap">
+                    <div className="col-xs-12 profile__flex">
                         {
                             appAsDefaultStatus ?
                                 <span className="profile__app-status">

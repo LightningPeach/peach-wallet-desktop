@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import Tooltip from "rc-tooltip";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, helpers } from "additional";
 import { appOperations } from "modules/app";
 
 class Modal extends Component {
@@ -29,7 +30,23 @@ class Modal extends Component {
             <div className="modal-header">
                 <div className="row">
                     <div className="col-xs-12">
-                        {this.props.title}
+                        <span className="modal-header__label">
+                            {this.props.title}
+                            {this.props.titleTooltip &&
+                            <Tooltip
+                                placement="right"
+                                overlay={helpers.formatTooltips(this.props.titleTooltip)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info" />
+                            </Tooltip>
+                            }
+                        </span>
                     </div>
                 </div>
             </div>
@@ -67,6 +84,7 @@ Modal.propTypes = {
     showCloseButton: PropTypes.bool,
     styleSet: PropTypes.string,
     title: PropTypes.string,
+    titleTooltip: PropTypes.string,
 };
 
 export default connect(null)(Modal);

@@ -25,6 +25,15 @@ class CreateChannel extends Component {
             lightningError: null,
             nameError: null,
             processing: false,
+            tooltips: {
+                createChannel: [
+                    "The payment channel allows users to make payments between",
+                    "each other without broadcasting such transactions to the",
+                    "Bitcoin blockchain. Creating a channel can take some time",
+                    "as opening transaction should be confirmed on the Bitcoin",
+                    "blockchain.",
+                ],
+            },
         };
 
         analytics.pageview(`${ChannelsFullPath}/create-channel`, "Create Channel");
@@ -149,7 +158,7 @@ class CreateChannel extends Component {
         }
         helpText += ".";
         return (
-            <Modal title="Create channel" onClose={this.closeModal}>
+            <Modal title="Create channel" onClose={this.closeModal} titleTooltip={this.state.tooltips.createChannel}>
                 <form onSubmit={this.addChannel}>
                     <div className="modal-body">
                         <div className="row form-row">
