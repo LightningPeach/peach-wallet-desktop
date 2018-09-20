@@ -98,9 +98,28 @@ const formatTooltips = (tooltipText) => {
     return tooltipText;
 };
 
+/**
+ * @param {*} error
+ * @returns {*}
+ */
+const formatLndErrorRetryMessage = error => (
+    <span>
+        <span>{error}</span><br />
+        <span className="notification-message--helper">
+            <span>Please, try the following actions:</span>
+            <ul>
+                <li>Wait for some time and try again later.</li>
+                <li>Open a direct channel with the recipient.</li>
+                <li>Send the onchain payment to recipient.</li>
+            </ul>
+        </span>
+    </span>
+);
+
 export {
     formatDate,
     formatTooltips,
     hasSelection,
     noExponents,
+    formatLndErrorRetryMessage,
 };

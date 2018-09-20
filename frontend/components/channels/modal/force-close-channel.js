@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, logger } from "additional";
+import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
@@ -35,7 +35,7 @@ class ForceCloseChannel extends Component {
         dispatch(appOperations.closeModal());
         const response = await dispatch(operations.closeChannel(currentChannel, true));
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
             return;
         }
         const tempName = currentChannel.name || currentChannel.remote_pubkey;

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
@@ -50,7 +50,7 @@ class CreateChannel extends Component {
                 callback: () => dispatch(operations.openNewChannelModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatLndErrorRetryMessage(text),
         }));
     };
 

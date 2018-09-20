@@ -519,23 +519,6 @@ describe("Stream Payment Unit Tests", () => {
             it("ipcMain:errorStream()", async () => {
                 data.error = "Some awesome error";
                 window.ipcRenderer.send("ipcMain:errorStream", { streamId: data.streamId, error: data.error });
-                expectedActions = [
-                    {
-                        payload: { status: types.STREAM_PAYMENT_PAUSE, streamId: data.streamId },
-                        type: types.STREAM_PAYMENT_STATUS,
-                    },
-                    {
-                        payload: {
-                            autoDismiss: 0,
-                            level: "error",
-                            message: "Some awesome error",
-                            position: "bc",
-                            uid: "stream_error",
-                        },
-                        type: notificationsTypes.SHOW_NOTIFICATION,
-                    },
-                ];
-                expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.on).to.be.called.calledWith("ipcMain:finishStream");
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
