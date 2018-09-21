@@ -13,6 +13,14 @@ const setStreamPaymentStatus = (streamId, status) => ({
     type: types.SET_STREAM_PAYMENT_STATUS,
 });
 
+const setStreamLastPayment = (streamId, lastPayment) => ({
+    payload: {
+        lastPayment,
+        streamId,
+    },
+    type: types.SET_STREAM_LAST_PAYMENT,
+});
+
 const changeStreamPartsPaid = (streamId, change) => ({
     payload: {
         change,
@@ -62,5 +70,6 @@ export {
     addStreamPaymentToList,
     setStreamPayments,
     setStreamPaymentIntervalId,
+    setStreamLastPayment,
     setStreamErrorTimeoutId,
 };

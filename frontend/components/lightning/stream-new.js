@@ -18,6 +18,9 @@ import {
     MODAL_ANIMATION_TIMEOUT,
     USERNAME_MAX_LENGTH,
     STREAM_INFINITE_TIME_VALUE,
+    BTC_MEASURE,
+    MBTC_MEASURE,
+    SATOSHI_MEASURE,
 } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
@@ -167,8 +170,24 @@ class NewStreamPayment extends Component {
                 delay *= 60 * 60 * 24 * 7 * 30;
                 break;
             default:
+                break;
         }
         delay *= frequency;
+
+        let currency;
+        switch (this.state.valueCurrency) {
+            case "USD":
+                currency = "USD";
+                break;
+            case BTC_MEASURE.btc:
+            case MBTC_MEASURE.btc:
+            case SATOSHI_MEASURE.btc:
+                currency = "BTC";
+                break;
+            default:
+                currency = "BTC";
+                break;
+        }
         const response = await dispatch(streamOperations.prepareStreamPayment(
             to,
             amount,
@@ -176,6 +195,7 @@ class NewStreamPayment extends Component {
             time,
             name,
             contact.contactName,
+            currency,
         ));
         this.setState({ processing: false });
         if (!response.ok) {
@@ -323,7 +343,6 @@ class NewStreamPayment extends Component {
                                                 { label: bitcoinMeasureType, value: bitcoinMeasureType },
                                             ]}
                                             onChange={(newOption) => {
-                                                this.setDelay(newOption.value);
                                                 this.setState({
                                                     valueCurrency: newOption.value,
                                                 });
@@ -449,7 +468,6 @@ class NewStreamPayment extends Component {
                                             setRef={(ref) => {
                                                 this.frequency = ref;
                                             }}
-                                            setOnChange={this.setFrequency}
                                             disabled={this.state.processing}
                                         />
                                         <ErrorFieldTooltip text={this.state.frequencyError} />

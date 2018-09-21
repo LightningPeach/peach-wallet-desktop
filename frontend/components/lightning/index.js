@@ -428,7 +428,7 @@ Lightning.propTypes = {
         partsPaid: PropTypes.number.isRequired,
         price: PropTypes.number.isRequired,
         status: PropTypes.string.isRequired,
-        totalParts: PropTypes.number.isRequired,
+        totalParts: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     })).isRequired,
 };
 

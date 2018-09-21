@@ -30,12 +30,18 @@ module.exports = {
         date: {
             type: "integer",
         },
+        lastPayment: {
+            type: "integer",
+        },
         status: {
             type: "varchar",
             default: "active",
         },
         delay: {
             type: "integer",
+        },
+        currency: {
+            type: "varchar",
         },
     },
     relations: {

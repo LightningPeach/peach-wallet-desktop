@@ -26,7 +26,7 @@ class DigitsField extends Component {
                 this.pattern = validAboveZeroFloat;
                 break;
             default:
-                this.pattern = pattern;
+                this.pattern = validAboveZeroFloat;
                 break;
         }
         value = value && this.pattern.test(value) ? value : "";
@@ -48,7 +48,7 @@ class DigitsField extends Component {
                     this.pattern = validAboveZeroFloat;
                     break;
                 default:
-                    this.pattern = pattern;
+                    this.pattern = validAboveZeroFloat;
                     break;
             }
         }

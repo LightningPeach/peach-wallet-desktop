@@ -5,7 +5,7 @@ import { appActions } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
-import { db, successPromise, errorPromise } from "additional";
+import { db, successPromise, errorPromise, delay as Timeout } from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
 import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
@@ -39,7 +39,6 @@ function loadStreams() {
                 reducedStreams.push({
                     ...item,
                     contact_name: "",
-                    lightningID: item.lightningID,
                     partsPending: 0,
                     status: item.status === "run" ? types.STREAM_PAYMENT_STREAMING : types.STREAM_PAYMENT_PAUSED,
                     streamId: item.id,
@@ -65,6 +64,7 @@ function prepareStreamPayment(
     totalParts = STREAM_INFINITE_TIME_VALUE,
     paymentName = null,
     contact_name = "",
+    currency = "BTC",
     partsPaid = 0,
     date = Date.now(),
 ) {
@@ -81,10 +81,12 @@ function prepareStreamPayment(
         }
         const details = {
             contact_name,
+            currency,
             date,
             delay,
             fee: fees.response.fee,
             id,
+            lastPayment: 0,
             lightningID,
             memo,
             name,
@@ -112,9 +114,11 @@ function addStreamPaymentToList() {
             await db.streamBuilder()
                 .insert()
                 .values({
+                    currency: details.currency,
                     date: details.date,
                     delay: details.delay,
                     id: details.uuid,
+                    lastPayment: details.lastPayment,
                     lightningID: details.lightningID,
                     memo: `stream_payment_${details.uuid}`,
                     name: details.name,
@@ -186,6 +190,7 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId) {
     return async (dispatch, getState) => {
         let errorShowed = false;
+        const convertUsdToSatoshi = amount => Math.round((amount * 1e8) / getState().app.usdPerBtc);
         const handleStreamError = (err = statusCodes.EXCEPTION_LND_NOT_RESPONDING) => {
             if (!errorShowed) {
                 dispatch(pauseStreamPayment(streamId));
@@ -196,10 +201,14 @@ function startStreamPayment(streamId) {
                 errorShowed = true;
             }
         };
-        const makeStreamIteration = async () => {
+        const makeStreamIteration = async (shouldStartAt) => {
             const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
             if (!payment) {
                 handleStreamError(statusCodes.EXCEPTION_STREAM_NOT_IN_STORE);
+                return;
+            }
+            const startTime = shouldStartAt || Date.now();
+            if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
                 return;
             }
             if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
@@ -211,11 +220,20 @@ function startStreamPayment(streamId) {
                 }));
                 return;
             }
+            let amount;
+            switch (payment.currency) {
+                case "USD":
+                    amount = convertUsdToSatoshi(payment.price);
+                    break;
+                default:
+                    amount = payment.price;
+                    break;
+            }
             const errorTimeoutId = setTimeout(handleStreamError, STREAM_ERROR_TIMEOUT);
             dispatch(actions.setStreamErrorTimeoutId(payment.streamId, errorTimeoutId));
             let response = await dispatch(lightningOperations.addInvoiceRemote(
                 payment.lightningID,
-                payment.price,
+                amount,
                 payment.memo,
             ));
             if (!response.ok) {
@@ -237,12 +255,18 @@ function startStreamPayment(streamId) {
             dispatch(actions.changeStreamPartsPaid(streamId, 1));
             dispatch(accountOperations.checkBalance());
             dispatch(channelsOperations.getChannels());
+            if (startTime > payment.lastPayment) {
+                dispatch(actions.setStreamLastPayment(payment.streamId, startTime));
+            }
             try {
                 const parts =
                     getState().streamPayment.streams.filter(item => item.streamId === streamId)[0].partsPaid;
+                const updateData = startTime > payment.lastPayment
+                    ? { lastPayment: startTime, partsPaid: parts }
+                    : { partsPaid: parts };
                 db.streamBuilder()
                     .update()
-                    .set({ partsPaid: parts })
+                    .set(updateData)
                     .where("id = :id", { id: payment.uuid })
                     .execute();
                 db.streamPartBuilder()
@@ -264,15 +288,29 @@ function startStreamPayment(streamId) {
         if (!payment) {
             return;
         }
-        await makeStreamIteration();
-        const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
-        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
         db.streamBuilder()
             .update()
             .set({ partsPaid: payment.partsPaid, status: "run" })
             .where("id = :id", { id: payment.uuid })
             .execute();
+        const timeSinceLastPayment = Date.now() - payment.lastPayment;
+        if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {
+            console.log("WAIT FOR ", payment.delay - timeSinceLastPayment);
+            await Timeout(payment.delay - timeSinceLastPayment);
+        }
+        const borrowTime =
+            payment.lastPayment !== 0
+                && timeSinceLastPayment < payment.delay * 2
+                && timeSinceLastPayment > payment.delay
+                ? (payment.delay * 2) - timeSinceLastPayment : null;
+        if (borrowTime) {
+            makeStreamIteration(payment.lastPayment + payment.delay);
+            await Timeout(borrowTime);
+        }
+        makeStreamIteration();
+        const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
+        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
     };
 }
 
