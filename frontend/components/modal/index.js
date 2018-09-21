@@ -87,7 +87,7 @@ Modal.propTypes = {
     titleTooltip: PropTypes.oneOfType([
         PropTypes.arrayOf(PropTypes.string),
         PropTypes.string,
-    ]).isRequired,
+    ]),
 };
 
 export default connect(null)(Modal);

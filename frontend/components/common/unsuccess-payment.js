@@ -40,6 +40,14 @@ class UnSuccessPayment extends Component {
                             Your payment was failed!
                         </div>
                         {errorMsg}
+                        <span className="col-xs-12 payment_result__info payment_result__info--helper">
+                            <span className="helper__header">Please, try the following actions:</span>
+                            <ul className="helper__list">
+                                <li>Wait for some time and try again later.</li>
+                                <li>Open a direct channel with the recipient.</li>
+                                <li>Send the onchain payment to recipient.</li>
+                            </ul>
+                        </span>
                     </div>
                     <div className="row payment_result__btn-row">
                         <div className="col-xs-12">

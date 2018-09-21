@@ -219,7 +219,9 @@ class CreateChannel extends Component {
                         <div className="row form-row">
                             <div className="col-xs-12">
                                 <div className="form-label">
-                                    <label htmlFor="channel__lightningId">Lightning address *</label>
+                                    <label htmlFor="channel__lightningId">
+                                        {`Lightning address${this.state.custom ? " *" : ""}`}
+                                    </label>
                                 </div>
                             </div>
                             <div className="col-xs-12">
