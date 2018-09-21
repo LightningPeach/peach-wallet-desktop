@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics } from "additional";
+import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
 import BtcToUsd from "components/common/btc-to-usd";
@@ -35,12 +36,14 @@ class StreamDetails extends Component {
     };
 
     render() {
-        const { streamDetails } = this.props;
+        const { streamDetails, bitcoinMeasureType } = this.props;
         if (!streamDetails) {
             return null;
         }
-        const amount = (streamDetails.price * streamDetails.totalParts)
-            + (streamDetails.totalParts * streamDetails.fee.max);
+        const parts = streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? 1 : streamDetails.totalParts;
+        const amount = streamDetails.price * parts;
+        const fee = streamDetails.fee.max * parts;
+        const totalAmount = amount + fee;
         return (
             <Modal title="Check your data" onClose={this.closeModal}>
                 <div className="modal-body send-form">
@@ -57,10 +60,11 @@ class StreamDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                Amount in BTC
+                                Amount in {bitcoinMeasureType}
                             </div>
                             <div className="send-form__value">
-                                <BalanceWithMeasure satoshi={streamDetails.price * streamDetails.totalParts} />
+                                <BalanceWithMeasure satoshi={amount} />
+                                {streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? " per payment" : null}
                             </div>
                         </div>
                     </div>
@@ -70,7 +74,8 @@ class StreamDetails extends Component {
                                 Transaction fee
                             </div>
                             <div className="send-form__value">
-                                <BalanceWithMeasure satoshi={streamDetails.totalParts * streamDetails.fee.max} />
+                                <BalanceWithMeasure satoshi={fee} />
+                                {streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? " per payment" : null}
                             </div>
                         </div>
                     </div>
@@ -96,7 +101,8 @@ class StreamDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd satoshi={amount} />
+                                <BtcToUsd satoshi={totalAmount} />
+                                {streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? " per payment" : null}
                             </div>
                         </div>
                     </div>
@@ -127,6 +133,7 @@ class StreamDetails extends Component {
 }
 
 StreamDetails.propTypes = {
+    bitcoinMeasureType: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
     onClose: PropTypes.func,
     streamDetails: PropTypes.shape({
@@ -139,11 +146,12 @@ StreamDetails.propTypes = {
         name: PropTypes.string.isRequired,
         partsPaid: PropTypes.number.isRequired,
         price: PropTypes.number.isRequired,
-        totalParts: PropTypes.number.isRequired,
+        totalParts: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     }),
 };
 
 const mapStateToProps = state => ({
+    bitcoinMeasureType: state.account.bitcoinMeasureType,
     streamDetails: state.streamPayment.streamDetails,
 });
 

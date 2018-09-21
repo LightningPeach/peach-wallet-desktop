@@ -13,7 +13,12 @@ import { lightningOperations } from "modules/lightning";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations } from "modules/app";
 import * as statusCodes from "config/status-codes";
-import { LIGHTNING_ID_LENGTH, MODAL_ANIMATION_TIMEOUT, USERNAME_MAX_LENGTH } from "config/consts";
+import {
+    LIGHTNING_ID_LENGTH,
+    MODAL_ANIMATION_TIMEOUT,
+    USERNAME_MAX_LENGTH,
+    STREAM_INFINITE_TIME_VALUE,
+} from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
@@ -25,7 +30,7 @@ const getInitialState = (params = {}) => {
     const initState = {
         amount: null,
         amountError: null,
-        delay: 1000,
+        frequencyError: null,
         nameError: null,
         textError: null,
         timeCurrency: "seconds",
@@ -55,37 +60,10 @@ class NewStreamPayment extends Component {
         });
     };
 
-    setDelay = (value) => {
-        let delay = 1000;
-        switch (value) {
-            case "seconds":
-                delay *= 1;
-                break;
-            case "minutes":
-                delay *= 60;
-                break;
-            case "hours":
-                delay *= 60 * 60;
-                break;
-            case "days":
-                delay *= 60 * 60 * 24;
-                break;
-            case "weeks":
-                delay *= 60 * 60 * 24 * 7;
-                break;
-            case "months":
-                delay *= 60 * 60 * 24 * 7 * 30;
-                break;
-            default:
-        }
-        this.setState({
-            delay,
-        });
-    };
-
     clean = () => {
         this.setState(getInitialState({ valueCurrency: this.props.bitcoinMeasureType }));
         this.form.reset();
+        this.frequencyComponent.reset();
         this.amountComponent.reset();
         this.timeComponent.reset();
         this.toField.reset();
@@ -113,8 +91,15 @@ class NewStreamPayment extends Component {
         return { contactName, lightningId };
     };
 
+    _validateFrequency = (frequency) => {
+        if (!frequency) {
+            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        }
+        return null;
+    };
+
     _validateTime = (time) => {
-        if (!time) {
+        if (time === STREAM_INFINITE_TIME_VALUE) {
             return null;
         } else if (!Number.isFinite(time)) {
             return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
@@ -141,16 +126,18 @@ class NewStreamPayment extends Component {
         const name = this.name.value.trim();
         let to = contact.lightningId || this.state.toValue;
         let amount = parseFloat(this.amount.value.trim());
-        const time = Math.round(parseInt(this.time.value.trim(), 10)) || 0;
+        const time = Math.round(parseInt(this.time.value.trim(), 10)) || STREAM_INFINITE_TIME_VALUE;
+        const frequency = parseInt(this.frequency.value.trim(), 10) || 0;
 
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
         const amountError = dispatch(accountOperations.checkAmount(amount));
         const timeError = this._validateTime(time);
+        const frequencyError = this._validateFrequency(frequency);
 
-        if (nameError || toError || amountError || timeError) {
+        if (nameError || toError || amountError || timeError || frequencyError) {
             this.setState({
-                amountError, nameError, processing: false, timeError, toError,
+                amountError, frequencyError, nameError, processing: false, timeError, toError,
             });
             return;
         }
@@ -159,10 +146,33 @@ class NewStreamPayment extends Component {
             amountError, nameError, timeError, toError,
         });
         amount = dispatch(appOperations.convertToSatoshi(amount));
+        let delay = 1000;
+        switch (this.state.timeCurrency) {
+            case "seconds":
+                delay *= 1;
+                break;
+            case "minutes":
+                delay *= 60;
+                break;
+            case "hours":
+                delay *= 60 * 60;
+                break;
+            case "days":
+                delay *= 60 * 60 * 24;
+                break;
+            case "weeks":
+                delay *= 60 * 60 * 24 * 7;
+                break;
+            case "months":
+                delay *= 60 * 60 * 24 * 7 * 30;
+                break;
+            default:
+        }
+        delay *= frequency;
         const response = await dispatch(streamOperations.prepareStreamPayment(
             to,
             amount,
-            this.state.delay,
+            delay,
             time,
             name,
             contact.contactName,
@@ -346,7 +356,7 @@ class NewStreamPayment extends Component {
                                     <div className="col-xs-12">
                                         <div className="form-label">
                                             <label htmlFor="stream__amount">
-                                                Price per {this.state.timeCurrency} in {this.state.valueCurrency}
+                                                Price per payment in {this.state.valueCurrency}
                                             </label>
                                         </div>
                                     </div>
@@ -357,6 +367,9 @@ class NewStreamPayment extends Component {
                                             id="stream__amount"
                                             className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
                                             name="stream__amount"
+                                            pattern={this.state.valueCurrency === "Satoshi"
+                                                ? "above_zero_int"
+                                                : "above_zero_float"}
                                             placeholder={`${
                                                 this.state.valueCurrency === "Satoshi"
                                                 || this.state.valueCurrency === "USD"
@@ -380,7 +393,7 @@ class NewStreamPayment extends Component {
                                     <div className="col-xs-12">
                                         <div className="form-label">
                                             <label htmlFor="stream__time">
-                                                Time limit in {this.state.timeCurrency}
+                                                Number of payments
                                             </label>
                                         </div>
                                     </div>
@@ -391,7 +404,8 @@ class NewStreamPayment extends Component {
                                             id="stream__time"
                                             className={`form-text ${this.state.timeError ? "form-text__error" : ""}`}
                                             name="stream__time"
-                                            placeholder="Infinite"
+                                            pattern="above_zero_int"
+                                            placeholder={STREAM_INFINITE_TIME_VALUE}
                                             ref={(ref) => {
                                                 this.timeComponent = ref;
                                             }}
@@ -406,6 +420,41 @@ class NewStreamPayment extends Component {
                             </div>
                             <div className="col-xs-12">
                                 <ErrorFieldTooltip text={this.state.amountError || this.state.timeError} />
+                            </div>
+                            <div className="col-xs-6 stream__price-time">
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <div className="form-label">
+                                            <label htmlFor="stream__amount">
+                                                Frequency
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <DigitsField
+                                            id="stream__frequency"
+                                            className={`form-text ${this.state.frequencyError
+                                                ? "form-text__error"
+                                                : ""
+                                            }`}
+                                            defaultValue="1"
+                                            pattern="above_zero_int"
+                                            name="stream__frequency"
+                                            placeholder="0"
+                                            ref={(ref) => {
+                                                this.frequencyComponent = ref;
+                                            }}
+                                            setRef={(ref) => {
+                                                this.frequency = ref;
+                                            }}
+                                            setOnChange={this.setFrequency}
+                                            disabled={this.state.processing}
+                                        />
+                                        <ErrorFieldTooltip text={this.state.frequencyError} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

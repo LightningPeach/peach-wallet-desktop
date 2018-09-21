@@ -8,7 +8,7 @@ import { store } from "store/configure-store";
 import { db, successPromise, errorPromise } from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
-import { STREAM_ERROR_TIMEOUT } from "config/consts";
+import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { streamPaymentActions as actions, streamPaymentTypes as types } from "modules/streamPayments";
 
 async function pauseDbStreams() {
@@ -62,7 +62,7 @@ function prepareStreamPayment(
     lightningID,
     price,
     delay = 1000,
-    totalParts = 0,
+    totalParts = STREAM_INFINITE_TIME_VALUE,
     paymentName = null,
     contact_name = "",
     partsPaid = 0,
@@ -184,7 +184,7 @@ function finishStreamPayment(streamId) {
 }
 
 function startStreamPayment(streamId) {
-    return (dispatch, getState) => {
+    return async (dispatch, getState) => {
         let errorShowed = false;
         const handleStreamError = (err = statusCodes.EXCEPTION_LND_NOT_RESPONDING) => {
             if (!errorShowed) {
@@ -202,7 +202,8 @@ function startStreamPayment(streamId) {
                 handleStreamError(statusCodes.EXCEPTION_STREAM_NOT_IN_STORE);
                 return;
             }
-            if (payment.partsPaid + payment.partsPending >= payment.totalParts) {
+            if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+                && payment.partsPaid + payment.partsPending >= payment.totalParts) {
                 dispatch(finishStreamPayment(streamId));
                 dispatch(info({
                     message: <span>Stream <strong>{payment.name}</strong> ended</span>,
@@ -263,6 +264,7 @@ function startStreamPayment(streamId) {
         if (!payment) {
             return;
         }
+        await makeStreamIteration();
         const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
         dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));

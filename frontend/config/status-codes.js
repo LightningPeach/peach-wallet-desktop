@@ -96,6 +96,8 @@ const EXCEPTION_CHANNEL_ABSENT = "There is no such channel.";
 // STREAM PAYMENTS
 // Stream not found in store
 const EXCEPTION_STREAM_NOT_IN_STORE = "Stream Payment not found in store.";
+// Frequency is 0
+const EXCEPTION_FEQUENCY_IS_ZERO = "Stream frequency must be greater than 0.";
 
 // TRANSACITONS
 // Empty stream details
@@ -167,6 +169,7 @@ export {
     EXCEPTION_PASSWORD_SEED_WRONG_FORMAT,
     EXCEPTION_PASSWORD_MISMATCH,
     EXCEPTION_STREAM_DETAILS_REQUIRED,
+    EXCEPTION_FEQUENCY_IS_ZERO,
     EXCEPTION_SEND_COINS_DETAILS_REQUIRED,
     EXCEPTION_DB_NOT_OPENED,
     EXCEPTION_FIELD_IS_REQUIRED,
