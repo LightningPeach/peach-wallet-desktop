@@ -22,6 +22,16 @@
             min-height: 27px;
         }
         &__container {
+            transition: right .2s ease-in-out, margin .2s ease-in-out;
+            max-width: 374px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+
+            &--end {
+                justify-content: flex-end;
+            }
 
             &:after {
                 content: "";
@@ -101,15 +111,6 @@
     .tabs {
         &__wrapper {
             overflow: hidden;
-        }
-
-        &__container {
-            transition: right .2s ease-in-out, margin .2s ease-in-out;
-
-            &.tabs__stream {
-                right: 20px;
-                margin: 0;
-            }
         }
     }
 }

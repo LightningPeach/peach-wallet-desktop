@@ -46,7 +46,7 @@ const getInitialState = (params = {}) => {
     return { ...initState, ...params };
 };
 
-class NewStreamPayment extends Component {
+class RecurringPayment extends Component {
     constructor(props) {
         super(props);
 
@@ -517,7 +517,7 @@ class NewStreamPayment extends Component {
     }
 }
 
-NewStreamPayment.propTypes = {
+RecurringPayment.propTypes = {
     bitcoinMeasureType: PropTypes.string.isRequired,
     contacts: PropTypes.arrayOf(PropTypes.shape({
         lightningID: PropTypes.string.isRequired,
@@ -537,5 +537,5 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
 });
 
-export default connect(mapStateToProps)(NewStreamPayment);
+export default connect(mapStateToProps)(RecurringPayment);
 

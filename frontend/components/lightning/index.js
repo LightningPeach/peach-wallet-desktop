@@ -27,8 +27,7 @@ import { LightningFullPath } from "routes";
 import Ellipsis from "components/common/ellipsis";
 import ChannelWarning from "./modal/channel_warning";
 import RegularPayment from "./regular";
-import StreamPayment from "./stream";
-import NewStreamPayment from "./stream-new";
+import RecurringPayment from "./recurring";
 
 class Lightning extends Component {
     constructor(props) {
@@ -62,12 +61,9 @@ class Lightning extends Component {
             if (this.state.activeTab === "regular") {
                 path = `${LightningFullPath}/regular`;
                 title = "Lightning / Regular Payment";
-            } else if (this.state.activeTab === "stream") {
-                path = `${LightningFullPath}/stream`;
-                title = "Lightning / Stream Payment";
-            } else if (this.state.activeTab === "new-stream") {
-                path = `${LightningFullPath}/new-stream`;
-                title = "Lightning / New Stream Payment";
+            } else if (this.state.activeTab === "recurring") {
+                path = `${LightningFullPath}/recurring`;
+                title = "Lightning / Recurring Payment";
             }
             analytics.pageview(path, title);
         }
@@ -310,12 +306,9 @@ class Lightning extends Component {
             if (tab === "regular") {
                 path = `${LightningFullPath}/regular`;
                 title = "Lightning / Regular Payment";
-            } else if (tab === "stream") {
-                path = `${LightningFullPath}/stream`;
-                title = "Lightning / Stream Payment";
-            } else if (tab === "new-stream") {
-                path = `${LightningFullPath}/new-stream`;
-                title = "Lightning / New Stream Payment";
+            } else if (tab === "recurring") {
+                path = `${LightningFullPath}/recurring`;
+                title = "Lightning / Recurring Payment";
             }
             analytics.pageview(path, title);
         }
@@ -342,11 +335,8 @@ class Lightning extends Component {
             case "regular":
                 tabContent = <RegularPayment />;
                 break;
-            case "stream":
-                tabContent = <StreamPayment />;
-                break;
-            case "new-stream":
-                tabContent = <NewStreamPayment />;
+            case "recurring":
+                tabContent = <RecurringPayment />;
                 break;
             default:
                 tabContent = null;
@@ -359,7 +349,11 @@ class Lightning extends Component {
                     <div className="tabs">
                         <div className="row tabs__row">
                             <div className="col-xs-12 tabs__wrapper">
-                                <div className={`tabs__container tabs__${activeTab}`}>
+                                <div className={`tabs__container ${
+                                    activeTab === "recurring"
+                                        ? "tabs__container--end"
+                                        : ""}`}
+                                >
                                     <a
                                         className={`tab-link ${activeTab === "regular" ? "tab-link-active" : ""}`}
                                         onClick={() => this.handleTabClick("regular")}
@@ -367,16 +361,10 @@ class Lightning extends Component {
                                         Regular payment
                                     </a>
                                     <a
-                                        className={`tab-link ${activeTab === "stream" ? "tab-link-active" : ""}`}
-                                        onClick={() => this.handleTabClick("stream")}
+                                        className={`tab-link ${activeTab === "recurring" ? "tab-link-active" : ""}`}
+                                        onClick={() => this.handleTabClick("recurring")}
                                     >
-                                        Stream payment
-                                    </a>
-                                    <a
-                                        className={`tab-link ${activeTab === "new-stream" ? "tab-link-active" : ""}`}
-                                        onClick={() => this.handleTabClick("new-stream")}
-                                    >
-                                        New Stream payment
+                                        Recurring payment
                                     </a>
                                 </div>
                             </div>
