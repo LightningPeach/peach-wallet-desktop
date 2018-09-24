@@ -86,7 +86,7 @@ class RegistrationForm extends PureComponent {
                 <div className="home__title">
                     Sign up and start working with peach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="username">
@@ -123,7 +123,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="password">Password</label>
@@ -150,7 +150,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.passwordError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="conf_password">
@@ -174,7 +174,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.confPasswordError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

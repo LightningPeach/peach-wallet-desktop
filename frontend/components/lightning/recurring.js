@@ -26,6 +26,7 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
 import DigitsField from "components/ui/digitsField";
+import Checkbox from "components/ui/checkbox";
 import ToField from "./ui/to";
 import StreamDetails from "./modal/stream-details";
 
@@ -33,7 +34,9 @@ const getInitialState = (params = {}) => {
     const initState = {
         amount: null,
         amountError: null,
+        frequency: 1,
         frequencyError: null,
+        isInfinite: false,
         nameError: null,
         textError: null,
         timeCurrency: "seconds",
@@ -55,11 +58,23 @@ class RecurringPayment extends Component {
 
     setAmount = () => {
         const amount = parseFloat(this.amount.value.trim()) || null;
-        const time = parseInt(this.time.value.trim(), 10) || null;
         this.setState({
-            amount: amount && time ? amount * time : null,
+            amount,
             amountError: null,
+        });
+    };
+
+    setTime = () => {
+        this.setState({
             timeError: null,
+        });
+    };
+
+    setFrequency = () => {
+        const frequency = parseFloat(this.frequency.value.trim()) || null;
+        this.setState({
+            frequency,
+            frequencyError: null,
         });
     };
 
@@ -76,6 +91,13 @@ class RecurringPayment extends Component {
         this.setState({
             toError: null,
             toValue: value.trim(),
+        });
+    };
+
+    toggleInfinite = () => {
+        this.setState({
+            isInfinite: !this.state.isInfinite,
+            timeError: null,
         });
     };
 
@@ -104,6 +126,8 @@ class RecurringPayment extends Component {
     _validateTime = (time) => {
         if (time === STREAM_INFINITE_TIME_VALUE) {
             return null;
+        } else if (!time) {
+            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(time)) {
             return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
         } else if (time <= 0) {
@@ -129,8 +153,10 @@ class RecurringPayment extends Component {
         const name = this.name.value.trim();
         let to = contact.lightningId || this.state.toValue;
         let amount = parseFloat(this.amount.value.trim());
-        const time = Math.round(parseInt(this.time.value.trim(), 10)) || STREAM_INFINITE_TIME_VALUE;
-        const frequency = parseInt(this.frequency.value.trim(), 10) || 0;
+        const time = this.state.isInfinite
+            ? STREAM_INFINITE_TIME_VALUE
+            : Math.round(parseInt(this.time.value.trim(), 10)) || 0;
+        const frequency = Math.round(parseInt(this.frequency.value.trim(), 10)) || 0;
 
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
@@ -207,6 +233,8 @@ class RecurringPayment extends Component {
 
     renderForm = () => {
         const { dispatch, bitcoinMeasureType, lisStatus } = this.props;
+        const filledFrequency = this.state.frequency;
+        const filledAmount = this.amount && this.amount.value.trim();
         let usd = null;
         if (this.state.amount) {
             usd = (
@@ -216,7 +244,7 @@ class RecurringPayment extends Component {
             );
         }
         const formClass =
-            `send form new-stream ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`;
+            `send form ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`;
         return (
             <form
                 className={formClass}
@@ -226,12 +254,12 @@ class RecurringPayment extends Component {
                     this.form = ref;
                 }}
             >
-                <div className="row form-row">
-                    <div className="col-xs-12 col-md-8">
-                        <div className="row form-row">
+                <div className="row mt-m14">
+                    <div className="col-xs-12 col-sm-6">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
-                                    <label htmlFor="stream__name">New Stream Name</label>
+                                    <label htmlFor="stream__name">Name of Payment</label>
                                 </div>
                             </div>
                             <div className="col-xs-12">
@@ -248,10 +276,12 @@ class RecurringPayment extends Component {
                                     max={USERNAME_MAX_LENGTH}
                                     maxLength={USERNAME_MAX_LENGTH}
                                 />
-                                <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <ErrorFieldTooltip text={this.state.nameError} />
+                    </div>
+                    <div className="col-xs-12 col-sm-6">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="stream__to">To</label>
@@ -268,17 +298,53 @@ class RecurringPayment extends Component {
                                         this.toField = ref;
                                     }}
                                 />
-                                <ErrorFieldTooltip text={this.state.toError} />
                             </div>
                         </div>
+                        <ErrorFieldTooltip text={this.state.toError} />
                     </div>
-                    <div className="col-xs-12 col-md-4">
-                        <div className="row form-row">
-                            <div className="col-xs-12">
+                    <div className="col-xs-12 col-sm-4">
+                        <div className={`row mt-14 connected-field ${filledFrequency
+                            ? "connected-field--filled"
+                            : ""}`}
+                        >
+                            <div className="col-xs-6">
                                 <div className="row">
                                     <div className="col-xs-12">
                                         <div className="form-label">
-                                            <label htmlFor="stream__amount">
+                                            <label htmlFor="stream__frequency">
+                                                Frequency
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <DigitsField
+                                            id="stream__frequency"
+                                            className={`connected-field__input form-text ${this.state.frequencyError
+                                                ? "form-text__error"
+                                                : ""}`}
+                                            defaultValue="1"
+                                            pattern="above_zero_int"
+                                            name="stream__frequency"
+                                            placeholder="0"
+                                            ref={(ref) => {
+                                                this.frequencyComponent = ref;
+                                            }}
+                                            setRef={(ref) => {
+                                                this.frequency = ref;
+                                            }}
+                                            setOnChange={this.setFrequency}
+                                            disabled={this.state.processing}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-xs-6">
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <div className="form-label">
+                                            <label htmlFor="stream__frequency--currency">
                                                 Time unit
                                             </label>
                                         </div>
@@ -287,7 +353,7 @@ class RecurringPayment extends Component {
                                 <div className="row">
                                     <div className="col-xs-12">
                                         <Select
-                                            id="stream__currency--time"
+                                            id="stream__frequency--currency"
                                             value={this.state.timeCurrency}
                                             searchable={false}
                                             options={[
@@ -321,12 +387,56 @@ class RecurringPayment extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className="row form-row">
-                            <div className="col-xs-12">
+                        <ErrorFieldTooltip text={this.state.frequencyError} />
+                    </div>
+                    <div className="col-xs-12 col-sm-4">
+                        <div className={`row mt-14 connected-field ${filledAmount
+                            ? "connected-field--filled"
+                            : ""}`}
+                        >
+                            <div className="col-xs-6">
                                 <div className="row">
                                     <div className="col-xs-12">
                                         <div className="form-label">
                                             <label htmlFor="stream__amount">
+                                                Price per payment
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <DigitsField
+                                            id="stream__amount"
+                                            className={`form-text connected-field__input ${
+                                                this.state.amountError
+                                                    ? "form-text__error"
+                                                    : ""}`}
+                                            name="stream__amount"
+                                            pattern={this.state.valueCurrency === "Satoshi"
+                                                ? "above_zero_int"
+                                                : "above_zero_float"}
+                                            placeholder={this.state.valueCurrency === "Satoshi"
+                                                || this.state.valueCurrency === "USD"
+                                                ? "0"
+                                                : "0.0"}
+                                            ref={(ref) => {
+                                                this.amountComponent = ref;
+                                            }}
+                                            setRef={(ref) => {
+                                                this.amount = ref;
+                                            }}
+                                            setOnChange={this.setAmount}
+                                            disabled={this.state.processing}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-xs-6">
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <div className="form-label">
+                                            <label htmlFor="stream__amount--currency">
                                                 Value unit
                                             </label>
                                         </div>
@@ -335,7 +445,7 @@ class RecurringPayment extends Component {
                                 <div className="row">
                                     <div className="col-xs-12">
                                         <Select
-                                            id="stream__currency--time"
+                                            id="stream__amount--currency"
                                             value={this.state.valueCurrency}
                                             searchable={false}
                                             options={[
@@ -365,119 +475,50 @@ class RecurringPayment extends Component {
                                 </div>
                             </div>
                         </div>
+                        <ErrorFieldTooltip text={this.state.amountError} />
                     </div>
-                </div>
-                <div className="row form-row">
-                    <div className="col-xs-12 col-md-8">
-                        <div className="row">
-                            <div className="col-xs-6 stream__price-time">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="stream__amount">
-                                                Price per payment in {this.state.valueCurrency}
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <DigitsField
-                                            id="stream__amount"
-                                            className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
-                                            name="stream__amount"
-                                            pattern={this.state.valueCurrency === "Satoshi"
-                                                ? "above_zero_int"
-                                                : "above_zero_float"}
-                                            placeholder={`${
-                                                this.state.valueCurrency === "Satoshi"
-                                                || this.state.valueCurrency === "USD"
-                                                    ? "0"
-                                                    : "0.0"
-                                            } ${this.state.valueCurrency}`}
-                                            ref={(ref) => {
-                                                this.amountComponent = ref;
-                                            }}
-                                            setRef={(ref) => {
-                                                this.amount = ref;
-                                            }}
-                                            setOnChange={this.setAmount}
-                                            disabled={this.state.processing}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-xs-6 stream__time">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="stream__time">
-                                                Number of payments
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <DigitsField
-                                            id="stream__time"
-                                            className={`form-text ${this.state.timeError ? "form-text__error" : ""}`}
-                                            name="stream__time"
-                                            pattern="above_zero_int"
-                                            placeholder={STREAM_INFINITE_TIME_VALUE}
-                                            ref={(ref) => {
-                                                this.timeComponent = ref;
-                                            }}
-                                            setRef={(ref) => {
-                                                this.time = ref;
-                                            }}
-                                            setOnChange={this.setAmount}
-                                            disabled={this.state.processing}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                    <div className="col-xs-12 col-sm-4">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
-                                <ErrorFieldTooltip text={this.state.amountError || this.state.timeError} />
-                            </div>
-                            <div className="col-xs-6 stream__price-time">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="stream__amount">
-                                                Frequency
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <DigitsField
-                                            id="stream__frequency"
-                                            className={`form-text ${this.state.frequencyError
-                                                ? "form-text__error"
-                                                : ""
-                                            }`}
-                                            defaultValue="1"
-                                            pattern="above_zero_int"
-                                            name="stream__frequency"
-                                            placeholder="0"
-                                            ref={(ref) => {
-                                                this.frequencyComponent = ref;
-                                            }}
-                                            setRef={(ref) => {
-                                                this.frequency = ref;
-                                            }}
-                                            disabled={this.state.processing}
-                                        />
-                                        <ErrorFieldTooltip text={this.state.frequencyError} />
-                                    </div>
+                                <div className="form-label">
+                                    <label htmlFor="stream__payments-number">
+                                        Number of payments
+                                    </label>
                                 </div>
                             </div>
                         </div>
+                        <div className="row">
+                            <div className={`col-xs-12 check-input ${this.state.isInfinite
+                                ? "check-input--checked"
+                                : ""}`}
+                            >
+                                <DigitsField
+                                    id="stream__payments-number"
+                                    className={`form-text ${this.state.timeError ? "form-text__error" : ""}`}
+                                    name="stream__payments-number"
+                                    pattern="above_zero_int"
+                                    placeholder="0"
+                                    ref={(ref) => {
+                                        this.timeComponent = ref;
+                                    }}
+                                    setRef={(ref) => {
+                                        this.time = ref;
+                                    }}
+                                    setOnChange={this.setTime}
+                                    disabled={this.state.isInfinite}
+                                />
+                                <Checkbox
+                                    text="Infinite"
+                                    checked={this.state.isInfinite}
+                                    onChange={this.toggleInfinite}
+                                    class="check-input__checkbox"
+                                />
+                            </div>
+                        </div>
+                        <ErrorFieldTooltip text={this.state.timeError} />
                     </div>
                 </div>
-                <div className="row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12 text-right">
                         {usd}
                         <button

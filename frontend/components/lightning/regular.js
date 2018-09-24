@@ -244,7 +244,7 @@ class RegularPayment extends Component {
 
         return (
             <form
-                className="send"
+                className="send narrow"
                 onSubmit={(e) => {
                     e.preventDefault();
                     this.setState({ processing: true });
@@ -259,7 +259,7 @@ class RegularPayment extends Component {
                     this.form = el;
                 }}
             >
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="regular__name">
@@ -288,7 +288,7 @@ class RegularPayment extends Component {
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="regular__to">To</label>
@@ -308,7 +308,7 @@ class RegularPayment extends Component {
                         <ErrorFieldTooltip text={this.state.toError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="regular__amount">
@@ -346,7 +346,7 @@ class RegularPayment extends Component {
                     </div>
                     <div className="col-xs-12" />
                 </div>
-                <div className="row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12 text-right">
                         {usd}
                         <button

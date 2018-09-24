@@ -95,7 +95,7 @@ class SeedVerify extends PureComponent {
                 <div className="home__title">
                     Sign up and start working with peach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="verify-seed">
@@ -132,7 +132,7 @@ class SeedVerify extends PureComponent {
                         <ErrorFieldTooltip text={this.state.seedError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

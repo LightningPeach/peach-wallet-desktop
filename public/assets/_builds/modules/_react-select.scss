@@ -123,11 +123,12 @@
     display: table;
     border-spacing: 0;
     border-collapse: separate;
-    height: 36px;
+    height: 40px;
     outline: 0;
     overflow: hidden;
     position: relative;
-    width: 100%
+    width: 100%;
+    transition: border 0.25s ease
 }
 
 .Select-control:hover {
@@ -145,7 +146,7 @@
     bottom: 0;
     color: #aaa;
     left: 0;
-    line-height: 34px;
+    line-height: 38px;
     padding-left: 10px;
     padding-right: 10px;
     position: absolute;

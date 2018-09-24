@@ -79,7 +79,7 @@ class Seed extends Component {
         const disabled = this.state.processing;
         return (
             <form onSubmit={this.confirm}>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="seed">Enter your seed words</label>
@@ -98,7 +98,7 @@ class Seed extends Component {
                         <ErrorFieldTooltip text={this.state.seedError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             className="button button__orange button__fullwide"

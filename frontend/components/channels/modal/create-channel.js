@@ -146,7 +146,7 @@ class CreateChannel extends Component {
             <Modal title="Create channel" onClose={this.closeModal}>
                 <form onSubmit={this.addChannel}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <Checkbox
                                     text="Custom channel"
@@ -177,7 +177,7 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__amount">Amount in {bitcoinMeasureType} *</label>
@@ -201,7 +201,7 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.amountError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__lightningId">Lightning address *</label>

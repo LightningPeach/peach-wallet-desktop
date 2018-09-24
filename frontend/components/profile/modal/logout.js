@@ -36,7 +36,7 @@ class ConfirmLogout extends Component {
         return (
             <Modal title="Log out" onClose={this.closeModal}>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to log out?
                         </div>

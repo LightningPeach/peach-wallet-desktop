@@ -113,7 +113,7 @@ class Login extends Component {
                 <div className="home__title">
                     Sign in and start working with peach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="username">
@@ -149,7 +149,7 @@ class Login extends Component {
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="password">Password</label>
@@ -177,7 +177,7 @@ class Login extends Component {
                         <ErrorFieldTooltip text={this.state.passwordError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

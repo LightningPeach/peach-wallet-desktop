@@ -54,7 +54,7 @@ class CloseChannel extends Component {
         return (
             <Modal title="Close Channel" onClose={this.closeModal}>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to close <strong title={title}>{title}</strong> cooperatively?
                             All your bitcoins will send to ONCHAIN balance.

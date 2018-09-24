@@ -54,7 +54,7 @@ class ForceCloseChannel extends Component {
         return (
             <Modal title="Force Close Channel" onClose={this.closeModal}>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Cooperative close of <strong title={title}>{title}</strong> is failed. You can close channel
                             not cooperatively and receive you funds in 24 hours.

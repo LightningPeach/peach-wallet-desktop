@@ -92,7 +92,7 @@ class EditContact extends Component {
             <Modal title="Edit contact" onClose={this.closeModal} showCloseButton>
                 <form onSubmit={this.updateContact}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">
@@ -117,7 +117,7 @@ class EditContact extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">

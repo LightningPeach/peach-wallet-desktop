@@ -267,7 +267,7 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="pay_req_amount">
@@ -346,7 +346,7 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="profile__currency">

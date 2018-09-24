@@ -57,7 +57,7 @@ class DeleteContact extends Component {
         return (
             <Modal title="Delete contact" onClose={this.closeModal} showCloseButton>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to
                             delete <strong title={currentContact.name}>{currentContact.name}</strong>?

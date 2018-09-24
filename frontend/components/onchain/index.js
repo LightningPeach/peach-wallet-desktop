@@ -231,7 +231,7 @@ class Onchain extends Component {
                     this.form = ref;
                 }}
             >
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="send-coins__name">Name of payment</label>
@@ -253,7 +253,7 @@ class Onchain extends Component {
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="send-coins__to">To</label>
@@ -273,7 +273,7 @@ class Onchain extends Component {
                         <ErrorFieldTooltip text={this.state.toError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="send-coins__amount">Amount in {bitcoinMeasureType}</label>
@@ -300,7 +300,7 @@ class Onchain extends Component {
                     </div>
                     <div className="col-xs-12" />
                 </div>
-                <div className="row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12 text-right">
                         {usd}
                         <button type="submit" className="button button__orange button__side-padding45">

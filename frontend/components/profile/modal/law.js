@@ -15,7 +15,7 @@ class Law extends Component {
         return (
             <Modal onClose={this.closeModal} styleSet="legal" showCloseButton>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12">
                             <Legal fromProfile />
                         </div>

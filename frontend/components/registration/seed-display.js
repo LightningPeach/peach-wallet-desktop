@@ -38,7 +38,7 @@ class SeedDisplay extends PureComponent {
                 <div className="home__title">
                     Sign up and start working with peach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label form-label__wrapper">
                             <label htmlFor="seed" className="form-label__seed">
@@ -59,7 +59,7 @@ class SeedDisplay extends PureComponent {
                         />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

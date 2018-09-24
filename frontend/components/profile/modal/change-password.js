@@ -65,7 +65,7 @@ class ChangePassword extends Component {
             <Modal title="Change password" onClose={this.closeModal}>
                 <form onSubmit={this.changePassword}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="old_password">
@@ -88,7 +88,7 @@ class ChangePassword extends Component {
                                 <ErrorFieldTooltip text={this.state.oldPasswordError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="new_password">
@@ -111,7 +111,7 @@ class ChangePassword extends Component {
                                 <ErrorFieldTooltip text={this.state.newPasswordError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="conf_new_password">
