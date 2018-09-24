@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import Tooltip from "rc-tooltip";
+import { analytics, helpers } from "additional";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
@@ -15,6 +16,14 @@ class StreamDetails extends Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            tooltips: {
+                fee: [
+                    "Fee is relevant only as of today.",
+                    "In future it may change.",
+                ],
+            },
+        };
         analytics.pageview(`${LightningFullPath}/stream/details`, "Lightning / Stream Payment / Details");
     }
 
@@ -50,7 +59,9 @@ class StreamDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                Name of payment
+                                <span className="send-form__label--text">
+                                    Name of payment
+                                </span>
                             </div>
                             <div className="send-form__value">
                                 {!streamDetails.name ? "-" : streamDetails.name}
@@ -60,7 +71,9 @@ class StreamDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                Amount in {bitcoinMeasureType}
+                                <span className="send-form__label--text">
+                                    Amount in {bitcoinMeasureType}
+                                </span>
                             </div>
                             <div className="send-form__value">
                                 <BalanceWithMeasure satoshi={amount} />
@@ -71,7 +84,23 @@ class StreamDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                Transaction fee
+                                <span className="send-form__label--text">
+                                    Transaction fee
+                                    <Tooltip
+                                        placement="right"
+                                        overlay={helpers.formatTooltips(this.state.tooltips.fee)}
+                                        trigger="hover"
+                                        arrowContent={
+                                            <div className="rc-tooltip-arrow-inner" />
+                                        }
+                                        prefixCls="rc-tooltip__small rc-tooltip"
+                                        mouseLeaveDelay={0}
+                                    >
+                                        <i
+                                            className="form-label__icon form-label__icon--info"
+                                        />
+                                    </Tooltip>
+                                </span>
                             </div>
                             <div className="send-form__value">
                                 <BalanceWithMeasure satoshi={fee} />
@@ -82,7 +111,9 @@ class StreamDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                To
+                                <span className="send-form__label--text">
+                                    To
+                                </span>
                             </div>
                             <div className="send-form__value send-form__value--no-overflow">
                                 {streamDetails.contact_name ?
