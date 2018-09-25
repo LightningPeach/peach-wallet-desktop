@@ -202,7 +202,7 @@ function startStreamPayment(streamId) {
             }
         };
         const makeStreamIteration = async (shouldStartAt) => {
-            const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+            let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
             if (!payment) {
                 handleStreamError(statusCodes.EXCEPTION_STREAM_NOT_IN_STORE);
                 return;
@@ -214,10 +214,6 @@ function startStreamPayment(streamId) {
             if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts) {
                 dispatch(finishStreamPayment(streamId));
-                dispatch(info({
-                    message: <span>Stream <strong>{payment.name}</strong> ended</span>,
-                    uid: streamId,
-                }));
                 return;
             }
             let amount;
@@ -255,15 +251,14 @@ function startStreamPayment(streamId) {
             dispatch(actions.changeStreamPartsPaid(streamId, 1));
             dispatch(accountOperations.checkBalance());
             dispatch(channelsOperations.getChannels());
+            payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; //eslint-disable-line
+            const updateData = startTime > payment.lastPayment
+                ? { lastPayment: startTime, partsPaid: payment.partsPaid }
+                : { partsPaid: payment.partsPaid };
             if (startTime > payment.lastPayment) {
                 dispatch(actions.setStreamLastPayment(payment.streamId, startTime));
             }
             try {
-                const parts =
-                    getState().streamPayment.streams.filter(item => item.streamId === streamId)[0].partsPaid;
-                const updateData = startTime > payment.lastPayment
-                    ? { lastPayment: startTime, partsPaid: parts }
-                    : { partsPaid: parts };
                 db.streamBuilder()
                     .update()
                     .set(updateData)
@@ -279,6 +274,14 @@ function startStreamPayment(streamId) {
             } catch (e) {
                 /* istanbul ignore next */
                 console.error(statusCodes.EXCEPTION_EXTRA, e);
+            }
+            if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+                && payment.partsPaid + payment.partsPending >= payment.totalParts) {
+                dispatch(finishStreamPayment(streamId));
+                dispatch(info({
+                    message: <span>Stream <strong>{payment.name}</strong> ended</span>,
+                    uid: streamId,
+                }));
             }
         };
 
