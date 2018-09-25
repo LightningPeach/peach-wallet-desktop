@@ -170,11 +170,6 @@ function pauseAllStreams() {
 function finishStreamPayment(streamId) {
     return (dispatch, getState) => {
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
-        // TODO: Multiple parallel stream payments
-        dispatch(pauseAllStreams());
-        if (!payment) {
-            return;
-        }
         clearTimeout(payment.errorTimeoutId);
         clearInterval(payment.paymentIntervalId);
         dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
@@ -286,11 +281,6 @@ function startStreamPayment(streamId) {
         };
 
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
-        // TODO: Multiple parallel stream payments
-        dispatch(pauseAllStreams());
-        if (!payment) {
-            return;
-        }
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
         db.streamBuilder()
             .update()
