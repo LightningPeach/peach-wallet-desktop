@@ -54,14 +54,6 @@ const setStreamPaymentIntervalId = (streamId, paymentIntervalId) => ({
     type: types.SET_STREAM_PAYMENT_INTERVAL_ID,
 });
 
-const setStreamErrorTimeoutId = (streamId, errorTimeoutId) => ({
-    payload: {
-        errorTimeoutId,
-        streamId,
-    },
-    type: types.SET_STREAM_ERROR_TIMEOUT_ID,
-});
-
 export {
     prepareStreamPayment,
     setStreamPaymentStatus,
@@ -71,5 +63,4 @@ export {
     setStreamPayments,
     setStreamPaymentIntervalId,
     setStreamLastPayment,
-    setStreamErrorTimeoutId,
 };

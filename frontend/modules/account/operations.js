@@ -151,7 +151,7 @@ function logout(keepModalState = false) {
             return unsuccessPromise(logout);
         }
         dispatch(accountActions.startLogout());
-        await dispatch(streamPaymentOperations.pauseAllStreams());
+        await dispatch(streamPaymentOperations.pauseAllStreams(false));
         if (getState().account.serverSocket) {
             try {
                 getState()

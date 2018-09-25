@@ -125,7 +125,6 @@ function login(username, password) {
             dispatch(accountActions.finishInitAccount());
             return errorPromise(response.error, login);
         }
-        await streamPaymentOperations.pauseDbStreams();
         return dispatch(accountOperations.initAccount(username));
     };
 }

@@ -58,13 +58,6 @@ const streamPaymentReducer = (state = defaultState, action) => {
                     item.streamId === action.payload.streamId
                         ? { ...item, lastPayment: action.payload.lastPayment } : item),
             };
-        case types.SET_STREAM_ERROR_TIMEOUT_ID:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.streamId === action.payload.streamId
-                        ? { ...item, errorTimeoutId: action.payload.errorTimeoutId } : item),
-            };
         default:
             return state;
     }

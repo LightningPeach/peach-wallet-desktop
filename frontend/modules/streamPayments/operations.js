@@ -27,30 +27,6 @@ function openStreamPaymentDetailsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_STREAM_PAYMENT_DETAILS));
 }
 
-function loadStreams() {
-    return async (dispatch) => {
-        const response = await db.streamBuilder()
-            .getMany();
-        const streams = orderBy(response, "date", "desc")
-            .reduce((reducedStreams, item) => {
-                if (item.status === "end") {
-                    return reducedStreams;
-                }
-                reducedStreams.push({
-                    ...item,
-                    contact_name: "",
-                    partsPending: 0,
-                    status: item.status === "run" ? types.STREAM_PAYMENT_STREAMING : types.STREAM_PAYMENT_PAUSED,
-                    streamId: item.id,
-                    uuid: item.id,
-                });
-                return reducedStreams;
-            }, []);
-        dispatch(actions.setStreamPayments(streams));
-        return successPromise();
-    };
-}
-
 function clearPrepareStreamPayment() {
     return async (dispatch, getState) => {
         dispatch(actions.prepareStreamPayment(null));
@@ -136,32 +112,33 @@ function addStreamPaymentToList() {
     };
 }
 
-function pauseStreamPayment(streamId) {
-    return ((dispatch, getState) => {
+function pauseStreamPayment(streamId, pauseInDb = true) {
+    return (dispatch, getState) => {
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
         if (!payment) {
             return;
         }
-        clearTimeout(payment.errorTimeoutId);
         clearInterval(payment.paymentIntervalId);
-        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
         dispatch(actions.setStreamPaymentStatus(payment.uuid, types.STREAM_PAYMENT_PAUSED));
-        db.streamBuilder()
-            .update()
-            .set({ partsPaid: payment.partsPaid, status: "pause" })
-            .where("id = :id", { id: payment.uuid })
-            .execute();
-    });
+        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
+        if (pauseInDb) {
+            db.streamBuilder()
+                .update()
+                .set({ partsPaid: payment.partsPaid, status: "pause" })
+                .where("id = :id", { id: payment.uuid })
+                .execute();
+        }
+    };
 }
 
-function pauseAllStreams() {
+function pauseAllStreams(pauseInDb = true) {
     return (dispatch, getState) => {
         getState()
             .streamPayment
             .streams
             .forEach((item, key) => {
                 if (item.status === types.STREAM_PAYMENT_STREAMING) {
-                    dispatch(pauseStreamPayment(item.streamId));
+                    dispatch(pauseStreamPayment(item.streamId, pauseInDb));
                 }
             });
     };
@@ -170,7 +147,6 @@ function pauseAllStreams() {
 function finishStreamPayment(streamId) {
     return (dispatch, getState) => {
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
-        clearTimeout(payment.errorTimeoutId);
         clearInterval(payment.paymentIntervalId);
         dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
@@ -185,14 +161,18 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId) {
     return async (dispatch, getState) => {
         let errorShowed = false;
+        let errorTimeout;
         const convertUsdToSatoshi = amount => Math.round((amount * 1e8) / getState().app.usdPerBtc);
         const handleStreamError = (err = statusCodes.EXCEPTION_LND_NOT_RESPONDING) => {
             if (!errorShowed) {
                 dispatch(pauseStreamPayment(streamId));
-                dispatch(error({
-                    message: err,
-                    uid: "stream_error",
-                }));
+                const { isLogined, isLogouting } = getState().account;
+                if (isLogined && !isLogouting) {
+                    dispatch(error({
+                        message: err,
+                        uid: "stream_error",
+                    }));
+                }
                 errorShowed = true;
             }
         };
@@ -203,12 +183,16 @@ function startStreamPayment(streamId) {
                 return;
             }
             const startTime = shouldStartAt || Date.now();
-            if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
+            if ((payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+                && payment.partsPaid + payment.partsPending >= payment.totalParts)
+                || payment.status === types.STREAM_PAYMENT_FINISHED) {
+                clearTimeout(errorTimeout);
+                dispatch(finishStreamPayment(streamId));
                 return;
             }
-            if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
-                && payment.partsPaid + payment.partsPending >= payment.totalParts) {
-                dispatch(finishStreamPayment(streamId));
+            if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
+                clearTimeout(errorTimeout);
+                dispatch(pauseStreamPayment(streamId));
                 return;
             }
             let amount;
@@ -220,8 +204,7 @@ function startStreamPayment(streamId) {
                     amount = payment.price;
                     break;
             }
-            const errorTimeoutId = setTimeout(handleStreamError, STREAM_ERROR_TIMEOUT);
-            dispatch(actions.setStreamErrorTimeoutId(payment.streamId, errorTimeoutId));
+            errorTimeout = setTimeout(handleStreamError, STREAM_ERROR_TIMEOUT);
             let response = await dispatch(lightningOperations.addInvoiceRemote(
                 payment.lightningID,
                 amount,
@@ -235,7 +218,7 @@ function startStreamPayment(streamId) {
             }
             dispatch(actions.changeStreamPartsPending(streamId, 1));
             response = await window.ipcClient("sendPayment", { payment_request: response.response.payment_request });
-            clearTimeout(errorTimeoutId);
+            clearTimeout(errorTimeout);
             dispatch(actions.changeStreamPartsPending(streamId, -1));
             if (!response.ok) {
                 handleStreamError(response.error);
@@ -272,6 +255,7 @@ function startStreamPayment(streamId) {
             }
             if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts) {
+                clearTimeout(errorTimeout);
                 dispatch(finishStreamPayment(streamId));
                 dispatch(info({
                     message: <span>Stream <strong>{payment.name}</strong> ended</span>,
@@ -289,7 +273,6 @@ function startStreamPayment(streamId) {
             .execute();
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
         if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {
-            console.log("WAIT FOR ", payment.delay - timeSinceLastPayment);
             await Timeout(payment.delay - timeSinceLastPayment);
         }
         const borrowTime =
@@ -304,6 +287,35 @@ function startStreamPayment(streamId) {
         makeStreamIteration();
         const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
         dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
+    };
+}
+
+function loadStreams() {
+    return async (dispatch) => {
+        const response = await db.streamBuilder()
+            .getMany();
+        const streams = orderBy(response, "date", "desc")
+            .reduce((reducedStreams, item) => {
+                if (item.status === "end") {
+                    return reducedStreams;
+                }
+                reducedStreams.push({
+                    ...item,
+                    contact_name: "",
+                    partsPending: 0,
+                    status: item.status === "run" ? types.STREAM_PAYMENT_STREAMING : types.STREAM_PAYMENT_PAUSED,
+                    streamId: item.id,
+                    uuid: item.id,
+                });
+                return reducedStreams;
+            }, []);
+        await dispatch(actions.setStreamPayments(streams));
+        streams.forEach((stream) => {
+            if (stream.status === types.STREAM_PAYMENT_STREAMING) {
+                dispatch(startStreamPayment(stream.streamId));
+            }
+        });
+        return successPromise();
     };
 }
 
