@@ -21,7 +21,7 @@ import {
     streamPaymentTypes,
 } from "modules/streamPayments";
 import { appOperations, appTypes } from "modules/app";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
+import { MODAL_ANIMATION_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { LightningFullPath } from "routes";
 import Ellipsis from "components/common/ellipsis";
@@ -157,8 +157,12 @@ class Lightning extends Component {
                     tempAddress = contact.name;
                 }
             });
-            let price = item.price * (!item.partsPaid ? item.totalParts : item.partsPaid);
-            let seconds = !item.partsPaid ? item.totalParts : item.partsPaid;
+            let price = item.totalParts === STREAM_INFINITE_TIME_VALUE
+                ? item.price * (!item.partsPaid ? 1 : item.partsPaid)
+                : item.price * (!item.partsPaid ? item.totalParts : item.partsPaid);
+            let seconds = item.totalParts === STREAM_INFINITE_TIME_VALUE
+                ? (!item.partsPaid ? "∞" : item.partsPaid)
+                : (!item.partsPaid ? item.totalParts : item.partsPaid);
             const address = (
                 <span
                     onClick={() => {
@@ -234,7 +238,11 @@ class Lightning extends Component {
             }
             const [ymd, hms] = helpers.formatDate(date).split(" ");
             return {
-                amount: <span><BalanceWithMeasure satoshi={price} /> / {seconds} sec</span>,
+                amount: (
+                    <span>{item.currency === "USD"
+                        ? `${price} USD`
+                        : <BalanceWithMeasure satoshi={price} />} / {seconds} payments
+                    </span>),
                 date: (
                     <span dateTime={date} data-pinned={isActive}>
                         <span className="date__ymd">{ymd}</span>
