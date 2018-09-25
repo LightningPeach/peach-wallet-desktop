@@ -40,6 +40,7 @@ class UnSuccessPayment extends Component {
                             Your payment was failed!
                         </div>
                         {errorMsg}
+                        {this.props.showRetryHelper &&
                         <span className="col-xs-12 payment_result__info payment_result__info--helper">
                             <span className="helper__header">Please, try the following actions:</span>
                             <ul className="helper__list">
@@ -47,7 +48,7 @@ class UnSuccessPayment extends Component {
                                 <li>Open a direct channel with the recipient.</li>
                                 <li>Send the onchain payment to recipient.</li>
                             </ul>
-                        </span>
+                        </span>}
                     </div>
                     <div className="row payment_result__btn-row">
                         <div className="col-xs-12">
@@ -71,6 +72,7 @@ UnSuccessPayment.propTypes = {
     dispatch: PropTypes.func.isRequired,
     error: PropTypes.string,
     onClose: PropTypes.func,
+    showRetryHelper: PropTypes.bool,
 };
 
 export default connect(null)(UnSuccessPayment);

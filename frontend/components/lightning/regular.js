@@ -374,6 +374,7 @@ class RegularPayment extends Component {
                     <UnSuccessPayment
                         error={this.props.paymentStatusDetails}
                         category="Lightning"
+                        showRetryHelper
                     />
                 );
                 break;
