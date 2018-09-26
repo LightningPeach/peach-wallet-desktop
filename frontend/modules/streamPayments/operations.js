@@ -11,9 +11,9 @@ import { accountOperations, accountTypes } from "modules/account";
 import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { streamPaymentActions as actions, streamPaymentTypes as types } from "modules/streamPayments";
 
-async function pauseDbStreams() {
+function pauseDbStreams() {
     try {
-        await db.streamBuilder()
+        db.streamBuilder()
             .update()
             .set({ status: "pause" })
             .where("status = :status", { status: "run" })
@@ -147,6 +147,9 @@ function pauseAllStreams(pauseInDb = true) {
 function finishStreamPayment(streamId) {
     return (dispatch, getState) => {
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        if (!payment) {
+            return;
+        }
         clearInterval(payment.paymentIntervalId);
         dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
@@ -178,6 +181,8 @@ function startStreamPayment(streamId) {
         };
         const makeStreamIteration = async (shouldStartAt) => {
             let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+            console.log(payment);
+            /* istanbul ignore next */
             if (!payment) {
                 handleStreamError(statusCodes.EXCEPTION_STREAM_NOT_IN_STORE);
                 return;
@@ -265,6 +270,9 @@ function startStreamPayment(streamId) {
         };
 
         const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        if (!payment || payment.status === types.STREAM_PAYMENT_STREAMING) {
+            return;
+        }
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
         db.streamBuilder()
             .update()
