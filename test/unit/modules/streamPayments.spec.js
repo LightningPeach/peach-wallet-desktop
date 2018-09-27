@@ -766,7 +766,7 @@ describe("Stream Payment Unit Tests", () => {
                 store = mockStore(initState);
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_STREAM_DETAILS_REQUIRED,
+                    error: statusCodes.EXCEPTION_RECURRING_DETAILS_REQUIRED,
                     f: "addStreamPaymentToList",
                 };
                 expect(await store.dispatch(operations.addStreamPaymentToList())).to.deep.equal(expectedData);

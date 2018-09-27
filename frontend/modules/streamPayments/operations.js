@@ -83,7 +83,7 @@ function addStreamPaymentToList() {
     return async (dispatch, getState) => {
         const details = getState().streamPayment.streamDetails;
         if (!details) {
-            return errorPromise(statusCodes.EXCEPTION_STREAM_DETAILS_REQUIRED, addStreamPaymentToList);
+            return errorPromise(statusCodes.EXCEPTION_RECURRING_DETAILS_REQUIRED, addStreamPaymentToList);
         }
         dispatch(actions.addStreamPaymentToList());
         try {
@@ -164,9 +164,8 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId) {
     return async (dispatch, getState) => {
         let errorShowed = false;
-        let errorTimeout;
         const convertUsdToSatoshi = amount => Math.round((amount * 1e8) / getState().app.usdPerBtc);
-        const handleStreamError = (err = statusCodes.EXCEPTION_LND_NOT_RESPONDING) => {
+        const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT) => {
             if (!errorShowed) {
                 dispatch(pauseStreamPayment(streamId));
                 const { isLogined, isLogouting } = getState().account;
@@ -181,7 +180,6 @@ function startStreamPayment(streamId) {
         };
         const makeStreamIteration = async (shouldStartAt) => {
             let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
-            console.log(payment);
             /* istanbul ignore next */
             if (!payment) {
                 handleStreamError(statusCodes.EXCEPTION_STREAM_NOT_IN_STORE);
@@ -191,12 +189,10 @@ function startStreamPayment(streamId) {
             if ((payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts)
                 || payment.status === types.STREAM_PAYMENT_FINISHED) {
-                clearTimeout(errorTimeout);
                 dispatch(finishStreamPayment(streamId));
                 return;
             }
             if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
-                clearTimeout(errorTimeout);
                 dispatch(pauseStreamPayment(streamId));
                 return;
             }
@@ -209,7 +205,7 @@ function startStreamPayment(streamId) {
                     amount = payment.price;
                     break;
             }
-            errorTimeout = setTimeout(handleStreamError, STREAM_ERROR_TIMEOUT);
+            dispatch(actions.changeStreamPartsPending(streamId, 1));
             let response = await dispatch(lightningOperations.addInvoiceRemote(
                 payment.lightningID,
                 amount,
@@ -221,9 +217,7 @@ function startStreamPayment(streamId) {
                     : response.error);
                 return;
             }
-            dispatch(actions.changeStreamPartsPending(streamId, 1));
             response = await window.ipcClient("sendPayment", { payment_request: response.response.payment_request });
-            clearTimeout(errorTimeout);
             dispatch(actions.changeStreamPartsPending(streamId, -1));
             if (!response.ok) {
                 handleStreamError(response.error);
@@ -260,7 +254,6 @@ function startStreamPayment(streamId) {
             }
             if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts) {
-                clearTimeout(errorTimeout);
                 dispatch(finishStreamPayment(streamId));
                 dispatch(info({
                     message: <span>Stream <strong>{payment.name}</strong> ended</span>,

@@ -87,7 +87,7 @@ const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline.";
 
 // LND Status
 // LND not responding
-const EXCEPTION_LND_NOT_RESPONDING = "LND is not responding.";
+const EXCEPTION_RECURRING_TIMEOUT = "Recurring payment: deadline exceeded.";
 
 // CHANNELS
 // No channel upon set channel event
@@ -100,8 +100,8 @@ const EXCEPTION_STREAM_NOT_IN_STORE = "Stream Payment not found in store.";
 const EXCEPTION_FEQUENCY_IS_ZERO = "Stream frequency must be greater than 0.";
 
 // TRANSACITONS
-// Empty stream details
-const EXCEPTION_STREAM_DETAILS_REQUIRED = "There are no stream details.";
+// Empty recurring payment details
+const EXCEPTION_RECURRING_DETAILS_REQUIRED = "There are no recurring payment details.";
 // Empty send coin details
 const EXCEPTION_SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty.";
 // Amount is less than fee for operation
@@ -168,7 +168,7 @@ export {
     EXCEPTION_PASSWORD_SEED_COUNT_MISMATCH,
     EXCEPTION_PASSWORD_SEED_WRONG_FORMAT,
     EXCEPTION_PASSWORD_MISMATCH,
-    EXCEPTION_STREAM_DETAILS_REQUIRED,
+    EXCEPTION_RECURRING_DETAILS_REQUIRED,
     EXCEPTION_FEQUENCY_IS_ZERO,
     EXCEPTION_SEND_COINS_DETAILS_REQUIRED,
     EXCEPTION_DB_NOT_OPENED,
@@ -201,7 +201,7 @@ export {
     EXCEPTION_PASSWORD_DIFF,
     EXCEPTION_TIME_NEGATIVE,
     EXCEPTION_LIS_DOWN_DURING_TX,
-    EXCEPTION_LND_NOT_RESPONDING,
+    EXCEPTION_RECURRING_TIMEOUT,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
     EXCEPTION_STREAM_NOT_IN_STORE,
