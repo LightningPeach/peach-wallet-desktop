@@ -22,6 +22,12 @@ class RegistrationForm extends PureComponent {
             passwordError: null,
             processing: false,
             tooltips: {
+                password: [
+                    "The password must be at least 8 characters and contain",
+                    "minimum 1 uppercase letter [A-Z], 1 lower case letter [a-z]",
+                    "and 1 digit [0-9]. Also, you can use special characters",
+                    "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+                ],
                 username: [
                     "Username is a name of wallet (folder),",
                     "it is stored locally on your PC.",
@@ -84,7 +90,7 @@ class RegistrationForm extends PureComponent {
         return (
             <form onSubmit={this.handleRegistration}>
                 <div className="home__title">
-                    Sign up and start working with peach wallet
+                    Sign up and start working with LightningPeach wallet
                 </div>
                 <div className="row form-row">
                     <div className="col-xs-12">
@@ -126,7 +132,21 @@ class RegistrationForm extends PureComponent {
                 <div className="row form-row">
                     <div className="col-xs-12">
                         <div className="form-label">
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password">
+                                Password
+                            </label>
+                            <Tooltip
+                                placement="right"
+                                overlay={helpers.formatTooltips(this.state.tooltips.password)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info" />
+                            </Tooltip>
                         </div>
                     </div>
                     <div className="col-xs-12">

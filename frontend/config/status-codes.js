@@ -99,26 +99,26 @@ const EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS = "Unable to edit channel. This name
 const EXCEPTION_STREAM_DETAILS_REQUIRED = "There are no stream details";
 // Empty send coin details
 const EXCEPTION_SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty";
-// Amount is less than fee for operation
+// PD: Amount is less than fee for operation
 const EXCEPTION_AMOUNT_LESS_THAN_FEE = (currentFee = 0, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `Your payment must be greater than ${currentFee} ${bitcoinMeasureType} fee.`;
 // No funds on onchain balance for this operation
 const EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS = "Insufficient funds on Onchain balance.";
-// Field exists but amount is 0 Satoshi
+// PD: Field exists but amount is 0 Satoshi
 const EXCEPTION_AMOUNT_EQUAL_ZERO = (bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `0 ${bitcoinMeasureType} payment is not allowed.`;
 // Field exists but amount is negative
 const EXCEPTION_AMOUNT_NEGATIVE = "The value must contain positive number.";
 // No funds on lightning balance for this operation
 const EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS = "Insufficient funds on Lightning balance.";
-// More than max allowed payment
+// PD: More than max allowed payment
 const EXCEPTION_AMOUNT_MORE_MAX = (capacity, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `Maximum allowed payment is ${capacity} ${bitcoinMeasureType}.`;
-// More than max allowed channel size
+// PD: More than max allowed channel size
 const EXCEPTION_AMOUNT_LESS_MIN_CHANNEL =
     (channelSize = MIN_CHANNEL_SIZE, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
         `Minimum allowed channel size is ${channelSize} ${bitcoinMeasureType}`;
-// Less than min allowed channel size
+// PD: Less than min allowed channel size
 const EXCEPTION_AMOUNT_MORE_MAX_CHANNEL = (channelSize = MIN_CHANNEL_SIZE) =>
     `Maximum allowed channel size is ${channelSize}`;
 // Time value is lower than zero

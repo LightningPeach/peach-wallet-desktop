@@ -3,7 +3,7 @@ import { appActions } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
-import { db, successPromise, errorPromise, logger } from "additional";
+import { db, helpers, successPromise, errorPromise, logger } from "additional";
 import orderBy from "lodash/orderBy";
 import { error } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
@@ -292,7 +292,7 @@ window.ipcRenderer.on("ipcMain:errorStream", async (event, streamId, err) => {
     logger.error(err);
     store.dispatch(actions.streamPaymentStatus(streamId, types.STREAM_PAYMENT_PAUSE));
     store.dispatch(error({
-        message: err,
+        message: helpers.formatLndErrorRetryMessage(err),
         uid: "stream_error",
     }));
     await db.streamBuilder()

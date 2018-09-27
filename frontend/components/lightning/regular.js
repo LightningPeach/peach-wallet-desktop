@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { accountOperations, accountTypes } from "modules/account";
 import { lightningOperations, lightningActions, lightningTypes } from "modules/lightning";
@@ -171,7 +171,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -222,7 +222,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -374,6 +374,7 @@ class RegularPayment extends Component {
                     <UnSuccessPayment
                         error={this.props.paymentStatusDetails}
                         category="Lightning"
+                        showRetryHelper
                     />
                 );
                 break;

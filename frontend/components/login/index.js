@@ -117,7 +117,7 @@ class Login extends Component {
         return (
             <form onSubmit={this.handleLogin}>
                 <div className="home__title">
-                    Sign in and start working with peach wallet
+                    Sign in and start working with LightningPeach wallet
                 </div>
                 <div className="row form-row">
                     <div className="col-xs-12">
@@ -158,7 +158,9 @@ class Login extends Component {
                 <div className="row form-row">
                     <div className="col-xs-12">
                         <div className="form-label">
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password">
+                                Password
+                            </label>
                         </div>
                     </div>
                     <div className="col-xs-12">

@@ -93,7 +93,7 @@ class SeedVerify extends PureComponent {
         return (
             <form onSubmit={this.submitSeedVerify}>
                 <div className="home__title">
-                    Sign up and start working with peach wallet
+                    Sign up and start working with LightningPeach wallet
                 </div>
                 <div className="row form-row">
                     <div className="col-xs-12">
