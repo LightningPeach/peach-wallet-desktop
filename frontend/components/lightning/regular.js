@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { accountOperations, accountTypes } from "modules/account";
 import { lightningOperations, lightningActions, lightningTypes } from "modules/lightning";
@@ -12,7 +12,7 @@ import {
     PAYMENT_REQUEST_LENGTH,
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,
-    USERNAME_MAX_LENGTH,
+    ELEMENT_NAME_MAX_LENGTH,
 } from "config/consts";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations, appTypes } from "modules/app";
@@ -171,7 +171,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -222,7 +222,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -282,8 +282,8 @@ class RegularPayment extends Component {
                             })}
                             value={this.state.regularName}
                             disabled={this.state.processing}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
+                            max={ELEMENT_NAME_MAX_LENGTH}
+                            maxLength={ELEMENT_NAME_MAX_LENGTH}
                         />
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>
@@ -374,6 +374,7 @@ class RegularPayment extends Component {
                     <UnSuccessPayment
                         error={this.props.paymentStatusDetails}
                         category="Lightning"
+                        showRetryHelper
                     />
                 );
                 break;

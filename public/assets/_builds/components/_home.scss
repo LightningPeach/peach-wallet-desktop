@@ -1,6 +1,5 @@
 .home {
     height: 100vh;
-    /*background: linear-gradient(76deg, rgba(255, 255, 255, 0.18), rgba(255, 187, 154, 0.18));*/
     background: #fff;
 
     &__sync-text {
@@ -32,18 +31,30 @@
     }
 
     &__title {
-        font-size: 20px;
+        font-size: 22px;
         line-height: 1.5;
         color: #000;
-        margin: 0 -100px 26px;
-        text-transform: uppercase;
+        margin: 0 -150px 26px;
         text-align: center;
         font-weight: 600;
         letter-spacing: -0.3px;
     }
 
-    &__restore-block {
-        position: relative;
+    &__restore {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        margin-top: 10px;
+
+        &-block {
+            position: relative;
+            margin-right: 30px;
+        }
+
+        .button {
+            height: 24px;
+            line-height: 24px;
+        }
     }
 
     .form-text,
@@ -133,16 +144,8 @@
             top: 60px;
         }
 
-        &__restore-block {
-            float: none !important;
-            margin: 0 auto;
-            display: block;
-        }
-
-        &__signup-block {
-            float: none !important;
-            display: block;
-            text-align: center;
+        &__restore {
+            align-items: center;
         }
     }
 }

@@ -280,6 +280,16 @@
                 background: url(../images/hint-i.svg) no-repeat center;
                 background-size: contain;
             }
+
+            &--left {
+                left: -13px;
+            }
+
+            &--large {
+                width: 12px;
+                height: 12px;
+                right: -18px;
+            }
         }
 
         &__wrapper {

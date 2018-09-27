@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, logger } from "additional";
 import {
     contactsActions as actions,
     contactsOperations as operations,
@@ -169,7 +169,7 @@ class ContactsPage extends Component {
     );
 
     render() {
-        console.log("RENDERED CONTACTS");
+        logger.log("RENDERED CONTACTS");
         const { contacts, modalState } = this.props;
         let modal;
         switch (modalState) {

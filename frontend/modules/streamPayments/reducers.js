@@ -51,6 +51,13 @@ const streamPaymentReducer = (state = defaultState, action) => {
                     item.streamId === action.payload.streamId
                         ? { ...item, paymentIntervalId: action.payload.paymentIntervalId } : item),
             };
+        case types.CLEAR_STREAM_PAYMENT_INTERVAL_ID:
+            return {
+                ...state,
+                streams: state.streams.map(item =>
+                    item.streamId === action.payload
+                        ? { ...item, paymentIntervalId: null } : item),
+            };
         case types.SET_STREAM_LAST_PAYMENT:
             return {
                 ...state,

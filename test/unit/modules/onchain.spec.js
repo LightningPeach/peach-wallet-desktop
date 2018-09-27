@@ -171,8 +171,8 @@ describe("OnChain Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeAccount = sandbox.stub(accountOperations);
             fakeApp = sandbox.stub(appOperations);
             fakeDB = sandbox.stub(db);
@@ -460,6 +460,7 @@ describe("OnChain Unit Tests", () => {
                         blockHash: 402,
                         blockHeight: 502,
                         status: "not-sended",
+                        numConfirmations: 2,
                     },
                 ];
                 chainTxns = {
@@ -538,6 +539,8 @@ describe("OnChain Unit Tests", () => {
             });
 
             it("success", async () => {
+                fakeApp.convertSatoshiToCurrentMeasure
+                    .returns(fakeDispatchReturnSuccess);
                 fakeDB.onchainBuilder.returns({
                     getMany: data.onchainBuilder.getMany.returns(dbTxns),
                     insert: data.onchainBuilder.insert.returns({
@@ -639,11 +642,7 @@ describe("OnChain Unit Tests", () => {
                 expect(data.onchainBuilder.execute).to.be.calledTwice;
                 expect(data.onchainBuilder.execute).to.be.calledAfter(data.onchainBuilder.values);
                 expect(data.onchainBuilder.execute).to.be.calledImmediatelyAfter(data.onchainBuilder.where);
-                expect(fakeApp.sendSystemNotification).to.be.calledOnce;
-                expect(fakeApp.sendSystemNotification).to.be.calledWithExactly({
-                    body: "You received 100 mBTC",
-                    title: "Incoming Onchain transaction",
-                });
+                expect(fakeApp.sendSystemNotification).to.be.calledTwice;
             });
         });
     });

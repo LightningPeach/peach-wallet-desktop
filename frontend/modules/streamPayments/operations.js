@@ -5,7 +5,7 @@ import { appActions } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
-import { db, successPromise, errorPromise, delay as Timeout } from "additional";
+import { db, helpers, successPromise, errorPromise, logger, delay as Timeout } from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
 import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
@@ -19,7 +19,7 @@ function pauseDbStreams() {
             .where("status = :status", { status: "run" })
             .execute();
     } catch (e) {
-        console.error(e);
+        logger.error(e);
     }
 }
 
@@ -106,7 +106,7 @@ function addStreamPaymentToList() {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         return successPromise();
     };
@@ -120,7 +120,7 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
         }
         clearInterval(payment.paymentIntervalId);
         dispatch(actions.setStreamPaymentStatus(payment.uuid, types.STREAM_PAYMENT_PAUSED));
-        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
+        dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
         if (pauseInDb) {
             db.streamBuilder()
                 .update()
@@ -151,7 +151,7 @@ function finishStreamPayment(streamId) {
             return;
         }
         clearInterval(payment.paymentIntervalId);
-        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, null));
+        dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
         db.streamBuilder()
             .update()
@@ -161,7 +161,7 @@ function finishStreamPayment(streamId) {
     };
 }
 
-function startStreamPayment(streamId) {
+function startStreamPayment(streamId, forceStart = false) {
     return async (dispatch, getState) => {
         let errorShowed = false;
         const convertUsdToSatoshi = amount => Math.round((amount * 1e8) / getState().app.usdPerBtc);
@@ -182,7 +182,7 @@ function startStreamPayment(streamId) {
             let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
             /* istanbul ignore next */
             if (!payment) {
-                handleStreamError(statusCodes.EXCEPTION_STREAM_NOT_IN_STORE);
+                handleStreamError(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE);
                 return;
             }
             const startTime = shouldStartAt || Date.now();
@@ -223,8 +223,8 @@ function startStreamPayment(streamId) {
                 handleStreamError(response.error);
                 return;
             }
-            console.log("STREAM ITERATION MADE,", payment.name);
-            console.log("Payment hash,", response.payment_hash);
+            logger.log("STREAM ITERATION MADE,", payment.name);
+            logger.log("Payment hash,", response.payment_hash);
             dispatch(actions.changeStreamPartsPaid(streamId, 1));
             dispatch(accountOperations.checkBalance());
             dispatch(channelsOperations.getChannels());
@@ -250,7 +250,7 @@ function startStreamPayment(streamId) {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                console.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(statusCodes.EXCEPTION_EXTRA, e);
             }
             if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts) {
@@ -262,8 +262,8 @@ function startStreamPayment(streamId) {
             }
         };
 
-        const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
-        if (!payment || payment.status === types.STREAM_PAYMENT_STREAMING) {
+        let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        if (!payment || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)) {
             return;
         }
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
@@ -286,8 +286,11 @@ function startStreamPayment(streamId) {
             await Timeout(borrowTime);
         }
         makeStreamIteration();
-        const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
-        dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
+        payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; // eslint-disable-line
+        if (!payment.paymentIntervalId) {
+            const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
+            dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
+        }
     };
 }
 
@@ -313,7 +316,7 @@ function loadStreams() {
         await dispatch(actions.setStreamPayments(streams));
         streams.forEach((stream) => {
             if (stream.status === types.STREAM_PAYMENT_STREAMING) {
-                dispatch(startStreamPayment(stream.streamId));
+                dispatch(startStreamPayment(stream.streamId, true));
             }
         });
         return successPromise();

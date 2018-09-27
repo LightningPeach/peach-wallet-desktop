@@ -1,5 +1,6 @@
 import { hashHistory } from "react-router";
 import { appOperations, appActions } from "modules/app";
+import { accountActions, accountTypes } from "modules/account";
 import { lndActions, lndOperations } from "modules/lnd";
 import { notificationsActions } from "modules/notifications";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
@@ -13,15 +14,13 @@ import {
     db,
     successPromise,
     unsuccessPromise,
+    logger,
 } from "additional";
 import {
     MAX_PAYMENT_REQUEST,
     ALL_MEASURES,
 } from "config/consts";
 import * as statusCodes from "config/status-codes";
-import * as accountActions from "./actions";
-import * as types from "./types";
-import * as actions from "../channels/actions";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
@@ -32,21 +31,21 @@ window.ipcRenderer.on("lnd-up", () => {
 });
 
 window.ipcRenderer.on("lis-up", () => {
-    if (store.getState().account.lisStatus === types.LIS_UP) {
+    if (store.getState().account.lisStatus === accountTypes.LIS_UP) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(types.LIS_UP));
+    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_UP));
 });
 
 window.ipcRenderer.on("lis-down", () => {
-    if (store.getState().account.lisStatus === types.LIS_DOWN) {
+    if (store.getState().account.lisStatus === accountTypes.LIS_DOWN) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(types.LIS_DOWN));
+    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_DOWN));
 });
 
 function openSystemNotificationsModal() {
-    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+    return dispatch => dispatch(appActions.setModalState(accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS));
 }
 
 function createNewBitcoinAccount() {
@@ -72,7 +71,7 @@ function setInitConfig(lightningId) {
             })
             .execute();
         dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
-        dispatch(accountActions.setSystemNotificationsStatus(3));
+        dispatch(accountActions.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
         dispatch(openSystemNotificationsModal());
         return successPromise();
     };
@@ -159,7 +158,7 @@ function logout(keepModalState = false) {
                     .serverSocket
                     .close();
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
         }
         await dispatch(onChainOperations.unSubscribeTransactions());
@@ -185,27 +184,27 @@ function initAccount(login, newAccount = false) {
     };
     return async (dispatch, getState) => {
         await dispatch(lndOperations.getBlocksHeight());
-        console.log("Check is LND synced to chain");
+        logger.log("Check is LND synced to chain");
         let response = await dispatch(lndOperations.waitLndSync());
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
-        console.log("LND synced succesfully");
+        logger.log("LND synced succesfully");
         tempNewAcc = false;
         response = await window.ipcClient("startLis");
-        console.log("LIS start");
+        logger.log("LIS start");
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
         response = await dispatch(getLightningID());
-        console.log("Have got lightning id");
-        console.log(response);
+        logger.log("Have got lightning id");
+        logger.log(response);
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
         response = await dispatch(lightningOperations.getHistory());
-        console.log("Have got history");
-        console.log(response);
+        logger.log("Have got history");
+        logger.log(response);
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
@@ -237,7 +236,7 @@ function signMessage(message) {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("signMessage", { message });
         if (!response.ok) {
-            console.error("Error on signMessage", response.error);
+            logger.error("Error on signMessage", response.error);
             return errorPromise(response.error, signMessage);
         }
         dispatch(accountActions.successSignMessage(response.response.signature));

@@ -12,6 +12,7 @@
 }
 
 .button {
+    white-space: nowrap;
     cursor: pointer;
     user-select: none;
     transition: box-shadow .2s, background-color .2s, color .2s;
@@ -193,6 +194,10 @@
                 background-color: $pumpkin-orange;
             }
         }
+    }
+
+    &-text {
+        position: relative;
     }
 
     &.disabled {

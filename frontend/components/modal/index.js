@@ -1,19 +1,20 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import Tooltip from "rc-tooltip";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, helpers } from "additional";
 import { appOperations } from "modules/app";
 
 class Modal extends Component {
     componentDidMount() {
-        document.addEventListener("keydown", this.onEscClick, false);
+        document.addEventListener("keydown", this.onKeyClick, false);
     }
 
     componentWillUnmount() {
-        document.removeEventListener("keydown", this.onEscClick, false);
+        document.removeEventListener("keydown", this.onKeyClick, false);
     }
 
-    onEscClick = (e) => {
+    onKeyClick = (e) => {
         if (e.keyCode === 27) {
             analytics.event({ action: "Modal", category: "Modal windows", label: "Close with ESC" });
             this.props.dispatch(appOperations.closeModal());
@@ -29,7 +30,23 @@ class Modal extends Component {
             <div className="modal-header">
                 <div className="row">
                     <div className="col-xs-12">
-                        {this.props.title}
+                        <span className="modal-header__label">
+                            {this.props.title}
+                            {this.props.titleTooltip &&
+                            <Tooltip
+                                placement="right"
+                                overlay={helpers.formatTooltips(this.props.titleTooltip)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info form-label__icon--large" />
+                            </Tooltip>
+                            }
+                        </span>
                     </div>
                 </div>
             </div>
@@ -67,6 +84,10 @@ Modal.propTypes = {
     showCloseButton: PropTypes.bool,
     styleSet: PropTypes.string,
     title: PropTypes.string,
+    titleTooltip: PropTypes.oneOfType([
+        PropTypes.arrayOf(PropTypes.string),
+        PropTypes.string,
+    ]),
 };
 
 export default connect(null)(Modal);

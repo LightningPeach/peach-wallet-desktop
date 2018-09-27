@@ -62,8 +62,13 @@ describe("Lnd Unit Tests", () => {
         });
 
         it("should create an action to set lnd blocks height", () => {
-            expectedData.type = types.SET_LND_BLOCKS;
+            expectedData.type = types.SET_LND_BLOCKS_HEIGHT;
             expect(actions.setLndBlocksHeight(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set lnd blocks height on login", () => {
+            expectedData.type = types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN;
+            expect(actions.setLndBlocksHeightOnLogin(data)).to.deep.equal(expectedData);
         });
     });
 
@@ -91,8 +96,8 @@ describe("Lnd Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeStore = sandbox.stub(defaultStore);
             fakeApp = sandbox.stub(appOperations);
             data = {};
@@ -257,7 +262,11 @@ describe("Lnd Unit Tests", () => {
                 expectedActions = [
                     {
                         payload: 50,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN,
+                    },
+                    {
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
                         payload: statusCodes.STATUS_LND_SYNCING,
@@ -265,7 +274,7 @@ describe("Lnd Unit Tests", () => {
                     },
                     {
                         payload: 100,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
                         payload: statusCodes.STATUS_LND_FULLY_SYNCED,
@@ -355,7 +364,7 @@ describe("Lnd Unit Tests", () => {
                 expectedActions = [
                     {
                         payload: 50,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                 ];
                 expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
@@ -370,11 +379,11 @@ describe("Lnd Unit Tests", () => {
                 expectedActions = [
                     {
                         payload: 50,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
                         payload: 75,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
                         payload: false,
@@ -386,7 +395,7 @@ describe("Lnd Unit Tests", () => {
                     },
                     {
                         payload: 100,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
                         payload: statusCodes.STATUS_LND_FULLY_SYNCED,
@@ -574,10 +583,17 @@ describe("Lnd Unit Tests", () => {
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle SET_LND_BLOCKS action", () => {
-            action.type = types.SET_LND_BLOCKS;
+        it("should handle SET_LND_BLOCKS_HEIGHT action", () => {
+            action.type = types.SET_LND_BLOCKS_HEIGHT;
             action.payload = 10;
             expectedData.lndBlocks = 10;
+            expect(lndReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_LND_BLOCKS_HEIGHT_ON_LOGIN action", () => {
+            action.type = types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN;
+            action.payload = 10;
+            expectedData.lndBlocksOnLogin = 10;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
     });

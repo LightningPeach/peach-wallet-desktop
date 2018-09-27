@@ -16,7 +16,7 @@ const defaultState = JSON.parse(JSON.stringify(initStateApp));
 const appReducer = (state = defaultState, action) => {
     switch (action.type) {
         case accountTypes.LOGOUT_ACCOUNT:
-            return defaultState;
+            return { ...defaultState, appAsDefaultStatus: state.appAsDefaultStatus };
         case types.SET_MODAL_STATE:
             return { ...state, modalState: action.payload };
         case types.SET_APP_AS_DEFAULT_STATUS:

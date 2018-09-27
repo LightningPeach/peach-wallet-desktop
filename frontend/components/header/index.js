@@ -5,8 +5,16 @@ import { Link } from "react-router";
 import { accountOperations } from "modules/account";
 import { channelsActions, channelsTypes } from "modules/channels";
 import {
-    WalletPath, OnchainFullPath, ChannelsFullPath, AddressBookFullPath, ProfileFullPath,
-    LightningPanel, OnchainPanel, ChannelsPanel, AddressBookPanel, ProfilePanel,
+    WalletPath,
+    OnchainFullPath,
+    ChannelsFullPath,
+    AddressBookFullPath,
+    ProfileFullPath,
+    LightningPanel,
+    OnchainPanel,
+    ChannelsPanel,
+    AddressBookPanel,
+    ProfilePanel,
     HomeFullPath,
 } from "routes";
 
@@ -17,7 +25,30 @@ class Header extends Component {
         this.hideBurger = this.hideBurger.bind(this);
         this.state = {
             burgerState: "close",
+            pageAddressList: [
+                { fullPath: WalletPath, name: "lightning" },
+                { fullPath: OnchainFullPath, name: "onchain" },
+                { fullPath: ChannelsFullPath, name: "channels" },
+                { fullPath: AddressBookFullPath, name: "address" },
+                { fullPath: ProfileFullPath, name: "profile" },
+            ],
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { location } = nextProps;
+        const { pageAddressList } = this.state;
+        if (location !== this.props.location) {
+            const path = location.pathname;
+            let index = 0;
+            while (index < pageAddressList.length) {
+                if (pageAddressList[index].fullPath.includes(path)) {
+                    this.wrapper.querySelectorAll("a")[index].focus();
+                    break;
+                }
+                index += 1;
+            }
+        }
     }
 
     toggleClass(e) {
@@ -67,7 +98,10 @@ class Header extends Component {
                             />
                         </div>
                         <div className="col-xs-9">
-                            <nav className={navClass}>
+                            <nav
+                                className={navClass}
+                                ref={(ref) => { this.wrapper = ref }}
+                            >
                                 <div
                                     className={`burger burger__${this.state.burgerState}`}
                                     onClick={this.toggleClass}

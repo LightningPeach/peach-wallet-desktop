@@ -84,12 +84,18 @@ class Login extends Component {
             initStatus,
             isIniting,
             lndBlocks,
+            lndBlocksOnLogin,
             lndSyncedToChain,
         } = this.props;
         if (!isIniting) {
             return null;
         }
-        let percent = networkBlocks < 1 ? "" : Math.min(Math.round((lndBlocks * 100) / networkBlocks), 99);
+        let percent = networkBlocks < 1
+            ? ""
+            : Math.min(
+                Math.round(((lndBlocks - lndBlocksOnLogin) * 100) / Math.max(networkBlocks - lndBlocksOnLogin, 1)),
+                99,
+            );
         if (lndSyncedToChain) {
             percent = 100;
         }
@@ -111,7 +117,7 @@ class Login extends Component {
         return (
             <form onSubmit={this.handleLogin}>
                 <div className="home__title">
-                    Sign in and start working with peach wallet
+                    Sign in and start working with LightningPeach wallet
                 </div>
                 <div className="row">
                     <div className="col-xs-12">
@@ -152,7 +158,9 @@ class Login extends Component {
                 <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password">
+                                Password
+                            </label>
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -190,8 +198,8 @@ class Login extends Component {
                     </div>
                 </div>
                 <div className="row signup">
-                    <div className="col-xs-12">
-                        <div className="home__restore-block pull-left">
+                    <div className="col-xs-12 home__restore">
+                        <div className="home__restore-block">
                             <button
                                 type="button"
                                 className="button button__link"
@@ -237,6 +245,7 @@ Login.propTypes = {
     initStatus: PropTypes.string,
     isIniting: PropTypes.bool,
     lndBlocks: PropTypes.number.isRequired,
+    lndBlocksOnLogin: PropTypes.number.isRequired,
     lndSyncedToChain: PropTypes.bool,
     networkBlocks: PropTypes.number.isRequired,
 };
@@ -245,6 +254,7 @@ const mapStateToProps = state => ({
     initStatus: state.lnd.initStatus,
     isIniting: state.account.isIniting,
     lndBlocks: state.lnd.lndBlocks,
+    lndBlocksOnLogin: state.lnd.lndBlocksOnLogin,
     lndSyncedToChain: state.lnd.lndSyncedToChain,
     networkBlocks: state.lnd.networkBlocks,
 });

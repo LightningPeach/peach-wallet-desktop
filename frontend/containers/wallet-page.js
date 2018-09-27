@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { hashHistory } from "react-router";
+import { logger } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
@@ -8,11 +10,17 @@ import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
+    WalletPath,
+    OnchainFullPath,
+    ChannelsFullPath,
+    AddressBookFullPath,
+    ProfileFullPath,
     LightningPanel,
     OnchainPanel,
     ChannelsPanel,
     AddressBookPanel,
     ProfilePanel,
+    HomeFullPath,
 } from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
@@ -34,6 +42,33 @@ import {
 class WalletPage extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            pageAddressIndex: 0,
+            pageAddressList: [
+                {
+                    fullPath: WalletPath,
+                    panel: LightningPanel,
+                },
+                {
+                    fullPath: OnchainFullPath,
+                    panel: OnchainPanel,
+                },
+                {
+                    fullPath: ChannelsFullPath,
+                    panel: ChannelsPanel,
+                },
+                {
+                    fullPath: AddressBookFullPath,
+                    panel: AddressBookPanel,
+                },
+                {
+                    fullPath: ProfileFullPath,
+                    panel: ProfilePanel,
+                },
+            ],
+        };
+
         this.balanceIntervalId = 0;
         this.channelsIntervalId = 0;
         this.usdPerBtcIntervalId = 0;
@@ -43,7 +78,7 @@ class WalletPage extends Component {
     componentWillMount() {
         const { dispatch, isLogined, isIniting } = this.props;
         if (!isLogined && !isIniting) {
-            console.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
+            logger.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
             dispatch(accountOperations.logout());
             return;
         }
@@ -53,14 +88,34 @@ class WalletPage extends Component {
         this.setAsyncInterval("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
+    componentDidMount() {
+        document.addEventListener("keydown", this.onKeyClick, false);
+    }
+
     componentWillReceiveProps(nextProps) {
         const { dispatch, isIniting } = this.props;
+        const { location } = nextProps;
+        const { pageAddressList } = this.state;
         if (!nextProps.isLogined && !isIniting && !this.props.isLogouting) {
             dispatch(accountOperations.logout());
             return;
         }
         this.checkYourBalance();
         this.checkChannels(false);
+
+        if (location !== this.props.location) {
+            const path = location.pathname;
+            let index = -1;
+            while (index < pageAddressList.length) {
+                index += 1;
+                if (pageAddressList[index].panel.includes(path)) {
+                    break;
+                }
+            }
+            this.setState({
+                pageAddressIndex: index,
+            });
+        }
 
         const isKernelDisconnected = nextProps.kernelConnectIndicator === accountTypes.KERNEL_DISCONNECTED;
         if (isKernelDisconnected) {
@@ -71,11 +126,25 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
+        document.removeEventListener("keydown", this.onKeyClick, false);
         clearTimeout(this.balanceIntervalId);
         clearTimeout(this.channelsIntervalId);
         clearTimeout(this.usdPerBtcIntervalId);
         clearTimeout(this.lndSyncStatusIntervalId);
     }
+
+    onKeyClick = (e) => {
+        if (e.ctrlKey && e.key === "Tab") {
+            const { pageAddressIndex, pageAddressList } = this.state;
+            const index = e.shiftKey
+                ? (pageAddressIndex + (pageAddressList.length - 1)) % pageAddressList.length
+                : (pageAddressIndex + 1) % pageAddressList.length;
+            this.setState({
+                pageAddressIndex: index,
+            });
+            hashHistory.push(pageAddressList[index].fullPath);
+        }
+    };
 
     setAsyncInterval = (holder, func, timeout) => {
         const intervalTick = async () => {
@@ -115,8 +184,9 @@ class WalletPage extends Component {
 
     render() {
         const {
-            isLogined, location, modalState,
+            isLogined, modalState,
         } = this.props;
+        const { pageAddressIndex } = this.state;
         if (!isLogined) {
             return null;
         }
@@ -135,23 +205,25 @@ class WalletPage extends Component {
                 modal = null;
         }
         let Panel = null;
-        const path = location.pathname;
-        if (LightningPanel.includes(path)) {
-            Panel = <Lightning />;
+        switch (pageAddressIndex) {
+            case 0:
+                Panel = <Lightning />;
+                break;
+            case 1:
+                Panel = <Onchain />;
+                break;
+            case 2:
+                Panel = <ChannelsPage />;
+                break;
+            case 3:
+                Panel = <ContactsPage />;
+                break;
+            case 4:
+                Panel = <ProfilePage />;
+                break;
+            default:
+                break;
         }
-        if (OnchainPanel.includes(path)) {
-            Panel = <Onchain />;
-        }
-        if (ChannelsPanel.includes(path)) {
-            Panel = <ChannelsPage />;
-        }
-        if (AddressBookPanel.includes(path)) {
-            Panel = <ContactsPage />;
-        }
-        if (ProfilePanel.includes(path)) {
-            Panel = <ProfilePage />;
-        }
-
         return (
             <div id="wallet-page">
                 <Header />

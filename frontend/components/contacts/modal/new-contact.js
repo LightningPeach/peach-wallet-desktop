@@ -5,7 +5,7 @@ import { analytics, validators } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import * as statusCodes from "config/status-codes";
-import { LIGHTNING_ID_LENGTH, USERNAME_MAX_LENGTH } from "config/consts";
+import { LIGHTNING_ID_LENGTH, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 import {
     contactsActions as actions,
     contactsOperations as operations,
@@ -25,6 +25,17 @@ class NewContact extends Component {
         const basePath = this.props.page && this.props.page === "lightning" ? LightningFullPath : AddressBookFullPath;
         analytics.pageview(`${basePath}/new-contact`, "New contact");
     }
+
+    showErrorNotification = (text) => {
+        const { dispatch } = this.props;
+        dispatch(error({
+            action: {
+                callback: () => dispatch(operations.openNewContactModal()),
+                label: "Retry",
+            },
+            message: text,
+        }));
+    };
 
     closeModal = () => {
         analytics.event({ action: "New Contact Modal", category: "Address Book", label: "Back" });
@@ -64,13 +75,7 @@ class NewContact extends Component {
         dispatch(actions.prepareNewContact({ lightningID, name }));
         const response = await dispatch(operations.addNewContact(name, lightningID));
         if (!response.ok) {
-            dispatch(error({
-                action: {
-                    callback: () => dispatch(operations.openNewContactModal()),
-                    label: "Retry",
-                },
-                message: response.error,
-            }));
+            this.showErrorNotification(response.error);
             return;
         }
 
@@ -104,8 +109,8 @@ class NewContact extends Component {
                                         this.contact__name = input;
                                     }}
                                     defaultValue={newContactDetails ? newContactDetails.name : null}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />

@@ -54,6 +54,11 @@ const setStreamPaymentIntervalId = (streamId, paymentIntervalId) => ({
     type: types.SET_STREAM_PAYMENT_INTERVAL_ID,
 });
 
+const clearStreamPaymentIntervalId = payload => ({
+    payload,
+    type: types.CLEAR_STREAM_PAYMENT_INTERVAL_ID,
+});
+
 export {
     prepareStreamPayment,
     setStreamPaymentStatus,
@@ -62,5 +67,6 @@ export {
     addStreamPaymentToList,
     setStreamPayments,
     setStreamPaymentIntervalId,
+    clearStreamPaymentIntervalId,
     setStreamLastPayment,
 };

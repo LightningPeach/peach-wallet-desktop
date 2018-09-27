@@ -27,7 +27,7 @@
     "scss:watch": "npm run scss -- --watch",
     "test": "npm run lint && npm run test:unit -- ",
     "test:e2e": "cross-env NODE_ENV=spectron mocha --opts ./test/mocha.opts ./test/e2e",
-    "test:unit": "mocha --opts ./test/mocha.opts ./test/unit",
+    "test:unit": "cross-env NODE_ENV=test mocha --opts ./test/mocha.opts ./test/unit",
     "test:coverage": "cross-env NODE_ENV=test nyc --reporter=text --reporter=html npm run test:unit",
     "test:watch": "npm test -- --watch"
   },
@@ -128,6 +128,8 @@
     "body-parser": "^1.17.2",
     "convict": "^4.3.1",
     "electron-ipc-tunnel": "^3.1.0",
+    "electron-is-dev": "^0.3.0",
+    "electron-updater": "^3.1.2",
     "event-stream": "^3.3.4",
     "google-protobuf": "^3.3.0",
     "grpc": "^1.12.4",

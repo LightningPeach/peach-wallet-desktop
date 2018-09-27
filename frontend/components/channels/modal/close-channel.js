@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, logger } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
@@ -46,7 +46,7 @@ class CloseChannel extends Component {
     render() {
         const { currentChannel } = this.props;
         if (!currentChannel) {
-            console.log("CLOSE CHANNEL: No current channel");
+            logger.log("CLOSE CHANNEL: No current channel");
             return null;
         }
         const title = currentChannel.name || currentChannel.remote_pubkey;

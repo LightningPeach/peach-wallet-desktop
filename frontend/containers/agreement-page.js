@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { logger } from "additional";
 import Legal from "components/legal";
 
 class Agreement extends Component {
@@ -30,7 +31,7 @@ class Agreement extends Component {
     };
 
     ipcError = () => {
-        console.error("this should not been occurred");
+        logger.error("this should not been occurred");
     };
 
     process = (e) => {

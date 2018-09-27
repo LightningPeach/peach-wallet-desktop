@@ -7,7 +7,7 @@ import * as statusCodes from "config/status-codes";
 import SubHeader from "components/subheader";
 import {
     MODAL_ANIMATION_TIMEOUT,
-    USERNAME_MAX_LENGTH,
+    ELEMENT_NAME_MAX_LENGTH,
     LIGHTNING_ID_LENGTH,
     SIMNET_NETWORK,
 } from "config/consts";
@@ -247,8 +247,8 @@ class Onchain extends Component {
                                 this.name = ref;
                             }}
                             onChange={() => this.setState({ nameError: null })}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
+                            max={ELEMENT_NAME_MAX_LENGTH}
+                            maxLength={ELEMENT_NAME_MAX_LENGTH}
                         />
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>
