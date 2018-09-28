@@ -50,6 +50,7 @@ const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose, c
                 <div className="col-xs-2 channel__buttons">
                     <button
                         type="button"
+                        id="qa-close-channel"
                         className="pull-right channel__button channel__button--close"
                         onClick={clickClose}
                     >
@@ -57,6 +58,7 @@ const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose, c
                     </button>
                     <button
                         type="button"
+                        id="qa-edit-channel"
                         className="pull-right channel__button channel__button--edit"
                         onClick={clickEdit}
                     >

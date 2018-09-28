@@ -23,6 +23,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
     before(async function () { // eslint-disable-line func-names
         this.timeout(0);
+        rimraf.sync(path.join(__dirname, "test_data"));
         await utils.beforeTestPrepare(testParams);
         await app.start();
         const userDataPath = await app.electron.remote.app.getPath("userData");
@@ -47,14 +48,14 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should can't proceed without accept eula", async () => {
-            await app.client.click("#agreement-submit");
+            await app.client.click("#submitbutton");
             const licenseExists = await app.client.isExisting(".license__text");
             assert.equal(licenseExists, true, "license should exists");
         });
 
         it("should proceed with eula", async () => {
             await app.client.click(".js-agreement");
-            await app.client.click("#agreement-submit");
+            await app.client.click("#submitbutton");
             await utils.sleep(3000);
             await app.client.windowByIndex(0);
             await app.client.waitUntilWindowLoaded();
@@ -70,7 +71,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.click("button=Sign in");
             await app.client.waitForVisible(".notification-message");
             const loginError = await app.client.getText(".notification-message");
-            assert.equal(loginError, "Incorrect username or password", "should show error for not exists user");
+            assert.equal(loginError, "User doesn't exist", "should show error for not exists user");
         });
     });
 
@@ -114,7 +115,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
                 config.timeoutForElementChecks,
             );
             const error = await app.client.getText(".form-error");
-            assert.equal(error, "Seed mismatch");
+            assert.equal(error, "Seed mismatch.");
         });
 
         it("Step 3 should proceed to tourgide", async () => {
@@ -127,6 +128,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
     describe("Tourgide", () => {
         it("should show tourgide", async () => {
+            await utils.sleep(3000);
             await app.client.waitUntil(async () => app.client.isExisting(".tourgide"), config.timeoutForElementChecks);
             const title = await app.client.getText(".guide__title");
             assert.equal(title[0], "CHANNEL CREATION");
@@ -149,9 +151,14 @@ describe("Application launch", function () { // eslint-disable-line func-names
                 config.timeoutForElementChecks,
             );
             await app.client.click(".tourgide__btn--next .button");
-            await app.client.waitUntil(async () => app.client.isExisting("a.nav__lightning"), 10000);
             const activeMenu = await app.client.getText(".nav__lightning.active");
             assert.equal(activeMenu, "LIGHTNING");
+        });
+    });
+
+    describe("System notifications", () => {
+        it("should show system notification modal window", async () => {
+            await app.client.click("button=Enable");
         });
     });
 
@@ -298,10 +305,10 @@ describe("Application launch", function () { // eslint-disable-line func-names
             );
             await app.client.moveToObject(".channels-page .channel");
             await app.client.waitUntil(
-                async () => app.client.isVisible(".channel__close"),
+                async () => app.client.isVisible("#qa-close-channel"),
                 config.timeoutForElementChecks,
             );
-            await app.client.click(".channel__close");
+            await app.client.click("#qa-close-channel");
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-wrapper"),
                 config.timeoutForElementChecks,
@@ -311,7 +318,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should close channel", async () => {
-            await app.client.click(".modal-footer .button__close");
+            await app.client.click("#qa-close-channel-modal");
             await utils.btcctlGenerate(3);
             await app.client.waitUntil(
                 async () => await app.client.isExisting(".channel__deleting") || await app.client.isExisting(".empty-placeholder"), // eslint-disable-line
@@ -320,6 +327,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
             const notExists = await app.client.isExisting(".empty-placeholder");
             const deleting = await app.client.isExisting(".channel__deleting");
             assert.equal(notExists || deleting, true);
+            await utils.sleep(3000);
         });
     });
 });
