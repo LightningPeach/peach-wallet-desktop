@@ -119,13 +119,13 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
             return;
         }
         clearInterval(payment.paymentIntervalId);
-        dispatch(actions.setStreamPaymentStatus(payment.uuid, types.STREAM_PAYMENT_PAUSED));
+        dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_PAUSED));
         dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
         if (pauseInDb) {
             db.streamBuilder()
                 .update()
                 .set({ partsPaid: payment.partsPaid, status: "pause" })
-                .where("id = :id", { id: payment.uuid })
+                .where("id = :id", { id: payment.streamId })
                 .execute();
         }
     };
@@ -156,7 +156,7 @@ function finishStreamPayment(streamId) {
         db.streamBuilder()
             .update()
             .set({ partsPaid: payment.partsPaid, status: "end" })
-            .where("id = :id", { id: payment.uuid })
+            .where("id = :id", { id: payment.streamId })
             .execute();
     };
 }
@@ -192,6 +192,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 dispatch(finishStreamPayment(streamId));
                 return;
             }
+            /* istanbul ignore next */
             if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
                 dispatch(pauseStreamPayment(streamId));
                 return;
@@ -212,6 +213,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 payment.memo,
             ));
             if (!response.ok) {
+                dispatch(actions.changeStreamPartsPending(streamId, -1));
                 handleStreamError(response.error.toLowerCase().indexOf("invalid json response") !== -1
                     ? statusCodes.EXCEPTION_REMOTE_OFFLINE
                     : response.error);
@@ -239,13 +241,13 @@ function startStreamPayment(streamId, forceStart = false) {
                 db.streamBuilder()
                     .update()
                     .set(updateData)
-                    .where("id = :id", { id: payment.uuid })
+                    .where("id = :id", { id: payment.streamId })
                     .execute();
                 db.streamPartBuilder()
                     .insert()
                     .values({
                         payment_hash: response.payment_hash,
-                        stream: payment.uuid,
+                        stream: payment.streamId,
                     })
                     .execute();
             } catch (e) {
@@ -263,14 +265,19 @@ function startStreamPayment(streamId, forceStart = false) {
         };
 
         let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
-        if (!payment || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)) {
+        if (
+            !payment
+            || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)
+            || (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+                && payment.partsPaid + payment.partsPending >= payment.totalParts)
+        ) {
             return;
         }
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
         db.streamBuilder()
             .update()
             .set({ partsPaid: payment.partsPaid, status: "run" })
-            .where("id = :id", { id: payment.uuid })
+            .where("id = :id", { id: payment.streamId })
             .execute();
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
         if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {

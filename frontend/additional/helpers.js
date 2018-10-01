@@ -102,6 +102,7 @@ const formatTooltips = (tooltipText) => {
  * @param {*} error
  * @returns {*}
  */
+/* istanbul ignore next */
 const formatLndErrorRetryMessage = error => (
     <span>
         <span>{error}</span><br />
