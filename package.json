@@ -27,7 +27,6 @@
     "scss:watch": "npm run scss -- --watch",
     "test": "npm run lint && npm run test:unit -- ",
     "test:e2e": "cross-env NODE_ENV=spectron mocha --opts ./test/mocha.opts ./test/e2e",
-    "test:sanity": "cross-env NODE_ENV=spectron mocha --opts ./test/mocha.opts ./test/sanity",
     "test:unit": "cross-env NODE_ENV=test mocha --opts ./test/mocha.opts ./test/unit",
     "test:coverage": "cross-env NODE_ENV=test nyc --reporter=text --reporter=html npm run test:unit",
     "test:watch": "npm test -- --watch"
@@ -98,7 +97,6 @@
     "babel-preset-stage-0": "^6.24.1",
     "babel-runtime": "^6.23.0",
     "chai": "^3.5.0",
-    "chai-as-promised": "^5.3.0",
     "cross-env": "^3.2.4",
     "electron": "^1.8.4",
     "electron-builder": "^20.28.3",

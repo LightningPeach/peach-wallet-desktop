@@ -178,7 +178,7 @@ class Login extends Component {
                         />
                         <i
                             className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
-                            id="showpasswordbutton"
+                            id="show-password-button"
                             onClick={togglePasswordVisibility}
                         />
                         <ErrorFieldTooltip text={this.state.passwordError} />
@@ -202,7 +202,7 @@ class Login extends Component {
                         <div className="home__restore-block">
                             <button
                                 type="button"
-                                id="recovery"
+                                id="recovery-button"
                                 className="button button__link"
                                 onClick={this.showRestore}
                                 disabled={disabled}
@@ -226,7 +226,7 @@ class Login extends Component {
                             <span className={disabled ? "disabled" : ""}>I don’t have an account.</span>
                             <button
                                 type="button"
-                                id="signup"
+                                id="signup-button"
                                 className="button button__link signup__link"
                                 onClick={this.showRegistration}
                                 disabled={disabled}

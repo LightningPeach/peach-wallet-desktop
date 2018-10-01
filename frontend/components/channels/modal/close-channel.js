@@ -69,7 +69,7 @@ class CloseChannel extends Component {
                                 className="button button__link text-uppercase"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
-                                id="qa-cancel-close-channel-modal"
+                                id="cancel-close-channel-modal-button"
                             >
                                 Cancel
                             </button>
@@ -79,7 +79,7 @@ class CloseChannel extends Component {
                                     className="button button__orange button__close"
                                     onClick={this.closeChannel}
                                     disabled={this.state.processing}
-                                    id="qa-close-channel-modal"
+                                    id="close-channel-modal-button"
                                 >
                                     Close
                                 </button>

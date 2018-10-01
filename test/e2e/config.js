@@ -17,6 +17,7 @@ const filenamePostfix = ".testBackup";
 const fundsLndHost = "127.0.0.1:20201";
 const testTimeout = 60 * 1000;
 const cmdUtilsTimeout = 1000;
+const timeoutForAgreement = 3 * 1000;
 const cmdUtilsCallDelay = 5 * 1000;
 
 module.exports = {
@@ -38,5 +39,6 @@ module.exports = {
     fundsLndHost,
     testTimeout,
     cmdUtilsTimeout,
+    timeoutForAgreement,
     cmdUtilsCallDelay,
 };

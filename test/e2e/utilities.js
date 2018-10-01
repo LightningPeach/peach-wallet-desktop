@@ -215,7 +215,6 @@ const afterTestClear = (params) => {
     process.kill(btcdPid);
     process.kill(fundsLndPid);
     rimraf.sync(params.userPath);
-    rimraf.sync(path.join(__dirname, "test_data"));
 };
 
 const generateBlock = async (count = 1) => {

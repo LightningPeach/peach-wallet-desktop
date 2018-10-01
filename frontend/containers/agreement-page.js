@@ -78,7 +78,7 @@ class Agreement extends Component {
                     <div className="col-xs-12">
                         <button
                             type="submit"
-                            id="submitbutton"
+                            id="submit-button"
                             disabled={!this.state.eula}
                             className="button button__link text-uppercase pull-right agreement__form-submit"
                         >

@@ -38,6 +38,10 @@ describe("Application launch", function () { // eslint-disable-line func-names
         }
         await app.stop();
         utils.afterTestClear(testParams);
+        const userDataPath = await app.electron.remote.app.getPath("userData");
+        // delete agreement.ini
+        testParams.agreementDirPath = path.join(userDataPath, ".lnd", config.agreementFile);
+        rimraf.sync(testParams.agreementDirPath);
         assert.equal(app.isRunning(), false, "App stopped");
     });
 
@@ -48,15 +52,15 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should can't proceed without accept eula", async () => {
-            await app.client.click("#submitbutton");
+            await app.client.click("#submit-button");
             const licenseExists = await app.client.isExisting(".license__text");
             assert.equal(licenseExists, true, "license should exists");
         });
 
         it("should proceed with eula", async () => {
             await app.client.click(".js-agreement");
-            await app.client.click("#submitbutton");
-            await utils.sleep(3000);
+            await app.client.click("#submit-button");
+            await utils.sleep(config.timeoutForAgreement);
             await app.client.windowByIndex(0);
             await app.client.waitUntilWindowLoaded();
             const count = await app.client.getWindowCount();
@@ -305,10 +309,10 @@ describe("Application launch", function () { // eslint-disable-line func-names
             );
             await app.client.moveToObject(".channels-page .channel");
             await app.client.waitUntil(
-                async () => app.client.isVisible("#qa-close-channel"),
+                async () => app.client.isVisible("#close-channel-button"),
                 config.timeoutForElementChecks,
             );
-            await app.client.click("#qa-close-channel");
+            await app.client.click("#close-channel-button");
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-wrapper"),
                 config.timeoutForElementChecks,
@@ -318,7 +322,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should close channel", async () => {
-            await app.client.click("#qa-close-channel-modal");
+            await app.client.click("#close-channel-modal-button");
             await utils.btcctlGenerate(3);
             await app.client.waitUntil(
                 async () => await app.client.isExisting(".channel__deleting") || await app.client.isExisting(".empty-placeholder"), // eslint-disable-line

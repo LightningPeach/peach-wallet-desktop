@@ -79,7 +79,7 @@ class SystemNotifications extends Component {
                                 checked={!this.state.showAgain}
                                 onChange={this.toggleShowAgain}
                                 class="label_line channels__custom"
-                                id="qa-neveraskagain"
+                                id="never-ask-again_checkbox"
                             />
                         </div>
                     </div>
@@ -90,7 +90,7 @@ class SystemNotifications extends Component {
                             <button
                                 className="button button__link text-uppercase"
                                 type="button"
-                                id="qa-disablenotifications"
+                                id="disable-notifications-button"
                                 onClick={this.rejectNotifications}
                             >
                                 Disable
@@ -98,7 +98,7 @@ class SystemNotifications extends Component {
                             <button
                                 className="button button__orange button__create"
                                 type="button"
-                                id="qa-enablenotifications"
+                                id="qenable-notifications-button"
                                 onClick={this.resolveNotifications}
                             >
                                 Enable
