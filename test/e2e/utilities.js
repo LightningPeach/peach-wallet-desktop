@@ -72,7 +72,9 @@ const startBtcd = (miningAddr) => {
     }
     console.log("BTCD OPTIONS: ", options.join(" "));
     const btcd = spawn("btcd", options);
+    /* eslint-disable */
     btcd.stdout.on("data", function (data) {});
+    /* eslint-enable */
     btcdPid = btcd.pid;
 };
 
@@ -119,7 +121,9 @@ const startFundsLnd = () => {
     ];
     console.log("LND OPTIONS: ", options.join(" "));
     const lnd = spawn("lnd", options);
+    /* eslint-disable */
     lnd.stdout.on("data", function (data) {});
+    /* eslint-enable */
     fundsLndPid = lnd.pid;
 };
 
