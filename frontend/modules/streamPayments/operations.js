@@ -179,7 +179,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 const { isLogined, isLogouting } = getState().account;
                 if (isLogined && !isLogouting) {
                     dispatch(error({
-                        message: err,
+                        message: helpers.formatLndErrorRetryMessage(err),
                         uid: "stream_error",
                     }));
                 }

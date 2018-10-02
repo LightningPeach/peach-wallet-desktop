@@ -115,7 +115,7 @@ class EditChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row form-row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__amount">Amount in {bitcoinMeasureType}</label>
@@ -131,7 +131,7 @@ class EditChannel extends Component {
                                 />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row form-row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__lightningId">Lightning address</label>
