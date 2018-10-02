@@ -48,7 +48,7 @@ class SuccessPayment extends Component {
                             </div> : null
                         }
                         <div className="col-xs-12 payment_result__info">
-                            <BtcToUsd satoshi={amount} />
+                            <BtcToUsd amount={amount} />
                         </div>
                     </div>
                     <div className="row payment_result__btn-row">

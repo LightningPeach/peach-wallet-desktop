@@ -72,11 +72,13 @@ class StreamDetails extends Component {
                         <div className="col-xs-12">
                             <div className="send-form__label">
                                 <span className="send-form__label--text">
-                                    Amount in {bitcoinMeasureType}
+                                    Amount in {streamDetails.currency === "USD" ? "USD" : bitcoinMeasureType}
                                 </span>
                             </div>
                             <div className="send-form__value">
-                                <BalanceWithMeasure satoshi={amount} />
+                                {streamDetails.currency === "USD"
+                                    ? `$${amount}`
+                                    : <BalanceWithMeasure satoshi={amount} />}
                                 {streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? " per payment" : null}
                             </div>
                         </div>
@@ -103,7 +105,9 @@ class StreamDetails extends Component {
                                 </span>
                             </div>
                             <div className="send-form__value">
-                                <BalanceWithMeasure satoshi={fee} />
+                                {streamDetails.currency === "USD"
+                                    ? <BtcToUsd amount={fee} />
+                                    : <BalanceWithMeasure satoshi={fee} />}
                                 {streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? " per payment" : null}
                             </div>
                         </div>
@@ -132,7 +136,10 @@ class StreamDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd satoshi={totalAmount} />
+                                <BtcToUsd
+                                    amount={totalAmount}
+                                    reversed={streamDetails.currency === "USD"}
+                                />
                                 {streamDetails.totalParts === STREAM_INFINITE_TIME_VALUE ? " per payment" : null}
                             </div>
                         </div>

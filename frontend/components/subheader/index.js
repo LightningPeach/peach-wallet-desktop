@@ -26,14 +26,14 @@ class SubHeader extends PureComponent {
                                         Lightning balance:
                                     </span>
                                     <span className="balance__value">
-                                        <BtcToUsd satoshi={lightningBalance} />
+                                        <BtcToUsd amount={lightningBalance} />
                                     </span>
                                 </div>
                                 <div className="balance__row">
                                     <span className="balance__title">
                                         Onchain balance:
                                     </span>
-                                    <span className="balance__value"><BtcToUsd satoshi={bitcoinBalance} /></span>
+                                    <span className="balance__value"><BtcToUsd amount={bitcoinBalance} /></span>
                                 </div>
                                 <div className="balance__row">
                                     <Tooltip
@@ -52,13 +52,13 @@ class SubHeader extends PureComponent {
                                         Locked Onchain balance:
                                     </span>
                                     <span className="balance__value">
-                                        <BtcToUsd satoshi={unConfirmedBitcoinBalance} />
+                                        <BtcToUsd amount={unConfirmedBitcoinBalance} />
                                     </span>
                                 </div>
                             </div>
                             <div className="subheader__exchange_rate">
                                 <div className={`exchange_rate ${button ? "exchange_rate--with_btn" : ""}`}>
-                                    1BTC <BtcToUsd satoshi={100000000} hideBtc />
+                                    1BTC <BtcToUsd amount={100000000} hideBase />
                                 </div>
                                 {button || null}
                             </div>

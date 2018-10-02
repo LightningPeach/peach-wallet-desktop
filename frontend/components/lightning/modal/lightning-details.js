@@ -102,7 +102,7 @@ class LightningDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd satoshi={paymentDetails[0].amount + paymentDetails[0].fee.max} />
+                                <BtcToUsd amount={paymentDetails[0].amount + paymentDetails[0].fee.max} />
                             </div>
                         </div>
                     </div>

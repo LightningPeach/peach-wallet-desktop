@@ -32,7 +32,6 @@ import StreamDetails from "./modal/stream-details";
 
 const getInitialState = (params = {}) => {
     const initState = {
-        amount: null,
         amountError: null,
         frequency: 1,
         frequencyError: null,
@@ -43,6 +42,7 @@ const getInitialState = (params = {}) => {
         timeError: null,
         toError: null,
         toValue: null,
+        totalAmount: null,
         valueCurrency: null,
     };
 
@@ -57,16 +57,28 @@ class RecurringPayment extends Component {
     }
 
     setAmount = () => {
-        const amount = parseFloat(this.amount.value.trim()) || null;
         this.setState({
-            amount,
             amountError: null,
         });
+        this.setTotalAmount();
     };
 
     setTime = () => {
         this.setState({
             timeError: null,
+        });
+        this.setTotalAmount();
+    };
+
+    setTotalAmount = (isInfinite = this.state.isInfinite) => {
+        const amount = parseFloat(this.amount.value.trim()) || null;
+        const time = isInfinite
+            ? STREAM_INFINITE_TIME_VALUE
+            : Math.round(parseInt(this.time.value.trim(), 10)) || null;
+        this.setState({
+            totalAmount: time === STREAM_INFINITE_TIME_VALUE
+                ? amount
+                : amount && time ? amount * time : null,
         });
     };
 
@@ -95,10 +107,12 @@ class RecurringPayment extends Component {
     };
 
     toggleInfinite = () => {
+        const isInfinite = !this.state.isInfinite;
         this.setState({
-            isInfinite: !this.state.isInfinite,
+            isInfinite,
             timeError: null,
         });
+        this.setTotalAmount(isInfinite);
     };
 
     _searchContact = (to) => {
@@ -157,10 +171,26 @@ class RecurringPayment extends Component {
             ? STREAM_INFINITE_TIME_VALUE
             : Math.round(parseInt(this.time.value.trim(), 10)) || 0;
         const frequency = Math.round(parseInt(this.frequency.value.trim(), 10)) || 0;
+        let currency;
+        switch (this.state.valueCurrency) {
+            case "USD":
+                currency = "USD";
+                break;
+            case BTC_MEASURE.btc:
+            case MBTC_MEASURE.btc:
+            case SATOSHI_MEASURE.btc:
+                currency = "BTC";
+                break;
+            default:
+                currency = "BTC";
+                break;
+        }
 
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
-        const amountError = dispatch(accountOperations.checkAmount(amount));
+        const amountError = dispatch(accountOperations.checkAmount(currency === "USD"
+            ? dispatch(appOperations.convertUsdToSatoshi(amount))
+            : amount));
         const timeError = this._validateTime(time);
         const frequencyError = this._validateFrequency(frequency);
 
@@ -200,20 +230,6 @@ class RecurringPayment extends Component {
         }
         delay *= frequency;
 
-        let currency;
-        switch (this.state.valueCurrency) {
-            case "USD":
-                currency = "USD";
-                break;
-            case BTC_MEASURE.btc:
-            case MBTC_MEASURE.btc:
-            case SATOSHI_MEASURE.btc:
-                currency = "BTC";
-                break;
-            default:
-                currency = "BTC";
-                break;
-        }
         const response = await dispatch(streamOperations.prepareStreamPayment(
             to,
             amount,
@@ -236,10 +252,16 @@ class RecurringPayment extends Component {
         const filledFrequency = this.state.frequency;
         const filledAmount = this.amount && this.amount.value.trim();
         let usd = null;
-        if (this.state.amount) {
+        if (this.state.totalAmount) {
             usd = (
                 <span className="form-usd">
-                    <BtcToUsd satoshi={dispatch(appOperations.convertToSatoshi(this.state.amount))} hideBtc />
+                    <BtcToUsd
+                        amount={this.state.valueCurrency === "USD"
+                            ? this.state.totalAmount
+                            : dispatch(appOperations.convertToSatoshi(this.state.totalAmount))}
+                        reversed={this.state.valueCurrency === "USD"}
+                    />
+                    {this.state.isInfinite && " per payment"}
                 </span>
             );
         }
@@ -417,7 +439,6 @@ class RecurringPayment extends Component {
                                                 ? "above_zero_int"
                                                 : "above_zero_float"}
                                             placeholder={this.state.valueCurrency === "Satoshi"
-                                                || this.state.valueCurrency === "USD"
                                                 ? "0"
                                                 : "0.0"}
                                             ref={(ref) => {
@@ -526,7 +547,7 @@ class RecurringPayment extends Component {
                             className="button button__orange button__side-padding45"
                             disabled={this.state.processing}
                         >
-                            Create
+                            Create payment
                         </button>
                     </div>
                 </div>

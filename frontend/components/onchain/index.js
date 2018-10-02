@@ -215,7 +215,7 @@ class Onchain extends Component {
         if (this.state.amount) {
             usd = (
                 <span className="form-usd">
-                    <BtcToUsd satoshi={dispatch(appOperations.convertToSatoshi(this.state.amount))} hideBtc />
+                    <BtcToUsd amount={dispatch(appOperations.convertToSatoshi(this.state.amount))} hideBase />
                 </span>
             );
         }

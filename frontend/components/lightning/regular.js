@@ -233,8 +233,8 @@ class RegularPayment extends Component {
         const usdRender = amount => (
             <span className="form-usd">
                 <BtcToUsd
-                    satoshi={dispatch(appOperations.convertToSatoshi(amount))}
-                    hideBtc
+                    amount={dispatch(appOperations.convertToSatoshi(amount))}
+                    hideBase
                 />
             </span>
         );

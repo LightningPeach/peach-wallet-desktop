@@ -2,7 +2,12 @@ import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
 import * as statusCodes from "config/status-codes";
-import { USD_PER_BTC_URL, LIGHTNING_ID_LENGTH, ONLY_LETTERS_AND_NUMBERS } from "config/consts";
+import {
+    USD_PER_BTC_URL,
+    LIGHTNING_ID_LENGTH,
+    ONLY_LETTERS_AND_NUMBERS,
+    BTC_MEASURE,
+} from "config/consts";
 import { store } from "store/configure-store";
 import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
@@ -73,6 +78,10 @@ function copyToClipboard(data, message = "") {
             uid: newMsg.toString() || "Copied",
         }));
     };
+}
+
+function convertUsdToSatoshi(amount) {
+    return (dispatch, getState) => Math.round(amount / (BTC_MEASURE.multiplier * getState().app.usdPerBtc));
 }
 
 function convertToSatoshi(value) {
@@ -175,6 +184,7 @@ export {
     usdBtcRate,
     copyToClipboard,
     convertToSatoshi,
+    convertUsdToSatoshi,
     convertSatoshiToCurrentMeasure,
     openForceLogoutModal,
     openDeepLinkLightningModal,

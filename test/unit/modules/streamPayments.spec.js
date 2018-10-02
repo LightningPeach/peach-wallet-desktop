@@ -10,7 +10,7 @@ import {
 } from "modules/streamPayments";
 import streamPaymentReducer, { initStateStreamPayment } from "modules/streamPayments/reducers";
 import { accountOperations, accountTypes } from "modules/account";
-import { appTypes } from "modules/app";
+import { appTypes, appOperations } from "modules/app";
 import { channelsOperations } from "modules/channels";
 import { notificationsTypes } from "modules/notifications";
 import { lightningOperations } from "modules/lightning";
@@ -377,6 +377,7 @@ describe("Stream Payment Unit Tests", () => {
         let fakeLightning;
         let fakeDispatchReturnError;
         let fakeDispatchReturnSuccess;
+        let fakeApp;
         let fakeAccount;
         let fakeChannels;
 
@@ -388,6 +389,7 @@ describe("Stream Payment Unit Tests", () => {
             listActions = [];
             sandbox = sinon.sandbox.create();
             fakeDB = sandbox.stub(db);
+            fakeApp = sandbox.stub(appOperations);
             fakeAccount = sandbox.stub(accountOperations);
             fakeLightning = sandbox.stub(lightningOperations);
             fakeChannels = sandbox.stub(channelsOperations);
@@ -451,6 +453,11 @@ describe("Stream Payment Unit Tests", () => {
             beforeEach(async () => {
                 data.lightningID = lightningID;
                 data.price = 10;
+                data.delay = 1000;
+                data.totalParts = 10;
+                data.paymentName = "foo";
+                data.contact_name = "bar";
+                data.currency = "USD";
                 successRespTest = await successPromise({ fee: "fee" });
                 fakeDispatchReturnSuccess = () => successRespTest;
                 fakeLightning.getLightningFee.returns(fakeDispatchReturnSuccess);
@@ -485,7 +492,7 @@ describe("Stream Payment Unit Tests", () => {
                 expect(listActions).to.deep.equal(expectedActions);
             });
 
-            it("success", async () => {
+            it("success with BTC currency", async () => {
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
@@ -509,6 +516,41 @@ describe("Stream Payment Unit Tests", () => {
                 expect(await store.dispatch(operations.prepareStreamPayment(
                     data.lightningID,
                     data.price,
+                ))).to.deep.equal(expectedData);
+                listActions[0].payload = omit(listActions[0].payload, ["date", "uuid", "streamId", "memo", "id"]);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("success with USD currency", async () => {
+                fakeApp.convertUsdToSatoshi.returns(fakeDispatchReturnSuccess);
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: {
+                            contact_name: "bar",
+                            currency: "USD",
+                            delay: 1000,
+                            fee: "fee",
+                            lastPayment: 0,
+                            lightningID: data.lightningID,
+                            name: "foo",
+                            partsPaid: 0,
+                            partsPending: 0,
+                            price: 10,
+                            status: types.STREAM_PAYMENT_PAUSED,
+                            totalParts: 10,
+                        },
+                        type: types.PREPARE_STREAM_PAYMENT,
+                    },
+                ];
+                expect(await store.dispatch(operations.prepareStreamPayment(
+                    data.lightningID,
+                    data.price,
+                    data.delay,
+                    data.totalParts,
+                    data.paymentName,
+                    data.contact_name,
+                    data.currency,
                 ))).to.deep.equal(expectedData);
                 listActions[0].payload = omit(listActions[0].payload, ["date", "uuid", "streamId", "memo", "id"]);
                 expect(listActions).to.deep.equal(expectedActions);
@@ -885,6 +927,7 @@ describe("Stream Payment Unit Tests", () => {
                 fakeLightning.addInvoiceRemote.returns(fakeDispatchReturnError);
                 fakeAccount.checkBalance.returns(fakeDispatchReturnSuccess);
                 fakeChannels.getChannels.returns(fakeDispatchReturnSuccess);
+                fakeApp.convertUsdToSatoshi.returns(fakeDispatchReturnSuccess);
                 window.ipcClient
                     .withArgs("sendPayment")
                     .returns({

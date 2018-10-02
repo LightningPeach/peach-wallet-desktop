@@ -305,7 +305,11 @@
     &-usd {
         color: $pumpkin-orange;
         font-size: 14px;
-        padding-right: 20px;
+        line-height: 40px;
+
+        & + * {
+            margin-left: 20px;
+        }
     }
 }
 

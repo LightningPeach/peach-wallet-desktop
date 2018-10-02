@@ -411,6 +411,15 @@ describe("App Unit Tests", () => {
             });
         });
 
+        it("convertUsdToSatoshi()", () => {
+            initState.app.usdPerBtc = 100;
+            store = mockStore(initState);
+            data.value = 10;
+            expectedData = 10000000;
+            expect(store.dispatch(operations.convertUsdToSatoshi(data.value))).to.deep.equal(expectedData);
+            expect(store.getActions()).to.deep.equal(expectedActions);
+        });
+
         it("convertToSatoshi()", () => {
             data.mBTC = 1;
             expectedData = 100000; // 1mBTC in satoshi

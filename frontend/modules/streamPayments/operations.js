@@ -1,7 +1,7 @@
 import React from "react";
 import orderBy from "lodash/orderBy";
 import * as statusCodes from "config/status-codes";
-import { appActions } from "modules/app";
+import { appActions, appOperations } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
@@ -51,7 +51,16 @@ function prepareStreamPayment(
         const name = paymentName || "Stream payment";
         const id = btoa(unescape(encodeURIComponent(`${name}_${new Date().getTime()}`)));
         const memo = `stream_payment_${new Date().getTime()}`;
-        const fees = await dispatch(lightningOperations.getLightningFee(lightningID, price));
+        let amount;
+        switch (currency) {
+            case "USD":
+                amount = dispatch(appOperations.convertUsdToSatoshi(price));
+                break;
+            default:
+                amount = price;
+                break;
+        }
+        const fees = await dispatch(lightningOperations.getLightningFee(lightningID, amount));
         if (!fees.ok) {
             return errorPromise(fees.error, prepareStreamPayment);
         }
@@ -164,7 +173,6 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId, forceStart = false) {
     return async (dispatch, getState) => {
         let errorShowed = false;
-        const convertUsdToSatoshi = amount => Math.round((amount * 1e8) / getState().app.usdPerBtc);
         const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT) => {
             if (!errorShowed) {
                 dispatch(pauseStreamPayment(streamId));
@@ -200,7 +208,7 @@ function startStreamPayment(streamId, forceStart = false) {
             let amount;
             switch (payment.currency) {
                 case "USD":
-                    amount = convertUsdToSatoshi(payment.price);
+                    amount = dispatch(appOperations.convertUsdToSatoshi(payment.price));
                     break;
                 default:
                     amount = payment.price;
