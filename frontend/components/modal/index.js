@@ -15,7 +15,8 @@ class Modal extends Component {
     }
 
     onKeyClick = (e) => {
-        if (e.keyCode === 27) {
+        const { disabled } = this.props;
+        if (!disabled && e.keyCode === 27) {
             analytics.event({ action: "Modal", category: "Modal windows", label: "Close with ESC" });
             this.props.dispatch(appOperations.closeModal());
         }
@@ -54,19 +55,31 @@ class Modal extends Component {
     };
 
     render() {
+        const {
+            disabled, onClose, styleSet, children, showCloseButton,
+        } = this.props;
+        const spinner = <div className="spinner" />;
+
         return (
             <div className="modal-wrapper">
-                <div className="modal-layout" onClick={this.props.onClose} />
+                <div className="modal-layout" onClick={onClose} />
                 <div
-                    className={`modal ${this.props.styleSet ? `modal__${this.props.styleSet}` : ""}`}
+                    className={`modal ${styleSet ? `modal__${styleSet}` : ""}`}
                     tabIndex="-1"
                     role="dialog"
                 >
                     {this.renderHeader()}
-                    {this.props.children}
-                    {
-                        this.props.showCloseButton &&
-                        <button className="close-modal" onClick={this.props.onClose}>Close</button>
+                    {children}
+                    {disabled
+                        ? spinner
+                        : showCloseButton &&
+                            <button
+                                className="close-modal"
+                                onClick={onClose}
+                                disabled={disabled}
+                            >
+                                Close
+                            </button>
                     }
                 </div>
             </div>
@@ -79,6 +92,7 @@ Modal.propTypes = {
         PropTypes.arrayOf(PropTypes.node),
         PropTypes.node,
     ]).isRequired,
+    disabled: PropTypes.bool,
     dispatch: PropTypes.func.isRequired,
     onClose: PropTypes.func.isRequired,
     showCloseButton: PropTypes.bool,

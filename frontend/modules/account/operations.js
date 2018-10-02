@@ -15,10 +15,12 @@ import {
     successPromise,
     unsuccessPromise,
     logger,
+    delay,
 } from "additional";
 import {
     MAX_PAYMENT_REQUEST,
     ALL_MEASURES,
+    LOGOUT_ACCOUNT_TIMEOUT,
 } from "config/consts";
 import * as statusCodes from "config/status-codes";
 
@@ -163,6 +165,10 @@ function logout(keepModalState = false) {
         }
         await dispatch(onChainOperations.unSubscribeTransactions());
         await dispatch(lightningOperations.unSubscribeInvoices());
+        // Wait for some time to finish send data through rpc
+        // Bug reason: prevent channel closing from our side after
+        // lnd stop while sending data of outgoing lightning payment
+        await delay(LOGOUT_ACCOUNT_TIMEOUT);
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
         dispatch(accountActions.logoutAcount(keepModalState));
