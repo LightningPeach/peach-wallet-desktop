@@ -78,7 +78,15 @@
             ul {
                 margin-top: 0;
                 -webkit-padding-start: 20px;
+                -webkit-margin-after: 0;
             }
+        }
+
+        &--error {
+            display: inline-block;
+            max-height: 84px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -127,12 +135,36 @@
     }
 
     .notification{
+        padding: 14px 20px;
+
         &-message {
             max-height: 130px;
+            line-height: 1.2;
+
+            &--error {
+                max-height: 50px;
+            }
         }
 
         &-action-wrapper {
             padding-left: 5px;
+        }
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .notification{
+
+        &-message {
+            line-height: 2.15;
+
+            &--error {
+                max-height: none;
+            }
+
+            &--helper {
+                display: none;
+            }
         }
     }
 }

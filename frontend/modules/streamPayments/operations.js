@@ -214,8 +214,8 @@ function startStreamPayment(streamId, forceStart = false) {
                     amount = payment.price;
                     break;
             }
-            const { lightningBalance, maximumPayment } = getState().account;
-            if (lightningBalance < amount || maximumPayment < amount) {
+            const { lightningBalance } = getState().account;
+            if (lightningBalance < amount) {
                 handleStreamError(statusCodes.EXCEPTION_RECURRING_NO_FUNDS, false);
                 return;
             }

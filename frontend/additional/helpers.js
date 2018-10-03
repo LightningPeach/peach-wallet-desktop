@@ -105,7 +105,7 @@ const formatTooltips = (tooltipText) => {
 /* istanbul ignore next */
 const formatLndErrorRetryMessage = error => (
     <span>
-        <span>{error}</span><br />
+        <span className="notification-message--error">{error}</span><br />
         <span className="notification-message--helper">
             <span>Please, try the following actions:</span>
             <ul>

@@ -14,7 +14,7 @@ import { streamPaymentOperations } from "modules/streamPayments";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { onChainOperations } from "modules/onchain";
-import { SATOSHI_MEASURE } from "config/consts";
+import { SATOSHI_MEASURE, MAX_PAYMENT_REQUEST } from "config/consts";
 import accountReducer, { initStateAccount } from "modules/account/reducers";
 import { appTypes, appOperations } from "modules/app";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
@@ -302,11 +302,6 @@ describe("Account Unit Tests", () => {
                 type: types.CORRECT_PAYMENT_AMOUNT,
             };
             expect(actions.correctPaymentAmount()).to.deep.equal(expectedData);
-        });
-
-        it("should create an action to set maximum payment", () => {
-            expectedData.type = types.SET_MAXIMUM_PAYMENT;
-            expect(actions.setMaximumPayment(data)).to.deep.equal(expectedData);
         });
 
         it("should create an action to successfully set check balance", () => {
@@ -1592,7 +1587,6 @@ describe("Account Unit Tests", () => {
                         bitcoinBalance: 1e5,
                         lightningBalance: 1e5,
                         unConfirmedBitcoinBalance: 1e5,
-                        maximumPayment: 1e3,
                         bitcoinMeasureMultiplier: 1e-5,
                         bitcoinMeasureType: "mBTC",
                         toFixedMeasure: 5,
@@ -1633,8 +1627,21 @@ describe("Account Unit Tests", () => {
             });
 
             it("should check lightning balance with max payment error", () => {
-                const resp = store.dispatch(operations.checkAmount(1));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_MORE_MAX(0.01));
+                initState = {
+                    account: {
+                        bitcoinBalance: 1e5,
+                        lightningBalance: 1e8,
+                        unConfirmedBitcoinBalance: 1e5,
+                        bitcoinMeasureMultiplier: 1e-5,
+                        bitcoinMeasureType: "mBTC",
+                        toFixedMeasure: 5,
+                    },
+                    onchain: { fee: 11468 },
+                };
+                store = mockStore(initState);
+                const resp = store.dispatch(operations.checkAmount(50));
+                expect(resp)
+                    .to.equal(statusCodes.EXCEPTION_AMOUNT_MORE_MAX((MAX_PAYMENT_REQUEST * 1e-5).toFixed(5)));
             });
 
             it("should check bitcoin balance without errors", () => {
@@ -1655,8 +1662,6 @@ describe("Account Unit Tests", () => {
 
         describe("checkBalance()", () => {
             beforeEach(() => {
-                initState.account.maximumPayment = 5;
-                store = mockStore(initState);
                 window.ipcClient
                     .withArgs("listChannels")
                     .returns({
@@ -1709,10 +1714,6 @@ describe("Account Unit Tests", () => {
                 };
                 expectedActions = [
                     {
-                        payload: 117,
-                        type: types.SET_MAXIMUM_PAYMENT,
-                    },
-                    {
                         payload: undefined,
                         type: types.ERROR_CHECK_BALANCE,
                     },
@@ -1727,10 +1728,6 @@ describe("Account Unit Tests", () => {
             it("success", async () => {
                 expectedData = { ...successResp };
                 expectedActions = [
-                    {
-                        payload: 117,
-                        type: types.SET_MAXIMUM_PAYMENT,
-                    },
                     {
                         payload: {
                             bitcoinBalance: 30,
@@ -1995,12 +1992,6 @@ describe("Account Unit Tests", () => {
             };
             expectedData.errorAmountEnter = "";
             expectedData.amountStatus = "correct";
-            expect(accountReducer(state, action)).to.deep.equal(expectedData);
-        });
-
-        it("should handle SET_MAXIMUM_PAYMENT action", () => {
-            action.type = types.SET_MAXIMUM_PAYMENT;
-            expectedData.maximumPayment = data;
             expect(accountReducer(state, action)).to.deep.equal(expectedData);
         });
 

@@ -329,7 +329,7 @@ function checkLightningID(lightningID) {
 function checkAmount(amount, type = "lightning") {
     return (dispatch, getState) => {
         const {
-            lightningBalance, bitcoinBalance, bitcoinMeasureType, maximumPayment,
+            lightningBalance, bitcoinBalance, bitcoinMeasureType,
         } = getState().account;
         const { fee } = getState().onchain;
 
@@ -361,9 +361,8 @@ function checkAmount(amount, type = "lightning") {
 
         if (satoshiAmount > lightningBalance) {
             return statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
-        } else if (satoshiAmount > maximumPayment || satoshiAmount > MAX_PAYMENT_REQUEST) {
-            const capa = satoshiAmount > MAX_PAYMENT_REQUEST ? MAX_PAYMENT_REQUEST : maximumPayment;
-            const capacity = dispatch(appOperations.convertSatoshiToCurrentMeasure(capa));
+        } else if (satoshiAmount > MAX_PAYMENT_REQUEST) {
+            const capacity = dispatch(appOperations.convertSatoshiToCurrentMeasure(MAX_PAYMENT_REQUEST));
             return statusCodes.EXCEPTION_AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
         }
         return null;
@@ -378,24 +377,13 @@ function checkBalance() {
             return unsuccessPromise(checkBalance);
         }
         let lightningBalance = 0;
-        let maximumCapacity = 0;
         const { channels } = responseChannels.response;
         channels.forEach((channel) => {
             if (!channel.local_balance) {
                 return;
             }
             lightningBalance += parseInt(channel.local_balance, 10);
-            if (maximumCapacity < channel.local_balance) {
-                maximumCapacity = parseInt(channel.local_balance, 10);
-                // TODO maybe local problem, if all bad on server increase 1% to 1.1%
-                // if reserve 1% of channel capacity, payment with remaining balance can't be sent 'cause of
-                // "unable to route payment to destination: TemporaryChannelFailure"
-                maximumCapacity -= (parseInt(channel.capacity, 10)) / 100;
-            }
         });
-        if (getState().account.maximumPayment !== maximumCapacity) {
-            dispatch(accountActions.setMaximumPayment(maximumCapacity));
-        }
         const responseWallet = await window.ipcClient("walletBalance");
         if (!responseWallet.ok) {
             dispatch(accountActions.errorCheckBalance(responseWallet.error));

@@ -951,7 +951,6 @@ describe("Stream Payment Unit Tests", () => {
                 });
                 initState.account.isLogined = true;
                 initState.account.lightningBalance = Number.MAX_SAFE_INTEGER;
-                initState.account.maximumPayment = Number.MAX_SAFE_INTEGER;
                 store = configureStore(initState);
                 store.subscribe(() => listActions.push(store.getState().lastAction));
             });
