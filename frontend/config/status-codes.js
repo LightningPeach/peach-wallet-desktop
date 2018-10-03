@@ -1,3 +1,4 @@
+import React from "react";
 import {
     USERNAME_MAX_LENGTH,
     MIN_PASS_LENGTH,
@@ -100,6 +101,9 @@ const EXCEPTION_RECURRING_NOT_IN_STORE = "Recurring Payment not found in store."
 const EXCEPTION_RECURRING_FEQUENCY_IS_ZERO = "Frequency must be greater than 0.";
 // Recurring payment error deadline exceeded;
 const EXCEPTION_RECURRING_TIMEOUT = "Recurring payment: deadline exceeded.";
+// Recurring payment no funds for next payment;
+const EXCEPTION_RECURRING_NO_FUNDS =
+    (<span>Insufficient funds on Lightning balance.<br />Please, open new channel to process payment.</span>);
 
 // TRANSACITONS
 // Empty recurring payment details
@@ -206,6 +210,7 @@ export {
     EXCEPTION_TIME_NEGATIVE,
     EXCEPTION_LIS_DOWN_DURING_TX,
     EXCEPTION_RECURRING_TIMEOUT,
+    EXCEPTION_RECURRING_NO_FUNDS,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
     EXCEPTION_RECURRING_NOT_IN_STORE,

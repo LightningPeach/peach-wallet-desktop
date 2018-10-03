@@ -189,7 +189,7 @@ class RecurringPayment extends Component {
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
         const amountError = dispatch(accountOperations.checkAmount(currency === "USD"
-            ? dispatch(appOperations.convertUsdToSatoshi(amount))
+            ? dispatch(appOperations.convertUsdToCurrentMeasure(amount))
             : amount));
         const timeError = this._validateTime(time);
         const frequencyError = this._validateFrequency(frequency);
@@ -204,7 +204,9 @@ class RecurringPayment extends Component {
         this.setState({
             amountError, nameError, timeError, toError,
         });
-        amount = dispatch(appOperations.convertToSatoshi(amount));
+        if (currency === "BTC") {
+            amount = dispatch(appOperations.convertToSatoshi(amount));
+        }
         let delay = 1000;
         switch (this.state.timeCurrency) {
             case "seconds":

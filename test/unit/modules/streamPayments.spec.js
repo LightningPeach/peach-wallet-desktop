@@ -942,12 +942,105 @@ describe("Stream Payment Unit Tests", () => {
                         }),
                     }),
                 });
+                fakeDB.streamPartBuilder.returns({
+                    insert: data.streamPartBuilder.insert.returns({
+                        values: data.streamPartBuilder.values.returns({
+                            execute: data.streamPartBuilder.execute,
+                        }),
+                    }),
+                });
+                initState.account.isLogined = true;
+                initState.account.lightningBalance = Number.MAX_SAFE_INTEGER;
+                initState.account.maximumPayment = Number.MAX_SAFE_INTEGER;
+                store = configureStore(initState);
+                store.subscribe(() => listActions.push(store.getState().lastAction));
             });
 
             it("no payment", async () => {
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).not.to.be.called;
+                expect(fakeDB.streamBuilder).not.to.be.called;
+            });
+
+            it("error insufficient funds on lightning balance", async () => {
+                const streams = [
+                    {
+                        partsPaid: 1,
+                        partsPending: 0,
+                        delay: 100,
+                        lastPayment: Date.now() - 50,
+                        totalParts: 2,
+                        uuid: "foo",
+                        streamId: "foo",
+                        price: 100,
+                        status: types.STREAM_PAYMENT_PAUSED,
+                        currency: "BTC",
+                    },
+                ];
+                initState.streamPayment.streams = streams;
+                initState.account.lightningBalance = 50;
+                store = configureStore(initState);
+                store.subscribe(() => listActions.push(store.getState().lastAction));
+                expectedActions = [
+                    {
+                        payload: {
+                            status: types.STREAM_PAYMENT_STREAMING,
+                            streamId: "foo",
+                        },
+                        type: types.SET_STREAM_PAYMENT_STATUS,
+                    },
+                    {
+                        payload: {
+                            status: types.STREAM_PAYMENT_PAUSED,
+                            streamId: "foo",
+                        },
+                        type: types.SET_STREAM_PAYMENT_STATUS,
+                    },
+                    {
+                        payload: "foo",
+                        type: types.CLEAR_STREAM_PAYMENT_INTERVAL_ID,
+                    },
+                    {
+                        type: notificationsTypes.SHOW_NOTIFICATION,
+                    },
+                    {
+                        payload: {
+                            streamId: "foo",
+                        },
+                        type: types.SET_STREAM_PAYMENT_INTERVAL_ID,
+                    },
+                    {
+                        payload: {
+                            status: types.STREAM_PAYMENT_PAUSED,
+                            streamId: "foo",
+                        },
+                        type: types.SET_STREAM_PAYMENT_STATUS,
+                    },
+                    {
+                        payload: "foo",
+                        type: types.CLEAR_STREAM_PAYMENT_INTERVAL_ID,
+                    },
+                ];
+                expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
+                await delay(100);
+                listActions[3] = omit(listActions[3], "payload");
+                listActions[4].payload = omit(listActions[4].payload, "paymentIntervalId");
+                expect(listActions).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+                expect(fakeDB.streamBuilder).to.be.calledThrice;
+                expect(data.streamBuilder.update).to.be.calledThrice;
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.calledThrice;
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "pause" });
+                expect(data.streamBuilder.where).to.be.calledThrice;
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
+                expect(data.streamBuilder.execute).to.be.calledThrice;
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
+                expect(fakeDB.streamPartBuilder).not.to.be.called;
             });
 
             it("error on get invoice from lis", async () => {
@@ -960,12 +1053,12 @@ describe("Stream Payment Unit Tests", () => {
                         totalParts: 2,
                         uuid: "foo",
                         streamId: "foo",
+                        price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
                     },
                 ];
                 initState.streamPayment.streams = streams;
-                initState.account.isLogined = true;
                 store = configureStore(initState);
                 store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
@@ -1014,6 +1107,19 @@ describe("Stream Payment Unit Tests", () => {
                 listActions[6] = omit(listActions[6], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
+                expect(fakeDB.streamBuilder).to.be.calledTwice;
+                expect(data.streamBuilder.update).to.be.calledTwice;
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.calledTwice;
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "pause" });
+                expect(data.streamBuilder.where).to.be.calledTwice;
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
+                expect(data.streamBuilder.execute).to.be.calledTwice;
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
+                expect(fakeDB.streamPartBuilder).not.to.be.called;
             });
 
             it("error on sendPayment", async () => {
@@ -1033,12 +1139,12 @@ describe("Stream Payment Unit Tests", () => {
                         totalParts: 2,
                         uuid: "foo",
                         streamId: "foo",
+                        price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
                     },
                 ];
                 initState.streamPayment.streams = streams;
-                initState.account.isLogined = true;
                 store = configureStore(initState);
                 store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
@@ -1087,6 +1193,19 @@ describe("Stream Payment Unit Tests", () => {
                 listActions[6] = omit(listActions[6], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
+                expect(fakeDB.streamBuilder).to.be.calledTwice;
+                expect(data.streamBuilder.update).to.be.calledTwice;
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.calledTwice;
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "pause" });
+                expect(data.streamBuilder.where).to.be.calledTwice;
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
+                expect(data.streamBuilder.execute).to.be.calledTwice;
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
+                expect(fakeDB.streamPartBuilder).not.to.be.called;
             });
 
             it("success with last payment close than delay", async () => {
@@ -1111,6 +1230,7 @@ describe("Stream Payment Unit Tests", () => {
                         totalParts: 2,
                         uuid: "foo",
                         streamId: "foo",
+                        price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
                     },
@@ -1178,6 +1298,27 @@ describe("Stream Payment Unit Tests", () => {
                 listActions[8] = omit(listActions[8], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
+                expect(fakeDB.streamBuilder).to.be.calledThrice;
+                expect(data.streamBuilder.update).to.be.calledThrice;
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.calledThrice;
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 2, status: "end" });
+                expect(data.streamBuilder.where).to.be.calledThrice;
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
+                expect(data.streamBuilder.execute).to.be.calledThrice;
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
+                expect(fakeDB.streamPartBuilder).to.be.calledOnce;
+                expect(data.streamPartBuilder.insert).to.be.calledOnce;
+                expect(data.streamPartBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.streamPartBuilder);
+                expect(data.streamPartBuilder.values).to.be.calledOnce;
+                expect(data.streamPartBuilder.values).to.be.calledImmediatelyAfter(data.streamPartBuilder.insert);
+                expect(data.streamPartBuilder.values)
+                    .to.be.calledWithExactly({ payment_hash: undefined, stream: "foo" });
+                expect(data.streamPartBuilder.execute).to.be.calledOnce;
+                expect(data.streamPartBuilder.execute).to.be.calledImmediatelyAfter(data.streamPartBuilder.values);
             });
 
             it("success with last payment between 1 and 2 delay periods, 1 payment left", async () => {
@@ -1202,6 +1343,7 @@ describe("Stream Payment Unit Tests", () => {
                         totalParts: 2,
                         uuid: "foo",
                         streamId: "foo",
+                        price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "USD",
                     },
@@ -1291,6 +1433,27 @@ describe("Stream Payment Unit Tests", () => {
                 listActions[10] = omit(listActions[10], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
+                expect(fakeDB.streamBuilder).to.be.callCount(5);
+                expect(data.streamBuilder.update).to.be.callCount(5);
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.callCount(5);
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 2, status: "end" });
+                expect(data.streamBuilder.where).to.be.callCount(5);
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
+                expect(data.streamBuilder.execute).to.be.callCount(5);
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
+                expect(fakeDB.streamPartBuilder).to.be.calledOnce;
+                expect(data.streamPartBuilder.insert).to.be.calledOnce;
+                expect(data.streamPartBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.streamPartBuilder);
+                expect(data.streamPartBuilder.values).to.be.calledOnce;
+                expect(data.streamPartBuilder.values).to.be.calledImmediatelyAfter(data.streamPartBuilder.insert);
+                expect(data.streamPartBuilder.values)
+                    .to.be.calledWithExactly({ payment_hash: undefined, stream: "foo" });
+                expect(data.streamPartBuilder.execute).to.be.calledOnce;
+                expect(data.streamPartBuilder.execute).to.be.calledImmediatelyAfter(data.streamPartBuilder.values);
             });
         });
     });

@@ -420,6 +420,16 @@ describe("App Unit Tests", () => {
             expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
+        it("convertUsdToCurrentMeasure()", () => {
+            initState.app.usdPerBtc = 100;
+            store = mockStore(initState);
+            data.value = 10;
+            expectedData = 100;
+            expect(Math.abs(store.dispatch(operations.convertUsdToCurrentMeasure(data.value)) - expectedData))
+                .to.be.below(1e-8);
+            expect(store.getActions()).to.deep.equal(expectedActions);
+        });
+
         it("convertToSatoshi()", () => {
             data.mBTC = 1;
             expectedData = 100000; // 1mBTC in satoshi

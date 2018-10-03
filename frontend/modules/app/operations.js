@@ -80,10 +80,6 @@ function copyToClipboard(data, message = "") {
     };
 }
 
-function convertUsdToSatoshi(amount) {
-    return (dispatch, getState) => Math.round(amount / (BTC_MEASURE.multiplier * getState().app.usdPerBtc));
-}
-
 function convertToSatoshi(value) {
     return (dispatch, getState) => {
         const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
@@ -96,6 +92,22 @@ function convertSatoshiToCurrentMeasure(value) {
         const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
         const toFixed = getState().account.toFixedMeasure;
         return helpers.noExponents(parseFloat((parseInt(value, 10) * currentMultiplier).toFixed(toFixed)));
+    };
+}
+
+function convertUsdToSatoshi(amount) {
+    return (dispatch, getState) => {
+        const { usdPerBtc } = getState().app;
+        return Math.round(parseFloat(amount) / (BTC_MEASURE.multiplier * usdPerBtc));
+    };
+}
+
+function convertUsdToCurrentMeasure(amount) {
+    return (dispatch, getState) => {
+        const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
+        const toFixed = getState().account.toFixedMeasure;
+        const satoshiAmount = dispatch(convertUsdToSatoshi(amount));
+        return satoshiAmount * currentMultiplier;
     };
 }
 
@@ -185,6 +197,7 @@ export {
     copyToClipboard,
     convertToSatoshi,
     convertUsdToSatoshi,
+    convertUsdToCurrentMeasure,
     convertSatoshiToCurrentMeasure,
     openForceLogoutModal,
     openDeepLinkLightningModal,

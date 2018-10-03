@@ -173,13 +173,13 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId, forceStart = false) {
     return async (dispatch, getState) => {
         let errorShowed = false;
-        const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT) => {
+        const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT, format = true) => {
+            dispatch(pauseStreamPayment(streamId));
             if (!errorShowed) {
-                dispatch(pauseStreamPayment(streamId));
                 const { isLogined, isLogouting } = getState().account;
                 if (isLogined && !isLogouting) {
                     dispatch(error({
-                        message: helpers.formatLndErrorRetryMessage(err),
+                        message: format ? helpers.formatLndErrorRetryMessage(err) : err,
                         uid: "stream_error",
                     }));
                 }
@@ -213,6 +213,11 @@ function startStreamPayment(streamId, forceStart = false) {
                 default:
                     amount = payment.price;
                     break;
+            }
+            const { lightningBalance, maximumPayment } = getState().account;
+            if (lightningBalance < amount || maximumPayment < amount) {
+                handleStreamError(statusCodes.EXCEPTION_RECURRING_NO_FUNDS, false);
+                return;
             }
             dispatch(actions.changeStreamPartsPending(streamId, 1));
             let response = await dispatch(lightningOperations.addInvoiceRemote(
