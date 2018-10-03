@@ -555,7 +555,7 @@ class RecurringPayment extends Component {
                 </div>
                 {lisStatus !== accountTypes.LIS_UP && (
                     <div className="stream__disabled" key="streamDisabledPlaceholder">
-                        <span>Stream payment temporarily disabled</span>
+                        <span>Recurring payment temporarily disabled</span>
                     </div>
                 )}
             </form>
