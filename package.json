@@ -160,7 +160,6 @@
     "redux-thunk": "^2.1.0",
     "request": "^2.83.0",
     "rimraf": "^2.6.2",
-    "selenium-webdriver": "^4.0.0-alpha.1",
     "typeorm": "^0.1.9",
     "url-parse": "^1.4.3",
     "ws": "^5.2.0",

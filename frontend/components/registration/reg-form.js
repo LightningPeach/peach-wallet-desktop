@@ -160,7 +160,7 @@ class RegistrationForm extends PureComponent {
                     </div>
                     <div className="col-xs-12">
                         <input
-                            id="conf_password"
+                            id="conf-password"
                             ref={(ref) => {
                                 this.confPassword = ref;
                             }}

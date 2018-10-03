@@ -8,6 +8,9 @@ const config = require("./config");
 const utils = require("./utilities");
 const rimraf = require("rimraf");
 const electronPath = require("electron");
+const registrationScreen = require("./screens/registrationScreen");
+const seedConfirmationScreen = require("./screens/seedConfimationScreen");
+const loginScreen = require("./screens/loginScreen");
 
 // construct path
 const baseDir = path.join(__dirname, "..", "..");
@@ -32,16 +35,17 @@ describe("Application launch", function () { // eslint-disable-line func-names
     });
 
     after(async () => {
+        const userDataPath = await app.electron.remote.app.getPath("userData");
+        // delete agreement.ini
+        testParams.agreementDirPath = path.join(userDataPath, ".lnd", config.agreementFile);
+        rimraf.sync(testParams.agreementDirPath);
+        // deleted agreement.ini
         if (!app || !app.isRunning()) {
             utils.afterTestClear(testParams);
             return;
         }
         await app.stop();
         utils.afterTestClear(testParams);
-        const userDataPath = await app.electron.remote.app.getPath("userData");
-        // delete agreement.ini
-        testParams.agreementDirPath = path.join(userDataPath, ".lnd", config.agreementFile);
-        rimraf.sync(testParams.agreementDirPath);
         assert.equal(app.isRunning(), false, "App stopped");
     });
 
@@ -70,9 +74,9 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
     describe("Login form", () => {
         it("Change to registration window", async () => {
-            await app.client.setValue("#username", config.username);
-            await app.client.setValue("#password", config.password);
-            await app.client.click("button=Sign in");
+            await app.client.setValue(loginScreen.loginUsername, config.username);
+            await app.client.setValue(loginScreen.loginPassword, config.password);
+            await app.client.click(loginScreen.signin);
             await app.client.waitForVisible(".notification-message");
             const loginError = await app.client.getText(".notification-message");
             assert.equal(loginError, "User doesn't exist", "should show error for not exists user");
@@ -82,12 +86,101 @@ describe("Application launch", function () { // eslint-disable-line func-names
     describe("Registration", () => {
         let seed;
 
-        it("Step 1", async () => {
-            await app.client.click("button=Sign up");
-            await app.client.setValue("#username", config.username);
-            await app.client.setValue("#password", config.password);
-            await app.client.setValue("#conf_password", config.password);
-            await app.client.click("button=Next");
+        it("TC:565: Username length validation", async () => {
+            await app.client.click(loginScreen.signup);
+            await app.client.setValue(
+                registrationScreen.registraionUsernameID,
+                config.veryLongUsernameOne + config.veryLongUsernameTwo,
+            );
+            const username = await app.client.getValue(registrationScreen.registraionUsernameID);
+            assert.equal(username, config.veryLongUsernameOne + config.veryLongUsernameOne);
+        });
+
+        it("TC:564: Signup with special characters for username", async () => {
+            await app.client.setValue(registrationScreen.registraionUsernameID, config.usernameWithSpace);
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.password);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.password);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, "Only letters and numbers are allowed.");
+            await app.client.setValue(registrationScreen.registraionUsernameID, config.usernameWithSpace);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            assert.equal(error, "Only letters and numbers are allowed.");
+        });
+
+        it("TC:562: Password complexity verification", async () => {
+            await app.client.setValue(registrationScreen.registraionUsernameID, config.username);
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.lowercasePassword);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.lowercasePassword);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, "Must contain digit, uppercase and lowercase letter.");
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.uppercasePasswordNoDigits);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.uppercasePasswordNoDigits);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            assert.equal(error, "Must contain digit, uppercase and lowercase letter.");
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.onlyDigitsPassword);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.onlyDigitsPassword);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            assert.equal(error, "Must contain digit, uppercase and lowercase letter.");
+        });
+
+        it("TC:560: Password length verification during signup", async () => {
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.shortPassword);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.shortPassword);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, "Invalid length. Minimum allowed length is 8 characters.");
+        });
+
+        it("TC:578: Password mismatch verification", async () => {
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.password);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.wrongPassword);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".form-error"),
+                config.timeoutForElementChecks,
+            );
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, "Password mismatch.");
+        });
+
+        it("TC:579: Unhide password possibility", async () => {
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.password);
+            await app.client.click(".form-text__icon--eye_open");
+            const password = await app.client.getValue(registrationScreen.registrationPasswordId);
+            assert.equal(password, config.password);
+        });
+
+        it("Step 1: correct password and username", async () => {
+            await app.client.setValue(registrationScreen.registraionUsernameID, config.username);
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.password);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.password);
+            await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(async () => app.client.isExisting("#seed"), config.timeoutForElementChecks);
             const seedExists = await app.client.isExisting("#seed");
             assert.equal(seedExists, true, "should show seed");
@@ -111,7 +204,21 @@ describe("Application launch", function () { // eslint-disable-line func-names
             assert.equal(seedVerifyExists, true, "should show seed verify form");
         });
 
+        it("TC:567: Return possibility to seed words generation", async () => {
+            await app.client.click(seedConfirmationScreen.backButtonId);
+            await app.client.waitUntil(async () => app.client.isExisting("#seed"), config.timeoutForElementChecks);
+            const seedExists = await app.client.isExisting("#seed");
+            assert.equal(seedExists, true, "should show seed");
+        });
+
         it("Step 3 should return error for wrong seed", async () => {
+            await app.client.click("button=Next");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#verify-seed"),
+                config.timeoutForElementChecks,
+            );
+            const seedVerifyExists = await app.client.isExisting("#verify-seed");
+            assert.equal(seedVerifyExists, true, "should show seed verify form");
             await app.client.setValue("#verify-seed", config.randomSeed);
             await app.client.click("button=Sign up");
             await app.client.waitUntil(
@@ -332,6 +439,51 @@ describe("Application launch", function () { // eslint-disable-line func-names
             const deleting = await app.client.isExisting(".channel__deleting");
             assert.equal(notExists || deleting, true);
             await utils.sleep(3000);
+        });
+    });
+    describe("Logout and login/signup checks for existing user", () => {
+        it("TC:593: Cancel logout from account", async () => {
+            await app.client.click("a.profile");
+            await app.client.click("#logout-button");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".button__close"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#cancel-logout-button");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+        it("TC:590: Logout from account", async () => {
+            await app.client.click("a.channels");
+            await app.client.click("a.profile");
+            await app.client.click("#logout-button");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".button__close"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click(".button__close");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#username"),
+                config.timeoutForElementChecks,
+            );
+        });
+        it("TC:577: Login with incorrect password", async () => {
+            await app.client.setValue(loginScreen.loginUsername, config.username);
+            await app.client.setValue(loginScreen.loginPassword, config.wrongPassword);
+            await app.client.click(loginScreen.signin);
+            await app.client.waitForVisible(".notification-message");
+            const loginError = await app.client.getText(".notification-message");
+            assert.equal(loginError, "Incorrect username or password.", "should incorrect password error");
+            await app.client.click(".notification-message");
+        });
+        it("TC:563: The uniqueness of the username during sign up", async () => {
+            await app.client.click(loginScreen.signup);
+            await app.client.setValue(registrationScreen.registraionUsernameID, config.username);
+            await app.client.setValue(registrationScreen.registrationPasswordId, config.wrongPassword);
+            await app.client.setValue(registrationScreen.registrationConfirmPassword, config.wrongPassword);
+            await app.client.click(registrationScreen.registrationNextButton);
+            await app.client.waitForVisible(".notification-message");
+            const loginError = await app.client.getText(".notification-message");
+            assert.equal(loginError, "User already exist");
         });
     });
 });

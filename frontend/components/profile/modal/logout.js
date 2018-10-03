@@ -47,6 +47,7 @@ class ConfirmLogout extends Component {
                         <div className="col-xs-12 text-right">
                             <button
                                 type="button"
+                                id="cancel-logout-button"
                                 className="button button__link text-uppercase"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
@@ -55,6 +56,7 @@ class ConfirmLogout extends Component {
                             </button>
                             <button
                                 type="button"
+                                id="confirm-logout-button"
                                 className="button button__orange button__close"
                                 onClick={this.logout}
                                 disabled={this.state.processing}

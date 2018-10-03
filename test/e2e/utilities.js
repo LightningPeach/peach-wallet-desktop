@@ -214,7 +214,10 @@ const afterTestClear = (params) => {
     fileBackup(params.baseDir, config.localSettings, true);
     process.kill(btcdPid);
     process.kill(fundsLndPid);
-    rimraf.sync(params.userPath);
+    // rimraf.sync(params.userPath);
+    if (fs.existsSync(params.userPath)) {
+        rimraf.sync(params.userPath);
+    }
 };
 
 const generateBlock = async (count = 1) => {

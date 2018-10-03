@@ -146,6 +146,7 @@ class SeedVerify extends PureComponent {
                     <div className="col-xs-12 text-center">
                         <button
                             type="button"
+                            id="back-button"
                             className="button button__link button__under-button"
                             onClick={this.cancelSeedVerify}
                             disabled={disabled}
