@@ -127,24 +127,27 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
         if (!payment) {
             return;
         }
-        if (payment.paymentIntervalId) {
+        if (payment.paymentIntervalId !== null) {
             clearInterval(payment.paymentIntervalId);
             dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
         }
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
             dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_PAUSED));
-        }
-        try {
             if (pauseInDb) {
-                db.streamBuilder()
-                    .update()
-                    .set({ partsPaid: payment.partsPaid, status: "pause" })
-                    .where("id = :id", { id: payment.streamId })
-                    .execute();
+                try {
+                    db.streamBuilder()
+                        .update()
+                        .set({
+                            partsPaid: payment.partsPaid,
+                            status: "pause",
+                        })
+                        .where("id = :id", { id: payment.streamId })
+                        .execute();
+                } catch (e) {
+                    /* istanbul ignore next */
+                    logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                }
             }
-        } catch (e) {
-            /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
     };
 }
@@ -168,22 +171,22 @@ function finishStreamPayment(streamId) {
         if (!payment) {
             return;
         }
-        if (payment.paymentIntervalId) {
+        if (payment.paymentIntervalId !== null) {
             clearInterval(payment.paymentIntervalId);
             dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
         }
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
             dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
-        }
-        try {
-            db.streamBuilder()
-                .update()
-                .set({ partsPaid: payment.partsPaid, status: "end" })
-                .where("id = :id", { id: payment.streamId })
-                .execute();
-        } catch (e) {
-            /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            try {
+                db.streamBuilder()
+                    .update()
+                    .set({ partsPaid: payment.partsPaid, status: "end" })
+                    .where("id = :id", { id: payment.streamId })
+                    .execute();
+            } catch (e) {
+                /* istanbul ignore next */
+                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            }
         }
     };
 }
@@ -303,6 +306,7 @@ function startStreamPayment(streamId, forceStart = false) {
             || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)
             || (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts)
+            || payment.paymentIntervalId
         ) {
             return;
         }
@@ -337,7 +341,12 @@ function startStreamPayment(streamId, forceStart = false) {
         }
         makeStreamIteration();
         payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; // eslint-disable-line
-        if (!payment.paymentIntervalId) {
+        if (payment
+            && (payment.totalParts === STREAM_INFINITE_TIME_VALUE
+                || payment.partsPaid + payment.partsPending < payment.totalParts)
+            && !payment.paymentIntervalId
+            && payment.status === types.STREAM_PAYMENT_STREAMING
+        ) {
             const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
             dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
         }
