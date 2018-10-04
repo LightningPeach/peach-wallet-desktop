@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { Link } from "react-router";
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
+import { channelsOperations as operations } from "modules/channels";
 import { ChannelsFullPath, WalletPath } from "routes";
 import Modal from "components/modal";
 
@@ -11,19 +11,19 @@ class StreamWarning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${ChannelsFullPath}/stream-warning`, "Attention. Stream payment");
+        analytics.pageview(`${ChannelsFullPath}/stream-warning`, "Attention. Recurring payment");
     }
 
     closeModal = () => {
         const { dispatch } = this.props;
-        analytics.event({ action: "Stream Warning Modal", category: "Channels", label: "Cancel" });
+        analytics.event({ action: "Recurring Warning Modal", category: "Channels", label: "Cancel" });
         dispatch(appOperations.closeModal());
     };
 
-    goToStreamHandler = () => {
+    openCloseChannelModal = () => {
         const { dispatch } = this.props;
-        analytics.event({ action: "Stream Warning Modal", category: "Channels", label: "Pause Stream payment" });
-        dispatch(appOperations.closeModal());
+        analytics.event({ action: "Recurring Warning Modal", category: "Channels", label: "Proceed" });
+        dispatch(operations.openDeleteChannelModal());
     };
 
     render() {
@@ -32,20 +32,27 @@ class StreamWarning extends Component {
                 <div className="modal-body text-center text-16">
                     <div className="row">
                         <div className="col-xs-12">
-                            To close channel you must <strong>stop all stream payments!</strong>
+                            You have <strong>active recurring payments</strong>. Channel closing may lead to errors.
                         </div>
                     </div>
                 </div>
                 <div className="modal-footer text-center">
                     <div className="row">
-                        <div className="col-xs-12">
-                            <Link
-                                className="button button__orange button__close"
-                                to={WalletPath}
-                                onClick={this.goToStreamHandler}
+                        <div className="col-xs-12 text-right">
+                            <button
+                                type="button"
+                                className="button button__link text-uppercase"
+                                onClick={this.closeModal}
                             >
-                                Stop Streams
-                            </Link>
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                className="button button__orange button__close"
+                                onClick={this.openCloseChannelModal}
+                            >
+                                Proceed
+                            </button>
                         </div>
                     </div>
                 </div>
