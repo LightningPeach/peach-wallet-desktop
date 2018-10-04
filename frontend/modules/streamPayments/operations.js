@@ -127,15 +127,24 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
         if (!payment) {
             return;
         }
-        clearInterval(payment.paymentIntervalId);
-        dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_PAUSED));
-        dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
-        if (pauseInDb) {
-            db.streamBuilder()
-                .update()
-                .set({ partsPaid: payment.partsPaid, status: "pause" })
-                .where("id = :id", { id: payment.streamId })
-                .execute();
+        if (payment.paymentIntervalId) {
+            clearInterval(payment.paymentIntervalId);
+            dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
+        }
+        if (payment.status === types.STREAM_PAYMENT_STREAMING) {
+            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_PAUSED));
+        }
+        try {
+            if (pauseInDb) {
+                db.streamBuilder()
+                    .update()
+                    .set({ partsPaid: payment.partsPaid, status: "pause" })
+                    .where("id = :id", { id: payment.streamId })
+                    .execute();
+            }
+        } catch (e) {
+            /* istanbul ignore next */
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
     };
 }
@@ -159,14 +168,23 @@ function finishStreamPayment(streamId) {
         if (!payment) {
             return;
         }
-        clearInterval(payment.paymentIntervalId);
-        dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
-        dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
-        db.streamBuilder()
-            .update()
-            .set({ partsPaid: payment.partsPaid, status: "end" })
-            .where("id = :id", { id: payment.streamId })
-            .execute();
+        if (payment.paymentIntervalId) {
+            clearInterval(payment.paymentIntervalId);
+            dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
+        }
+        if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
+            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
+        }
+        try {
+            db.streamBuilder()
+                .update()
+                .set({ partsPaid: payment.partsPaid, status: "end" })
+                .where("id = :id", { id: payment.streamId })
+                .execute();
+        } catch (e) {
+            /* istanbul ignore next */
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+        }
     };
 }
 
@@ -195,13 +213,15 @@ function startStreamPayment(streamId, forceStart = false) {
             }
             const startTime = shouldStartAt || Date.now();
             if ((payment.totalParts !== STREAM_INFINITE_TIME_VALUE
-                && payment.partsPaid + payment.partsPending >= payment.totalParts)
+                && payment.partsPaid >= payment.totalParts)
                 || payment.status === types.STREAM_PAYMENT_FINISHED) {
                 dispatch(finishStreamPayment(streamId));
                 return;
             }
             /* istanbul ignore next */
-            if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
+            if ((payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+                && payment.partsPaid + payment.partsPending >= payment.totalParts)
+                || payment.status === types.STREAM_PAYMENT_PAUSED) {
                 dispatch(pauseStreamPayment(streamId));
                 return;
             }
@@ -287,15 +307,25 @@ function startStreamPayment(streamId, forceStart = false) {
             return;
         }
         dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
-        db.streamBuilder()
-            .update()
-            .set({ partsPaid: payment.partsPaid, status: "run" })
-            .where("id = :id", { id: payment.streamId })
-            .execute();
+        try {
+            db.streamBuilder()
+                .update()
+                .set({ partsPaid: payment.partsPaid, status: "run" })
+                .where("id = :id", { id: payment.streamId })
+                .execute();
+        } catch (e) {
+            /* istanbul ignore next */
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+        }
+        // If last payment was less time ago than the delay then wait for that time difference
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
         if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {
             await Timeout(payment.delay - timeSinceLastPayment);
         }
+        // If last payment was in range from 1x to 2x delay then:
+        // We count previos payment as "borrowed" and make that payment as it was on 1x delay mark,
+        // afterwards we wait till 2x delay position(which equals normal 2nd payment as it was on sheldule)
+        // and make next payment
         const borrowTime =
             payment.lastPayment !== 0
                 && timeSinceLastPayment < payment.delay * 2
