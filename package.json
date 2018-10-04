@@ -1,6 +1,6 @@
 {
   "name": "lightning-peach-wallet",
-  "version": "0.1.0-testnet",
+  "version": "0.2.0-testnet",
   "main": "main.js",
   "license": "MIT",
   "description": "LightningPeach wallet",
