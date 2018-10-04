@@ -70,13 +70,13 @@ class RegistrationForm extends PureComponent {
         const response = await dispatch(operations.regStartLnd(username));
         if (!response.ok) {
             this.setState({ processing: false });
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         const seed = await dispatch(lndOperations.getSeed());
         this.setState({ processing: false });
         if (!seed.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         onValid({ password, seed: seed.response.seed });
@@ -100,7 +100,7 @@ class RegistrationForm extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.username)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -137,7 +137,7 @@ class RegistrationForm extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.password)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.password)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

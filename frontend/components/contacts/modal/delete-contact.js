@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, logger } from "additional";
+import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
     contactsActions as actions,
@@ -39,13 +39,16 @@ class DeleteContact extends Component {
                     callback: () => dispatch(operations.openDeleteContactModal()),
                     label: "Retry",
                 },
-                message: response.error,
+                message: helpers.formatNotificationMessage(response.error),
             }));
         }
 
         dispatch(actions.setCurrentContact(null));
         dispatch(operations.getContacts());
-        dispatch(info({ message: <span>Contact <strong>{currentContact.name}</strong> deleted</span> }));
+        const message = (<span>Contact <strong>{currentContact.name}</strong> deleted</span>);
+        dispatch(info({
+            message: helpers.formatNotificationMessage(message),
+        }));
     };
 
     render() {

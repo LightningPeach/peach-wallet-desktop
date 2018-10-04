@@ -36,7 +36,7 @@ class Modal extends Component {
                             {this.props.titleTooltip &&
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.props.titleTooltip)}
+                                overlay={helpers.formatMultilineText(this.props.titleTooltip)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

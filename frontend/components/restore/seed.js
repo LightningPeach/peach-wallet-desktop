@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { push } from "react-router-redux";
 import { error } from "modules/notifications";
@@ -35,7 +35,7 @@ class Seed extends Component {
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({
-                message: init.error,
+                message: helpers.formatNotificationMessage(init.error),
             }));
             return;
         }

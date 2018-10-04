@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { accountOperations, accountTypes } from "modules/account";
 import {
@@ -243,7 +243,7 @@ class RecurringPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         dispatch(streamOperations.openStreamPaymentDetailsModal());

@@ -38,7 +38,7 @@ class SubHeader extends PureComponent {
                                 <div className="balance__row">
                                     <Tooltip
                                         placement="right"
-                                        overlay={helpers.formatTooltips(this.lockedBalance)}
+                                        overlay={helpers.formatMultilineText(this.lockedBalance)}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />

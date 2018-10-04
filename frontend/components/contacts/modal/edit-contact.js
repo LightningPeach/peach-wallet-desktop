@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators, logger } from "additional";
+import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
     contactsActions as actions,
@@ -31,7 +31,7 @@ class EditContact extends Component {
                 callback: () => dispatch(operations.openNewContactModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -82,8 +82,14 @@ class EditContact extends Component {
         dispatch(actions.setCurrentContact(null));
         dispatch(actions.prepareNewContact(null));
         dispatch(operations.getContacts());
+        const message = (
+            <span>Contact&nbsp;
+                <strong>
+                    {currentContact.name}
+                </strong> renamed to <strong>{name}</strong>
+            </span>);
         dispatch(info({
-            message: <span>Contact <strong>{currentContact.name}</strong> renamed to <strong>{name}</strong></span>,
+            message: helpers.formatNotificationMessage(message),
         }));
     };
 

@@ -61,7 +61,7 @@ class SeedVerify extends PureComponent {
             this.setState({ processing: false });
         }
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         dispatch(push(GuidePath));
@@ -103,7 +103,7 @@ class SeedVerify extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.verifySeed)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.verifySeed)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

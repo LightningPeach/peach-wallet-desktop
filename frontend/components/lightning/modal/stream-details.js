@@ -90,7 +90,7 @@ class StreamDetails extends Component {
                                     Transaction fee
                                     <Tooltip
                                         placement="right"
-                                        overlay={helpers.formatTooltips(this.state.tooltips.fee)}
+                                        overlay={helpers.formatMultilineText(this.state.tooltips.fee)}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />

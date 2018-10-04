@@ -101,7 +101,7 @@ registerIpc("logout", async () => this.shutdown());
 registerIpc("checkUser", async (event, arg) => {
     const exists = await helpers.checkDir(path.join(settings.get.dataPath, arg.username, "data"));
     if (!exists.ok) {
-        exists.error = "User doesn't exist";
+        exists.error = "User doesn't exist.";
     }
     return exists;
 });

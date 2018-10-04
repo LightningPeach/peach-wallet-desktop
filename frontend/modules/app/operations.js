@@ -74,7 +74,7 @@ function copyToClipboard(data, message = "") {
         }
         document.body.removeChild(textArea);
         dispatch(info({
-            message: newMsg || "Copied",
+            message: helpers.formatNotificationMessage(newMsg || "Copied"),
             uid: newMsg.toString() || "Copied",
         }));
     };
@@ -180,7 +180,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
     const parsed = urlParse(status);
     const paymentRequest = parsed.hostname || parsed.pathname;
     if (parsed.protocol !== "lightning:") {
-        store.dispatch(error({ message: "Incorrect payment protocol" }));
+        store.dispatch(error({ message: helpers.formatNotificationMessage("Incorrect payment protocol") }));
         return;
     }
     store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));

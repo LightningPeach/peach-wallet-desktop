@@ -57,7 +57,7 @@ class Login extends Component {
         const { dispatch } = this.props;
         const handleError = (msg) => {
             this.setState({ processing: false });
-            dispatch(error({ message: msg }));
+            dispatch(error({ message: helpers.formatNotificationMessage(msg) }));
         };
         const username = this.username.value.trim();
         const password = this.password.value.trim();
@@ -127,7 +127,7 @@ class Login extends Component {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.username)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -210,7 +210,7 @@ class Login extends Component {
                             </button>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.recover_wallet)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.recover_wallet)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

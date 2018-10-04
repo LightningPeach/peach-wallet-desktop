@@ -41,7 +41,7 @@ class SeedDisplay extends PureComponent {
         const { dispatch, onReload } = this.props;
         const response = await dispatch(lndOperations.getSeed());
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         onReload(response.response.seed);
@@ -61,7 +61,7 @@ class SeedDisplay extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="bottom"
-                                overlay={helpers.formatTooltips(this.state.tooltips.seedWords)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.seedWords)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

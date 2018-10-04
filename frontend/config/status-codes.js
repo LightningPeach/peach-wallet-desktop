@@ -102,8 +102,10 @@ const EXCEPTION_RECURRING_FEQUENCY_IS_ZERO = "Frequency must be greater than 0."
 // Recurring payment error deadline exceeded;
 const EXCEPTION_RECURRING_TIMEOUT = "Recurring payment: deadline exceeded.";
 // Recurring payment no funds for next payment;
-const EXCEPTION_RECURRING_NO_FUNDS =
-    (<span>Insufficient funds on Lightning balance.<br />Please, open new channel to process payment.</span>);
+const EXCEPTION_RECURRING_NO_FUNDS = [
+    "Insufficient funds on Lightning balance.",
+    "Please, open new channel to process payment.",
+];
 
 // TRANSACITONS
 // Empty recurring payment details

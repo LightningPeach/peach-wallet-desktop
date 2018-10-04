@@ -173,13 +173,13 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId, forceStart = false) {
     return async (dispatch, getState) => {
         let errorShowed = false;
-        const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT, format = true) => {
+        const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT, helper = true) => {
             dispatch(pauseStreamPayment(streamId));
             if (!errorShowed) {
                 const { isLogined, isLogouting } = getState().account;
                 if (isLogined && !isLogouting) {
                     dispatch(error({
-                        message: format ? helpers.formatLndErrorRetryMessage(err) : err,
+                        message: helpers.formatNotificationMessage(err, helper),
                         uid: "stream_error",
                     }));
                 }

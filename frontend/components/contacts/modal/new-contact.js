@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import * as statusCodes from "config/status-codes";
@@ -33,7 +33,7 @@ class NewContact extends Component {
                 callback: () => dispatch(operations.openNewContactModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -82,7 +82,9 @@ class NewContact extends Component {
         dispatch(actions.prepareNewContact(null));
         dispatch(actions.newContactAdded(name));
         dispatch(operations.getContacts());
-        dispatch(info({ message: <span>Contact <strong>{name}</strong> added</span> }));
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Contact <strong>{name}</strong> added</span>),
+        }));
     };
 
     render() {

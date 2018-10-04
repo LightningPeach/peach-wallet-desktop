@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators, logger } from "additional";
+import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
@@ -32,7 +32,7 @@ class EditChannel extends Component {
                 callback: () => dispatch(operations.openNewChannelModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 

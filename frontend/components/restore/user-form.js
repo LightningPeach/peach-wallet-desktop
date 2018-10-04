@@ -67,7 +67,7 @@ class UserForm extends Component {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.username)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

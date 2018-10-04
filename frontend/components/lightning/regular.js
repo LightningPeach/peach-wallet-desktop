@@ -103,7 +103,7 @@ class RegularPayment extends Component {
             }
         }
         if (injectExternal) {
-            dispatch(error({ message: "Incorrect payment request" }));
+            dispatch(error({ message: helpers.formatNotificationMessage("Incorrect payment request") }));
             dispatch(lightningActions.setExternalPaymentRequest(null));
             newValue = "";
             this.toField.reset();
@@ -171,7 +171,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error, true) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -222,7 +222,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error, true) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
