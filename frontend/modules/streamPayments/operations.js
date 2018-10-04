@@ -306,20 +306,22 @@ function startStreamPayment(streamId, forceStart = false) {
             || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)
             || (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts)
-            || payment.paymentIntervalId
+            || payment.paymentIntervalId !== null
         ) {
             return;
         }
-        dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
-        try {
-            db.streamBuilder()
-                .update()
-                .set({ partsPaid: payment.partsPaid, status: "run" })
-                .where("id = :id", { id: payment.streamId })
-                .execute();
-        } catch (e) {
-            /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+        if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
+            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
+            try {
+                db.streamBuilder()
+                    .update()
+                    .set({ partsPaid: payment.partsPaid, status: "run" })
+                    .where("id = :id", { id: payment.streamId })
+                    .execute();
+            } catch (e) {
+                /* istanbul ignore next */
+                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            }
         }
         // If last payment was less time ago than the delay then wait for that time difference
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
@@ -344,7 +346,7 @@ function startStreamPayment(streamId, forceStart = false) {
         if (payment
             && (payment.totalParts === STREAM_INFINITE_TIME_VALUE
                 || payment.partsPaid + payment.partsPending < payment.totalParts)
-            && !payment.paymentIntervalId
+            && payment.paymentIntervalId === null
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
             const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
@@ -366,6 +368,7 @@ function loadStreams() {
                     ...item,
                     contact_name: "",
                     partsPending: 0,
+                    paymentIntervalId: null,
                     status: item.status === "run" ? types.STREAM_PAYMENT_STREAMING : types.STREAM_PAYMENT_PAUSED,
                     streamId: item.id,
                     uuid: item.id,

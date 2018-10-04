@@ -772,6 +772,7 @@ describe("Account Unit Tests", () => {
                 fakeApp.usdBtcRate.returns(fakeDispatchReturnSuccess);
                 fakeStreamOperations = sandbox.stub(streamPaymentOperations);
                 fakeStreamOperations.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+                fakeStreamOperations.loadStreams.returns(fakeDispatchReturnSuccess);
                 fakeLightning = sandbox.stub(lightningOperations);
                 fakeLightning.getHistory.returns(fakeDispatchReturnSuccess);
                 fakeLightning.subscribeInvoices.returns(fakeDispatchReturnSuccess);
@@ -783,6 +784,12 @@ describe("Account Unit Tests", () => {
                 fakeOnchain = sandbox.stub(onChainOperations);
                 fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
+                window.ipcClient
+                    .withArgs("listChannels")
+                    .returns({
+                        ok: false,
+                        error: "foo",
+                    });
             });
 
             it("error lndSync", async () => {
@@ -1008,13 +1015,18 @@ describe("Account Unit Tests", () => {
                         payload: [{ address: data.new_adress }],
                         type: types.ADD_BITCOIN_ACCOUNT,
                     },
+                    {
+                        payload: "foo",
+                        type: types.ERROR_CHECK_BALANCE,
+                    },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(4);
+                expect(window.ipcClient).to.be.callCount(5);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("newAddress");
+                expect(window.ipcClient).to.be.calledWith("listChannels");
                 expect(fakeOnchain.subscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;
@@ -1023,6 +1035,7 @@ describe("Account Unit Tests", () => {
                 expect(fakeChannels.shouldShowCreateTutorial).to.be.calledOnce;
                 expect(fakeChannels.shouldShowLightningTutorial).to.be.calledOnce;
                 expect(fakeApp.usdBtcRate).to.be.calledOnce;
+                expect(fakeStreamOperations.loadStreams).to.be.calledOnce;
             });
         });
 

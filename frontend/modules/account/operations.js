@@ -50,6 +50,38 @@ function openSystemNotificationsModal() {
     return dispatch => dispatch(appActions.setModalState(accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS));
 }
 
+function checkBalance() {
+    return async (dispatch, getState) => {
+        const responseChannels = await window.ipcClient("listChannels");
+        if (!responseChannels.ok) {
+            dispatch(accountActions.errorCheckBalance(responseChannels.error));
+            return unsuccessPromise(checkBalance);
+        }
+        let lightningBalance = 0;
+        const { channels } = responseChannels.response;
+        channels.forEach((channel) => {
+            if (!channel.local_balance) {
+                return;
+            }
+            lightningBalance += parseInt(channel.local_balance, 10);
+        });
+        const responseWallet = await window.ipcClient("walletBalance");
+        if (!responseWallet.ok) {
+            dispatch(accountActions.errorCheckBalance(responseWallet.error));
+            return unsuccessPromise(checkBalance);
+        }
+        const bitcoinBalance = parseInt(responseWallet.response.confirmed_balance, 10);
+        const unConfirmedBitcoinBalance = parseInt(responseWallet.response.unconfirmed_balance, 10);
+        const lBalanceEqual = getState().account.lightningBalance === lightningBalance;
+        const bBalanceEqual = getState().account.bitcoinBalance === bitcoinBalance;
+        const ubBalanceEqual = getState().account.unConfirmedBitcoinBalance === unConfirmedBitcoinBalance;
+        if (!lBalanceEqual || !bBalanceEqual || !ubBalanceEqual) {
+            dispatch(accountActions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
+        }
+        return successPromise();
+    };
+}
+
 function createNewBitcoinAccount() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("newAddress");
@@ -234,6 +266,11 @@ function initAccount(login, newAccount = false) {
             dispatch(createNewBitcoinAccount()),
             dispatch(loadAccountSettings()),
         ]);
+        console.log("SOME");
+        await dispatch(checkBalance());
+        console.log("SOME");
+        await dispatch(streamPaymentOperations.loadStreams());
+        console.log("SOME");
         return successPromise();
     };
 }
@@ -366,38 +403,6 @@ function checkAmount(amount, type = "lightning") {
             return statusCodes.EXCEPTION_AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
         }
         return null;
-    };
-}
-
-function checkBalance() {
-    return async (dispatch, getState) => {
-        const responseChannels = await window.ipcClient("listChannels");
-        if (!responseChannels.ok) {
-            dispatch(accountActions.errorCheckBalance(responseChannels.error));
-            return unsuccessPromise(checkBalance);
-        }
-        let lightningBalance = 0;
-        const { channels } = responseChannels.response;
-        channels.forEach((channel) => {
-            if (!channel.local_balance) {
-                return;
-            }
-            lightningBalance += parseInt(channel.local_balance, 10);
-        });
-        const responseWallet = await window.ipcClient("walletBalance");
-        if (!responseWallet.ok) {
-            dispatch(accountActions.errorCheckBalance(responseWallet.error));
-            return unsuccessPromise(checkBalance);
-        }
-        const bitcoinBalance = parseInt(responseWallet.response.confirmed_balance, 10);
-        const unConfirmedBitcoinBalance = parseInt(responseWallet.response.unconfirmed_balance, 10);
-        const lBalanceEqual = getState().account.lightningBalance === lightningBalance;
-        const bBalanceEqual = getState().account.bitcoinBalance === bitcoinBalance;
-        const ubBalanceEqual = getState().account.unConfirmedBitcoinBalance === unConfirmedBitcoinBalance;
-        if (!lBalanceEqual || !bBalanceEqual || !ubBalanceEqual) {
-            dispatch(accountActions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
-        }
-        return successPromise();
     };
 }
 

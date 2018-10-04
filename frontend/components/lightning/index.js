@@ -41,7 +41,6 @@ class Lightning extends Component {
     componentWillMount() {
         const { dispatch } = this.props;
         dispatch(operations.getHistory());
-        dispatch(streamOperations.loadStreams());
         dispatch(channelsOperations.getChannels());
     }
 
