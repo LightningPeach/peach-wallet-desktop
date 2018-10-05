@@ -62,7 +62,7 @@ class Agreement extends Component {
                         <Legal />
                     </div>
                 </div>
-                <form className="row form-row agreement__form" onSubmit={this.process}>
+                <form className="row agreement__form" onSubmit={this.process}>
                     <div className="col-xs-12">
                         <label className="form-checkbox label_line pull-left js-agreement">
                             <input id="eula-agreement-checkbox" name="eula" type="checkbox" onChange={this.onChange} />

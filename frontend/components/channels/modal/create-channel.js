@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
@@ -50,7 +50,7 @@ class CreateChannel extends Component {
                 callback: () => dispatch(operations.openNewChannelModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -141,7 +141,9 @@ class CreateChannel extends Component {
             return;
         }
         dispatch(operations.getChannels());
-        dispatch(info({ message: <span>Channel <strong>{name}</strong> added</span> }));
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Channel <strong>{name}</strong> added</span>),
+        }));
     };
 
     render() {
@@ -161,7 +163,7 @@ class CreateChannel extends Component {
             <Modal title="Create channel" onClose={this.closeModal} titleTooltip={this.state.tooltips.createChannel}>
                 <form onSubmit={this.addChannel}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <Checkbox
                                     text="Custom channel"
@@ -192,7 +194,7 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__amount">Amount in {bitcoinMeasureType} *</label>
@@ -216,7 +218,7 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.amountError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__lightningId">

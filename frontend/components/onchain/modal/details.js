@@ -108,7 +108,7 @@ class OnChainDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd satoshi={(sendCoinsDetails.amount + this.props.fee)} />
+                                <BtcToUsd amount={(sendCoinsDetails.amount + this.props.fee)} />
                             </div>
                         </div>
                     </div>

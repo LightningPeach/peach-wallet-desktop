@@ -15,10 +15,12 @@ import {
     successPromise,
     unsuccessPromise,
     logger,
+    delay,
 } from "additional";
 import {
     MAX_PAYMENT_REQUEST,
     ALL_MEASURES,
+    LOGOUT_ACCOUNT_TIMEOUT,
 } from "config/consts";
 import * as statusCodes from "config/status-codes";
 
@@ -46,6 +48,38 @@ window.ipcRenderer.on("lis-down", () => {
 
 function openSystemNotificationsModal() {
     return dispatch => dispatch(appActions.setModalState(accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+}
+
+function checkBalance() {
+    return async (dispatch, getState) => {
+        const responseChannels = await window.ipcClient("listChannels");
+        if (!responseChannels.ok) {
+            dispatch(accountActions.errorCheckBalance(responseChannels.error));
+            return unsuccessPromise(checkBalance);
+        }
+        let lightningBalance = 0;
+        const { channels } = responseChannels.response;
+        channels.forEach((channel) => {
+            if (!channel.local_balance) {
+                return;
+            }
+            lightningBalance += parseInt(channel.local_balance, 10);
+        });
+        const responseWallet = await window.ipcClient("walletBalance");
+        if (!responseWallet.ok) {
+            dispatch(accountActions.errorCheckBalance(responseWallet.error));
+            return unsuccessPromise(checkBalance);
+        }
+        const bitcoinBalance = parseInt(responseWallet.response.confirmed_balance, 10);
+        const unConfirmedBitcoinBalance = parseInt(responseWallet.response.unconfirmed_balance, 10);
+        const lBalanceEqual = getState().account.lightningBalance === lightningBalance;
+        const bBalanceEqual = getState().account.bitcoinBalance === bitcoinBalance;
+        const ubBalanceEqual = getState().account.unConfirmedBitcoinBalance === unConfirmedBitcoinBalance;
+        if (!lBalanceEqual || !bBalanceEqual || !ubBalanceEqual) {
+            dispatch(accountActions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
+        }
+        return successPromise();
+    };
 }
 
 function createNewBitcoinAccount() {
@@ -150,7 +184,7 @@ function logout(keepModalState = false) {
             return unsuccessPromise(logout);
         }
         dispatch(accountActions.startLogout());
-        await dispatch(streamPaymentOperations.pauseAllStream());
+        await dispatch(streamPaymentOperations.pauseAllStreams(false));
         if (getState().account.serverSocket) {
             try {
                 getState()
@@ -163,6 +197,10 @@ function logout(keepModalState = false) {
         }
         await dispatch(onChainOperations.unSubscribeTransactions());
         await dispatch(lightningOperations.unSubscribeInvoices());
+        // Wait for some time to finish send data through rpc
+        // Bug reason: prevent channel closing from our side after
+        // lnd stop while sending data of outgoing lightning payment
+        await delay(LOGOUT_ACCOUNT_TIMEOUT);
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
         dispatch(accountActions.logoutAcount(keepModalState));
@@ -193,10 +231,6 @@ function initAccount(login, newAccount = false) {
         tempNewAcc = false;
         response = await window.ipcClient("startLis");
         logger.log("LIS start");
-        if (!response.ok) {
-            return handleError(dispatch, getState, response.error);
-        }
-        response = await window.ipcClient("startStreamManager");
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
@@ -232,6 +266,11 @@ function initAccount(login, newAccount = false) {
             dispatch(createNewBitcoinAccount()),
             dispatch(loadAccountSettings()),
         ]);
+        console.log("SOME");
+        await dispatch(checkBalance());
+        console.log("SOME");
+        await dispatch(streamPaymentOperations.loadStreams());
+        console.log("SOME");
         return successPromise();
     };
 }
@@ -327,7 +366,7 @@ function checkLightningID(lightningID) {
 function checkAmount(amount, type = "lightning") {
     return (dispatch, getState) => {
         const {
-            lightningBalance, bitcoinBalance, bitcoinMeasureType, maximumPayment,
+            lightningBalance, bitcoinBalance, bitcoinMeasureType,
         } = getState().account;
         const { fee } = getState().onchain;
 
@@ -359,55 +398,11 @@ function checkAmount(amount, type = "lightning") {
 
         if (satoshiAmount > lightningBalance) {
             return statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
-        } else if (satoshiAmount > maximumPayment || satoshiAmount > MAX_PAYMENT_REQUEST) {
-            const capa = satoshiAmount > MAX_PAYMENT_REQUEST ? MAX_PAYMENT_REQUEST : maximumPayment;
-            const capacity = dispatch(appOperations.convertSatoshiToCurrentMeasure(capa));
+        } else if (satoshiAmount > MAX_PAYMENT_REQUEST) {
+            const capacity = dispatch(appOperations.convertSatoshiToCurrentMeasure(MAX_PAYMENT_REQUEST));
             return statusCodes.EXCEPTION_AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
         }
         return null;
-    };
-}
-
-function checkBalance() {
-    return async (dispatch, getState) => {
-        const responseChannels = await window.ipcClient("listChannels");
-        if (!responseChannels.ok) {
-            dispatch(accountActions.errorCheckBalance(responseChannels.error));
-            return unsuccessPromise(checkBalance);
-        }
-        let lightningBalance = 0;
-        let maximumCapacity = 0;
-        const { channels } = responseChannels.response;
-        channels.forEach((channel) => {
-            if (!channel.local_balance) {
-                return;
-            }
-            lightningBalance += parseInt(channel.local_balance, 10);
-            if (maximumCapacity < channel.local_balance) {
-                maximumCapacity = parseInt(channel.local_balance, 10);
-                // TODO maybe local problem, if all bad on server increase 1% to 1.1%
-                // if reserve 1% of channel capacity, payment with remaining balance can't be sent 'cause of
-                // "unable to route payment to destination: TemporaryChannelFailure"
-                maximumCapacity -= (parseInt(channel.capacity, 10)) / 100;
-            }
-        });
-        if (getState().account.maximumPayment !== maximumCapacity) {
-            dispatch(accountActions.setMaximumPayment(maximumCapacity));
-        }
-        const responseWallet = await window.ipcClient("walletBalance");
-        if (!responseWallet.ok) {
-            dispatch(accountActions.errorCheckBalance(responseWallet.error));
-            return unsuccessPromise(checkBalance);
-        }
-        const bitcoinBalance = parseInt(responseWallet.response.confirmed_balance, 10);
-        const unConfirmedBitcoinBalance = parseInt(responseWallet.response.unconfirmed_balance, 10);
-        const lBalanceEqual = getState().account.lightningBalance === lightningBalance;
-        const bBalanceEqual = getState().account.bitcoinBalance === bitcoinBalance;
-        const ubBalanceEqual = getState().account.unConfirmedBitcoinBalance === unConfirmedBitcoinBalance;
-        if (!lBalanceEqual || !bBalanceEqual || !ubBalanceEqual) {
-            dispatch(accountActions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
-        }
-        return successPromise();
     };
 }
 

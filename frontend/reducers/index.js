@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
 import { routerReducer } from "react-router-redux";
+import { NODE_ENV } from "config/node-settings";
 import accountReducer from "modules/account/reducers";
 import authReducer from "modules/auth/reducers";
 import lndReducer from "modules/lnd/reducers";
@@ -11,7 +12,12 @@ import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
 
-export default combineReducers({
+const testReducer = NODE_ENV === "test"
+    ? { lastAction: (state = null, action) => action }
+    : {};
+
+const combinedReducer = {
+    ...testReducer,
     account: accountReducer,
     app: appReducer,
     auth: authReducer,
@@ -23,4 +29,6 @@ export default combineReducers({
     onchain: onChainReducer,
     routing: routerReducer,
     streamPayment: streamPaymentReducer,
-});
+};
+
+export default combineReducers(combinedReducer);

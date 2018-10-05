@@ -181,14 +181,13 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: "Incorrect payment protocol",
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
                     },
                 ];
                 const storeActions = store.getActions();
-                storeActions[0].payload = omit(storeActions[0].payload, "uid");
+                storeActions[0].payload = omit(storeActions[0].payload, ["uid", "message"]);
                 expect(storeActions).to.deep.equal(expectedActions);
             });
 
@@ -357,7 +356,6 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 5,
                             level: "info",
-                            message: "Error while copying to clipboard",
                             position: "bc",
                             uid: "Error while copying to clipboard",
                         },
@@ -365,7 +363,9 @@ describe("App Unit Tests", () => {
                     },
                 ];
                 store.dispatch(operations.copyToClipboard(data.value, data.msg));
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "message");
+                expect(storeActions).to.deep.equal(expectedActions);
             });
 
             it("success with empty msg", () => {
@@ -375,7 +375,6 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 5,
                             level: "info",
-                            message: "Copied",
                             position: "bc",
                             uid: "Copied",
                         },
@@ -383,7 +382,9 @@ describe("App Unit Tests", () => {
                     },
                 ];
                 store.dispatch(operations.copyToClipboard(data.value));
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "message");
+                expect(storeActions).to.deep.equal(expectedActions);
                 expect(document.execCommand).to.be.calledOnce;
                 expect(document.execCommand).to.be.calledWith(data.execCommand);
                 document.execCommand = undefined;
@@ -396,7 +397,6 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 5,
                             level: "info",
-                            message: "Copy notification msg",
                             position: "bc",
                             uid: "Copy notification msg",
                         },
@@ -404,11 +404,32 @@ describe("App Unit Tests", () => {
                     },
                 ];
                 store.dispatch(operations.copyToClipboard(data.value, data.msg));
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "message");
+                expect(storeActions).to.deep.equal(expectedActions);
                 expect(document.execCommand).to.be.calledOnce;
                 expect(document.execCommand).to.be.calledWith(data.execCommand);
                 document.execCommand = undefined;
             });
+        });
+
+        it("convertUsdToSatoshi()", () => {
+            initState.app.usdPerBtc = 100;
+            store = mockStore(initState);
+            data.value = 10;
+            expectedData = 10000000;
+            expect(store.dispatch(operations.convertUsdToSatoshi(data.value))).to.deep.equal(expectedData);
+            expect(store.getActions()).to.deep.equal(expectedActions);
+        });
+
+        it("convertUsdToCurrentMeasure()", () => {
+            initState.app.usdPerBtc = 100;
+            store = mockStore(initState);
+            data.value = 10;
+            expectedData = 100;
+            expect(Math.abs(store.dispatch(operations.convertUsdToCurrentMeasure(data.value)) - expectedData))
+                .to.be.below(1e-8);
+            expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
         it("convertToSatoshi()", () => {

@@ -9,14 +9,14 @@ import * as db from "./db";
 export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export const logger = {
-    error: (args) => {
+    error: (...args) => {
         if (NODE_ENV !== "test") {
-            console.log(args);
+            console.error(...args);
         }
     },
-    log: (args) => {
+    log: (...args) => {
         if (NODE_ENV !== "test") {
-            console.log(args);
+            console.log(...args);
         }
     },
 };

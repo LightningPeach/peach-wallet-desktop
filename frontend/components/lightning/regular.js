@@ -103,7 +103,7 @@ class RegularPayment extends Component {
             }
         }
         if (injectExternal) {
-            dispatch(error({ message: "Incorrect payment request" }));
+            dispatch(error({ message: helpers.formatNotificationMessage("Incorrect payment request") }));
             dispatch(lightningActions.setExternalPaymentRequest(null));
             newValue = "";
             this.toField.reset();
@@ -171,7 +171,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error, true) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -222,7 +222,7 @@ class RegularPayment extends Component {
         ));
         this.setState({ processing: false });
         if (!response.ok) {
-            dispatch(error({ message: helpers.formatLndErrorRetryMessage(response.error) }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error, true) }));
             return;
         }
         dispatch(lightningOperations.openPaymentDetailsModal());
@@ -233,8 +233,8 @@ class RegularPayment extends Component {
         const usdRender = amount => (
             <span className="form-usd">
                 <BtcToUsd
-                    satoshi={dispatch(appOperations.convertToSatoshi(amount))}
-                    hideBtc
+                    amount={dispatch(appOperations.convertToSatoshi(amount))}
+                    hideBase
                 />
             </span>
         );
@@ -244,7 +244,7 @@ class RegularPayment extends Component {
 
         return (
             <form
-                className="send"
+                className="send narrow"
                 onSubmit={(e) => {
                     e.preventDefault();
                     this.setState({ processing: true });
@@ -259,7 +259,7 @@ class RegularPayment extends Component {
                     this.form = el;
                 }}
             >
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="regular__name">
@@ -288,7 +288,7 @@ class RegularPayment extends Component {
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="regular__to">To</label>
@@ -308,7 +308,7 @@ class RegularPayment extends Component {
                         <ErrorFieldTooltip text={this.state.toError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="regular__amount">
@@ -346,7 +346,7 @@ class RegularPayment extends Component {
                     </div>
                     <div className="col-xs-12" />
                 </div>
-                <div className="row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12 text-right">
                         {usd}
                         <button

@@ -18,3 +18,4 @@ test/e2e/test_data/*
 *.testBackup
 .nyc_output/
 coverage/
+rpc.cert

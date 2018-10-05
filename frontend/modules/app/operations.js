@@ -2,7 +2,12 @@ import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
 import * as statusCodes from "config/status-codes";
-import { USD_PER_BTC_URL, LIGHTNING_ID_LENGTH, ONLY_LETTERS_AND_NUMBERS } from "config/consts";
+import {
+    USD_PER_BTC_URL,
+    LIGHTNING_ID_LENGTH,
+    ONLY_LETTERS_AND_NUMBERS,
+    BTC_MEASURE,
+} from "config/consts";
 import { store } from "store/configure-store";
 import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
@@ -69,7 +74,7 @@ function copyToClipboard(data, message = "") {
         }
         document.body.removeChild(textArea);
         dispatch(info({
-            message: newMsg || "Copied",
+            message: helpers.formatNotificationMessage(newMsg || "Copied"),
             uid: newMsg.toString() || "Copied",
         }));
     };
@@ -87,6 +92,22 @@ function convertSatoshiToCurrentMeasure(value) {
         const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
         const toFixed = getState().account.toFixedMeasure;
         return helpers.noExponents(parseFloat((parseInt(value, 10) * currentMultiplier).toFixed(toFixed)));
+    };
+}
+
+function convertUsdToSatoshi(amount) {
+    return (dispatch, getState) => {
+        const { usdPerBtc } = getState().app;
+        return Math.round(parseFloat(amount) / (BTC_MEASURE.multiplier * usdPerBtc));
+    };
+}
+
+function convertUsdToCurrentMeasure(amount) {
+    return (dispatch, getState) => {
+        const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
+        const toFixed = getState().account.toFixedMeasure;
+        const satoshiAmount = dispatch(convertUsdToSatoshi(amount));
+        return satoshiAmount * currentMultiplier;
     };
 }
 
@@ -159,7 +180,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
     const parsed = urlParse(status);
     const paymentRequest = parsed.hostname || parsed.pathname;
     if (parsed.protocol !== "lightning:") {
-        store.dispatch(error({ message: "Incorrect payment protocol" }));
+        store.dispatch(error({ message: helpers.formatNotificationMessage("Incorrect payment protocol") }));
         return;
     }
     store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));
@@ -175,6 +196,8 @@ export {
     usdBtcRate,
     copyToClipboard,
     convertToSatoshi,
+    convertUsdToSatoshi,
+    convertUsdToCurrentMeasure,
     convertSatoshiToCurrentMeasure,
     openForceLogoutModal,
     openDeepLinkLightningModal,

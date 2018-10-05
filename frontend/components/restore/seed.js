@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { push } from "react-router-redux";
 import { error } from "modules/notifications";
@@ -35,9 +35,7 @@ class Seed extends Component {
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({
-                autoDismiss: 5,
-                message: init.error,
-                position: "bc",
+                message: helpers.formatNotificationMessage(init.error),
             }));
             return;
         }
@@ -81,7 +79,7 @@ class Seed extends Component {
         const disabled = this.state.processing;
         return (
             <form onSubmit={this.confirm}>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="seed">Enter your seed words</label>
@@ -100,7 +98,7 @@ class Seed extends Component {
                         <ErrorFieldTooltip text={this.state.seedError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             className="button button__orange button__fullwide"

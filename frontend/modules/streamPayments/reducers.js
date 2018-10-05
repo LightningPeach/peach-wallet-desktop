@@ -13,50 +13,58 @@ const streamPaymentReducer = (state = defaultState, action) => {
     switch (action.type) {
         case accountTypes.LOGOUT_ACCOUNT:
             return defaultState;
-        case types.STREAM_PAYMENT_SUCCESS_FINISH:
-        case types.STREAM_PAYMENT_FAIL_FINISH:
+        case types.SET_STREAM_PAYMENT_STATUS:
             return {
                 ...state,
                 streams: state.streams.map(item =>
-                    item.streamId === action.payload ? { ...item, status: types.FINISHED_STREAM_PAYMENT } : item),
+                    item.streamId === action.payload.streamId
+                        ? { ...item, status: action.payload.status } : item),
             };
-        case types.SET_STREAM_PAGE:
-            return { ...state, streamId: action.payload };
-        case types.STREAM_PAYMENT_STATUS:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.streamId === action.payload.streamId ? { ...item, status: action.payload.status } : item),
-            };
-        case types.STREAM_PAYMENT_PREPARE:
+        case types.PREPARE_STREAM_PAYMENT:
             return { ...state, streamDetails: action.payload };
-        case types.STREAM_PAYMENT_UPDATE:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.streamId === action.payload.streamId ? { ...item, title: action.payload.title } : item),
-            };
-        case types.STREAM_PAYMENT_DELETE:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.streamId === action.payload ? { ...item, status: types.DELETED_STREAM_PAYMENT } : item),
-            };
-        case types.STREAM_CURRENT_SEC:
+        case types.CHANGE_STREAM_PARTS_PAID:
             return {
                 ...state,
                 streams: state.streams.map(item =>
                     (item.streamId === action.payload.streamId
-                        ? { ...item, currentPart: action.payload.currentPart } : item)),
+                        ? { ...item, partsPaid: item.partsPaid + action.payload.change } : item)),
             };
-        case types.ADD_STREAM_TO_LIST:
+        case types.CHANGE_STREAM_PARTS_PENDING:
+            return {
+                ...state,
+                streams: state.streams.map(item =>
+                    (item.streamId === action.payload.streamId
+                        ? { ...item, partsPending: item.partsPending + action.payload.change } : item)),
+            };
+        case types.ADD_STREAM_PAYMENT_TO_LIST:
             return {
                 ...state,
                 streamDetails: null,
                 streams: [...state.streams, state.streamDetails],
             };
-        case types.SET_STREAMS:
+        case types.SET_STREAM_PAYMENTS:
             return { ...state, streams: action.payload };
+        case types.SET_STREAM_PAYMENT_INTERVAL_ID:
+            return {
+                ...state,
+                streams: state.streams.map(item =>
+                    item.streamId === action.payload.streamId
+                        ? { ...item, paymentIntervalId: action.payload.paymentIntervalId } : item),
+            };
+        case types.CLEAR_STREAM_PAYMENT_INTERVAL_ID:
+            return {
+                ...state,
+                streams: state.streams.map(item =>
+                    item.streamId === action.payload
+                        ? { ...item, paymentIntervalId: null } : item),
+            };
+        case types.SET_STREAM_LAST_PAYMENT:
+            return {
+                ...state,
+                streams: state.streams.map(item =>
+                    item.streamId === action.payload.streamId
+                        ? { ...item, lastPayment: action.payload.lastPayment } : item),
+            };
         default:
             return state;
     }

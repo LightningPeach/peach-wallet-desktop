@@ -11,10 +11,18 @@ class ConfirmLogout extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            processing: false,
+            processing: this.props.isLogouting || false,
         };
 
         analytics.pageview(`${ProfileFullPath}/logout`, "Logout");
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.isLogouting !== this.props.isLogouting) {
+            this.setState({
+                processing: nextProps.isLogouting || false,
+            });
+        }
     }
 
     closeModal = () => {
@@ -28,15 +36,18 @@ class ConfirmLogout extends Component {
 
     logout = async (e) => {
         const { dispatch } = this.props;
+        if (this.state.processing) {
+            return;
+        }
         analytics.event({ action: "Logout Modal", category: "Profile", label: e.target.innerText });
         dispatch(accountOperations.logout());
     };
 
     render() {
         return (
-            <Modal title="Log out" onClose={this.closeModal}>
+            <Modal title="Log out" onClose={this.closeModal} disabled={this.state.processing}>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to log out?
                         </div>
@@ -71,6 +82,11 @@ class ConfirmLogout extends Component {
 
 ConfirmLogout.propTypes = {
     dispatch: PropTypes.func.isRequired,
+    isLogouting: PropTypes.bool,
 };
 
-export default connect(null)(ConfirmLogout);
+const mapStateToProps = state => ({
+    isLogouting: state.account.isLogouting,
+});
+
+export default connect(mapStateToProps)(ConfirmLogout);

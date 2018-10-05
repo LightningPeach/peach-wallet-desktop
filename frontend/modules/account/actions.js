@@ -186,11 +186,6 @@ const correctPaymentAmount = () => ({
     type: types.CORRECT_PAYMENT_AMOUNT,
 });
 
-const setMaximumPayment = maximumPayment => ({
-    payload: maximumPayment,
-    type: types.SET_MAXIMUM_PAYMENT,
-});
-
 const successCheckBalance = (bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance) => ({
     payload: {
         bitcoinBalance,
@@ -242,7 +237,6 @@ export {
     incorrectPaymentAmount,
     undefinedPaymentAmount,
     correctPaymentAmount,
-    setMaximumPayment,
     successCheckBalance,
     errorCheckBalance,
     setLisStatus,

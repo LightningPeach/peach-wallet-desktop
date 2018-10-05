@@ -3,6 +3,7 @@ import fetch from "isomorphic-fetch";
 import { delay, successPromise, errorPromise, logger } from "additional";
 import { store } from "store/configure-store";
 import { BLOCK_HEIGHT_URL } from "config/node-settings";
+import { LND_SYNC_TIMEOUT } from "config/consts";
 import { appOperations } from "modules/app";
 import * as actions from "./actions";
 
@@ -45,7 +46,7 @@ function waitLndSync(restoreConnection = false) {
                     }));
                 }
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
-                await delay(window.LND_SYNC_TIMEOUT); // eslint-disable-line
+                await delay(LND_SYNC_TIMEOUT); // eslint-disable-line
             } else if (!restoreConnection || tickNumber > 1) {
                 dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_FULLY_SYNCED));
             }
@@ -70,7 +71,7 @@ function checkLndSync() {
         const synced = response.response.synced_to_chain;
         dispatch(actions.setLndBlocksHeight(response.response.block_height));
         if (!synced) {
-            await delay(window.LND_SYNC_TIMEOUT);
+            await delay(LND_SYNC_TIMEOUT);
             response = await dispatch(waitLndSync(true));
             if (!response.ok) {
                 return errorPromise(response.error, checkLndSync);

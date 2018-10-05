@@ -165,7 +165,7 @@ class Profile extends Component {
                             <span className="profile__utils_btns">
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.copy)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />}
@@ -200,7 +200,7 @@ class Profile extends Component {
                             <span className="profile__utils_btns">
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.address)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.address)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />}
@@ -221,7 +221,7 @@ class Profile extends Component {
                                 </Tooltip>
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.copy)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -275,7 +275,7 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="pay_req_amount">
@@ -283,7 +283,7 @@ class Profile extends Component {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.payReq)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.payReq)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -354,7 +354,7 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="profile__currency">
@@ -407,7 +407,7 @@ class Profile extends Component {
                                 System notifications
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.systemNotifications)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.systemNotifications)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -430,7 +430,7 @@ class Profile extends Component {
                                 Sounds
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.sounds)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.sounds)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />

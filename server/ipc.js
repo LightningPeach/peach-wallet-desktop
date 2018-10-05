@@ -8,13 +8,11 @@ const baseLogger = require("./utils/logger");
 const path = require("path");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const settings = require("./settings");
-const streams = require("./ipc/streams-manager");
 
 const logger = baseLogger.child("ipc");
 const grpcStatus = require("grpc").status;
 
 const lnd = new Lnd();
-let streamsManager = null;
 
 registerIpc("validateBinaries", async () => ({ ok: true }));
 
@@ -72,12 +70,6 @@ registerIpc("startLis", async (event, arg) => {
     return { ok: true };
 });
 
-registerIpc("startStreamManager", () => {
-    streamsManager = streams();
-    streamsManager.init();
-    return { ok: true };
-});
-
 /**
  * Create user lnd folder
  */
@@ -109,7 +101,7 @@ registerIpc("logout", async () => this.shutdown());
 registerIpc("checkUser", async (event, arg) => {
     const exists = await helpers.checkDir(path.join(settings.get.dataPath, arg.username, "data"));
     if (!exists.ok) {
-        exists.error = "User doesn't exist";
+        exists.error = "User doesn't exist.";
     }
     return exists;
 });
@@ -126,7 +118,11 @@ registerIpc("listInvoices", async () => lnd.call("listInvoices"));
 
 registerIpc("listFailedPayments", async () => lnd.call("listFailedPayments"));
 
-registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(arg.value, arg.lightning_id));
+registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(
+    arg.value,
+    arg.lightning_id,
+    arg.memo,
+));
 
 registerIpc("addInvoice", async (event, arg) => lnd.call("addInvoice", arg));
 
@@ -304,7 +300,7 @@ registerIpc("clearLndData", async () => {
 });
 
 /**
- * Clear all streams calls, db connection, stopping lnd && lis
+ * Clear db connection, stopping lnd && lis
  * @return {Promise<{ok: boolean}>}
  */
 module.exports.shutdown = async () => {
@@ -314,10 +310,6 @@ module.exports.shutdown = async () => {
         }
         if (subscribeInvoicesCall) {
             subscribeInvoicesCall.stream.cancel();
-        }
-        if (streamsManager) {
-            await streamsManager.shutdown();
-            streamsManager = null;
         }
         await localInvoiceServer.closeConnection();
         await lnd.stop();

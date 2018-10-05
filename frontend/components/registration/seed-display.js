@@ -41,7 +41,7 @@ class SeedDisplay extends PureComponent {
         const { dispatch, onReload } = this.props;
         const response = await dispatch(lndOperations.getSeed());
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         onReload(response.response.seed);
@@ -53,7 +53,7 @@ class SeedDisplay extends PureComponent {
                 <div className="home__title">
                     Sign up and start working with LightningPeach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="seed">
@@ -61,7 +61,7 @@ class SeedDisplay extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="bottom"
-                                overlay={helpers.formatTooltips(this.state.tooltips.seedWords)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.seedWords)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -86,7 +86,7 @@ class SeedDisplay extends PureComponent {
                         />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

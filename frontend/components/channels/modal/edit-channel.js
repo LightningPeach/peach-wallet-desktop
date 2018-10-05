@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
@@ -32,7 +32,7 @@ class EditChannel extends Component {
                 callback: () => dispatch(operations.openNewChannelModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -85,7 +85,7 @@ class EditChannel extends Component {
             bitcoinMeasureType, toCurMeasure, currentChannel,
         } = this.props;
         if (!currentChannel) {
-            console.log("Cant show Edit channel cause currentChannel not provided");
+            logger.log("Cant show Edit channel cause currentChannel not provided");
             return null;
         }
         return (
@@ -115,7 +115,7 @@ class EditChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row form-row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__amount">Amount in {bitcoinMeasureType}</label>
@@ -131,7 +131,7 @@ class EditChannel extends Component {
                                 />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row form-row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__lightningId">Lightning address</label>

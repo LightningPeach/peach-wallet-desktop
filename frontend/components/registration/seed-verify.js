@@ -61,7 +61,7 @@ class SeedVerify extends PureComponent {
             this.setState({ processing: false });
         }
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         dispatch(push(GuidePath));
@@ -95,7 +95,7 @@ class SeedVerify extends PureComponent {
                 <div className="home__title">
                     Sign up and start working with LightningPeach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="verify-seed">
@@ -103,7 +103,7 @@ class SeedVerify extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.verifySeed)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.verifySeed)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -132,7 +132,7 @@ class SeedVerify extends PureComponent {
                         <ErrorFieldTooltip text={this.state.seedError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

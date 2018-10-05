@@ -1,3 +1,4 @@
+import React from "react";
 import {
     USERNAME_MAX_LENGTH,
     MIN_PASS_LENGTH,
@@ -79,24 +80,36 @@ const EXCEPTION_USERNAME_EXISTS = "User already exist.";
 
 // ACCOUNT
 // Account not connected to kernel
-const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND";
+const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND.";
 
 // REMOTE ACTIONS
 // Invalid reponse upon remote invoice add
-const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline";
+const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline.";
 
 // CHANNELS
 // No channel upon set channel event
-const EXCEPTION_CHANNEL_ABSENT = "There is no such channel";
+const EXCEPTION_CHANNEL_ABSENT = "There is no such channel.";
 // Attempt to create channel - channel with such name already exists
 const EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS = "Unable to create channel. This name already exists.";
 // Attempt to edit channel - channel with such name already exists
 const EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS = "Unable to edit channel. This name already exists.";
 
+// RECURRING PAYMENTS
+// Stream not found in store
+const EXCEPTION_RECURRING_NOT_IN_STORE = "Recurring Payment not found in store.";
+// Frequency is 0
+const EXCEPTION_RECURRING_FEQUENCY_IS_ZERO = "Frequency must be greater than 0.";
+// Recurring payment error deadline exceeded;
+const EXCEPTION_RECURRING_TIMEOUT = "Recurring payment: deadline exceeded.";
+// Recurring payment no funds for next payment;
+const EXCEPTION_RECURRING_NO_FUNDS = [
+    "Insufficient funds on Lightning balance.",
+    "Please, open new channel to process payment.",
+];
 
 // TRANSACITONS
-// Empty stream details
-const EXCEPTION_STREAM_DETAILS_REQUIRED = "There are no stream details";
+// Empty recurring payment details
+const EXCEPTION_RECURRING_DETAILS_REQUIRED = "There are no recurring payment details.";
 // Empty send coin details
 const EXCEPTION_SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty";
 // PD: Amount is less than fee for operation
@@ -163,7 +176,8 @@ export {
     EXCEPTION_PASSWORD_SEED_COUNT_MISMATCH,
     EXCEPTION_PASSWORD_SEED_WRONG_FORMAT,
     EXCEPTION_PASSWORD_MISMATCH,
-    EXCEPTION_STREAM_DETAILS_REQUIRED,
+    EXCEPTION_RECURRING_DETAILS_REQUIRED,
+    EXCEPTION_RECURRING_FEQUENCY_IS_ZERO,
     EXCEPTION_SEND_COINS_DETAILS_REQUIRED,
     EXCEPTION_DB_NOT_OPENED,
     EXCEPTION_FIELD_IS_REQUIRED,
@@ -197,6 +211,9 @@ export {
     EXCEPTION_PASSWORD_DIFF,
     EXCEPTION_TIME_NEGATIVE,
     EXCEPTION_LIS_DOWN_DURING_TX,
+    EXCEPTION_RECURRING_TIMEOUT,
+    EXCEPTION_RECURRING_NO_FUNDS,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
+    EXCEPTION_RECURRING_NOT_IN_STORE,
 };

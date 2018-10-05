@@ -1,6 +1,6 @@
 {
   "name": "lightning-peach-wallet",
-  "version": "0.1.0-testnet",
+  "version": "0.2.0-testnet",
   "main": "main.js",
   "license": "MIT",
   "description": "LightningPeach wallet",
@@ -123,7 +123,7 @@
   },
   "dependencies": {
     "@exponent/electron-cookies": "^2.0.0",
-    "@journeyapps/sqlcipher": "^3.2.0",
+    "@journeyapps/sqlcipher": "^3.2.1",
     "bitcoinjs-lib": "^3.3.2",
     "body-parser": "^1.17.2",
     "convict": "^4.3.1",

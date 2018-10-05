@@ -15,7 +15,7 @@ module.exports = {
         totalParts: {
             type: "integer",
         },
-        currentPart: {
+        partsPaid: {
             type: "integer",
         },
         price: {
@@ -30,12 +30,18 @@ module.exports = {
         date: {
             type: "integer",
         },
+        lastPayment: {
+            type: "integer",
+        },
         status: {
             type: "varchar",
             default: "active",
         },
         delay: {
             type: "integer",
+        },
+        currency: {
+            type: "varchar",
         },
     },
     relations: {

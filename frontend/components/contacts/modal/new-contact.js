@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import * as statusCodes from "config/status-codes";
@@ -33,7 +33,7 @@ class NewContact extends Component {
                 callback: () => dispatch(operations.openNewContactModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -82,7 +82,9 @@ class NewContact extends Component {
         dispatch(actions.prepareNewContact(null));
         dispatch(actions.newContactAdded(name));
         dispatch(operations.getContacts());
-        dispatch(info({ message: <span>Contact <strong>{name}</strong> added</span> }));
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Contact <strong>{name}</strong> added</span>),
+        }));
     };
 
     render() {
@@ -91,7 +93,7 @@ class NewContact extends Component {
             <Modal title="Add new contact" onClose={this.closeModal}>
                 <form onSubmit={this.addContact}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">
@@ -116,7 +118,7 @@ class NewContact extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__lightning">

@@ -112,12 +112,12 @@
         border-radius: 2px;
         padding: 0 9px;
         outline: none;
-        transition: border-color .2s;
         width: 100%;
         letter-spacing: -0.5px;
         height: 40px;
         line-height: 40px;
         text-overflow: ellipsis;
+        transition: border-color 0.2s ease, background-color 0.25s ease;
 
         &[type="password"] {
             padding-top: 0;
@@ -305,33 +305,59 @@
     &-usd {
         color: $pumpkin-orange;
         font-size: 14px;
-        padding-right: 20px;
+        line-height: 40px;
+
+        & + * {
+            margin-left: 20px;
+        }
+    }
+}
+
+.check-input {
+    position: relative;
+
+    &__checkbox {
+        position: absolute;
+        right: 21px;
+        top: 11px;
+
+        .form-checkbox {
+
+            &__label {
+                padding-left: 26px;
+                line-height: 18px;
+
+                &:before {
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 3px;
+                }
+
+                &:after {
+                    width: 7px;
+                    height: 4px;
+                    top: 5px;
+                    left: 5px;
+                }
+            }
+        }
     }
 
-    &-row {
-        margin-top: 14px;
-
-        &:first-child {
-            margin-top: 0;
+    &--checked {
+        .form-text {
+            &:disabled {
+                opacity: 1;
+                background-color: rgba(0, 0, 0, 0.12);
+                border: 1px solid transparent;
+                color: rgba(0, 0, 0, 0.38);
+            }
         }
 
-        &__footer {
-            margin-top: 30px;
-        }
+        .form-checkbox {
 
-        &__close,
-        &__open {
-            overflow: hidden;
-            max-height: 150px;
-            margin-top: 0;
-            padding-top: 14px;
-            transition: max-height .3s ease-in-out, padding .3s ease-in-out;
-        }
-
-        &__close {
-            max-height: 0;
-            padding-top: 0;
-            position: relative;
+            &__label {
+                color: $pumpkin-orange;
+            }
         }
     }
 }
@@ -676,14 +702,6 @@
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
     position: absolute;
 
-    /*    &__wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }*/
-
     &__shadow {
         position: fixed;
         width: 100vw;
@@ -911,7 +929,23 @@
 }
 
 .mt {
+    &-10 {
+        margin-top: 10px;
+    }
+
     &-12 {
         margin-top: 12px;
+    }
+
+    &-14 {
+        margin-top: 14px;
+    }
+
+    &-m14 {
+        margin-top: -14px;
+    }
+
+    &-30 {
+        margin-top: 30px;
     }
 }

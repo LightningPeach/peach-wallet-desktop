@@ -189,12 +189,12 @@ function getHistory() {
     };
 }
 
-function addInvoiceRemote(lightningID, amount) {
+function addInvoiceRemote(lightningID, amount, memo = "") {
     return async (dispatch, getState) => {
         logger.log("Sending rpc");
         const response = await window.ipcClient("addInvoiceRemote", {
             lightning_id: lightningID,
-            memo: getState().account.lightningID,
+            memo: memo || getState().account.lightningID,
             value: amount.toString(),
         });
         if (!response.ok) {

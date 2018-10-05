@@ -5,8 +5,59 @@
 
     .send {
         padding-top: 23px;
-        width: 420px;
-        max-width: 100%;
+
+        &.narrow {
+            width: 420px;
+            max-width: 100%;
+        }
+
+        .connected-field {
+
+            & > :not(:last-child) {
+                padding-right: 0;
+
+                .connected-field__input,
+                .Select-control {
+                    border-bottom-right-radius: 0;
+                    border-top-right-radius: 0;
+                    border: 1px solid rgba(74,74,74,0.3);
+                    border-right: 0;
+                }
+            }
+
+            & > :not(:first-child) {
+                padding-left: 0;
+
+                .connected-field__input,
+                .Select-control {
+                    border-bottom-left-radius: 0;
+                    border-top-left-radius: 0;
+                    border: 1px solid rgba(74,74,74,0.3);
+                    border-left: 1px dashed rgba(74,74,74,0.3);
+                }
+            }
+
+            &--filled {
+                & > :not(:last-child) {
+
+                    .connected-field__input,
+                    .Select-control {
+                        border: 1px solid $black;
+                        border-right: 0;
+                    }
+                }
+
+                & > :not(:first-child) {
+                    padding-left: 0;
+
+                    .connected-field__input,
+                    .Select-control {
+                        border: 1px solid $black;
+                        border-left: 1px dashed $black;
+                    }
+                }
+            }
+        }
     }
 
     .tabs {
@@ -14,10 +65,16 @@
             min-height: 27px;
         }
         &__container {
-            width: 361px;
-            position: absolute;
-            right: 100%;
-            margin-right: -381px;
+            transition: right .2s ease-in-out, margin .2s ease-in-out;
+            max-width: 390px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+
+            &--end {
+                justify-content: flex-end;
+            }
 
             &:after {
                 content: "";
@@ -61,66 +118,32 @@
             position: absolute;
             top: 0;
             display: flex;
-            width: 420px;
+            width: 100%;
             max-width: 100%;
             height: 100%;
             align-items: center;
             font-size: 18px;
             text-align: center;
             justify-content: center;
+            opacity: 0.7;
+
+            span {
+                padding-top: 32px;
+                text-shadow: 1px 1px 1px white, -1px -1px 1px white, 1px -1px 1px white, -1px 1px 1px white;
+            }
         }
 
         &__form {
             position: relative;
 
             &--disabled {
-                opacity: .3;
                 pointer-events: none;
+                position: relative;
+
+                & > *:not(.stream__disabled) {
+                    opacity: 0.3;
+                }
             }
-        }
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .stream {
-        &__price-time {
-            padding-right: 5px;
-        }
-
-        &__time {
-            padding-left: 5px;
-        }
-    }
-}
-
-@media screen and (max-width: 406px) {
-    .tabs {
-        &__wrapper {
-            overflow: hidden;
-        }
-
-        &__container {
-            transition: right .2s ease-in-out, margin .2s ease-in-out;
-
-            &.tabs__stream {
-                right: 20px;
-                margin: 0;
-            }
-        }
-    }
-}
-
-@media screen and (max-width: 406px) {
-    .stream {
-        &__price-time {
-            width: 100%;
-            padding-right: 20px;
-        }
-
-        &__time {
-            width: 100%;
-            margin-top: 14px;
-            padding-left: 20px;
         }
     }
 }

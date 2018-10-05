@@ -21,7 +21,6 @@ export const initStateAccount = {
     lightningMeasureType: ALL_MEASURES[0].ln,
     lisStatus: types.LIS_NONE,
     login: "",
-    maximumPayment: 0,
     menuStatus: "menu-hidden",
     // TODO refactor
     newAccount: {
@@ -92,8 +91,6 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, amountStatus: "undefined", errorAmountEnter: "" };
         case types.CORRECT_PAYMENT_AMOUNT:
             return { ...state, amountStatus: "correct", errorAmountEnter: "" };
-        case types.SET_MAXIMUM_PAYMENT:
-            return { ...state, maximumPayment: action.payload };
         case types.SUCCESS_CHECK_BALANCE:
             return { ...state, ...action.payload };
         case types.SET_LIS_STATUS:

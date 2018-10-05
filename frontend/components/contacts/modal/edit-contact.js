@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators, logger } from "additional";
+import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
     contactsActions as actions,
@@ -31,7 +31,7 @@ class EditContact extends Component {
                 callback: () => dispatch(operations.openNewContactModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -82,8 +82,14 @@ class EditContact extends Component {
         dispatch(actions.setCurrentContact(null));
         dispatch(actions.prepareNewContact(null));
         dispatch(operations.getContacts());
+        const message = (
+            <span>Contact&nbsp;
+                <strong>
+                    {currentContact.name}
+                </strong> renamed to <strong>{name}</strong>
+            </span>);
         dispatch(info({
-            message: <span>Contact <strong>{currentContact.name}</strong> renamed to <strong>{name}</strong></span>,
+            message: helpers.formatNotificationMessage(message),
         }));
     };
 
@@ -97,7 +103,7 @@ class EditContact extends Component {
             <Modal title="Edit contact" onClose={this.closeModal} showCloseButton>
                 <form onSubmit={this.updateContact}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">
@@ -122,7 +128,7 @@ class EditContact extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">

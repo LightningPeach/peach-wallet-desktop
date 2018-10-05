@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import * as statusCodes from "config/status-codes";
 
 /**
@@ -87,24 +87,27 @@ const hasSelection = () => {
 };
 
 /**
- * @param {*} tooltipText
+ * @param {*} text
  * @returns {*}
  */
 /* istanbul ignore next */
-const formatTooltips = (tooltipText) => {
-    if (tooltipText instanceof Array) {
-        return tooltipText.map((i, k) => <span key={k}>{i}<br /></span>); // eslint-disable-line
+const formatMultilineText = (text) => {
+    if (text instanceof Array) {
+        return text.map((i, k) => <span key={k}>{i}<br /></span>); // eslint-disable-line
     }
-    return tooltipText;
+    return text;
 };
 
 /**
  * @param {*} error
+ * @param {boolean} helper
  * @returns {*}
  */
-const formatLndErrorRetryMessage = error => (
-    <span>
-        <span>{error}</span><br />
+/* istanbul ignore next */
+const formatNotificationMessage = (error, helper) => (
+    <Fragment>
+        <span className="notification-message--error">{formatMultilineText(error)}</span>
+        {helper &&
         <span className="notification-message--helper">
             <span>Please, try the following actions:</span>
             <ul>
@@ -112,14 +115,14 @@ const formatLndErrorRetryMessage = error => (
                 <li>Open a direct channel with the recipient.</li>
                 <li>Send the onchain payment to recipient.</li>
             </ul>
-        </span>
-    </span>
+        </span>}
+    </Fragment>
 );
 
 export {
     formatDate,
-    formatTooltips,
+    formatMultilineText,
     hasSelection,
     noExponents,
-    formatLndErrorRetryMessage,
+    formatNotificationMessage,
 };
