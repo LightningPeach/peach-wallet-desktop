@@ -309,6 +309,7 @@ class Profile extends Component {
                         <ErrorFieldTooltip
                             text={this.state.payReqAmountError}
                             class="text-left"
+                            id="request-error-field"
                         />
                         <button
                             className="button button__link"

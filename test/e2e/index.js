@@ -11,6 +11,8 @@ const electronPath = require("electron");
 const registrationScreen = require("./screens/registrationScreen");
 const seedConfirmationScreen = require("./screens/seedConfimationScreen");
 const loginScreen = require("./screens/loginScreen");
+const statusCodes = require("../../frontend/config/status-codes");
+const agreementScreen = require("./screens/agreementScreen");
 
 // construct path
 const baseDir = path.join(__dirname, "..", "..");
@@ -56,14 +58,14 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should can't proceed without accept eula", async () => {
-            await app.client.click("#submit-button");
-            const licenseExists = await app.client.isExisting(".license__text");
+            await app.client.click(agreementScreen.submitButton);
+            const licenseExists = await app.client.isExisting(agreementScreen.licenseText);
             assert.equal(licenseExists, true, "license should exists");
         });
 
         it("should proceed with eula", async () => {
-            await app.client.click(".js-agreement");
-            await app.client.click("#submit-button");
+            await app.client.click(agreementScreen.acceptAgreementButton);
+            await app.client.click(agreementScreen.submitButton);
             await utils.sleep(config.timeoutForAgreement);
             await app.client.windowByIndex(0);
             await app.client.waitUntilWindowLoaded();
@@ -77,8 +79,8 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(loginScreen.loginUsername, config.username);
             await app.client.setValue(loginScreen.loginPassword, config.password);
             await app.client.click(loginScreen.signin);
-            await app.client.waitForVisible(".notification-message");
-            const loginError = await app.client.getText(".notification-message");
+            await app.client.waitForVisible(loginScreen.notificationMessage);
+            const loginError = await app.client.getText(loginScreen.notificationMessage);
             assert.equal(loginError, "User doesn't exist", "should show error for not exists user");
         });
     });
@@ -102,18 +104,20 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.password);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            const error = await app.client.getText(".form-error");
-            assert.equal(error, "Only letters and numbers are allowed.");
-            await app.client.setValue(registrationScreen.registraionUsernameID, config.usernameWithSpace);
+            const error = await app.client.getText(registrationScreen.errorForm);
+            assert.equal(error, statusCodes.EXCEPTION_USERNAME_WRONG_FORMAT(0, 0));
+            console.log("Checked username with space");
+            await app.client.setValue(registrationScreen.registraionUsernameID, config.usernameWithSpecialChar);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            assert.equal(error, "Only letters and numbers are allowed.");
+            assert.equal(error, statusCodes.EXCEPTION_USERNAME_WRONG_FORMAT(0, 0));
+            console.log("Checked username with special char");
         });
 
         it("TC:562: Password complexity verification", async () => {
@@ -122,27 +126,27 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.lowercasePassword);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            const error = await app.client.getText(".form-error");
-            assert.equal(error, "Must contain digit, uppercase and lowercase letter.");
+            const error = await app.client.getText(registrationScreen.errorForm);
+            assert.equal(error, statusCodes.EXCEPTION_PASSWORD_WRONG_FORMAT);
             await app.client.setValue(registrationScreen.registrationPasswordId, config.uppercasePasswordNoDigits);
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.uppercasePasswordNoDigits);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            assert.equal(error, "Must contain digit, uppercase and lowercase letter.");
+            assert.equal(error, statusCodes.EXCEPTION_PASSWORD_WRONG_FORMAT);
             await app.client.setValue(registrationScreen.registrationPasswordId, config.onlyDigitsPassword);
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.onlyDigitsPassword);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            assert.equal(error, "Must contain digit, uppercase and lowercase letter.");
+            assert.equal(error, statusCodes.EXCEPTION_PASSWORD_WRONG_FORMAT);
         });
 
         it("TC:560: Password length verification during signup", async () => {
@@ -150,11 +154,11 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.shortPassword);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            const error = await app.client.getText(".form-error");
-            assert.equal(error, "Invalid length. Minimum allowed length is 8 characters.");
+            const error = await app.client.getText(registrationScreen.errorForm);
+            assert.equal(error, statusCodes.EXCEPTION_PASSWORD_WRONG_MIN_LENGTH);
         });
 
         it("TC:578: Password mismatch verification", async () => {
@@ -162,16 +166,16 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.wrongPassword);
             await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(registrationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            const error = await app.client.getText(".form-error");
-            assert.equal(error, "Password mismatch.");
+            const error = await app.client.getText(registrationScreen.errorForm);
+            assert.equal(error, statusCodes.EXCEPTION_PASSWORD_MISMATCH);
         });
 
         it("TC:579: Unhide password possibility", async () => {
             await app.client.setValue(registrationScreen.registrationPasswordId, config.password);
-            await app.client.click(".form-text__icon--eye_open");
+            await app.client.click(registrationScreen.unhidePasswordButton);
             const password = await app.client.getValue(registrationScreen.registrationPasswordId);
             assert.equal(password, config.password);
         });
@@ -181,26 +185,29 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(registrationScreen.registrationPasswordId, config.password);
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.password);
             await app.client.click(registrationScreen.registrationNextButton);
-            await app.client.waitUntil(async () => app.client.isExisting("#seed"), config.timeoutForElementChecks);
-            const seedExists = await app.client.isExisting("#seed");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(seedConfirmationScreen.seedField),
+                config.timeoutForElementChecks,
+            );
+            const seedExists = await app.client.isExisting(seedConfirmationScreen.seedField);
             assert.equal(seedExists, true, "should show seed");
         });
 
         it("Step 2 should reload seed", async () => {
-            const oldSeed = await app.client.getText("#seed");
-            await app.client.click(".seed__reload");
+            const oldSeed = await app.client.getText(seedConfirmationScreen.seedField);
+            await app.client.click(seedConfirmationScreen.seedReload);
             await utils.sleep(1000);
-            seed = await app.client.getText("#seed");
+            seed = await app.client.getText(seedConfirmationScreen.seedField);
             assert.notEqual(seed, oldSeed);
         });
 
         it("Step 2 should proceed to confirmation seed", async () => {
-            await app.client.click("button=Next");
+            await app.client.click(registrationScreen.registrationNextButton);
             await app.client.waitUntil(
-                async () => app.client.isExisting("#verify-seed"),
+                async () => app.client.isExisting(seedConfirmationScreen.verifySeedField),
                 config.timeoutForElementChecks,
             );
-            const seedVerifyExists = await app.client.isExisting("#verify-seed");
+            const seedVerifyExists = await app.client.isExisting(seedConfirmationScreen.verifySeedField);
             assert.equal(seedVerifyExists, true, "should show seed verify form");
         });
 
@@ -212,26 +219,28 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("Step 3 should return error for wrong seed", async () => {
-            await app.client.click("button=Next");
+            await app.client.click(seedConfirmationScreen.seedConfirmationNextButton);
+            console.log("Pressed Next");
             await app.client.waitUntil(
-                async () => app.client.isExisting("#verify-seed"),
+                async () => app.client.isExisting(seedConfirmationScreen.verifySeedField),
                 config.timeoutForElementChecks,
             );
-            const seedVerifyExists = await app.client.isExisting("#verify-seed");
+            const seedVerifyExists = await app.client.isExisting(seedConfirmationScreen.verifySeedField);
             assert.equal(seedVerifyExists, true, "should show seed verify form");
-            await app.client.setValue("#verify-seed", config.randomSeed);
-            await app.client.click("button=Sign up");
+            await app.client.setValue(seedConfirmationScreen.verifySeedField, config.randomSeed);
+            await app.client.click(seedConfirmationScreen.signupButton);
+            console.log("Pressed signup");
             await app.client.waitUntil(
-                async () => app.client.isExisting(".form-error"),
+                async () => app.client.isExisting(seedConfirmationScreen.errorForm),
                 config.timeoutForElementChecks,
             );
-            const error = await app.client.getText(".form-error");
-            assert.equal(error, "Seed mismatch.");
+            const error = await app.client.getText(seedConfirmationScreen.errorForm);
+            assert.equal(error, statusCodes.EXCEPTION_PASSWORD_SEED_MISMATCH);
         });
 
         it("Step 3 should proceed to tourgide", async () => {
-            await app.client.setValue("#verify-seed", seed);
-            await app.client.click("button=Sign up");
+            await app.client.setValue(seedConfirmationScreen.verifySeedField, seed);
+            await app.client.click(seedConfirmationScreen.signupButton);
             const disabled = await app.client.getAttribute(".button__orange", "disabled") === "true";
             assert.equal(disabled, true, "should have disabled button");
         });
@@ -303,7 +312,97 @@ describe("Application launch", function () { // eslint-disable-line func-names
             assert.equal(await app.electron.clipboard.readText(), lightningId, "lightningId not in clipboard");
         });
 
+        it("TC:615: Default denomination of wallet", async () => {
+            const amount = await app.client.getText(".balance__value");
+            const lightningBalance = amount[0].split("~")[0].trim();
+            const onchainBalance = amount[1].split("~")[0].trim();
+            assert.equal(lightningBalance, config.defaultLightningBalance, "Default lighting balance = 0 mBTC");
+            assert.equal(onchainBalance, config.defualtOnchainBalance, "Default onchain balance = 0 mBTC");
+        });
+
+        it("TC:597: Payment request field validation", async () => {
+            await app.client.click("button=Generate request");
+            const copyRequestExists = await app.client.isExisting(".pay_req__button .profile__copy");
+            assert.equal(copyRequestExists, false);
+            await app.client.setValue("#pay_req_amount", 100);
+            assert.equal(copyRequestExists, false);
+            await app.client.setValue("#pay_req_amount", "2.2.2.2");
+            const amount = await app.client.getValue("#pay_req_amount");
+            assert.equal(amount, "2.222");
+        });
+
+        it("TC:596: Update payment request", async () => {
+            await app.client.setValue("#pay_req_amount", "2");
+            await app.client.click("button=Generate request");
+            const paymentRequestFirst = await app.client.getText(".js-ellipsis .text-ellipsis__text");
+            await app.client.setValue("#pay_req_amount", "3");
+            await app.client.click("button=Generate request");
+            const paymentRequestSecond = await app.client.getText(".js-ellipsis .text-ellipsis__text");
+            assert.notEqual(paymentRequestFirst, paymentRequestSecond, "Request are different");
+        });
+
+        it("TC:594: Generate payment request", async () => {
+            await app.client.setValue("#pay_req_amount", 1);
+            await app.client.click("button=Generate request");
+            const paymentRequest = await app.client.getText(".js-ellipsis .text-ellipsis__text");
+            await app.client.click(".pay_req__button .profile__copy");
+            assert.equal(await app.electron.clipboard.readText(), paymentRequest, "Payment request is in clipboard");
+
+            await app.client.click("a.nav__lightning");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".lightning-page"),
+                config.timeoutForElementChecks,
+            );
+            const exists = await app.client.isExisting(".lightning-page");
+            assert.equal(exists, true);
+
+            await app.client.setValue("#regular__to", paymentRequest);
+            await app.client.setValue("#regular__name", config.regularTransactionName);
+        });
+    });
+
+    describe("Channels page", () => {
+        it("TC:652: should open channels page, channel open hint", async () => {
+            await app.client.click("a.channels");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".overlay__content"),
+                config.timeoutForElementChecks,
+            );
+            const hint = await app.client.getText(".overlay__content");
+            assert.equal(hint, "Create channel for making payments with BTC");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".channels-page"),
+                config.timeoutForElementChecks,
+            );
+            const exists = await app.client.isExisting(".channels-page");
+            assert.equal(exists, true);
+        });
+
+        it("TC:682: Opening channel errors. Not enough money to open the channel with specified size", async () => {
+            await app.client.click("button=Create Channel");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".modal-wrapper"),
+                config.timeoutForElementChecks,
+            );
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "CREATE CHANNEL");
+            await app.client.setValue("#channel__name", config.channelName);
+            await app.client.setValue("#channel__amount", config.channelBigAmout);
+            await app.client.click("button=Create");
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
+            await app.client.click("#cancel-create-channel-button");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+
         it("should receive btc", async () => {
+            await app.client.click("a.profile");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".js-profileContent"),
+                config.timeoutForElementChecks,
+            );
+            const exists = await app.client.isExisting(".js-profileContent");
+            assert.equal(exists, true, "should have profile content");
             const btcAddr = await app.client.getText(".js-btcAddress .profile__value_value");
             await utils.fundsLncli("sendcoins", ["--addr", btcAddr, "--amt", config.onchainAmount]);
             await utils.btcctlGenerate();
@@ -313,17 +412,23 @@ describe("Application launch", function () { // eslint-disable-line func-names
             assert.equal(lightningBalance, config.stringLightningBalance, "lightning balance should be empty");
             assert.equal(onchainBalance, config.stringOnchainBalance, "onchain balance should have 1btc");
         });
-    });
 
-    describe("Channels page", () => {
-        it("should open channels page", async () => {
+        it("TC:686: Channel cannot be more then 16777216 satoshies", async () => {
             await app.client.click("a.channels");
+            await app.client.click("button=Create Channel");
             await app.client.waitUntil(
-                async () => app.client.isExisting(".channels-page"),
+                async () => app.client.isExisting(".modal-wrapper"),
                 config.timeoutForElementChecks,
             );
-            const exists = await app.client.isExisting(".channels-page");
-            assert.equal(exists, true);
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "CREATE CHANNEL");
+            await app.client.setValue("#channel__name", config.channelName);
+            await app.client.setValue("#channel__amount", config.channelBigAmout);
+            await app.client.click("button=Create");
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, statusCodes.EXCEPTION_AMOUNT_MORE_MAX_CHANNEL("167.77216 mBTC"));
+            await app.client.click("#cancel-create-channel-button");
+            await utils.sleep(config.cmdUtilsTimeout);
         });
 
         it("should open new channel modal", async () => {
@@ -470,10 +575,10 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(loginScreen.loginUsername, config.username);
             await app.client.setValue(loginScreen.loginPassword, config.wrongPassword);
             await app.client.click(loginScreen.signin);
-            await app.client.waitForVisible(".notification-message");
-            const loginError = await app.client.getText(".notification-message");
-            assert.equal(loginError, "Incorrect username or password.", "should incorrect password error");
-            await app.client.click(".notification-message");
+            await app.client.waitForVisible(loginScreen.notificationMessage);
+            const loginError = await app.client.getText(loginScreen.notificationMessage);
+            assert.equal(loginError, statusCodes.EXCEPTION_USERNAME_PASSWORD_WRONG, "should incorrect password error");
+            await app.client.click(loginScreen.notificationMessage);
         });
         it("TC:563: The uniqueness of the username during sign up", async () => {
             await app.client.click(loginScreen.signup);
@@ -481,8 +586,8 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await app.client.setValue(registrationScreen.registrationPasswordId, config.wrongPassword);
             await app.client.setValue(registrationScreen.registrationConfirmPassword, config.wrongPassword);
             await app.client.click(registrationScreen.registrationNextButton);
-            await app.client.waitForVisible(".notification-message");
-            const loginError = await app.client.getText(".notification-message");
+            await app.client.waitForVisible(loginScreen.notificationMessage);
+            const loginError = await app.client.getText(loginScreen.notificationMessage);
             assert.equal(loginError, "User already exist");
         });
     });

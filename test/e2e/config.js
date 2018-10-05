@@ -13,8 +13,12 @@ const randomSeed = "test test";
 const onchainAmount = 100000000;
 const stringOnchainBalance = "1000 mBTC";
 const stringLightningBalance = "0 mBTC";
+const defualtOnchainBalance = "0 mBTC";
+const defaultLightningBalance = "0 mBTC";
 const channelName = "Test channel";
 const channelAmount = 10;
+const channelBigAmout = 168;
+const channelExactMaxAmount = 167.77216;
 const channelOpenedAmountString = "9.9095 mBTC";
 const channelHost = "127.0.0.1:20202";
 const timeoutForElementChecks = 6 * 1000;
@@ -45,8 +49,12 @@ module.exports = {
     onchainAmount,
     stringOnchainBalance,
     stringLightningBalance,
+    defaultLightningBalance,
+    defualtOnchainBalance,
     channelName,
     channelAmount,
+    channelBigAmout,
+    channelExactMaxAmount,
     channelOpenedAmountString,
     channelHost,
     timeoutForElementChecks,

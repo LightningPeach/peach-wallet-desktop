@@ -240,6 +240,7 @@ class CreateChannel extends Component {
                                     <button
                                         className="button button__link text-uppercase"
                                         type="button"
+                                        id="cancel-create-channel-button"
                                         onClick={this.closeModal}
                                         disabled={this.state.processing}
                                     >
