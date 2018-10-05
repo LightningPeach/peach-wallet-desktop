@@ -77,6 +77,7 @@ function prepareStreamPayment(
             name,
             partsPaid,
             partsPending: 0,
+            paymentIntervalId: null,
             price,
             status: types.STREAM_PAYMENT_PAUSED,
             streamId: id,
