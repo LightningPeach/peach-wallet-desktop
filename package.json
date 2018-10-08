@@ -19,6 +19,7 @@
     "start": "webpack && npm run scss && electron .",
     "build": "webpack && npm run scss && build",
     "build:jenkins": "webpack && npm run scss && build --publish never",
+    "build:release": "webpack && npm run scss && build --publish onTagOrDraft",
     "postinstall": "electron-builder install-app-deps",
     "lint": "cross-env NODE_ENV=development eslint main.js test frontend server",
     "lint:report": "npm run lint -- --format junit --output-file ./coverage/reports/eslint/eslint.xml",
