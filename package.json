@@ -62,7 +62,8 @@
       "icon": "./public/app_icons/mac/app-icon.icns",
       "category": "Utility",
       "target": [
-        "dmg"
+        "dmg",
+        "zip"
       ]
     },
     "win": {
