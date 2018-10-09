@@ -20,8 +20,9 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
 import DigitsField from "components/ui/digitsField";
-import ToField from "./ui/to";
-import LightningDetails from "./modal/lightning-details";
+import RegularHistory from "./history";
+import ToField from "../ui/to";
+import LightningDetails from "../modal/lightning-details";
 
 const getInitialState = (params) => {
     const initState = {
@@ -398,6 +399,7 @@ class RegularPayment extends Component {
         }
         return [
             this.renderForm(),
+            <RegularHistory />,
             <ReactCSSTransitionGroup
                 transitionName="modal-transition"
                 transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
