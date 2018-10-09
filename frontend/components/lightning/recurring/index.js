@@ -27,8 +27,9 @@ import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
 import DigitsField from "components/ui/digitsField";
 import Checkbox from "components/ui/checkbox";
-import ToField from "./ui/to";
-import StreamDetails from "./modal/stream-details";
+import RecurringHistory from "./history";
+import ToField from "../ui/to";
+import StreamDetails from "../modal/stream-details";
 
 const getInitialState = (params = {}) => {
     const initState = {
@@ -566,6 +567,7 @@ class RecurringPayment extends Component {
         const { modalState } = this.props;
         return [
             this.renderForm(),
+            <RecurringHistory />,
             modalState === streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS &&
             (
                 <ReactCSSTransitionGroup
