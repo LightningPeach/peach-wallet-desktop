@@ -2,75 +2,49 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
-import { channelsOperations, channelsSelectors } from "modules/channels";
 import History from "components/history";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import { appOperations } from "modules/app";
-import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import Ellipsis from "components/common/ellipsis";
+
+const compare = (a, b) => !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
 
 class RegularHistory extends Component {
     getHistoryHeader = () => ([
         {
             Header: <span className="sortable">Name of payment</span>,
             accessor: "name",
-            sortMethod: (a, b, desc) => {
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                if (a.props["data-pinned"] && b.props["data-pinned"]) {
-                    return aa > bb ? 1 : aa < bb ? -1 : 0;
-                } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
-                    if (desc) {
-                        return a.props["data-pinned"] ? 1 : -1;
-                    }
-                    return a.props["data-pinned"] ? -1 : 1;
-                }
-                return aa > bb ? 1 : aa < bb ? -1 : 0;
-            },
-            width: 186,
-        },
-        {
-            Header: <span className="">Amount</span>,
-            accessor: "amount",
-            sortable: false,
+            sortMethod: (a, b) => compare(
+                a.props.children.toLowerCase(),
+                b.props.children.toLowerCase(),
+            ),
             width: 210,
         },
         {
-            Header: <span className="sortable">Type</span>,
-            accessor: "type",
-            sortMethod: (a, b, desc) => {
-                if (a.props["data-pinned"] || b.props["data-pinned"]) {
-                    if (desc) {
-                        return a.props["data-pinned"] ? 1 : -1;
-                    }
-                    return a.props["data-pinned"] ? -1 : 1;
-                }
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                return aa > bb ? 1 : aa < bb ? -1 : 0;
-            },
-            width: 109,
+            Header: <span className="sortable">Amount</span>,
+            accessor: "amount",
+            sortMethod: (a, b) => compare(
+                a.props.satoshi,
+                b.props.satoshi,
+            ),
+            width: 210,
         },
         {
-            Header: <span className="">To</span>,
+            Header: <span className="sortable">To</span>,
             accessor: "to",
-            sortable: false,
-            width: 305,
+            sortMethod: (a, b) => compare(
+                a.props.children.props.children.toLowerCase(),
+                b.props.children.props.children.toLowerCase(),
+            ),
+            width: 390,
         },
         {
             Header: <span className="sortable">Date</span>,
             accessor: "date",
-            sortMethod: (a, b, desc) => {
-                if (a.props["data-pinned"] && b.props["data-pinned"]) {
-                    return a.props.dateTime > b.props.dateTime ? 1 : a.props.dateTime < b.props.dateTime ? -1 : 0;
-                } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
-                    if (desc) {
-                        return a.props["data-pinned"] ? 1 : -1;
-                    }
-                    return a.props["data-pinned"] ? -1 : 1;
-                }
-                return a.props.dateTime > b.props.dateTime ? 1 : a.props.dateTime < b.props.dateTime ? -1 : 0;
-            },
+            sortMethod: (a, b) => compare(
+                a.props.dateTime,
+                b.props.dateTime,
+            ),
             width: 170,
         },
     ]);
@@ -80,7 +54,7 @@ class RegularHistory extends Component {
             dispatch, contacts, history, lightningID,
         } = this.props;
         let date;
-        const paymentsData = history
+        return history
             .filter(item => item.type !== "stream")
             .map((item, key) => {
                 let tempAddress = null;
@@ -110,11 +84,8 @@ class RegularHistory extends Component {
                     </span>
                 );
                 const [ymd, hms] = helpers.formatDate(date).split(" ");
-                const amount = item.type !== "stream" ?
-                    <BalanceWithMeasure satoshi={item.amount} /> :
-                    <span><BalanceWithMeasure satoshi={item.amount} /> / {item.parts} sec</span>;
                 return {
-                    amount,
+                    amount: <BalanceWithMeasure satoshi={item.amount} />,
                     date: (
                         <div dateTime={date}>
                             <span className="date__ymd">{ymd}</span>
@@ -123,11 +94,8 @@ class RegularHistory extends Component {
                     ),
                     name: <Ellipsis classList="history">{item.name}</Ellipsis>,
                     to: <Ellipsis>{address}</Ellipsis>,
-                    type: <span>{item.type === "stream" ? "Stream" : "Regular"}</span>,
                 };
             });
-
-        return paymentsData;
     };
 
     render() {
@@ -158,10 +126,8 @@ RegularHistory.propTypes = {
 
 const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
-    externalPaymentRequest: state.lightning.externalPaymentRequest,
     history: state.lightning.history,
     lightningID: state.account.lightningID,
-    modalState: state.app.modalState,
 });
 
 export default connect(mapStateToProps)(RegularHistory);

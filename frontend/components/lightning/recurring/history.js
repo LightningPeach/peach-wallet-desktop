@@ -23,14 +23,14 @@ class RecurringHistory extends Component {
                 const aa = a.props.children.toLowerCase();
                 const bb = b.props.children.toLowerCase();
                 if (a.props["data-pinned"] && b.props["data-pinned"]) {
-                    return aa > bb ? 1 : aa < bb ? -1 : 0;
+                    return helpers.compare(aa, bb);
                 } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
                     if (desc) {
                         return a.props["data-pinned"] ? 1 : -1;
                     }
                     return a.props["data-pinned"] ? -1 : 1;
                 }
-                return aa > bb ? 1 : aa < bb ? -1 : 0;
+                return helpers.compare(aa, bb);
             },
             width: 186,
         },
@@ -44,15 +44,17 @@ class RecurringHistory extends Component {
             Header: <span className="sortable">Type</span>,
             accessor: "type",
             sortMethod: (a, b, desc) => {
-                if (a.props["data-pinned"] || b.props["data-pinned"]) {
+                const aa = a.props.children.toLowerCase();
+                const bb = b.props.children.toLowerCase();
+                if (a.props["data-pinned"] && b.props["data-pinned"]) {
+                    return !aa ? -1 : !bb ? 1 : aa > bb ? 1 : aa < bb ? -1 : 0;
+                } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
                     if (desc) {
                         return a.props["data-pinned"] ? 1 : -1;
                     }
                     return a.props["data-pinned"] ? -1 : 1;
                 }
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                return aa > bb ? 1 : aa < bb ? -1 : 0;
+                return !aa ? -1 : !bb ? 1 : aa > bb ? 1 : aa < bb ? -1 : 0;
             },
             width: 109,
         },
@@ -66,6 +68,8 @@ class RecurringHistory extends Component {
             Header: <span className="sortable">Date</span>,
             accessor: "date",
             sortMethod: (a, b, desc) => {
+                const aa = a.props.dateTime;
+                const bb = b.props.dateTime;
                 if (a.props["data-pinned"] && b.props["data-pinned"]) {
                     return a.props.dateTime > b.props.dateTime ? 1 : a.props.dateTime < b.props.dateTime ? -1 : 0;
                 } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
