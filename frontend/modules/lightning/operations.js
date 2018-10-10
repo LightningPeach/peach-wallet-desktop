@@ -126,35 +126,39 @@ async function getPayments() {
     const foundedInDb = [];
     const streamPayments = {};
     const payments = lndPayments.response.payments.reduce((reducedPayments, payment) => {
+        // TODO: Add restore db, focus on memo fieldq
         const findInParts = (isFound, item) => isFound || item.payment_hash === payment.payment_hash;
-        const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false));
-        if (dbStream.length) {
-            foundedInDb.push(dbStream[0].id);
-            if (dbStream[0].status !== "end") {
+        const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false))[0];
+        if (dbStream) {
+            foundedInDb.push(dbStream.id);
+            if (dbStream.status !== "end") {
                 return reducedPayments;
             }
-            const amount = streamPayments[dbStream[0].id] ? parseInt(streamPayments[dbStream[0].id].amount, 10) : 0;
-            const date = streamPayments[dbStream[0].id] ?
-                parseInt(streamPayments[dbStream[0].id].date, 10) :
+            const amount = streamPayments[dbStream.id] ? parseInt(streamPayments[dbStream.id].amount, 10) : 0;
+            const date = streamPayments[dbStream.id] ?
+                parseInt(streamPayments[dbStream.id].date, 10) :
                 parseInt(payment.creation_date, 10) * 1000;
-            const parts = streamPayments[dbStream[0].id] ? streamPayments[dbStream[0].id].parts + 1 : 1;
-            streamPayments[dbStream[0].id] = {
+            const partsPaid = streamPayments[dbStream.id] ? streamPayments[dbStream.id].partsPaid + 1 : 1;
+            streamPayments[dbStream.id] = {
                 amount: parseInt(payment.value, 10) + amount,
+                currency: dbStream.currency,
                 date,
+                delay: dbStream.delay,
                 lightningID: payment.path[payment.path.length - 1],
-                name: dbStream[0].name,
-                parts,
+                name: dbStream.name,
+                partsPaid,
                 path: payment.path,
+                totalParts: dbStream.totalParts,
                 type: "stream",
             };
             return reducedPayments;
         }
-        const dbPayment = dbPayments.filter(item => item.paymentHash === payment.payment_hash);
+        const dbPayment = dbPayments.filter(item => item.paymentHash === payment.payment_hash)[0];
         reducedPayments.push({
             amount: -parseInt(payment.value, 10),
             date: parseInt(payment.creation_date, 10) * 1000,
             lightningID: payment.path[payment.path.length - 1],
-            name: dbPayment.length ? dbPayment[0].name : "Outgoing payment",
+            name: dbPayment ? dbPayment.name : "Outgoing payment",
             path: payment.path,
             payment_hash: payment.payment_hash,
             type: "payment",
@@ -164,11 +168,14 @@ async function getPayments() {
     const orphansStreams = dbStreams.filter(dbStream => !foundedInDb.includes(dbStream.id) && dbStream.status === "end")
         .map(dbStream => ({
             amount: parseInt(dbStream.price, 10),
+            currency: dbStream.currency,
             date: dbStream.date,
+            delay: dbStream.delay,
             lightningID: dbStream.lightningID,
             name: dbStream.name,
-            parts: 0,
+            partsPaid: 0,
             path: [],
+            totalParts: dbStream.totalParts,
             type: "stream",
         }));
     return [...payments, ...Object.values(streamPayments), ...orphansStreams];
