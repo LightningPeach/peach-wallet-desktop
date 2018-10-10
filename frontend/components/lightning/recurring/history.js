@@ -116,7 +116,7 @@ class RecurringHistory extends Component {
                     {tempAddress}
                 </span>
             );
-            let status;
+            let status = "";
             if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED) {
                 status = (
                     <Fragment>
@@ -215,15 +215,15 @@ class RecurringHistory extends Component {
                 const amount = item.currency === "BTC"
                     ? (
                         <span>
-                            <BalanceWithMeasure satoshi={item.amount} />
+                            <BalanceWithMeasure satoshi={item.price} />
                             <br />
-                            (<BalanceWithMeasure satoshi={item.amount * item.partsPaid} />)
+                            (<BalanceWithMeasure satoshi={item.price * item.partsPaid} />)
                         </span>)
                     : (
                         <span>
-                            {item.amount} USD
+                            {item.price} USD
                             <br />
-                            ({item.amount * item.partsPaid} USD)
+                            ({item.price * item.partsPaid} USD)
                         </span>);
                 const count = (
                     <span>
@@ -259,7 +259,7 @@ class RecurringHistory extends Component {
                     ),
                     frequency: <span>{item.delay}</span>,
                     name: <Ellipsis classList="history">{item.name}</Ellipsis>,
-                    status: <span>Finished</span>,
+                    status: "",
                     to: <Ellipsis>{address}</Ellipsis>,
                 };
             });
