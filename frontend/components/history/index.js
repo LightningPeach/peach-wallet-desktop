@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ReactTable from "react-table";
+import { HISTORY_ROWS_PER_PAGE } from "config/consts";
 import Pagination from "./pagination";
 
 class History extends Component {
@@ -34,7 +35,7 @@ class History extends Component {
                 page={this.state.page}
                 resizable={false}
                 showPageSizeOptions={false}
-                defaultPageSize={5}
+                defaultPageSize={HISTORY_ROWS_PER_PAGE}
                 PaginationComponent={Pagination}
                 customPagination={this.onPageChange}
             />
