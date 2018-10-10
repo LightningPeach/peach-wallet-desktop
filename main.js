@@ -179,9 +179,7 @@ const checkAgreement = async () => {
 app.on("ready", checkAgreement);
 
 app.on("window-all-closed", () => {
-    if (process.platform !== "darwin") {
-        app.quit();
-    }
+    app.quit();
 });
 
 app.on("activate", () => {
