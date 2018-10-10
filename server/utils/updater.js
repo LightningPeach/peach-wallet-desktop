@@ -83,7 +83,7 @@ const updaterManager = () => {
     autoUpdater.on("update-downloaded", () => {
         logger.debug("[UPDATER]: Update downloaded");
         // app.removeAllListeners("window-all-closed");
-        // const browserWindows = BrowserWindow.getAllWindows();
+        const browserWindows = BrowserWindow.getAllWindows();
         browserWindows.forEach((browserWindow) => {
             browserWindow.removeAllListeners("close");
         });
