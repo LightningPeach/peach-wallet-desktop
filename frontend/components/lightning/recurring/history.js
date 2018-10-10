@@ -14,73 +14,73 @@ import { appOperations } from "modules/app";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import Ellipsis from "components/common/ellipsis";
 
+const compare = (a, b, aPinned, bPinned, desc) => {
+    if (aPinned && bPinned) {
+        return !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
+    } else if (aPinned || bPinned) {
+        if (desc) {
+            return aPinned ? 1 : -1;
+        }
+        return aPinned ? -1 : 1;
+    }
+    return !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
+};
+
 class RecurringHistory extends Component {
     getHistoryHeader = () => ([
         {
             Header: <span className="sortable">Name of payment</span>,
             accessor: "name",
-            sortMethod: (a, b, desc) => {
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                if (a.props["data-pinned"] && b.props["data-pinned"]) {
-                    return helpers.compare(aa, bb);
-                } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
-                    if (desc) {
-                        return a.props["data-pinned"] ? 1 : -1;
-                    }
-                    return a.props["data-pinned"] ? -1 : 1;
-                }
-                return helpers.compare(aa, bb);
-            },
-            width: 186,
+            sortMethod: (a, b, desc) => compare(
+                a.props.children.toLowerCase(),
+                b.props.children.toLowerCase(),
+                a.props["data-pinned"],
+                b.props["data-pinned"],
+                desc,
+            ),
+            width: 140,
         },
         {
-            Header: <span className="">Amount</span>,
+            Header: <span className="" />,
+            accessor: "status",
+            sortable: false,
+            width: 80,
+        },
+        {
+            Header: <span className="">Amount<br />(total)</span>,
             accessor: "amount",
             sortable: false,
-            width: 210,
+            width: 127,
         },
         {
-            Header: <span className="sortable">Type</span>,
-            accessor: "type",
-            sortMethod: (a, b, desc) => {
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                if (a.props["data-pinned"] && b.props["data-pinned"]) {
-                    return !aa ? -1 : !bb ? 1 : aa > bb ? 1 : aa < bb ? -1 : 0;
-                } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
-                    if (desc) {
-                        return a.props["data-pinned"] ? 1 : -1;
-                    }
-                    return a.props["data-pinned"] ? -1 : 1;
-                }
-                return !aa ? -1 : !bb ? 1 : aa > bb ? 1 : aa < bb ? -1 : 0;
-            },
-            width: 109,
+            Header: <span className="">Payments frequency</span>,
+            accessor: "frequency",
+            sortable: false,
+            width: 107,
+        },
+        {
+            Header: <span className="">Payments count</span>,
+            accessor: "count",
+            sortable: false,
+            width: 102,
         },
         {
             Header: <span className="">To</span>,
             accessor: "to",
             sortable: false,
-            width: 305,
+            width: 268,
         },
         {
-            Header: <span className="sortable">Date</span>,
+            Header: <span className="sortable">Date & Time</span>,
             accessor: "date",
-            sortMethod: (a, b, desc) => {
-                const aa = a.props.dateTime;
-                const bb = b.props.dateTime;
-                if (a.props["data-pinned"] && b.props["data-pinned"]) {
-                    return a.props.dateTime > b.props.dateTime ? 1 : a.props.dateTime < b.props.dateTime ? -1 : 0;
-                } else if (a.props["data-pinned"] || b.props["data-pinned"]) {
-                    if (desc) {
-                        return a.props["data-pinned"] ? 1 : -1;
-                    }
-                    return a.props["data-pinned"] ? -1 : 1;
-                }
-                return a.props.dateTime > b.props.dateTime ? 1 : a.props.dateTime < b.props.dateTime ? -1 : 0;
-            },
-            width: 170,
+            sortMethod: (a, b, desc) => compare(
+                a.props.dateTime,
+                b.props.dateTime,
+                a.props["data-pinned"],
+                b.props["data-pinned"],
+                desc,
+            ),
+            width: 115,
         },
     ]);
 
@@ -88,11 +88,8 @@ class RecurringHistory extends Component {
         const {
             dispatch, contacts, history, lightningID, streams, isThereActiveChannel,
         } = this.props;
-        let type;
-
         streams.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0);
         const activeStreamsData = streams.map((item, key) => {
-            let className = "orange";
             let tempAddress = item.lightningID;
             const date = new Date(parseInt(item.date, 10));
             let isActive = false;
@@ -101,12 +98,6 @@ class RecurringHistory extends Component {
                     tempAddress = contact.name;
                 }
             });
-            let price = item.totalParts === STREAM_INFINITE_TIME_VALUE
-                ? item.price * (!item.partsPaid ? 1 : item.partsPaid)
-                : item.price * (!item.partsPaid ? item.totalParts : item.partsPaid);
-            let seconds = item.totalParts === STREAM_INFINITE_TIME_VALUE
-                ? (!item.partsPaid ? "∞" : item.partsPaid)
-                : (!item.partsPaid ? item.totalParts : item.partsPaid);
             const address = (
                 <span
                     onClick={() => {
@@ -125,8 +116,9 @@ class RecurringHistory extends Component {
                     {tempAddress}
                 </span>
             );
+            let status;
             if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED) {
-                type = (
+                status = (
                     <Fragment>
                         <span
                             className="start"
@@ -156,10 +148,9 @@ class RecurringHistory extends Component {
                         />
                     </Fragment>
                 );
-                className = key === 0 ? "green" : "orange";
                 isActive = true;
             } else if (item.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING) {
-                type = (
+                status = (
                     <span
                         className="pause"
                         onClick={() => {
@@ -172,46 +163,72 @@ class RecurringHistory extends Component {
                         }}
                     />
                 );
-                className = "red";
                 isActive = true;
-            } else {
-                type = "Stream";
-                ({ price } = item);
-                seconds = item.partsPaid;
-                price *= seconds;
             }
+            const amount = item.currency === "BTC"
+                ? (
+                    <span>
+                        <BalanceWithMeasure satoshi={item.price} />
+                        <br />
+                        (<BalanceWithMeasure satoshi={item.price * item.partsPaid} />)
+                    </span>)
+                : (
+                    <span>
+                        {item.price} USD
+                        <br />
+                        ({item.price * item.partsPaid} USD)
+                    </span>);
+            const count = (
+                <span>
+                    <span className="green">
+                        {item.partsPaid}(+{item.partsPending})
+                    </span> / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
+                </span>);
             const [ymd, hms] = helpers.formatDate(date).split(" ");
             return {
-                amount: (
-                    <span>{item.currency === "USD"
-                        ? `${price} USD`
-                        : <BalanceWithMeasure satoshi={price} />} / {seconds} payments
-                    </span>),
+                amount,
+                count,
                 date: (
                     <span dateTime={date} data-pinned={isActive}>
                         <span className="date__ymd">{ymd}</span>
                         <span className="date__hms">{hms}</span>
                     </span>
                 ),
-                name: <Ellipsis classList={className} data-pinned={isActive}>{item.name}</Ellipsis>,
-                sortDate: date,
+                frequency: <span>{item.delay}</span>,
+                name: <Ellipsis data-pinned={isActive}>{item.name}</Ellipsis>,
+                status: <span data-pinned={isActive}>{status}</span>,
                 to: <Ellipsis>{address}</Ellipsis>,
-                type: <span data-pinned={isActive}>{type}</span>,
             };
         });
 
-        let date;
         const finishedStreamsData = history
             .filter(item => item.type === "stream")
             .map((item, key) => {
                 let tempAddress = null;
-                date = new Date(parseInt(item.date, 10));
+                const date = new Date(parseInt(item.date, 10));
                 contacts.forEach((contact) => {
                     if (contact.lightningID === item.lightningID) {
                         tempAddress = contact.name;
                     }
                 });
                 tempAddress = tempAddress || (item.lightningID !== lightningID ? item.lightningID : "me");
+                const amount = item.currency === "BTC"
+                    ? (
+                        <span>
+                            <BalanceWithMeasure satoshi={item.amount} />
+                            <br />
+                            (<BalanceWithMeasure satoshi={item.amount * item.partsPaid} />)
+                        </span>)
+                    : (
+                        <span>
+                            {item.amount} USD
+                            <br />
+                            ({item.amount * item.partsPaid} USD)
+                        </span>);
+                const count = (
+                    <span>
+                        {item.partsPaid} / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
+                    </span>);
                 const address = (
                     <span
                         onClick={() => {
@@ -231,20 +248,19 @@ class RecurringHistory extends Component {
                     </span>
                 );
                 const [ymd, hms] = helpers.formatDate(date).split(" ");
-                const amount = item.type !== "stream" ?
-                    <BalanceWithMeasure satoshi={item.amount} /> :
-                    <span><BalanceWithMeasure satoshi={item.amount} /> / {item.parts} sec</span>;
                 return {
                     amount,
+                    count,
                     date: (
                         <div dateTime={date}>
                             <span className="date__ymd">{ymd}</span>
                             <span className="date__hms">{hms}</span>
                         </div>
                     ),
+                    frequency: <span>{item.delay}</span>,
                     name: <Ellipsis classList="history">{item.name}</Ellipsis>,
+                    status: <span>Finished</span>,
                     to: <Ellipsis>{address}</Ellipsis>,
-                    type: <span>{item.type === "stream" ? "Stream" : "Regular"}</span>,
                 };
             });
 
