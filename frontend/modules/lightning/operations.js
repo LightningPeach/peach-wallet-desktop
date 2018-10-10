@@ -126,7 +126,7 @@ async function getPayments() {
     const foundedInDb = [];
     const streamPayments = {};
     const payments = lndPayments.response.payments.reduce((reducedPayments, payment) => {
-        // TODO: Add restore db, focus on memo fieldq
+        // TODO: Add restore db by parts, restore missing streams in db, focus on memo field
         const findInParts = (isFound, item) => isFound || item.payment_hash === payment.payment_hash;
         const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false))[0];
         if (dbStream) {
@@ -134,21 +134,10 @@ async function getPayments() {
             if (dbStream.status !== "end") {
                 return reducedPayments;
             }
-            const amount = streamPayments[dbStream.id] ? parseInt(streamPayments[dbStream.id].amount, 10) : 0;
-            const date = streamPayments[dbStream.id] ?
-                parseInt(streamPayments[dbStream.id].date, 10) :
-                parseInt(payment.creation_date, 10) * 1000;
             const partsPaid = streamPayments[dbStream.id] ? streamPayments[dbStream.id].partsPaid + 1 : 1;
             streamPayments[dbStream.id] = {
-                amount: parseInt(payment.value, 10) + amount,
-                currency: dbStream.currency,
-                date,
-                delay: dbStream.delay,
-                lightningID: payment.path[payment.path.length - 1],
-                name: dbStream.name,
+                ...dbStream,
                 partsPaid,
-                path: payment.path,
-                totalParts: dbStream.totalParts,
                 type: "stream",
             };
             return reducedPayments;
@@ -159,7 +148,6 @@ async function getPayments() {
             date: parseInt(payment.creation_date, 10) * 1000,
             lightningID: payment.path[payment.path.length - 1],
             name: dbPayment ? dbPayment.name : "Outgoing payment",
-            path: payment.path,
             payment_hash: payment.payment_hash,
             type: "payment",
         });
@@ -167,17 +155,30 @@ async function getPayments() {
     }, []);
     const orphansStreams = dbStreams.filter(dbStream => !foundedInDb.includes(dbStream.id) && dbStream.status === "end")
         .map(dbStream => ({
-            amount: parseInt(dbStream.price, 10),
-            currency: dbStream.currency,
-            date: dbStream.date,
-            delay: dbStream.delay,
-            lightningID: dbStream.lightningID,
-            name: dbStream.name,
+            ...dbStream,
             partsPaid: 0,
-            path: [],
-            totalParts: dbStream.totalParts,
             type: "stream",
         }));
+    dbStreams.forEach((dbStream) => {
+        if (dbStream.status === "pause") {
+            return;
+        }
+        const partsPaid = dbStream.status === "end" && !foundedInDb.includes(dbStream.id)
+            ? 0
+            : streamPayments[dbStream.id].partsPaid;
+        if (dbStream.partsPaid !== partsPaid) {
+            try {
+                db.streamBuilder()
+                    .update()
+                    .set({ partsPaid })
+                    .where("id = :id", { id: dbStream.id })
+                    .execute();
+            } catch (e) {
+                /* istanbul ignore next */
+                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            }
+        }
+    });
     return [...payments, ...Object.values(streamPayments), ...orphansStreams];
 }
 
