@@ -9,7 +9,6 @@ class History extends Component {
     constructor(props) {
         super(props);
         this.onPageChange = this.onPageChange.bind(this);
-        this.renderEmptyList = this.renderEmptyList.bind(this);
         this.state = {
             page: 0,
         };
@@ -19,19 +18,18 @@ class History extends Component {
         this.setState({ page: i });
     }
 
-    renderEmptyList() {
-        const { emptyPlaceholder } = this.props;
-        return (
+    render() {
+        const {
+            withoutTitle, title, emptyPlaceholder, ...table
+        } = this.props;
+        const renderEmptyList = () => (
             <div className="placeholder_text">
                 {emptyPlaceholder || "Here all your transactions will be displayed"}
             </div>
         );
-    }
-
-    render() {
         const renderData = () => (
             <ReactTable
-                {...this.props}
+                {...table}
                 page={this.state.page}
                 resizable={false}
                 showPageSizeOptions={false}
@@ -41,19 +39,20 @@ class History extends Component {
             />
         );
         const renderTitle = () => {
-            if (this.props.withoutTitle) {
+            if (withoutTitle) {
                 return null;
             }
             return [
-                <div className="history__title" key={0}>History</div>,
-                <div className="separator" key={1} />,
+                <div className="history__title" key={0}>
+                    {title || "History"}
+                </div>,
             ];
         };
 
         return (
             <div className="history">
                 {renderTitle()}
-                {!this.props.data.length ? this.renderEmptyList() : renderData()}
+                {!this.props.data.length ? renderEmptyList() : renderData()}
             </div>
         );
     }
@@ -67,6 +66,7 @@ History.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
     dispatch: PropTypes.func.isRequired,
     emptyPlaceholder: PropTypes.string,
+    title: PropTypes.string,
     withoutTitle: PropTypes.bool,
 };
 

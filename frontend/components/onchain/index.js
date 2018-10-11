@@ -360,6 +360,7 @@ class Onchain extends Component {
                                 id: "date",
                             },
                         ]}
+                        title="Onchain payments history"
                     />
                 </div>
             </div>,

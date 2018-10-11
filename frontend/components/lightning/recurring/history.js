@@ -331,6 +331,7 @@ class RecurringHistory extends Component {
                         id: "date",
                     },
                 ]}
+                title="Recurring payments history"
             />
         );
     }
