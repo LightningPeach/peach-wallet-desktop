@@ -10,17 +10,29 @@
         overflow: visible;
     }
 
+    .rt-tr {
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
     .rt-thead {
         &.-header {
             box-shadow: none;
+
+            .rt-tr {
+                border-bottom: 1px solid $black;
+                padding-top: 15px;
+                padding-bottom: 12px;
+                text-transform: uppercase;
+            }
         }
 
         .rt-th,
         .rt-td {
             border: 0;
             box-shadow: none;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 500;
             line-height: 1.3;
             padding: 0;
             text-align: left;
@@ -56,10 +68,13 @@
                 transform: rotate(180deg);
             }
         }
+
+        .tooltip-wp {
+            position: relative;
+        }
     }
 
     .rt-tbody {
-        padding-top: 10px;
         padding-bottom: 5px;
         overflow: visible;
 
@@ -71,7 +86,7 @@
             border: 0;
             font-size: 14px;
             line-height: 1;
-            padding: 11px 10px 9px 0;
+            padding: 15px 10px 12px 0;
             letter-spacing: -0.5px;
 
             &:first-child {
@@ -125,6 +140,10 @@
 
         .-padRow {
             display: none;
+        }
+
+        .green {
+            color: $apple-green;
         }
     }
 
