@@ -18,7 +18,7 @@ class RegularHistory extends Component {
                 a.props.children.toLowerCase(),
                 b.props.children.toLowerCase(),
             ),
-            width: 210,
+            width: 235,
         },
         {
             Header: <span className="sortable">Amount</span>,
@@ -27,7 +27,7 @@ class RegularHistory extends Component {
                 a.props.satoshi,
                 b.props.satoshi,
             ),
-            width: 210,
+            width: 190,
         },
         {
             Header: <span className="sortable">To</span>,
@@ -36,7 +36,7 @@ class RegularHistory extends Component {
                 a.props.children.props.children.toLowerCase(),
                 b.props.children.props.children.toLowerCase(),
             ),
-            width: 390,
+            width: 400,
         },
         {
             Header: <span className="sortable">Date</span>,
@@ -45,7 +45,7 @@ class RegularHistory extends Component {
                 a.props.dateTime,
                 b.props.dateTime,
             ),
-            width: 170,
+            width: 115,
         },
     ]);
 
