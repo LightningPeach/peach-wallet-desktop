@@ -266,11 +266,8 @@ function initAccount(login, newAccount = false) {
             dispatch(createNewBitcoinAccount()),
             dispatch(loadAccountSettings()),
         ]);
-        console.log("SOME");
         await dispatch(checkBalance());
-        console.log("SOME");
         await dispatch(streamPaymentOperations.loadStreams());
-        console.log("SOME");
         return successPromise();
     };
 }

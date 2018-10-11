@@ -8,15 +8,14 @@ import Pagination from "./pagination";
 class History extends Component {
     constructor(props) {
         super(props);
-        this.onPageChange = this.onPageChange.bind(this);
         this.state = {
             page: 0,
         };
     }
 
-    onPageChange(i) {
-        this.setState({ page: i });
-    }
+    onPageChange = (page) => {
+        this.setState({ page });
+    };
 
     render() {
         const {
