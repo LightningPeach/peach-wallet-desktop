@@ -1,4 +1,5 @@
 import React, { Fragment } from "react";
+import { TIME_RANGE_MEASURE } from "config/consts";
 import * as statusCodes from "config/status-codes";
 
 /**
@@ -119,8 +120,31 @@ const formatNotificationMessage = (error, helper) => (
     </Fragment>
 );
 
+/**
+ * @param {number} time
+ * @returns {*}
+ */
+const formatTimeRange = (time) => {
+    let index = -1;
+    TIME_RANGE_MEASURE.forEach((item, key) => {
+        if (time % item.range === 0) {
+            index = key;
+        }
+    });
+    if (index === -1) {
+        return null;
+    }
+    const count = Math.round(time / TIME_RANGE_MEASURE[index].range);
+    let response = `${count} ${TIME_RANGE_MEASURE[index].measure}`;
+    if (count === 1) {
+        response = response.slice(0, -1);
+    }
+    return response;
+};
+
 export {
     formatDate,
+    formatTimeRange,
     formatMultilineText,
     hasSelection,
     noExponents,

@@ -5,6 +5,16 @@ export const SUCCESS_RESPONSE = "SUCCESS";
 export const UNSUCCESS_RESPONSE = "UNSUCCESS";
 export const PENDING_RESPONSE = "PENDING";
 
+export const TIME_RANGE_MEASURE = [
+    { measure: "seconds", range: 1000 },
+    { measure: "minutes", range: 1000 * 60 },
+    { measure: "hours", range: 1000 * 60 * 60 },
+    { measure: "days", range: 1000 * 60 * 60 * 24 },
+    { measure: "weeks", range: 1000 * 60 * 60 * 24 * 7 },
+    { measure: "months", range: 1000 * 60 * 60 * 24 * 30 },
+    { measure: "years", range: 1000 * 60 * 60 * 24 * 365 },
+];
+
 export const SIMNET_NETWORK = {
     bech32: "sb",
     bip32: {

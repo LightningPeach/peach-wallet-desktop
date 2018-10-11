@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import Tooltip from "rc-tooltip";
 import { analytics, helpers } from "additional";
 import { lightningOperations as operations } from "modules/lightning";
 import { channelsOperations, channelsSelectors } from "modules/channels";
@@ -27,6 +28,23 @@ const compare = (a, b, aPinned, bPinned, desc) => {
 };
 
 class RecurringHistory extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            tooltips: {
+                amount: [
+                    "Total amount for the whole recurring payment",
+                    "and price per singe time unit within the payment.",
+                ],
+                count: [
+                    "Current count of paid (confirmed) plus pending",
+                    "(finished but not confirmed) payments relative",
+                    "to total amount of payments.",
+                ],
+            },
+        };
+    }
+
     getHistoryHeader = () => ([
         {
             Header: <span className="sortable">Name of payment</span>,
@@ -38,37 +56,67 @@ class RecurringHistory extends Component {
                 b.props["data-pinned"],
                 desc,
             ),
-            width: 140,
+            width: 165,
         },
         {
             Header: <span className="" />,
             accessor: "status",
             sortable: false,
-            width: 80,
+            width: 65,
         },
         {
-            Header: <span className="">Amount<br />(total)</span>,
+            Header: (
+                <span className="tooltip-wp">
+                    Amount
+                    <Tooltip
+                        placement="right"
+                        overlay={helpers.formatMultilineText(this.state.tooltips.amount)}
+                        trigger="hover"
+                        arrowContent={
+                            <div className="rc-tooltip-arrow-inner" />
+                        }
+                        prefixCls="rc-tooltip__small rc-tooltip"
+                        mouseLeaveDelay={0}
+                    >
+                        <i className="form-label__icon form-label__icon--info" />
+                    </Tooltip>
+                </span>),
             accessor: "amount",
             sortable: false,
-            width: 127,
+            width: 120,
         },
         {
-            Header: <span className="">Payments frequency</span>,
+            Header: <span className="">Frequency</span>,
             accessor: "frequency",
             sortable: false,
-            width: 107,
+            width: 105,
         },
         {
-            Header: <span className="">Payments count</span>,
+            Header: (
+                <span className="tooltip-wp">
+                    Count
+                    <Tooltip
+                        placement="right"
+                        overlay={helpers.formatMultilineText(this.state.tooltips.count)}
+                        trigger="hover"
+                        arrowContent={
+                            <div className="rc-tooltip-arrow-inner" />
+                        }
+                        prefixCls="rc-tooltip__small rc-tooltip"
+                        mouseLeaveDelay={0}
+                    >
+                        <i className="form-label__icon form-label__icon--info" />
+                    </Tooltip>
+                </span>),
             accessor: "count",
             sortable: false,
-            width: 102,
+            width: 105,
         },
         {
             Header: <span className="">To</span>,
             accessor: "to",
             sortable: false,
-            width: 268,
+            width: 265,
         },
         {
             Header: <span className="sortable">Date & Time</span>,
@@ -168,22 +216,27 @@ class RecurringHistory extends Component {
             const amount = item.currency === "BTC"
                 ? (
                     <span>
-                        <BalanceWithMeasure satoshi={item.price} />
+                        <BalanceWithMeasure satoshi={item.price * item.partsPaid} />
                         <br />
-                        (<BalanceWithMeasure satoshi={item.price * item.partsPaid} />)
+                        (<BalanceWithMeasure satoshi={item.price} />)
                     </span>)
                 : (
                     <span>
-                        {item.price} USD
+                        {helpers.noExponents(parseFloat((item.price * item.partsPaid).toFixed(8)))} USD
                         <br />
-                        ({item.price * item.partsPaid} USD)
+                        ({item.price} USD)
                     </span>);
-            const count = (
-                <span>
-                    <span className="green">
-                        {item.partsPaid}(+{item.partsPending})
-                    </span> / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
-                </span>);
+            const count = item.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED
+                ? (
+                    <span>
+                        <span className={item.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING ? "green" : ""}>
+                            {item.partsPaid}+{item.partsPending}
+                        </span> / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
+                    </span>)
+                : (
+                    <span>
+                        {item.partsPaid} / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
+                    </span>);
             const [ymd, hms] = helpers.formatDate(date).split(" ");
             return {
                 amount,
@@ -194,7 +247,7 @@ class RecurringHistory extends Component {
                         <span className="date__hms">{hms}</span>
                     </span>
                 ),
-                frequency: <span>{item.delay}</span>,
+                frequency: <span>{helpers.formatTimeRange(item.delay)}</span>,
                 name: <Ellipsis data-pinned={isActive}>{item.name}</Ellipsis>,
                 status: <span data-pinned={isActive}>{status}</span>,
                 to: <Ellipsis>{address}</Ellipsis>,
@@ -215,15 +268,15 @@ class RecurringHistory extends Component {
                 const amount = item.currency === "BTC"
                     ? (
                         <span>
-                            <BalanceWithMeasure satoshi={item.price} />
+                            <BalanceWithMeasure satoshi={item.price * item.partsPaid} />
                             <br />
-                            (<BalanceWithMeasure satoshi={item.price * item.partsPaid} />)
+                            (<BalanceWithMeasure satoshi={item.price} />)
                         </span>)
                     : (
                         <span>
-                            {item.price} USD
+                            {helpers.noExponents(parseFloat((item.price * item.partsPaid).toFixed(8)))} USD
                             <br />
-                            ({item.price * item.partsPaid} USD)
+                            ({item.price} USD)
                         </span>);
                 const count = (
                     <span>
@@ -257,7 +310,7 @@ class RecurringHistory extends Component {
                             <span className="date__hms">{hms}</span>
                         </div>
                     ),
-                    frequency: <span>{item.delay}</span>,
+                    frequency: <span>{helpers.formatTimeRange(item.delay)}</span>,
                     name: <Ellipsis classList="history">{item.name}</Ellipsis>,
                     status: "",
                     to: <Ellipsis>{address}</Ellipsis>,
