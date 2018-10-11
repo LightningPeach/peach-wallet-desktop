@@ -3,6 +3,7 @@ import { appOperations, appActions } from "modules/app";
 import { accountOperations } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
 import orderBy from "lodash/orderBy";
+import omit from "lodash/omit";
 import { store } from "store/configure-store";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -136,7 +137,7 @@ async function getPayments() {
             }
             const partsPaid = streamPayments[dbStream.id] ? streamPayments[dbStream.id].partsPaid + 1 : 1;
             streamPayments[dbStream.id] = {
-                ...dbStream,
+                ...omit(dbStream, "parts"),
                 partsPaid,
                 type: "stream",
             };
@@ -155,7 +156,7 @@ async function getPayments() {
     }, []);
     const orphansStreams = dbStreams.filter(dbStream => !foundedInDb.includes(dbStream.id) && dbStream.status === "end")
         .map(dbStream => ({
-            ...dbStream,
+            ...omit(dbStream, "parts"),
             partsPaid: 0,
             type: "stream",
         }));

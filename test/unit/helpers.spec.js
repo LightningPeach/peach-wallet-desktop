@@ -78,4 +78,18 @@ describe("Helpers Unit Tests", () => {
             expect(valid).to.equal("asdasd");
         });
     });
+
+    describe("formatTimeRange", () => {
+        it("should return null for incorrect number (1000 is not divider)", () => {
+            expect(helpers.formatTimeRange(999)).to.equal(null);
+        });
+
+        it("should return correct for one count of measure", () => {
+            expect(helpers.formatTimeRange(1000 * 3600 * 24)).to.equal("1 day");
+        });
+
+        it("should return correct for multiple count of measure", () => {
+            expect(helpers.formatTimeRange(1000 * 2600 * 24)).to.equal("1040 minutes");
+        });
+    });
 });
