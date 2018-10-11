@@ -43,7 +43,6 @@ const getInitialState = (params) => {
 class RegularPayment extends Component {
     constructor(props) {
         super(props);
-        this.handleTo = this.handleTo.bind(this);
         this.state = getInitialState();
     }
 

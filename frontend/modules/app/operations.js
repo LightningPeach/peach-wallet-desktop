@@ -20,10 +20,6 @@ function closeModal() {
     return dispatch => dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
 }
 
-function openChangePasswordModal() {
-    return dispatch => dispatch(actions.setModalState(types.PROFILE_CHANGE_PASS_MODAL_STATE));
-}
-
 function openLogoutModal() {
     return dispatch => dispatch(actions.setModalState(types.LOGOUT_MODAL_STATE));
 }
@@ -192,7 +188,6 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
 export {
     sendSystemNotification,
     closeModal,
-    openChangePasswordModal,
     usdBtcRate,
     copyToClipboard,
     convertToSatoshi,

@@ -16,7 +16,6 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { ProfileFullPath } from "routes";
 import Ellipsis from "components/common/ellipsis";
 import DigitsField from "components/ui/digitsField";
-import ChangePassword from "./modal/change-password";
 import ConfirmLogout from "./modal/logout";
 import Legal from "./modal/law";
 
@@ -485,9 +484,6 @@ class Profile extends Component {
     render() {
         let modal;
         switch (this.props.modalState) {
-            case appTypes.PROFILE_CHANGE_PASS_MODAL_STATE:
-                modal = <ChangePassword />;
-                break;
             case appTypes.LOGOUT_MODAL_STATE:
                 modal = <ConfirmLogout />;
                 break;

@@ -8,7 +8,6 @@ import debounce from "lodash/debounce";
 class ToField extends Component {
     constructor(props) {
         super(props);
-        this.onBlur = debounce(this.onBlur.bind(this), 150);
         this.selectedItem = false;
         this.pseudoFocused = false;
         this.state = {
@@ -50,7 +49,7 @@ class ToField extends Component {
         document.removeEventListener("mouseup", this._handleMouseUp, false);
     }
 
-    onBlur = () => {
+    onBlur = debounce(() => {
         if (this.pseudoFocused) {
             return;
         }
@@ -70,7 +69,7 @@ class ToField extends Component {
             this.setState({ empty: value.length < 1, isFocused: false, value });
         }
         this.props.onChange(value);
-    };
+    }, 150);
 
     onInput = () => {
         const { value } = this.input;
