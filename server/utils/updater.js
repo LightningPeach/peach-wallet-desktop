@@ -11,7 +11,6 @@ logger.debug("[UPDATER]: isDev", isDev);
 
 const updaterManager = () => {
     let menu;
-    let isManual = false;
 
     const init = () => {
         logger.debug("[UPDATER]: Init");
@@ -24,7 +23,6 @@ const updaterManager = () => {
         logger.debug("[UPDATER]: Click on update from menu");
         menu = menuItem;
         menu.enabled = false;
-        isManual = true;
         autoUpdater.checkForUpdates();
     };
 
@@ -33,7 +31,6 @@ const updaterManager = () => {
         if (!menu) {
             return;
         }
-        isManual = false;
         if (error.statusCode === 404) {
             dialog.showMessageBox({
                 title: "Update was not found",
@@ -47,21 +44,19 @@ const updaterManager = () => {
     });
 
     autoUpdater.on("update-not-available", () => {
-        logger.debug("[UPDATER]: Update not found");
-        if (isManual) {
+        logger.debug("[UPDATER]: Update is not available");
+        if (menu) {
             dialog.showMessageBox({
                 title: "Update was not found",
                 message: "There is no update available. Your wallet application is up to date.",
             });
-            isManual = false;
         }
         menu.enabled = true;
         menu = null;
     });
 
     autoUpdater.on("update-available", () => {
-        logger.debug("[UPDATER]: Update found");
-        isManual = false;
+        logger.debug("[UPDATER]: Update is found");
         dialog.showMessageBox({
             type: "info",
             title: "Update the LightningPeach wallet",
@@ -81,22 +76,19 @@ const updaterManager = () => {
     });
 
     autoUpdater.on("update-downloaded", () => {
-        logger.debug("[UPDATER]: Update downloaded");
-        // app.removeAllListeners("window-all-closed");
+        logger.debug("[UPDATER]: Update is downloaded");
+        app.removeAllListeners("window-all-closed");
         const browserWindows = BrowserWindow.getAllWindows();
         browserWindows.forEach((browserWindow) => {
             browserWindow.removeAllListeners("close");
         });
-        autoUpdater.quitAndInstall();
-        // dialog.showMessageBox({
-        //     title: "Update is downloaded",
-        //     message: "Update is downloaded. The wallet application will be closed for updating.",
-        // }, () => {
-        //     logger.debug("[UPDATER]: Update will be installed");
-        //     if (process.platform === "darwin")
-        //         app.quit();
-        //     setImmediate(() => autoUpdater.quitAndInstall());
-        // });
+        dialog.showMessageBox({
+            title: "Update is downloaded",
+            message: "Update is downloaded. The wallet application will be closed for updating.",
+        }, () => {
+            logger.debug("[UPDATER]: Update will be installed");
+            setImmediate(() => autoUpdater.quitAndInstall());
+        });
     });
 
     if (isDev) {
