@@ -109,6 +109,7 @@ class RegularHistory extends Component {
                         id: "date",
                     },
                 ]}
+                title="Regular payments history"
             />
         );
     }
