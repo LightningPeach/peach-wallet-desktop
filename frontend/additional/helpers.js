@@ -105,7 +105,7 @@ const formatMultilineText = (text) => {
  * @returns {*}
  */
 /* istanbul ignore next */
-const formatNotificationMessage = (error, helper) => (
+const formatNotificationMessage = (error, helper = false) => (
     <Fragment>
         <span className="notification-message--error">{formatMultilineText(error)}</span>
         {helper &&
