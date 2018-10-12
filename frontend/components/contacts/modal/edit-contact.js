@@ -147,6 +147,7 @@ class EditContact extends Component {
                                 <button
                                     className="button button__link text-uppercase button__link--red"
                                     type="button"
+                                    id="delete-contract-modal"
                                     onClick={this.openDeleteContact}
                                 >
                                     Delete
@@ -154,6 +155,7 @@ class EditContact extends Component {
                                 <button
                                     className="button button__orange button__close"
                                     type="submit"
+                                    id="edit-contract-modal"
                                 >
                                     Edit
                                 </button>

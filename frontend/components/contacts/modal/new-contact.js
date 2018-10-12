@@ -149,12 +149,14 @@ class NewContact extends Component {
                                     className="button button__link text-uppercase"
                                     type="button"
                                     onClick={this.closeModal}
+                                    id="cancel-create-contract"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     className="button button__orange button__create"
                                     type="submit"
+                                    id="create-contact"
                                 >
                                     Create
                                 </button>

@@ -123,6 +123,7 @@ class OnChainDetails extends Component {
                                     className="button button__orange button__close button__side-padding45"
                                     onClick={this.sendCoins}
                                     disabled={this.state.processing}
+                                    id="pay-button-modal"
                                 >
                                 Pay
                                 </button>

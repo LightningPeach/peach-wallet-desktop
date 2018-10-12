@@ -13,6 +13,11 @@ const seedConfirmationScreen = require("./screens/seedConfimationScreen");
 const loginScreen = require("./screens/loginScreen");
 const statusCodes = require("../../frontend/config/status-codes");
 const agreementScreen = require("./screens/agreementScreen");
+const mainScreen = require("./screens/mainScreen");
+const lightingScreen = require("./screens/lightingScreen");
+const channelsScreen = require("./screens/channelsScreen");
+const profileScreen = require("./screens/profileScreen");
+const tourgideScreen = require("./screens/tourGuide");
 
 // construct path
 const baseDir = path.join(__dirname, "..", "..");
@@ -249,8 +254,11 @@ describe("Application launch", function () { // eslint-disable-line func-names
     describe("Tourgide", () => {
         it("should show tourgide", async () => {
             await utils.sleep(3000);
-            await app.client.waitUntil(async () => app.client.isExisting(".tourgide"), config.timeoutForElementChecks);
-            const title = await app.client.getText(".guide__title");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(tourgideScreen.guideScreen),
+                config.timeoutForElementChecks,
+            );
+            const title = await app.client.getText(tourgideScreen.guideTitle);
             assert.equal(title[0], "CHANNEL CREATION");
         });
 
@@ -260,17 +268,17 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should open wallet", async () => {
-            await app.client.click(".tourgide__btn--next .button");
+            await app.client.click(tourgideScreen.guideNextButton);
             await utils.sleep(1000);
-            await app.client.click(".tourgide__btn--next .button");
+            await app.client.click(tourgideScreen.guideNextButton);
             await utils.sleep(1000);
-            await app.client.click(".tourgide__btn--next .button");
+            await app.client.click(tourgideScreen.guideNextButton);
             await utils.sleep(1000);
             await app.client.waitUntil(
-                async () => !(await app.client.getAttribute(".tourgide__btn--next .button", "disabled")),
+                async () => !(await app.client.getAttribute(tourgideScreen.guideNextButton, "disabled")),
                 config.timeoutForElementChecks,
             );
-            await app.client.click(".tourgide__btn--next .button");
+            await app.client.click(tourgideScreen.guideNextButton);
             const activeMenu = await app.client.getText(".nav__lightning.active");
             assert.equal(activeMenu, "LIGHTNING");
         });
@@ -284,31 +292,31 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
     describe("Profile page", () => {
         it("should open profile page", async () => {
-            await app.client.click("a.profile");
+            await app.client.click(mainScreen.profileScreen);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".js-profileContent"),
+                async () => app.client.isExisting(profileScreen.profileContent),
                 config.timeoutForElementChecks,
             );
-            const exists = await app.client.isExisting(".js-profileContent");
+            const exists = await app.client.isExisting(profileScreen.profileContent);
             assert.equal(exists, true, "should have profile content");
         });
 
         it("should copy btc address", async () => {
-            const btcAddr = await app.client.getText(".js-btcAddress .profile__value_value");
-            await app.client.click(".js-btcAddress .profile__copy");
+            const btcAddr = await app.client.getText(profileScreen.btcAddr);
+            await app.client.click(profileScreen.btcAddrCopyButton);
             assert.equal(await app.electron.clipboard.readText(), btcAddr, "btc address not in clipboard");
         });
 
         it("should generate new btc address", async () => {
-            const oldAddr = await app.client.getText(".js-btcAddress .profile__value_value");
-            await app.client.click(".js-btcAddress .profile__reload");
-            const newAddr = await app.client.getText(".js-btcAddress .profile__value_value");
+            const oldAddr = await app.client.getText(profileScreen.btcAddr);
+            await app.client.click(profileScreen.btcAddrReload);
+            const newAddr = await app.client.getText(profileScreen.btcAddr);
             assert.notEqual(newAddr, oldAddr, "new addr should be different from old one");
         });
 
         it("should copy lightningId", async () => {
-            const lightningId = await app.client.getText(".js-lightningId .profile__value_value");
-            await app.client.click(".js-lightningId .profile__copy");
+            const lightningId = await app.client.getText(profileScreen.lightingId);
+            await app.client.click(profileScreen.lightingIdCopy);
             assert.equal(await app.electron.clipboard.readText(), lightningId, "lightningId not in clipboard");
         });
 
@@ -321,49 +329,49 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("TC:597: Payment request field validation", async () => {
-            await app.client.click("button=Generate request");
+            await app.client.click(profileScreen.generateRequestButton);
             const copyRequestExists = await app.client.isExisting(".pay_req__button .profile__copy");
             assert.equal(copyRequestExists, false);
-            await app.client.setValue("#pay_req_amount", 100);
+            await app.client.setValue(profileScreen.paymentAmount, 100);
             assert.equal(copyRequestExists, false);
-            await app.client.setValue("#pay_req_amount", "2.2.2.2");
-            const amount = await app.client.getValue("#pay_req_amount");
+            await app.client.setValue(profileScreen.paymentAmount, "2.2.2.2");
+            const amount = await app.client.getValue(profileScreen.paymentAmount);
             assert.equal(amount, "2.222");
         });
 
         it("TC:596: Update payment request", async () => {
-            await app.client.setValue("#pay_req_amount", "2");
-            await app.client.click("button=Generate request");
-            const paymentRequestFirst = await app.client.getText(".js-ellipsis .text-ellipsis__text");
-            await app.client.setValue("#pay_req_amount", "3");
-            await app.client.click("button=Generate request");
-            const paymentRequestSecond = await app.client.getText(".js-ellipsis .text-ellipsis__text");
+            await app.client.setValue(profileScreen.paymentAmount, "2");
+            await app.client.click(profileScreen.generateRequestButton);
+            const paymentRequestFirst = await app.client.getText(profileScreen.paymentRequestId);
+            await app.client.setValue(profileScreen.paymentAmount, "3");
+            await app.client.click(profileScreen.generateRequestButton);
+            const paymentRequestSecond = await app.client.getText(profileScreen.paymentRequestId);
             assert.notEqual(paymentRequestFirst, paymentRequestSecond, "Request are different");
         });
 
         it("TC:594: Generate payment request", async () => {
-            await app.client.setValue("#pay_req_amount", 1);
-            await app.client.click("button=Generate request");
-            const paymentRequest = await app.client.getText(".js-ellipsis .text-ellipsis__text");
+            await app.client.setValue(profileScreen.paymentAmount, 1);
+            await app.client.click(profileScreen.generateRequestButton);
+            const paymentRequest = await app.client.getText(profileScreen.paymentRequestId);
             await app.client.click(".pay_req__button .profile__copy");
             assert.equal(await app.electron.clipboard.readText(), paymentRequest, "Payment request is in clipboard");
 
-            await app.client.click("a.nav__lightning");
+            await app.client.click(mainScreen.lightingScreen);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".lightning-page"),
+                async () => app.client.isExisting(lightingScreen.lightingPage),
                 config.timeoutForElementChecks,
             );
-            const exists = await app.client.isExisting(".lightning-page");
+            const exists = await app.client.isExisting(lightingScreen.lightingPage);
             assert.equal(exists, true);
 
-            await app.client.setValue("#regular__to", paymentRequest);
-            await app.client.setValue("#regular__name", config.regularTransactionName);
+            await app.client.setValue(lightingScreen.regularPaymentTo, paymentRequest);
+            await app.client.setValue(lightingScreen.regularPaymentName, config.regularTransactionName);
         });
     });
 
     describe("Channels page", () => {
         it("TC:652: should open channels page, channel open hint", async () => {
-            await app.client.click("a.channels");
+            await app.client.click(mainScreen.channelsScreen);
             await app.client.waitUntil(
                 async () => app.client.isExisting(".overlay__content"),
                 config.timeoutForElementChecks,
@@ -371,39 +379,39 @@ describe("Application launch", function () { // eslint-disable-line func-names
             const hint = await app.client.getText(".overlay__content");
             assert.equal(hint, "Create channel for making payments with BTC");
             await app.client.waitUntil(
-                async () => app.client.isExisting(".channels-page"),
+                async () => app.client.isExisting(channelsScreen.channelsPage),
                 config.timeoutForElementChecks,
             );
-            const exists = await app.client.isExisting(".channels-page");
+            const exists = await app.client.isExisting(channelsScreen.channelsPage);
             assert.equal(exists, true);
         });
 
         it("TC:682: Opening channel errors. Not enough money to open the channel with specified size", async () => {
-            await app.client.click("button=Create Channel");
+            await app.client.click(channelsScreen.createChannelButton);
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-wrapper"),
                 config.timeoutForElementChecks,
             );
             const title = await app.client.getText(".modal-header");
             assert.equal(title, "CREATE CHANNEL");
-            await app.client.setValue("#channel__name", config.channelName);
-            await app.client.setValue("#channel__amount", config.channelBigAmout);
-            await app.client.click("button=Create");
+            await app.client.setValue(channelsScreen.channelName, config.channelName);
+            await app.client.setValue(channelsScreen.channelAmount, config.channelBigAmout);
+            await app.client.click(channelsScreen.createChannelModal);
             const error = await app.client.getText(".form-error");
             assert.equal(error, statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
-            await app.client.click("#cancel-create-channel-button");
+            await app.client.click(channelsScreen.cancelCreateChannel);
             await utils.sleep(config.cmdUtilsTimeout);
         });
 
         it("should receive btc", async () => {
-            await app.client.click("a.profile");
+            await app.client.click(mainScreen.profileScreen);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".js-profileContent"),
+                async () => app.client.isExisting(profileScreen.profileContent),
                 config.timeoutForElementChecks,
             );
-            const exists = await app.client.isExisting(".js-profileContent");
+            const exists = await app.client.isExisting(profileScreen.profileContent);
             assert.equal(exists, true, "should have profile content");
-            const btcAddr = await app.client.getText(".js-btcAddress .profile__value_value");
+            const btcAddr = await app.client.getText(profileScreen.btcAddr);
             await utils.fundsLncli("sendcoins", ["--addr", btcAddr, "--amt", config.onchainAmount]);
             await utils.btcctlGenerate();
             const amount = await app.client.getText(".balance__value");
@@ -414,25 +422,25 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("TC:686: Channel cannot be more then 16777216 satoshies", async () => {
-            await app.client.click("a.channels");
-            await app.client.click("button=Create Channel");
+            await app.client.click(mainScreen.channelsScreen);
+            await app.client.click(channelsScreen.createChannelButton);
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-wrapper"),
                 config.timeoutForElementChecks,
             );
             const title = await app.client.getText(".modal-header");
             assert.equal(title, "CREATE CHANNEL");
-            await app.client.setValue("#channel__name", config.channelName);
-            await app.client.setValue("#channel__amount", config.channelBigAmout);
-            await app.client.click("button=Create");
+            await app.client.setValue(channelsScreen.channelName, config.channelName);
+            await app.client.setValue(channelsScreen.channelAmount, config.channelBigAmout);
+            await app.client.click(channelsScreen.createChannelModal);
             const error = await app.client.getText(".form-error");
             assert.equal(error, statusCodes.EXCEPTION_AMOUNT_MORE_MAX_CHANNEL("167.77216 mBTC"));
-            await app.client.click("#cancel-create-channel-button");
+            await app.client.click(channelsScreen.cancelCreateChannel);
             await utils.sleep(config.cmdUtilsTimeout);
         });
 
         it("should open new channel modal", async () => {
-            await app.client.click("button=Create Channel");
+            await app.client.click(channelsScreen.createChannelButton);
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-wrapper"),
                 config.timeoutForElementChecks,
@@ -443,26 +451,26 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
         it("should add new channel", async () => {
             const fundsInfo = await utils.fundsLncli("getinfo");
-            await app.client.click(".channels__custom");
-            await app.client.setValue("#channel__name", config.channelName);
-            await app.client.setValue("#channel__amount", config.channelAmount);
+            await app.client.click(channelsScreen.customChannel);
+            await app.client.setValue(channelsScreen.channelName, config.channelName);
+            await app.client.setValue(channelsScreen.channelAmount, config.channelAmount);
             await app.client.setValue(
-                "#channel__lightningId",
+                channelsScreen.newChannelLightingId,
                 `${fundsInfo.identity_pubkey}@${config.channelHost}`,
             );
-            await app.client.click("button=Create");
+            await app.client.click(channelsScreen.createChannelModal);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".channel__pending"),
+                async () => app.client.isExisting(channelsScreen.channelPending),
                 config.timeoutForElementChecks,
             );
-            const chanExists = await app.client.isExisting(".channel__pending");
+            const chanExists = await app.client.isExisting(channelsScreen.channelPending);
             assert.equal(chanExists, true, "should appear channel");
         });
 
         it("should open channel", async () => {
             await utils.btcctlGenerate(3);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".channel__active"),
+                async () => app.client.isExisting(channelsScreen.channelActive),
                 config.timeoutForElementChecks,
             );
             const chanBalance = (await app.client.getText(".channel__text--balance")).split(":")[1].trim();
@@ -470,21 +478,21 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
     });
 
-    describe("Send some money", () => {
+    describe("TC: 614: regular payment by lighting ID", () => {
         it("should open lightning page", async () => {
-            await app.client.click("a.nav__lightning");
+            await app.client.click(mainScreen.lightingScreen);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".lightning-page"),
+                async () => app.client.isExisting(lightingScreen.lightingPage),
                 config.timeoutForElementChecks,
             );
-            const exists = await app.client.isExisting(".lightning-page");
+            const exists = await app.client.isExisting(lightingScreen.lightingPage);
             assert.equal(exists, true);
         });
 
         it("should open details page", async () => {
             const payReq = (await utils.fundsLncli("addinvoice", ["--amt", 10000])).pay_req;
-            await app.client.setValue("#regular__to", payReq);
-            await app.client.setValue("#regular__name", config.regularTransactionName);
+            await app.client.setValue(lightingScreen.regularPaymentTo, payReq);
+            await app.client.setValue(lightingScreen.regularPaymentName, config.regularTransactionName);
             await app.client.click("button=Pay");
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-wrapper"),
@@ -507,16 +515,47 @@ describe("Application launch", function () { // eslint-disable-line func-names
         it("should close success payment modal", async () => {
             await app.client.click(".modal-wrapper .button__close");
             await utils.sleep(1000);
-            const exists = await app.client.isExisting(".lightning-page");
+            const exists = await app.client.isExisting(lightingScreen.lightingPage);
+            assert.equal(exists, true);
+        });
+    });
+
+    describe("TC: 620: regular payment without name", () => {
+        it("enter details without name", async () => {
+            const payReq = (await utils.fundsLncli("addinvoice", ["--amt", 10000])).pay_req;
+            await app.client.setValue(lightingScreen.regularPaymentTo, payReq);
+            await app.client.click("button=Pay");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".modal-wrapper"),
+                config.timeoutForElementChecks,
+            );
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "CHECK YOUR DATA");
+        });
+
+        it("should success payment", async () => {
+            await app.client.click(".modal-footer .button__close");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".modal-payment_result__success"),
+                config.timeoutForElementChecks,
+            );
+            const exists = await app.client.isExisting(".modal-payment_result__success");
+            assert.equal(exists, true);
+        });
+
+        it("should close success payment modal", async () => {
+            await app.client.click(".modal-wrapper .button__close");
+            await utils.sleep(1000);
+            const exists = await app.client.isExisting(lightingScreen.lightingPage);
             assert.equal(exists, true);
         });
     });
 
     describe("Close channel", () => {
         it("should show close channel modal", async () => {
-            await app.client.click("a.channels");
+            await app.client.click(mainScreen.channelsScreen);
             await app.client.waitUntil(
-                async () => app.client.isExisting(".channels-page"),
+                async () => app.client.isExisting(channelsScreen.channelsPage),
                 config.timeoutForElementChecks,
             );
             await app.client.moveToObject(".channels-page .channel");
@@ -546,10 +585,269 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await utils.sleep(3000);
         });
     });
+
+    describe("TC:610: Add new contact name with special characters", () => {
+        it("open address book", async () => {
+            await app.client.click(mainScreen.contactsScreen);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".contacts-page"),
+                config.timeoutForElementChecks,
+            );
+        });
+        it("open add contact modal", async () => {
+            await app.client.click("button=ADD CONTACT");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "ADD NEW CONTACT");
+        });
+        it("set contact name and address", async () => {
+            const fundsInfo = await utils.fundsLncli("getinfo");
+            await app.client.setValue("#contact__name", config.usernameWithSpecialChar);
+            await app.client.setValue("#contact__lightning", `${fundsInfo.identity_pubkey}@${config.channelHost}`);
+            await app.client.click("#create-contact");
+            const error = await app.client.getText(".form-error");
+            assert.equal(
+                error,
+                "Only letters, space and numbers are allowed.",
+            );
+            await app.client.click("#cancel-create-contract");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:613: add contact to address book", () => {
+        it("open address book", async () => {
+            await app.client.click(mainScreen.contactsScreen);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".contacts-page"),
+                config.timeoutForElementChecks,
+            );
+        });
+        it("open add contact modal", async () => {
+            await app.client.click("button=ADD CONTACT");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "ADD NEW CONTACT");
+        });
+        it("set contact name and address", async () => {
+            const fundsInfo = await utils.fundsLncli("getinfo");
+            await app.client.setValue("#contact__name", config.testAddressContact);
+            console.log("Set name");
+            await app.client.setValue("#contact__lightning", `${fundsInfo.identity_pubkey}@${config.channelHost}`);
+            console.log("Set lighting");
+            await app.client.click("#create-contact");
+            const contactName = await app.client.getText(".text-ellipsis__text");
+            assert.equal(contactName, config.testAddressContact, "contact name should be present");
+            const contactLightingID = await app.client.getText(".contacts__lightningId");
+            assert.equal(
+                contactLightingID,
+                `${fundsInfo.identity_pubkey}`, "lighting id should be present",
+            );
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:604: Add existing contact to address book", () => {
+        it("open address book", async () => {
+            await app.client.click(mainScreen.contactsScreen);
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".contacts-page"),
+                config.timeoutForElementChecks,
+            );
+        });
+        it("open add contact modal", async () => {
+            await app.client.click("button=ADD CONTACT");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "ADD NEW CONTACT");
+        });
+        it("set contact name and address", async () => {
+            const fundsInfo = await utils.fundsLncli("getinfo");
+            await app.client.setValue("#contact__name", config.testAddressContact);
+            console.log("Set name");
+            await app.client.setValue("#contact__lightning", `${fundsInfo.identity_pubkey}@${config.channelHost}`);
+            console.log("Set lighting");
+            await app.client.click("#create-contact");
+            const error = await app.client.getText(".form-error");
+            assert.equal(
+                error,
+                "Unable to create contact. This name and Lightning ID already exists.",
+            );
+            await app.client.click("#cancel-create-contract");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:606: Edit contact in address book", () => {
+        it("open edit contact modal", async () => {
+            await app.client.moveToObject(".contacts__lightningId");
+            await app.client.waitUntil(
+                async () => app.client.isVisible("#edit-contract"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#edit-contract");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "EDIT CONTACT");
+        });
+        it("change name of contract", async () => {
+            await app.client.setValue("#contact__name", config.testAddressContactNew);
+            await app.client.click("#edit-contract-modal");
+            const contactName = await app.client.getText(".text-ellipsis__text");
+            assert.equal(contactName, config.testAddressContactNew, "contact name should be changed");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:608: Cancel deletion contact from address book", () => {
+        it("open edit contact modal", async () => {
+            await app.client.moveToObject(".contacts__lightningId");
+            await app.client.waitUntil(
+                async () => app.client.isVisible("#edit-contract"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#edit-contract");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "EDIT CONTACT");
+            utils.sleep(config.cmdUtilsTimeout);
+            await app.client.click("#delete-contract-modal");
+            await app.client.click("#back-button-modal");
+            await app.client.click(".close-modal");
+            const contactName = await app.client.getText(".text-ellipsis__text");
+            assert.equal(contactName, config.testAddressContactNew, "contact name should be present");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:605: Copy contact from address book", () => {
+        it("open edit contact modal and copy", async () => {
+            await app.client.moveToObject(".contacts__lightningId");
+            await app.client.waitUntil(
+                async () => app.client.isVisible("#edit-contract"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#copy-contract");
+            const contactAddr = await app.client.getText(".contacts__lightningId");
+            assert.equal(await app.electron.clipboard.readText(), contactAddr, "Contact address is in clipboard");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:607: Delete contact from address book", () => {
+        it("open edit contact modal", async () => {
+            await app.client.moveToObject(".contacts__lightningId");
+            await app.client.waitUntil(
+                async () => app.client.isVisible("#edit-contract"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#edit-contract");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "EDIT CONTACT");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#delete-contract-modal"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#delete-contract-modal");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#delete-button-modal"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.click("#delete-button-modal");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:609: Add contact with incorrect lightning id", () => {
+        it("open add contact modal", async () => {
+            await app.client.click("button=ADD CONTACT");
+            const title = await app.client.getText(".modal-header");
+            assert.equal(title, "ADD NEW CONTACT");
+        });
+        it("set contact name and address", async () => {
+            await app.client.setValue("#contact__name", config.testAddressContact);
+            await app.client.setValue("#contact__lightning", "12345");
+            await app.client.click("#create-contact");
+            const error = await app.client.getText(".form-error");
+            assert.equal(
+                error,
+                "Incorrect length of Lightning ID.",
+            );
+            await app.client.click("#cancel-create-contract");
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:673: ONCHAIN transaction errors. Not enough money to make a payment", () => {
+        it("open onchain page and make a big payment", async () => {
+            await app.client.click("a.onchain");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#send-coins__name"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.setValue("#send-coins__to", config.testBtcAddr);
+            await app.client.setValue("#send-coins__name", config.username);
+            await app.client.setValue("#send-coins__amount", config.bigOnchainAmount);
+            await app.client.click("button=Pay");
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:674: ONCHAIN transaction errors. Amount is less than minimum allowed transaction", () => {
+        it("open onchain page and make a small payment", async () => {
+            await app.client.click("a.onchain");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#send-coins__name"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.setValue("#send-coins__to", config.testBtcAddr);
+            await app.client.setValue("#send-coins__name", config.username);
+            await app.client.setValue("#send-coins__amount", config.smallOnchainAmout);
+            await app.client.click("button=Pay");
+            const error = await app.client.getText(".form-error");
+            assert.equal(error, statusCodes.EXCEPTION_AMOUNT_LESS_THAN_FEE(0.11468));
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
+    describe("TC:647: Payment creation. Without payment name", () => {
+        it("open onchain page and make a payment with name", async () => {
+            await app.client.click("a.onchain");
+            await app.client.waitUntil(
+                async () => app.client.isExisting("#send-coins__name"),
+                config.timeoutForElementChecks,
+            );
+            await app.client.setValue("#send-coins__to", config.testBtcAddr);
+            await app.client.setValue("#send-coins__amount", config.normalOnchainAmount);
+            await app.client.click("button=Pay");
+            console.log("Clicked first pay");
+            // await app.client.waitUntil(
+            //     async () => app.client.isExisting(".modal-wrapper"),
+            //     config.timeoutForElementChecks,
+            // );
+            // const title = await app.client.getText(".modal-header");
+            // assert.equal(title, "CHECK YOUR DATA");
+            // await app.client.waitUntil(
+            //     async () => app.client.isExisting("#pay-button-modal"),
+            //     config.timeoutForElementChecks,
+            // );
+            await app.client.click("#pay-button-modal");
+            console.log("Clicked second pay");
+            await app.client.waitUntil(
+                async () => app.client.isExisting(".modal-payment_result__success"),
+                config.timeoutForElementChecks,
+            );
+            const exists = await app.client.isExisting(".modal-payment_result__success");
+            assert.equal(exists, true);
+            await app.client.click(".modal-wrapper .button__close");
+            await utils.sleep(config.cmdUtilsTimeout);
+            const existsCoinsName = await app.client.isExisting("#send-coins__name");
+            assert.equal(existsCoinsName, true);
+            await utils.sleep(config.cmdUtilsTimeout);
+        });
+    });
+
     describe("Logout and login/signup checks for existing user", () => {
         it("TC:593: Cancel logout from account", async () => {
-            await app.client.click("a.profile");
-            await app.client.click("#logout-button");
+            await app.client.click(mainScreen.profileScreen);
+            await app.client.click(profileScreen.logoutButton);
             await app.client.waitUntil(
                 async () => app.client.isExisting(".button__close"),
                 config.timeoutForElementChecks,
@@ -558,9 +856,8 @@ describe("Application launch", function () { // eslint-disable-line func-names
             await utils.sleep(config.cmdUtilsTimeout);
         });
         it("TC:590: Logout from account", async () => {
-            await app.client.click("a.channels");
-            await app.client.click("a.profile");
-            await app.client.click("#logout-button");
+            await app.client.click(mainScreen.profileScreen);
+            await app.client.click(profileScreen.logoutButton);
             await app.client.waitUntil(
                 async () => app.client.isExisting(".button__close"),
                 config.timeoutForElementChecks,
@@ -592,4 +889,5 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
     });
 });
+
 /* eslint-enable prefer-arrow-callback */

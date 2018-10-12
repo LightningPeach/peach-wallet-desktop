@@ -70,6 +70,7 @@ class DeleteContact extends Component {
                             <button
                                 className="button button__link text-uppercase"
                                 type="button"
+                                id="back-button-modal"
                                 onClick={this.editModal}
                             >
                                 Back
@@ -77,6 +78,7 @@ class DeleteContact extends Component {
                             <button
                                 className="button button__orange button__close"
                                 type="button"
+                                id="delete-button-modal"
                                 onClick={this.deleteContact}
                             >
                                 Delete

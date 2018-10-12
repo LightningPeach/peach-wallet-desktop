@@ -3,6 +3,8 @@ const veryLongUsernameOne = "AVerylongusernameconsistingofmorethan100characters"
 const veryLongUsernameTwo = "AVerylongusernameconsistingofmorethan100charactersandseveralmore";
 const usernameWithSpace = "Alex QA";
 const usernameWithSpecialChar = "#@Alex";
+const testAddressContact = "TestContact1";
+const testAddressContactNew = "NewContactName";
 const password = "testPass1234";
 const wrongPassword = "wrongPass123";
 const lowercasePassword = "lowercas";
@@ -32,6 +34,10 @@ const testTimeout = 60 * 1000;
 const cmdUtilsTimeout = 1000;
 const timeoutForAgreement = 3 * 1000;
 const cmdUtilsCallDelay = 5 * 1000;
+const bigOnchainAmount = 1001;
+const smallOnchainAmout = 0.00001;
+const normalOnchainAmount = 1;
+const testBtcAddr = "rYhdoq9uV7ft25VXfUXuvpTmtRq4QVS9hz";
 
 module.exports = {
     username,
@@ -39,6 +45,8 @@ module.exports = {
     veryLongUsernameTwo,
     usernameWithSpace,
     usernameWithSpecialChar,
+    testAddressContact,
+    testAddressContactNew,
     password,
     wrongPassword,
     lowercasePassword,
@@ -68,4 +76,8 @@ module.exports = {
     cmdUtilsTimeout,
     timeoutForAgreement,
     cmdUtilsCallDelay,
+    bigOnchainAmount,
+    smallOnchainAmout,
+    normalOnchainAmount,
+    testBtcAddr,
 };

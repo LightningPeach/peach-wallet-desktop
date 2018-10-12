@@ -74,13 +74,28 @@ class ContactsPage extends Component {
                         {contact.lightningID}
                     </div>
                     <div className="contacts__actions">
-                        <button className={btnClass} type="button" onClick={() => this.handleEdit(key)}>
+                        <button
+                            className={btnClass}
+                            id="edit-contract"
+                            type="button"
+                            onClick={() => this.handleEdit(key)}
+                        >
                             Edit
                         </button>
-                        <button className={btnClass} type="button" onClick={() => this.handleCopy(contact.lightningID)}>
+                        <button
+                            className={btnClass}
+                            id="copy-contract"
+                            type="button"
+                            onClick={() => this.handleCopy(contact.lightningID)}
+                        >
                             Copy
                         </button>
-                        <button className={btnClass} type="button" onClick={() => this.handlePay(key)}>
+                        <button
+                            className={btnClass}
+                            id="pay-contract"
+                            type="button"
+                            onClick={() => this.handlePay(key)}
+                        >
                             Pay
                         </button>
                     </div>
