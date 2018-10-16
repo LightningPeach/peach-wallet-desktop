@@ -131,6 +131,23 @@
         }
     }
 
+    &__hollow {
+        background-color: transparent;
+        height: 36px;
+        line-height: 36px;
+        padding: 0 25px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 119, 0, 0.38);
+        color: $pumpkin-orange;
+        font-weight: 500;
+        letter-spacing: normal;
+
+        &:active,
+        &.active {
+            background-color: rgba(255, 119, 0, 0.06);
+        }
+    }
+
     &__under-button {
         margin-top: 5px;
     }
