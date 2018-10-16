@@ -1,8 +1,9 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ReactTable from "react-table";
 import { HISTORY_ROWS_PER_PAGE } from "config/consts";
+import Filter from "components/filter";
 import Pagination from "./pagination";
 
 class History extends Component {
@@ -27,15 +28,18 @@ class History extends Component {
             </div>
         );
         const renderData = () => (
-            <ReactTable
-                {...table}
-                page={this.state.page}
-                resizable={false}
-                showPageSizeOptions={false}
-                defaultPageSize={HISTORY_ROWS_PER_PAGE}
-                PaginationComponent={Pagination}
-                customPagination={this.onPageChange}
-            />
+            <Fragment>
+                <Filter />
+                <ReactTable
+                    {...table}
+                    page={this.state.page}
+                    resizable={false}
+                    showPageSizeOptions={false}
+                    defaultPageSize={HISTORY_ROWS_PER_PAGE}
+                    PaginationComponent={Pagination}
+                    customPagination={this.onPageChange}
+                />
+            </Fragment>
         );
         const renderTitle = () => {
             if (withoutTitle) {
