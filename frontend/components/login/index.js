@@ -69,6 +69,8 @@ class Login extends Component {
             return;
         }
         this.setState({ passwordError, usernameError });
+
+        await window.ipcClient("loadLndPath", { username });
         const init = await dispatch(operations.login(username, password));
         this.setState({ processing: false });
         if (!init.ok) {

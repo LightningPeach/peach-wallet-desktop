@@ -12,12 +12,13 @@ module.exports = ({
     config,
 }) => {
     const peersFile = join(config.get("dataPath"), "peers.json");
+    const userPathsFile = join(config.get("dataPath"), "usersPath.json");
     /**
      * Return username based path to database file
      * @param {*} username
      * @returns {*}
      */
-    const databasePath = username => join(config.get("dataPath"), String(username), config.get("backend.dbFile"));
+    const databasePath = username => join(config.get("lndPath"), String(username), config.get("backend.dbFile"));
 
     /**
      * Create agreement file (eula.txt and google analytics agreement)
@@ -96,11 +97,42 @@ module.exports = ({
         await helpers.writeFile(peersFile, JSON.stringify(peers));
     };
 
+    const loadLndPath = async (username) => {
+        const defaultPath = config.get("dataPath");
+        const fileExists = fs.existsSync(userPathsFile);
+        if (!fileExists) {
+            return defaultPath;
+        }
+        const paths = JSON.parse(fs.readFileSync(userPathsFile).toString());
+        logger.info("[SETTINGS] - getLndPath", { fileExists, username, paths });
+        if (username in paths) {
+            return paths[username];
+        }
+        return defaultPath;
+    };
+
+    const saveLndPath = async (username, lndPath) => {
+        const fileExists = fs.existsSync(userPathsFile);
+        if (!fileExists) {
+            await helpers.writeFile(userPathsFile, JSON.stringify({ [username]: lndPath }));
+            return;
+        }
+        const paths = JSON.parse(fs.readFileSync(userPathsFile).toString());
+        logger.info("[SETTINGS] - saveLndPath", { paths });
+        if (username in paths && paths[username] === lndPath) {
+            return;
+        }
+        paths[username] = lndPath;
+        await helpers.writeFile(userPathsFile, JSON.stringify(paths));
+    };
+
     return {
         databasePath,
         listenPort,
         setAgreement,
         setListenPort,
         walletLndPath,
+        loadLndPath,
+        saveLndPath,
     };
 };

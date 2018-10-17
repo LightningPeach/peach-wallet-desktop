@@ -77,11 +77,11 @@ registerIpc("createLndFolder", async (event, arg) => {
     try {
         logger.info(
             { func: "createLndFolder" },
-            `Will check folder ${path.join(settings.get.dataPath, arg.username, "data")}`,
+            `Will check folder ${path.join(settings.get.lndPath, arg.username, "data")}`,
         );
-        const userData = path.join(settings.get.dataPath, arg.username, "data");
-        const userLog = path.join(settings.get.dataPath, arg.username, "log");
-        const exists = await helpers.checkDir(path.join(settings.get.dataPath, arg.username, "data"));
+        const userData = path.join(settings.get.lndPath, arg.username, "data");
+        const userLog = path.join(settings.get.lndPath, arg.username, "log");
+        const exists = await helpers.checkDir(path.join(settings.get.lndPath, arg.username, "data"));
         if (exists.ok) {
             return { ok: false, error: "User already exists" };
         }
@@ -96,15 +96,29 @@ registerIpc("createLndFolder", async (event, arg) => {
     }
 });
 
-registerIpc("logout", async () => this.shutdown());
+registerIpc("logout", this.shutdown);
 
 registerIpc("checkUser", async (event, arg) => {
-    const exists = await helpers.checkDir(path.join(settings.get.dataPath, arg.username, "data"));
+    const loadedPath = await settings.get.loadLndPath(arg.username);
+    settings.set("lndPath", loadedPath);
+    const exists = await helpers.checkDir(path.join(settings.get.lndPath, arg.username, "data"));
     if (!exists.ok) {
         exists.error = "User doesn't exist.";
     }
     return exists;
 });
+
+registerIpc("setLndPath", async (event, arg) => {
+    const defPath = arg.defaultPath ? settings.get.dataPath : arg.lndPath;
+    settings.set("lndPath", defPath);
+});
+
+registerIpc("loadLndPath", async (event, arg) => {
+    const loadedPath = await settings.get.loadLndPath(arg.username);
+    settings.set("lndPath", loadedPath);
+});
+
+registerIpc("validateLndPath", async (event, arg) => helpers.checkDir(path.join(arg.lndPath)));
 
 registerIpc("newAddress", async () => lnd.call("newWitnessAddress"));
 

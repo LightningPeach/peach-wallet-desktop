@@ -1,0 +1,24 @@
+.file {
+    &__wrapper {
+        font-size: 14px;
+        color: $ultrablack;
+        border: 1px solid rgba(74, 74, 74, 0.3);
+        border-radius: 2px;
+        padding: 0 9px;
+        width: 100%;
+        letter-spacing: -0.5px;
+        height: 40px;
+        line-height: 40px;
+        text-overflow: ellipsis;
+        transition: border-color 0.2s ease, background-color 0.25s ease;
+        display: inline-block;
+
+        &--disabled {
+            opacity: .3;
+            pointer-events: none;
+        }
+    }
+    &__input {
+        display: none;
+    }
+}

@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import Checkbox from "components/ui/checkbox";
+import File from "components/ui/file";
 import { error } from "modules/notifications";
 import { connect } from "react-redux";
 import {
@@ -19,9 +21,16 @@ class RegistrationForm extends PureComponent {
         super(props);
         this.state = {
             confPasswordError: null,
+            defaultPath: false,
+            lndPath: "",
+            lndPathError: null,
             passwordError: null,
             processing: false,
             tooltips: {
+                defaultPath: [
+                    "Better to set wallet data path in dropbox",
+                    "or google drive folder.",
+                ],
                 password: [
                     "The password must be at least 8 characters and contain",
                     "minimum 1 uppercase letter [A-Z], 1 lower case letter [a-z]",
@@ -49,16 +58,19 @@ class RegistrationForm extends PureComponent {
         analytics.event({ action: "Registration", category: "Auth", label: "Submit Registration" });
         this.setState({ processing: true });
         const { dispatch, onValid } = this.props;
+        const { lndPath, defaultPath } = this.state;
         const username = this.username.value.trim();
         const password = this.password.value.trim();
         const confPassword = this.confPassword.value.trim();
         const usernameError = validators.validateName(username, true, false, false);
         const passwordError = validators.validatePass(password);
         const confPasswordError = validators.validatePassMismatch(password, confPassword);
+        const lndPathError = defaultPath ? null : await validators.validateLndPath(lndPath);
 
-        if (usernameError || passwordError || confPasswordError) {
+        if (usernameError || passwordError || confPasswordError || lndPathError) {
             this.setState({
                 confPasswordError,
+                lndPathError,
                 passwordError,
                 processing: false,
                 usernameError,
@@ -66,6 +78,7 @@ class RegistrationForm extends PureComponent {
             return;
         }
 
+        await window.ipcClient("setLndPath", { defaultPath, lndPath });
         this.setState({ confPasswordError, passwordError, usernameError });
         const response = await dispatch(operations.regStartLnd(username));
         if (!response.ok) {
@@ -192,6 +205,45 @@ class RegistrationForm extends PureComponent {
                             onChange={() => { this.setState({ confPasswordError: null }) }}
                         />
                         <ErrorFieldTooltip text={this.state.confPasswordError} />
+                    </div>
+                </div>
+                <div className="row mt-14">
+                    <div className="col-xs-12">
+                        <div className="form-label">
+                            <Checkbox
+                                text="Use default path"
+                                onChange={() => this.setState({ defaultPath: !this.state.defaultPath })}
+                                checked={this.state.defaultPath}
+                            />
+                            <Tooltip
+                                placement="right"
+                                overlay={helpers.formatMultilineText(this.state.tooltips.defaultPath)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info" />
+                            </Tooltip>
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <File
+                            disabled={this.state.defaultPath}
+                            value={this.state.lndPath}
+                            placeholder="Select folder"
+                            className={this.state.lndPathError ? "form-text__error" : ""}
+                            onChange={(e) => {
+                                if (e.target.files[0]) {
+                                    this.setState({ lndPath: e.target.files[0].path });
+                                } else {
+                                    this.setState({ lndPath: "" });
+                                }
+                            }}
+                        />
+                        <ErrorFieldTooltip text={this.state.lndPathError} />
                     </div>
                 </div>
                 <div className="row spinner__wrapper mt-30">

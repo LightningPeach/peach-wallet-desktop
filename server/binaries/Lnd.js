@@ -41,7 +41,7 @@ const getDeadLine = (deadline = GRPC_DEADLINE) => {
 };
 
 const getMacaroonMeta = (name) => {
-    const macaroonFile = path.join(settings.get.dataPath, name, MACAROON_FILE);
+    const macaroonFile = path.join(settings.get.lndPath, name, MACAROON_FILE);
     const metadata = new grpc.Metadata();
     const macaroonHex = fs.readFileSync(macaroonFile).toString("hex");
     metadata.add("macaroon", macaroonHex);
@@ -55,7 +55,7 @@ const getMacaroonMeta = (name) => {
  * @return {Promise<void>}
  */
 const getRpcService = async (name, service) => new Promise((resolve, reject) => {
-    const certPath = path.join(settings.get.dataPath, name, LND_CERT_FILE);
+    const certPath = path.join(settings.get.lndPath, name, LND_CERT_FILE);
     const sslCreds = grpc.credentials.createSsl(fs.readFileSync(certPath));
     const client = new lnRpcDescriptor.lnrpc[service](localLndRpcIp, sslCreds);
     logger.info({ func: getRpcService }, `Will start waiting for grpc connection with params: ${name}, ${service}`);
@@ -81,7 +81,7 @@ let lastError;
  */
 const awaitTlsGen = async name => new Promise((resolve) => {
     const intervalId = setInterval(() => {
-        if (fs.existsSync(path.join(settings.get.dataPath, name, LND_CERT_FILE))) {
+        if (fs.existsSync(path.join(settings.get.lndPath, name, LND_CERT_FILE))) {
             clearInterval(intervalId);
             resolve();
         }
@@ -266,12 +266,12 @@ class Lnd extends Exec {
      */
     getOptions() {
         const options = [
-            "--lnddir", path.join(settings.get.dataPath, this.name),
-            "--configfile", path.join(settings.get.dataPath, this.name, LND_CONF_FILE),
-            "--datadir", path.join(settings.get.dataPath, this.name, "data"),
-            "--tlscertpath", path.join(settings.get.dataPath, this.name, LND_CERT_FILE),
-            "--tlskeypath", path.join(settings.get.dataPath, this.name, LND_KEY_FILE),
-            "--logdir", path.join(settings.get.dataPath, this.name, "log"),
+            "--lnddir", path.join(settings.get.lndPath, this.name),
+            "--configfile", path.join(settings.get.lndPath, this.name, LND_CONF_FILE),
+            "--datadir", path.join(settings.get.lndPath, this.name, "data"),
+            "--tlscertpath", path.join(settings.get.lndPath, this.name, LND_CERT_FILE),
+            "--tlskeypath", path.join(settings.get.lndPath, this.name, LND_KEY_FILE),
+            "--logdir", path.join(settings.get.lndPath, this.name, "log"),
             "--debuglevel", getLogLevel(),
             "--bitcoin.node", settings.get.bitcoin.node,
             "--listen", `0.0.0.0:${this._peerPort}`,
@@ -286,8 +286,8 @@ class Lnd extends Exec {
         }
         if (!settings.get.lnd.no_macaroons) {
             options.push(
-                "--adminmacaroonpath", path.join(settings.get.dataPath, this.name, MACAROON_FILE),
-                "--readonlymacaroonpath", path.join(settings.get.dataPath, this.name, READONLY_MACAROON_FILE),
+                "--adminmacaroonpath", path.join(settings.get.lndPath, this.name, MACAROON_FILE),
+                "--readonlymacaroonpath", path.join(settings.get.lndPath, this.name, READONLY_MACAROON_FILE),
             );
         } else {
             options.push("--no-macaroons");
@@ -360,7 +360,7 @@ class Lnd extends Exec {
                 return;
             }
 
-            rmrf(path.join(settings.get.dataPath, this.name), (err) => {
+            rmrf(path.join(settings.get.lndPath, this.name), (err) => {
                 if (err) {
                     logger.error({ func: this.clearData }, err);
                     resolve({ ok: false, error: err.message });
@@ -417,6 +417,7 @@ class Lnd extends Exec {
             logger.debug("[LND] Init grpc WalletUnlock");
             this._client = await getRpcService(this.name, "WalletUnlocker");
             settings.set("lndPeer", [this.name, this._peerPort]);
+            settings.saveLndPath(this.name, settings.get.lndPath);
             return { ok: true };
         } catch (err) {
             logger.error({ func: this._startLnd }, "Error while unlock/create LND: ", err);

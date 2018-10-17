@@ -77,6 +77,8 @@ const EXCEPTION_LIGHTNING_HOST_WRONG_FORMAT = "Incorrect format. Correct is Ligh
 const EXCEPTION_USERNAME_PASSWORD_WRONG = "Incorrect username or password.";
 // User already exists
 const EXCEPTION_USERNAME_EXISTS = "User already exist.";
+// Folder unavailable
+const EXCEPTION_FOLDER_UNAVAILABLE = "Folder unavailable.";
 
 // ACCOUNT
 // Account not connected to kernel
@@ -195,6 +197,7 @@ export {
     EXCEPTION_LIGHTNING_ID_WRONG_SELF,
     EXCEPTION_USERNAME_PASSWORD_WRONG,
     EXCEPTION_USERNAME_EXISTS,
+    EXCEPTION_FOLDER_UNAVAILABLE,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH,
     EXCEPTION_AMOUNT_LESS_THAN_FEE,
     EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS,
