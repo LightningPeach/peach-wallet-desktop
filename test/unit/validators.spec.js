@@ -381,4 +381,38 @@ describe("Validators Unit Tests", () => {
             expect(window.ipcClient).to.be.calledWith("checkUser", { username });
         });
     });
+
+    describe("validateLndPath", () => {
+        beforeEach(() => {
+            window.ipcClient
+                .withArgs("validateLndPath")
+                .returns({
+                    ok: false,
+                });
+        });
+
+        it("should return error for undefined path", async () => {
+            const valid = await validators.validateLndPath();
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+        });
+        it("should return error if some problem with folder", async () => {
+            const dataPath = "/";
+            const valid = await validators.validateLndPath(dataPath);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FOLDER_UNAVAILABLE);
+            expect(window.ipcClient).to.be.calledOnce;
+            expect(window.ipcClient).to.be.calledWith("validateLndPath", { lndPath: dataPath });
+        });
+        it("should return null if all is good", async () => {
+            window.ipcClient
+                .withArgs("validateLndPath")
+                .returns({
+                    ok: true,
+                });
+            const dataPath = "/";
+            const valid = await validators.validateLndPath(dataPath);
+            expect(valid).to.equal(null);
+            expect(window.ipcClient).to.be.calledOnce;
+            expect(window.ipcClient).to.be.calledWith("validateLndPath", { lndPath: dataPath });
+        });
+    });
 });
