@@ -3,13 +3,13 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import DebounceInput from "react-debounce-input";
 import Datepicker from "components/ui/datepicker";
+import Timepicker from "components/ui/timepicker";
 
 class Filter extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            date: false,
             price: false,
             searchValue: "",
             time: false,
@@ -26,12 +26,6 @@ class Filter extends Component {
     handleTypeChange = (e) => {
         this.setState({
             type: e.target.getAttribute("data-name"),
-        });
-    };
-
-    handleDateChange = (value) => {
-        this.setState({
-            date: value,
         });
     };
 
@@ -99,12 +93,10 @@ class Filter extends Component {
                 />
             </div>
             <div className="filter__item">
-                <button
-                    className={`button button__hollow filter__type-button ${this.state.time ? "active" : ""}`}
-                    onClick={this.handleTimeChange}
-                >
-                    Time range
-                </button>
+                <Timepicker
+                    className="filter__type-button"
+                    onChange={this.handleTimeChange}
+                />
             </div>
             <div className="filter__item">
                 <button

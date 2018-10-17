@@ -18,7 +18,7 @@ class DigitsField extends Component {
         };
         const { pattern } = this.props;
         let { value, defaultValue } = this.props;
-        switch (pattern.toLowerCase()) {
+        switch (pattern) {
             case "above_zero_int":
                 this.pattern = validAboveZeroInt;
                 break;
@@ -26,7 +26,7 @@ class DigitsField extends Component {
                 this.pattern = validAboveZeroFloat;
                 break;
             default:
-                this.pattern = validAboveZeroFloat;
+                this.pattern = pattern;
                 break;
         }
         value = value && this.pattern.test(value) ? value : "";
@@ -40,15 +40,15 @@ class DigitsField extends Component {
     componentWillReceiveProps(nextProps) {
         const pattern = nextProps.pattern || "above_zero_float";
         if (nextProps.pattern !== this.props.pattern) {
-            switch (pattern.toLowerCase()) {
-                case "natural_int":
+            switch (pattern) {
+                case "above_zero_int":
                     this.pattern = validAboveZeroInt;
                     break;
                 case "above_zero_float":
                     this.pattern = validAboveZeroFloat;
                     break;
                 default:
-                    this.pattern = validAboveZeroFloat;
+                    this.pattern = pattern;
                     break;
             }
         }
@@ -100,7 +100,7 @@ class DigitsField extends Component {
 
 DigitsField.propTypes = {
     defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    pattern: PropTypes.string,
+    pattern: PropTypes.oneOfType([PropTypes.instanceOf(RegExp), PropTypes.string]),
     setOnChange: PropTypes.func,
     setRef: PropTypes.func.isRequired,
     value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
