@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import DebounceInput from "react-debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
+import Pricepicker from "components/ui/pricepicker";
 
 class Filter extends Component {
     constructor(props) {
@@ -99,13 +100,10 @@ class Filter extends Component {
                 />
             </div>
             <div className="filter__item">
-                <button
-                    className={`button button__hollow filter__type-button ${this.state.price ? "active" : ""}`}
-                    onClick={this.handlePriceChange}
-                >
-                    Price range
-                </button>
-
+                <Pricepicker
+                    className="filter__type-button"
+                    onChange={this.handlePriceChange}
+                />
             </div>
         </div>
     );
