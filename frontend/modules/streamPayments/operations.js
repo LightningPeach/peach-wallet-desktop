@@ -48,9 +48,9 @@ function prepareStreamPayment(
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
             return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareStreamPayment);
         }
-        const name = paymentName || "Stream payment";
+        const name = paymentName || "Recurring payment";
         const id = btoa(unescape(encodeURIComponent(`${name}_${new Date().getTime()}`)));
-        const memo = `stream_payment_${new Date().getTime()}`;
+        const memo = `recurring_payment_${new Date().getTime()}`;
         let amount;
         switch (currency) {
             case "USD":
@@ -106,7 +106,7 @@ function addStreamPaymentToList() {
                     id: details.uuid,
                     lastPayment: details.lastPayment,
                     lightningID: details.lightningID,
-                    memo: `stream_payment_${details.uuid}`,
+                    memo: `recurring_payment_${details.uuid}`,
                     name: details.name,
                     partsPaid: details.partsPaid,
                     price: details.price,
@@ -202,7 +202,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 if (isLogined && !isLogouting) {
                     dispatch(error({
                         message: helpers.formatNotificationMessage(err, helper),
-                        uid: "stream_error",
+                        uid: "recurring_error",
                     }));
                 }
                 errorShowed = true;
