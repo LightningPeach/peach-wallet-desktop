@@ -87,7 +87,7 @@ export const MAX_DB_NUM_CONFIRMATIONS = 6;
 export const TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY = 1;
 export const CHANNEL_LEFT_AMOUNT_TO_NOTIFY = 0.1;
 export const WALLET_GITHUB_URL = "https://github.com/LightningPeach/lightning-peach-wallet";
-export const USERGUIDE_QUERY = "/blob/master/docs/LightningPeach_walet_user_guide.pdf";
+export const USERGUIDE_QUERY = "/blob/master/docs/LightningPeach_wallet_user_guide.pdf";
 export const GITHUB_USERGUIDE_LINK = `${WALLET_GITHUB_URL}${USERGUIDE_QUERY}`;
 
 /**
