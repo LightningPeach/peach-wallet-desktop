@@ -134,7 +134,7 @@ async function writeFile(filePath, content) {
  */
 async function checkDir(dirPath) {
     return new Promise((resolve) => {
-        fs.access(dirPath, fs.constants.R_OK, (err) => {
+        fs.access(dirPath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
             let ret = { ok: true };
             if (err) {
                 logger.error({ func: checkDir }, err);
