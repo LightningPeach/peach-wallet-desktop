@@ -93,9 +93,9 @@ class Datepicker extends Component {
     render() {
         const { className } = this.props;
         return (
-            <div className="datepicker">
+            <div className="picker">
                 <button
-                    className={`button button__hollow datepicker__button ${className} ${
+                    className={`button button__hollow picker__target ${className} ${
                         this.state.showInput ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
@@ -104,7 +104,7 @@ class Datepicker extends Component {
                 </button>
                 {this.state.showInput &&
                     <div
-                        className="datepicker__input"
+                        className="picker__collapse"
                         ref={(ref) => { this.input = ref }}
                     >
                         <DatePicker
@@ -114,19 +114,27 @@ class Datepicker extends Component {
                             shouldCloseOnSelect={false}
                             inline
                         >
-                            <div className="datepicker__controls">
+                            <div className="picker__row picker__row--controls">
                                 <button
-                                    className="datepicker__controls--item button button__link"
+                                    className="button button__link"
                                     onClick={this.reset}
                                 >
                                     Reset
                                 </button>
-                                <button
-                                    className="datepicker__controls--item button button__link"
-                                    onClick={this.hideInput}
-                                >
-                                    Ok
-                                </button>
+                                <div className="picker__group">
+                                    <button
+                                        className="button button__link"
+                                        onClick={this.hideInput}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="button button__link"
+                                        onClick={this.hideInput}
+                                    >
+                                        Ok
+                                    </button>
+                                </div>
                             </div>
                         </DatePicker>
                     </div>

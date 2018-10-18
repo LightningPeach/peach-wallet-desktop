@@ -1,0 +1,121 @@
+.picker {
+  &__target {
+    &.button {
+      text-transform: none;
+    }
+  }
+
+  &__collapse {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    z-index: 1;
+    background-color: $white;
+    box-shadow: 0 6px 14px 0 rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+  }
+
+  &__row {
+    padding: 0 24px;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    &--controls {
+      padding: 0 24px;
+
+      .button {
+        text-transform: uppercase;
+
+        &:hover,
+        &:focus {
+          text-decoration: none;
+        }
+      }
+    }
+
+    &--end {
+      justify-content: flex-end;
+      padding-top: 10px;
+
+      .button {
+        text-transform: uppercase;
+        line-height: 30px;
+        height: 30px;
+        color: rgba(0, 0, 0, 0.6);
+
+        &.active {
+          color: $pumpkin-orange;
+        }
+
+        &:hover,
+        &:focus {
+          text-decoration: none;
+        }
+      }
+    }
+  }
+
+  &__group {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    &--vertical {
+      flex-direction: column;
+      height: 46px;
+      justify-content: space-between;
+
+      .button {
+        text-transform: uppercase;
+        height: 20px;
+        line-height: 20px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.6);
+
+        &.active {
+          color: $pumpkin-orange;
+        }
+
+        &:hover,
+        &:focus {
+          text-decoration: none;
+        }
+      }
+
+      .button +.button {
+        margin-left: 0;
+      }
+    }
+  }
+
+  &__label {
+    font-weight: 500;
+    width: 40px;
+  }
+
+  &__text {
+    &--xl {
+      font-size: 60px;
+      line-height: 1;
+    }
+  }
+
+  .form-text {
+    font-size: 60px;
+    line-height: 46px;
+    height: 46px;
+    padding: 0 6px;
+    width: 89px;
+    border: none;
+
+    &--right {
+      text-align: right;
+    }
+
+    &--long {
+      width: 211px;
+    }
+  }
+}
