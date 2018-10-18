@@ -89,9 +89,9 @@ class Pricepicker extends Component {
     render() {
         const { className, bitcoinMeasureType } = this.props;
         return (
-            <div className="pricepicker">
+            <div className="picker">
                 <button
-                    className={`button button__hollow pricepicker__button ${className} ${
+                    className={`button button__hollow picker__target ${className} ${
                         this.state.showInput ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
@@ -100,56 +100,52 @@ class Pricepicker extends Component {
                 </button>
                 {this.state.showInput &&
                 <div
-                    className="pricepicker__input"
+                    className="picker__collapse"
                     ref={(ref) => { this.input = ref }}
                 >
-                    <div className="pricepicker__price">
-                        <div className="pricepicker__price-label">
+                    <div className="picker__row mt-14">
+                        <div className="picker__label">
                             From
                         </div>
-                        <div className="pricepicker__price-input">
-                            <DigitsField
-                                id="price__from"
-                                className="form-text"
-                                pattern={this.state.currency === "Satoshi"
-                                    ? "above_zero_int"
-                                    : "above_zero_float"}
-                                name="price__from"
-                                placeholder="0"
-                                ref={(ref) => {
-                                    this.priceFromComponent = ref;
-                                }}
-                                setRef={(ref) => {
-                                    this.priceFrom = ref;
-                                }}
-                                setOnChange={this.setFromPrice}
-                            />
-                        </div>
+                        <DigitsField
+                            id="price__from"
+                            className="form-text form-text--long"
+                            pattern={this.state.currency === "Satoshi"
+                                ? "above_zero_int"
+                                : "above_zero_float"}
+                            name="price__from"
+                            placeholder="0"
+                            ref={(ref) => {
+                                this.priceFromComponent = ref;
+                            }}
+                            setRef={(ref) => {
+                                this.priceFrom = ref;
+                            }}
+                            setOnChange={this.setFromPrice}
+                        />
                     </div>
-                    <div className="pricepicker__price">
-                        <div className="pricepicker__price-label">
+                    <div className="picker__row mt-14">
+                        <div className="picker__label">
                             To
                         </div>
-                        <div className="pricepicker__price-input">
-                            <DigitsField
-                                id="price__to"
-                                className="form-text"
-                                pattern={this.state.currency === "Satoshi"
-                                    ? "above_zero_int"
-                                    : "above_zero_float"}
-                                name="price__to"
-                                placeholder="0"
-                                ref={(ref) => {
-                                    this.priceToComponent = ref;
-                                }}
-                                setRef={(ref) => {
-                                    this.priceTo = ref;
-                                }}
-                                setOnChange={this.setToPrice}
-                            />
-                        </div>
+                        <DigitsField
+                            id="price__to"
+                            className="form-text form-text--long"
+                            pattern={this.state.currency === "Satoshi"
+                                ? "above_zero_int"
+                                : "above_zero_float"}
+                            name="price__to"
+                            placeholder="0"
+                            ref={(ref) => {
+                                this.priceToComponent = ref;
+                            }}
+                            setRef={(ref) => {
+                                this.priceTo = ref;
+                            }}
+                            setOnChange={this.setToPrice}
+                        />
                     </div>
-                    <div className="pricepicker__currency">
+                    <div className="picker__row picker__row--end">
                         <button
                             className={`button button__link ${
                                 this.state.currency === bitcoinMeasureType
@@ -173,19 +169,27 @@ class Pricepicker extends Component {
                             USD
                         </button>
                     </div>
-                    <div className="pricepicker__controls">
+                    <div className="picker__row picker__row--controls">
                         <button
                             className="button button__link"
                             onClick={this.reset}
                         >
                             Reset
                         </button>
-                        <button
-                            className="button button__link"
-                            onClick={this.hideInput}
-                        >
-                            Ok
-                        </button>
+                        <div className="picker__group">
+                            <button
+                                className="button button__link"
+                                onClick={this.hideInput}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="button button__link"
+                                onClick={this.hideInput}
+                            >
+                                Ok
+                            </button>
+                        </div>
                     </div>
                 </div>
                 }

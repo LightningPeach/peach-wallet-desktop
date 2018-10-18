@@ -141,9 +141,9 @@ class Timepicker extends Component {
     render() {
         const { className } = this.props;
         return (
-            <div className="timepicker">
+            <div className="picker">
                 <button
-                    className={`button button__hollow timepicker__button ${className} ${
+                    className={`button button__hollow picker__target ${className} ${
                         this.state.showInput ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
@@ -152,20 +152,19 @@ class Timepicker extends Component {
                 </button>
                 {this.state.showInput &&
                 <div
-                    className="timepicker__input"
+                    className="picker__collapse"
                     ref={(ref) => { this.input = ref }}
                 >
-                    <div className="timepicker__time">
-                        <div className="timepicker__time-label">
+                    <div className="picker__row mt-14">
+                        <div className="picker__label">
                             From
                         </div>
-                        <div className="timepicker__time-input">
+                        <div className="picker__group">
                             <DigitsField
                                 id="date__from-hours"
-                                className="form-text"
+                                className="form-text form-text--right"
                                 pattern={/^([0-9]|1[0-1])$/}
                                 name="date__from-hours"
-                                placeholder="_"
                                 ref={(ref) => {
                                     this.dateFromHoursComponent = ref;
                                 }}
@@ -173,13 +172,13 @@ class Timepicker extends Component {
                                     this.dateFromHours = ref;
                                 }}
                                 setOnChange={this.setFromHours}
-                            />:
+                            />
+                            <span className="picker__text--xl">:</span>
                             <DigitsField
                                 id="date__from-minutes"
                                 className="form-text"
                                 pattern={/^([0-5]?[0-9])$/}
                                 name="date__from-minutes"
-                                placeholder="__"
                                 ref={(ref) => {
                                     this.dateFromMinutesComponent = ref;
                                 }}
@@ -189,7 +188,7 @@ class Timepicker extends Component {
                                 setOnChange={this.setFromMinutes}
                             />
                         </div>
-                        <div className="timepicker__time-meridiem">
+                        <div className="picker__group picker__group--vertical">
                             <button
                                 className={`button button__link ${this.state.from.meridiem === "AM" ? "active" : ""}`}
                                 onClick={this.setFromMeridiem}
@@ -206,17 +205,16 @@ class Timepicker extends Component {
                             </button>
                         </div>
                     </div>
-                    <div className="timepicker__time">
-                        <div className="timepicker__time-label">
+                    <div className="picker__row mt-14">
+                        <div className="picker__label">
                             To
                         </div>
-                        <div className="timepicker__time-input">
+                        <div className="picker__group">
                             <DigitsField
                                 id="date__to-hours"
-                                className="form-text"
+                                className="form-text form-text--right"
                                 pattern={/^([0-9]|1[0-1])$/}
                                 name="date__to-hours"
-                                placeholder="_"
                                 ref={(ref) => {
                                     this.dateToHoursComponent = ref;
                                 }}
@@ -224,13 +222,13 @@ class Timepicker extends Component {
                                     this.dateToHours = ref;
                                 }}
                                 setOnChange={this.setToHours}
-                            />:
+                            />
+                            <span className="picker__text--xl">:</span>
                             <DigitsField
                                 id="date__to-minutes"
                                 className="form-text"
                                 pattern={/^([0-5]?[0-9])$/}
                                 name="date__to-minutes"
-                                placeholder="__"
                                 ref={(ref) => {
                                     this.dateToMinutesComponent = ref;
                                 }}
@@ -240,7 +238,7 @@ class Timepicker extends Component {
                                 setOnChange={this.setToMinutes}
                             />
                         </div>
-                        <div className="timepicker__time-meridiem">
+                        <div className="picker__group picker__group--vertical">
                             <button
                                 className={`button button__link ${this.state.to.meridiem === "AM" ? "active" : ""}`}
                                 onClick={this.setToMeridiem}
@@ -257,19 +255,27 @@ class Timepicker extends Component {
                             </button>
                         </div>
                     </div>
-                    <div className="timepicker__controls">
+                    <div className="picker__row picker__row--controls mt-14">
                         <button
                             className="button button__link"
                             onClick={this.reset}
                         >
                             Reset
                         </button>
-                        <button
-                            className="button button__link"
-                            onClick={this.hideInput}
-                        >
-                            Ok
-                        </button>
+                        <div className="picker__group">
+                            <button
+                                className="button button__link"
+                                onClick={this.hideInput}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="button button__link"
+                                onClick={this.hideInput}
+                            >
+                                Ok
+                            </button>
+                        </div>
                     </div>
                 </div>
                 }
