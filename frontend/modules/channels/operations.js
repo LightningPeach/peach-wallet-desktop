@@ -5,7 +5,7 @@ import * as statusCodes from "config/status-codes";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
-import { CHANNEL_CLOSE_CONFIRMATION, CHANNEL_LEFT_AMOUNT_TO_NOTIFY } from "config/consts";
+import { CHANNEL_CLOSE_CONFIRMATION, CHANNEL_LEFT_AMOUNT_TO_NOTIFY, CHANNEL_OPEN_CONFIRMATION } from "config/consts";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -284,13 +284,14 @@ function connectPeer(lightningID, peerAddress) {
     };
 }
 
-function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
+function prepareNewChannel(lightningID, capacity, peerAddress, name, custom, confTarget = CHANNEL_OPEN_CONFIRMATION) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
             return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareNewChannel);
         }
         const newChannel = {
             capacity,
+            confTarget,
             custom,
             host: peerAddress,
             lightningID,
@@ -399,6 +400,7 @@ function createNewChannel() {
         const responseChannels = await window.ipcClient("openChannel", {
             local_funding_amount: newChannelDetails.capacity,
             node_pubkey_string: newChannelDetails.lightningID,
+            target_conf: newChannelDetails.confTarget,
         });
         if (!responseChannels.ok) {
             dispatch(actions.errorCreateNewChannel(responseChannels.error));

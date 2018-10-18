@@ -5,9 +5,10 @@ const setOnChainHistory = history => ({
     type: types.SET_ONCHAIN_HISTORY,
 });
 
-const sendCoinsPreparing = (recepient, amount, name) => ({
+const sendCoinsPreparing = (recepient, amount, name, confTarget) => ({
     payload: {
         amount,
+        confTarget,
         name: name || "",
         recepient,
     },

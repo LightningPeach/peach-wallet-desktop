@@ -173,6 +173,18 @@ const validateSeed = (seed) => {
     return null;
 };
 
+/**
+ * @param {number} conf
+ * @param {boolean} required
+ * @returns {string|null}
+ */
+const validateConfTarget = (conf, required = false) => {
+    if (required && !conf) {
+        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+    }
+    return null;
+};
+
 export {
     validateBitcoinAddr,
     validateChannelHost,
@@ -184,4 +196,5 @@ export {
     validatePassSeed,
     validateSeed,
     validateUserExistence,
+    validateConfTarget,
 };

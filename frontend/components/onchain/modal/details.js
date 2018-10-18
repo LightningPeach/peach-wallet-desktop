@@ -94,6 +94,16 @@ class OnChainDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
+                                Blocks confirmation
+                            </div>
+                            <div className="send-form__value">
+                                {this.props.sendCoinsDetails.confTarget}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row send-form__row">
+                        <div className="col-xs-12">
+                            <div className="send-form__label">
                                 To
                             </div>
                             <div className="send-form__value send-form__value--no-overflow">
@@ -148,6 +158,7 @@ OnChainDetails.propTypes = {
     fee: PropTypes.number.isRequired,
     sendCoinsDetails: PropTypes.shape({
         amount: PropTypes.number.isRequired,
+        confTarget: PropTypes.number.isRequired,
         name: PropTypes.string,
         recepient: PropTypes.string.isRequired,
     }).isRequired,

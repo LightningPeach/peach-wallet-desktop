@@ -7,7 +7,7 @@ import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
+import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE, CHANNEL_OPEN_CONFIRMATION } from "config/consts";
 import * as statusCodes from "config/status-codes";
 import { PEACH } from "config/node-settings";
 import { ChannelsFullPath } from "routes";
@@ -21,6 +21,7 @@ class CreateChannel extends Component {
         super(props);
         this.state = {
             amountError: null,
+            confTargetError: null,
             custom: this.props.prepareNewChannel ? this.props.prepareNewChannel.custom : false,
             lightningError: null,
             nameError: null,
@@ -101,9 +102,11 @@ class CreateChannel extends Component {
         let name = this.channel__name.value.trim();
         let amount = parseFloat(this.channel__amount.value.trim());
         const lightning = this.channel__lightningId.value.trim();
+        const confTarget = parseInt(this.channel__conf_target.value.trim(), 10) || CHANNEL_OPEN_CONFIRMATION;
         let nameError = validators.validateName(name);
         const amountError = this._validateAmount(amount);
         const lightningError = this.state.custom ? validators.validateChannelHost(lightning) : null;
+        const confTargetError = validators.validateConfTarget(confTarget);
         if (channels) {
             channels.forEach((channel) => {
                 if (name === channel.name) {
@@ -111,15 +114,17 @@ class CreateChannel extends Component {
                 }
             });
         }
-        if (nameError || amountError || lightningError) {
+        if (nameError || amountError || lightningError || confTargetError) {
             this.setState({
-                amountError, lightningError, nameError, processing: false,
+                amountError, confTargetError, lightningError, nameError, processing: false,
             });
             return;
         }
         let lightningId = PEACH.pubKey;
         let peer = null;
-        this.setState({ amountError, lightningError, nameError });
+        this.setState({
+            amountError, confTargetError, lightningError, nameError,
+        });
         if (this.state.custom) {
             const [tempLight, tempPeer] = lightning.split("@");
             lightningId = tempLight;
@@ -130,7 +135,14 @@ class CreateChannel extends Component {
         amount = dispatch(appOperations.convertToSatoshi(amount));
         name = name || `CHANNEL ${firstEmptyChannelDefaultName}`;
         dispatch(appOperations.closeModal());
-        let response = await dispatch(operations.prepareNewChannel(lightningId, amount, peer, name, this.state.custom));
+        let response = await dispatch(operations.prepareNewChannel(
+            lightningId,
+            amount,
+            peer,
+            name,
+            this.state.custom,
+            confTarget,
+        ));
         if (!response.ok) {
             this.showErrorNotification(response.error);
             return;
@@ -216,6 +228,28 @@ class CreateChannel extends Component {
                                     setOnChange={this.setAmount}
                                 />
                                 <ErrorFieldTooltip text={this.state.amountError} />
+                            </div>
+                        </div>
+                        <div className="row mt-14">
+                            <div className="col-xs-12">
+                                <div className="form-label">
+                                    <label htmlFor="channel__conf_target">Amount of block confirmations</label>
+                                </div>
+                            </div>
+                            <div className="col-xs-12">
+                                <DigitsField
+                                    id="channel__conf_target"
+                                    className={`form-text ${this.state.confTargetError ? "form-text__error" : ""}`}
+                                    name="conf_target"
+                                    placeholder={`${CHANNEL_OPEN_CONFIRMATION} blocks`}
+                                    setRef={(ref) => {
+                                        this.channel__conf_target = ref;
+                                    }}
+                                    value={prepareNewChannel ? prepareNewChannel.confTarget : null}
+                                    disabled={this.state.processing}
+                                    setOnChange={() => { this.setState({ confTargetError: null }) }}
+                                />
+                                <ErrorFieldTooltip text={this.state.confTargetError} />
                             </div>
                         </div>
                         <div className="row mt-14">

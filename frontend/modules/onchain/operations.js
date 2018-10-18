@@ -2,7 +2,11 @@ import * as statusCodes from "config/status-codes";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
-import { MAX_DB_NUM_CONFIRMATIONS, TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY } from "config/consts";
+import {
+    MAX_DB_NUM_CONFIRMATIONS,
+    TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY,
+    ONCHAIN_SEND_COINS_CONFIRMATION,
+} from "config/consts";
 import { store } from "store/configure-store";
 import orderBy from "lodash/orderBy";
 import keyBy from "lodash/keyBy";
@@ -160,12 +164,12 @@ function getOnchainHistory() {
     };
 }
 
-function prepareSendCoins(recepient, amount, name) {
+function prepareSendCoins(recepient, amount, name, confTarget = ONCHAIN_SEND_COINS_CONFIRMATION) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
             return unsuccessPromise(prepareSendCoins);
         }
-        dispatch(actions.sendCoinsPreparing(recepient, amount, name));
+        dispatch(actions.sendCoinsPreparing(recepient, amount, name, confTarget));
         return successPromise();
     };
 }
@@ -181,10 +185,16 @@ function sendCoins() {
         if (!getState().onchain.sendCoinsDetails) {
             return errorPromise(statusCodes.EXCEPTION_SEND_COINS_DETAILS_REQUIRED, sendCoins);
         }
-        const { name, recepient, amount } = getState().onchain.sendCoinsDetails;
+        const {
+            name,
+            recepient,
+            amount,
+            confTarget,
+        } = getState().onchain.sendCoinsDetails;
         const response = await window.ipcClient("sendCoins", {
             addr: recepient,
             amount,
+            target_conf: confTarget,
         });
         if (response.ok) {
             dispatch(accountOperations.checkBalance());
