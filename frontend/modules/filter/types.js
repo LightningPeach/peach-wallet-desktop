@@ -1,0 +1,12 @@
+const $prefix = "app/filter/";
+const SET_ONCHAIN_FILTER = `${$prefix}SET_ONCHAIN_FILTER`;
+const SET_REGULAR_FILTER = `${$prefix}SET_REGULAR_FILTER`;
+const SET_RECURRING_FILTER = `${$prefix}SET_RECURRING_FILTER`;
+const CLEAR_ALL_FILTERS = `${$prefix}CLEAR_ALL_FILTERS`;
+
+export {
+    SET_ONCHAIN_FILTER,
+    SET_REGULAR_FILTER,
+    SET_RECURRING_FILTER,
+    CLEAR_ALL_FILTERS,
+};

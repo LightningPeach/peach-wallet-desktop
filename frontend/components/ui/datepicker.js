@@ -90,6 +90,13 @@ class Datepicker extends Component {
         });
     };
 
+    passDataToFilter = () => {
+        this.props.setData({
+            from: this.state.from,
+            to: this.state.to,
+        });
+    };
+
     render() {
         const { className } = this.props;
         return (
@@ -130,7 +137,7 @@ class Datepicker extends Component {
                                     </button>
                                     <button
                                         className="button button__link"
-                                        onClick={this.hideInput}
+                                        onClick={this.passDataToFilter}
                                     >
                                         Ok
                                     </button>
@@ -146,6 +153,7 @@ class Datepicker extends Component {
 
 Datepicker.propTypes = {
     className: PropTypes.string,
+    setData: PropTypes.func.isRequired,
 };
 
 export default connect(null)(Datepicker);

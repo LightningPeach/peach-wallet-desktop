@@ -1,21 +1,27 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { filterActions } from "modules/filter";
 import DebounceInput from "react-debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
 import Pricepicker from "components/ui/pricepicker";
 
+const getInitialState = (params = {}) => {
+    const initState = {
+        price: false,
+        searchValue: "",
+        time: false,
+        type: "all",
+    };
+    return { ...initState, ...params };
+};
+
 class Filter extends Component {
     constructor(props) {
         super(props);
 
-        this.state = {
-            price: false,
-            searchValue: "",
-            time: false,
-            type: "all",
-        };
+        this.state = getInitialState();
     }
 
     handleSearchChange = (e) => {
@@ -39,6 +45,17 @@ class Filter extends Component {
     handlePriceChange = (e) => {
         this.setState({
             price: !this.state.price,
+        });
+    };
+
+    handleFilterReset = () => {
+        const { dispatch } = this.props;
+        dispatch(filterActions.clearAllFilters());
+        this.datepicker.reset();
+        this.timepicker.reset();
+        this.pricepicker.reset();
+        this.setState({
+            ...getInitialState(),
         });
     };
 
@@ -89,21 +106,29 @@ class Filter extends Component {
             </div>
             <div className="filter__item">
                 <Datepicker
-                    className="filter__type-button"
                     onChange={this.handleDateChange}
+                    ref={(ref) => { this.datepicker = ref }}
                 />
             </div>
             <div className="filter__item">
                 <Timepicker
-                    className="filter__type-button"
                     onChange={this.handleTimeChange}
+                    ref={(ref) => { this.timepicker = ref }}
                 />
             </div>
             <div className="filter__item">
                 <Pricepicker
-                    className="filter__type-button"
                     onChange={this.handlePriceChange}
+                    ref={(ref) => { this.pricepicker = ref }}
                 />
+            </div>
+            <div className="filter__item">
+                <button
+                    className="button button__hollow"
+                    onClick={this.handleFilterReset}
+                >
+                    Reset
+                </button>
             </div>
         </div>
     );
@@ -119,6 +144,7 @@ class Filter extends Component {
 }
 
 Filter.propTypes = {
+    dispatch: PropTypes.func.isRequired,
 };
 
 export default connect(null)(Filter);

@@ -11,6 +11,7 @@ import channelsReducer from "modules/channels/reducers";
 import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
+import filterReducer from "modules/filter";
 
 const testReducer = NODE_ENV === "test"
     ? { lastAction: (state = null, action) => action }
@@ -23,6 +24,7 @@ const combinedReducer = {
     auth: authReducer,
     channels: channelsReducer,
     contacts: contactsReducer,
+    filter: filterReducer,
     lightning: lightningReducer,
     lnd: lndReducer,
     notifications: notificationsReducer,
