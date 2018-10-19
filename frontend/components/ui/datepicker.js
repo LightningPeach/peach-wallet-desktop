@@ -105,10 +105,15 @@ class Datepicker extends Component {
             from: from || moment().startOf("day"),
             to: to || moment().startOf("day"),
         });
+        this.hideInput();
+    };
+
+    reset = () => {
+        this.props.reset();
     };
 
     render() {
-        const { className, reset } = this.props;
+        const { className } = this.props;
         return (
             <div className="picker">
                 <button
@@ -134,7 +139,7 @@ class Datepicker extends Component {
                             <div className="picker__row picker__row--controls">
                                 <button
                                     className="button button__link"
-                                    onClick={reset}
+                                    onClick={this.reset}
                                 >
                                     Reset
                                 </button>
@@ -149,7 +154,7 @@ class Datepicker extends Component {
                                         className="button button__link"
                                         onClick={this.setData}
                                     >
-                                        Ok
+                                        Apply
                                     </button>
                                 </div>
                             </div>
@@ -164,8 +169,8 @@ class Datepicker extends Component {
 Datepicker.propTypes = {
     className: PropTypes.string,
     date: PropTypes.shape({
-        from: PropTypes.instanceOf(Date).isRequired,
-        to: PropTypes.instanceOf(Date).isRequired,
+        from: PropTypes.instanceOf(Date),
+        to: PropTypes.instanceOf(Date),
     }).isRequired,
     reset: PropTypes.func.isRequired,
     setData: PropTypes.func.isRequired,

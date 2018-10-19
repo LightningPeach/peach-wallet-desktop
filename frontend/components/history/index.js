@@ -2,6 +2,7 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ReactTable from "react-table";
+import { filterTypes } from "modules/filter";
 import { HISTORY_ROWS_PER_PAGE } from "config/consts";
 import Filter from "components/filter";
 import Pagination from "./pagination";
@@ -20,7 +21,7 @@ class History extends Component {
 
     render() {
         const {
-            withoutTitle, title, emptyPlaceholder, ...table
+            withoutTitle, title, emptyPlaceholder, source, ...table
         } = this.props;
         const renderEmptyList = () => (
             <div className="placeholder_text">
@@ -29,7 +30,9 @@ class History extends Component {
         );
         const renderData = () => (
             <Fragment>
-                <Filter />
+                <Filter
+                    source={source}
+                />
                 <ReactTable
                     {...table}
                     page={this.state.page}
@@ -69,6 +72,11 @@ History.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
     dispatch: PropTypes.func.isRequired,
     emptyPlaceholder: PropTypes.string,
+    source: PropTypes.oneOf([
+        filterTypes.TYPE_REGULAR,
+        filterTypes.TYPE_RECURRING,
+        filterTypes.TYPE_ONCHAIN,
+    ]),
     title: PropTypes.string,
     withoutTitle: PropTypes.bool,
 };

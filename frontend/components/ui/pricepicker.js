@@ -103,10 +103,17 @@ class Pricepicker extends Component {
             from: from || null,
             to: to || null,
         });
+        this.hideInput();
+    };
+
+    reset = () => {
+        this.props.reset();
+        this.priceFromComponent.reset();
+        this.priceToComponent.reset();
     };
 
     render() {
-        const { className, bitcoinMeasureType, reset } = this.props;
+        const { className, bitcoinMeasureType } = this.props;
         return (
             <div className="picker">
                 <button
@@ -193,7 +200,7 @@ class Pricepicker extends Component {
                     <div className="picker__row picker__row--controls">
                         <button
                             className="button button__link"
-                            onClick={reset}
+                            onClick={this.reset}
                         >
                             Reset
                         </button>
@@ -208,7 +215,7 @@ class Pricepicker extends Component {
                                 className="button button__link"
                                 onClick={this.setData}
                             >
-                                Ok
+                                Apply
                             </button>
                         </div>
                     </div>
@@ -224,8 +231,8 @@ Pricepicker.propTypes = {
     className: PropTypes.string,
     price: PropTypes.shape({
         currency: PropTypes.string.isRequired,
-        from: PropTypes.number.isRequired,
-        to: PropTypes.number.isRequired,
+        from: PropTypes.string,
+        to: PropTypes.string,
     }).isRequired,
     reset: PropTypes.func.isRequired,
     setData: PropTypes.func.isRequired,
