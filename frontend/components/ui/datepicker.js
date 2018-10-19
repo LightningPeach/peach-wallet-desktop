@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import isEqual from "lodash/isEqual";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 
@@ -8,11 +9,10 @@ class Datepicker extends Component {
     constructor(props) {
         super(props);
 
-        this.currentTime = moment().startOf("day");
         this.state = {
-            from: this.currentTime,
+            from: this.props.date.from || moment().startOf("day"),
             showInput: false,
-            to: this.currentTime,
+            to: this.props.date.to || moment().startOf("day"),
         };
     }
 
@@ -22,11 +22,28 @@ class Datepicker extends Component {
         document.addEventListener("touchend", this.handleTouchEnd);
     }
 
+    componentWillReceiveProps(nextProps) {
+        const { from, to } = nextProps.date;
+        if (!isEqual(nextProps.date, this.props.date)) {
+            this.setState({
+                from,
+                to,
+            });
+        }
+    }
+
     componentWillUnmount() {
         document.removeEventListener("keyup", this.handleKeyUp);
         document.removeEventListener("mouseup", this.handleMouseUp);
         document.removeEventListener("touchend", this.handleTouchEnd);
     }
+
+    setData = () => {
+        this.props.setData({
+            from: this.state.from,
+            to: this.state.to,
+        });
+    };
 
     handleKeyUp = (e) => {
         if (this.state.showInput && e.keyCode === 27) {
@@ -82,23 +99,16 @@ class Datepicker extends Component {
         });
     };
 
-    reset = () => {
-        this.currentTime = moment().startOf("day");
+    handleCancel = () => {
+        const { from, to } = this.props.date;
         this.setState({
-            from: this.currentTime,
-            to: this.currentTime,
-        });
-    };
-
-    passDataToFilter = () => {
-        this.props.setData({
-            from: this.state.from,
-            to: this.state.to,
+            from: from || moment().startOf("day"),
+            to: to || moment().startOf("day"),
         });
     };
 
     render() {
-        const { className } = this.props;
+        const { className, reset } = this.props;
         return (
             <div className="picker">
                 <button
@@ -124,20 +134,20 @@ class Datepicker extends Component {
                             <div className="picker__row picker__row--controls">
                                 <button
                                     className="button button__link"
-                                    onClick={this.reset}
+                                    onClick={reset}
                                 >
                                     Reset
                                 </button>
                                 <div className="picker__group">
                                     <button
                                         className="button button__link"
-                                        onClick={this.hideInput}
+                                        onClick={this.handleCancel}
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         className="button button__link"
-                                        onClick={this.passDataToFilter}
+                                        onClick={this.setData}
                                     >
                                         Ok
                                     </button>
@@ -153,6 +163,11 @@ class Datepicker extends Component {
 
 Datepicker.propTypes = {
     className: PropTypes.string,
+    date: PropTypes.shape({
+        from: PropTypes.instanceOf(Date).isRequired,
+        to: PropTypes.instanceOf(Date).isRequired,
+    }).isRequired,
+    reset: PropTypes.func.isRequired,
     setData: PropTypes.func.isRequired,
 };
 
