@@ -59,7 +59,8 @@ class Onchain extends Component {
         const { dispatch } = this.props;
         const name = this.name.value.trim();
         const to = this.to.value.trim();
-        const confTarget = parseInt(this.conf_target.value.trim(), 10) || ONCHAIN_SEND_COINS_CONFIRMATION;
+        let confTarget = parseInt(this.conf_target.value.trim(), 10);
+        confTarget = Number.isNaN(confTarget) || confTarget < 0 ? ONCHAIN_SEND_COINS_CONFIRMATION : confTarget;
         let amount = parseFloat(this.amount.value.trim());
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = this.validateTo(to);

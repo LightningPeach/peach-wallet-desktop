@@ -102,7 +102,8 @@ class CreateChannel extends Component {
         let name = this.channel__name.value.trim();
         let amount = parseFloat(this.channel__amount.value.trim());
         const lightning = this.channel__lightningId.value.trim();
-        const confTarget = parseInt(this.channel__conf_target.value.trim(), 10) || CHANNEL_OPEN_CONFIRMATION;
+        let confTarget = parseInt(this.channel__conf_target.value.trim(), 10);
+        confTarget = Number.isNaN(confTarget) || confTarget < 0 ? CHANNEL_OPEN_CONFIRMATION : confTarget;
         let nameError = validators.validateName(name);
         const amountError = this._validateAmount(amount);
         const lightningError = this.state.custom ? validators.validateChannelHost(lightning) : null;
