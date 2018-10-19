@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
 import History from "components/history";
 import BalanceWithMeasure from "components/common/balance-with-measure";
+import { filterTypes } from "modules/filter";
 import { appOperations } from "modules/app";
 import Ellipsis from "components/common/ellipsis";
 
@@ -109,6 +110,7 @@ class RegularHistory extends Component {
                         id: "date",
                     },
                 ]}
+                source={filterTypes.TYPE_REGULAR}
                 title="Regular payments history"
             />
         );

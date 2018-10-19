@@ -20,6 +20,7 @@ import BlocksLoader from "components/ui/blocks_loader";
 import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
+import { filterTypes } from "modules/filter";
 import { appOperations, appTypes } from "modules/app";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { OnchainFullPath } from "routes";
@@ -360,6 +361,7 @@ class Onchain extends Component {
                                 id: "date",
                             },
                         ]}
+                        source={filterTypes.TYPE_ONCHAIN}
                         title="Onchain payments history"
                     />
                 </div>

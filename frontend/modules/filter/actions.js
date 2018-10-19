@@ -1,27 +1,27 @@
 import * as types from "./types";
 
-const setRecurringFilter = payload => ({
+const setRecurringFilterPart = payload => ({
     payload,
-    type: types.SET_RECURRING_FILTER,
+    type: types.SET_RECURRING_FILTER_PART,
 });
 
-const setRegularFilter = payload => ({
+const setRegularFilterPart = payload => ({
     payload,
-    type: types.SET_REGULAR_FILTER,
+    type: types.SET_REGULAR_FILTER_PART,
 });
 
-const setOnchainFilter = payload => ({
+const setOnchainFilterPart = payload => ({
     payload,
-    type: types.SET_ONCHAIN_FILTER,
+    type: types.SET_ONCHAIN_FILTER_PART,
 });
 
-const clearAllFilters = payload => ({
+const clearAllFilters = () => ({
     type: types.CLEAR_ALL_FILTERS,
 });
 
 export {
-    setRecurringFilter,
-    setRegularFilter,
-    setOnchainFilter,
+    setRecurringFilterPart,
+    setRegularFilterPart,
+    setOnchainFilterPart,
     clearAllFilters,
 };

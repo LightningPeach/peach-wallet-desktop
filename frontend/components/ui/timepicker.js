@@ -11,15 +11,15 @@ class Timepicker extends Component {
         const { from, to } = this.props.time;
         this.state = {
             from: {
-                hours: from.hours || null,
-                meridiem: from.meridiem || "AM",
-                minutes: from.minutes || null,
+                hours: from.hours,
+                meridiem: from.meridiem,
+                minutes: from.minutes,
             },
             showInput: false,
             to: {
-                hours: to.hours || null,
-                meridiem: to.meridiem || "AM",
-                minutes: to.minutes || null,
+                hours: to.hours,
+                meridiem: to.meridiem,
+                minutes: to.minutes,
             },
         };
     }
@@ -141,21 +141,29 @@ class Timepicker extends Component {
         const { from, to } = this.props.time;
         this.setState({
             from: {
-                hours: from.hours || null,
-                meridiem: from.meridiem || "AM",
-                minutes: from.minutes || null,
+                hours: from.hours,
+                meridiem: from.meridiem,
+                minutes: from.minutes,
             },
-            showInput: false,
             to: {
-                hours: to.hours || null,
-                meridiem: to.meridiem || "AM",
-                minutes: to.minutes || null,
+                hours: to.hours,
+                meridiem: to.meridiem,
+                minutes: to.minutes,
             },
         });
+        this.hideInput();
+    };
+
+    reset = () => {
+        this.props.reset();
+        this.dateFromHoursComponent.reset();
+        this.dateFromMinutesComponent.reset();
+        this.dateToHoursComponent.reset();
+        this.dateToMinutesComponent.reset();
     };
 
     render() {
-        const { className, reset } = this.props;
+        const { className } = this.props;
         return (
             <div className="picker">
                 <button
@@ -278,7 +286,7 @@ class Timepicker extends Component {
                     <div className="picker__row picker__row--controls mt-14">
                         <button
                             className="button button__link"
-                            onClick={reset}
+                            onClick={this.reset}
                         >
                             Reset
                         </button>
@@ -293,7 +301,7 @@ class Timepicker extends Component {
                                 className="button button__link"
                                 onClick={this.setData}
                             >
-                                Ok
+                                Apply
                             </button>
                         </div>
                     </div>
@@ -310,14 +318,14 @@ Timepicker.propTypes = {
     setData: PropTypes.func.isRequired,
     time: PropTypes.shape({
         from: PropTypes.shape({
-            hours: PropTypes.number.isRequired,
+            hours: PropTypes.string,
             meridiem: PropTypes.oneOf(["AM", "PM"]).isRequired,
-            minutes: PropTypes.number.isRequired,
+            minutes: PropTypes.string,
         }).isRequired,
         to: PropTypes.shape({
-            hours: PropTypes.number.isRequired,
+            hours: PropTypes.string,
             meridiem: PropTypes.oneOf(["AM", "PM"]).isRequired,
-            minutes: PropTypes.number.isRequired,
+            minutes: PropTypes.string,
         }).isRequired,
     }).isRequired,
 };
