@@ -169,8 +169,8 @@ class Datepicker extends Component {
 Datepicker.propTypes = {
     className: PropTypes.string,
     date: PropTypes.shape({
-        from: PropTypes.instanceOf(Date),
-        to: PropTypes.instanceOf(Date),
+        from: PropTypes.instanceOf(moment),
+        to: PropTypes.instanceOf(moment),
     }).isRequired,
     reset: PropTypes.func.isRequired,
     setData: PropTypes.func.isRequired,
