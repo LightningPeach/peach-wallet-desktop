@@ -7,6 +7,7 @@ import DebounceInput from "react-debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
 import Pricepicker from "components/ui/pricepicker";
+import { FILTER_KIND_PRICE, FILTER_KIND_TIME } from "../../modules/filter/types";
 
 class Filter extends Component {
     constructor(props) {
@@ -17,13 +18,13 @@ class Filter extends Component {
     setFilterPart = (details = {}) => {
         const { source, dispatch } = this.props;
         switch (source) {
-            case filterTypes.TYPE_REGULAR:
+            case filterTypes.FILTER_REGULAR:
                 dispatch(filterActions.setRegularFilterPart(details));
                 break;
-            case filterTypes.TYPE_RECURRING:
+            case filterTypes.FILTER_RECURRING:
                 dispatch(filterActions.setRecurringFilterPart(details));
                 break;
-            case filterTypes.TYPE_ONCHAIN:
+            case filterTypes.FILTER_ONCHAIN:
                 dispatch(filterActions.setOnchainFilterPart(details));
                 break;
             default:
@@ -101,80 +102,93 @@ class Filter extends Component {
                     onChange={this.handleSearchChange}
                     className="form-text filter__search"
                     placeholder="&nbsp;"
-                    value={this.state.search}
+                    value={this.state.search || ""}
                 />
             </div>
         </div>
     );
 
-    renderFilters = () => (
-        <div className="filter__row mt-16">
-            <div className="filter__item filter__item--group">
-                <button
-                    className={`button button__hollow filter__type-button ${
-                        this.state.type === filterTypes.ALL_PAYMENTS ? "active" : ""
-                    }`}
-                    data-name={filterTypes.ALL_PAYMENTS}
-                    onClick={this.handleTypeChange}
-                >
-                    {filterTypes.ALL_PAYMENTS}
-                </button>
-                <button
-                    className={`button button__hollow filter__type-button ${
-                        this.state.type === filterTypes.INCOMING_PAYMENT ? "active" : ""
-                    }`}
-                    data-name={filterTypes.INCOMING_PAYMENT}
-                    onClick={this.handleTypeChange}
-                >
-                    {filterTypes.INCOMING_PAYMENT}
-                </button>
-                <button
-                    className={`button button__hollow filter__type-button ${
-                        this.state.type === filterTypes.OUTGOING_PAYMENT ? "active" : ""
-                    }`}
-                    data-name={filterTypes.OUTGOING_PAYMENT}
-                    onClick={this.handleTypeChange}
-                >
-                    {filterTypes.OUTGOING_PAYMENT}
-                </button>
+    renderFilters = () => {
+        const { filterKinds } = this.props;
+        return (
+            <div className="filter__row mt-16">
+                {filterKinds.includes(filterTypes.FILTER_KIND_TYPE) &&
+                    <div className="filter__item filter__item--group">
+                        <button
+                            className={`button button__hollow filter__type-button ${
+                                this.state.type === filterTypes.TYPE_PAYMENT_ALL ? "active" : ""
+                            }`}
+                            data-name={filterTypes.TYPE_PAYMENT_ALL}
+                            onClick={this.handleTypeChange}
+                        >
+                            {filterTypes.TYPE_PAYMENT_ALL}
+                        </button>
+                        <button
+                            className={`button button__hollow filter__type-button ${
+                                this.state.type === filterTypes.TYPE_PAYMENT_INCOMING ? "active" : ""
+                            }`}
+                            data-name={filterTypes.TYPE_PAYMENT_INCOMING}
+                            onClick={this.handleTypeChange}
+                        >
+                            {filterTypes.TYPE_PAYMENT_INCOMING}
+                        </button>
+                        <button
+                            className={`button button__hollow filter__type-button ${
+                                this.state.type === filterTypes.TYPE_PAYMENT_OUTCOMING ? "active" : ""
+                            }`}
+                            data-name={filterTypes.TYPE_PAYMENT_OUTCOMING}
+                            onClick={this.handleTypeChange}
+                        >
+                            {filterTypes.TYPE_PAYMENT_OUTCOMING}
+                        </button>
+                    </div>
+                }
+                {filterKinds.includes(filterTypes.FILTER_KIND_DATE) &&
+                    <div className="filter__item">
+                        <Datepicker
+                            setData={this.handleDateChange}
+                            reset={this.resetDate}
+                            date={this.state.date}
+                        />
+                    </div>
+                }
+                {filterKinds.includes(filterTypes.FILTER_KIND_TIME) &&
+                    <div className="filter__item">
+                        <Timepicker
+                            setData={this.handleTimeChange}
+                            reset={this.resetTime}
+                            time={this.state.time}
+                        />
+                    </div>
+                }
+                {filterKinds.includes(filterTypes.FILTER_KIND_PRICE) &&
+                    <div className="filter__item">
+                        <Pricepicker
+                            setData={this.handlePriceChange}
+                            reset={this.resetPrice}
+                            price={this.state.price}
+                        />
+                    </div>
+                }
+                <div className="filter__item">
+                    <button
+                        className="button button__hollow"
+                        onClick={this.handleFilterReset}
+                    >
+                        Reset
+                    </button>
+                </div>
             </div>
-            <div className="filter__item">
-                <Datepicker
-                    setData={this.handleDateChange}
-                    reset={this.resetDate}
-                    date={this.state.date}
-                />
-            </div>
-            <div className="filter__item">
-                <Timepicker
-                    setData={this.handleTimeChange}
-                    reset={this.resetTime}
-                    time={this.state.time}
-                />
-            </div>
-            <div className="filter__item">
-                <Pricepicker
-                    setData={this.handlePriceChange}
-                    reset={this.resetPrice}
-                    price={this.state.price}
-                />
-            </div>
-            <div className="filter__item">
-                <button
-                    className="button button__hollow"
-                    onClick={this.handleFilterReset}
-                >
-                    Reset
-                </button>
-            </div>
-        </div>
-    );
+        );
+    };
 
     render() {
+        const { filterKinds } = this.props;
         return (
             <div className="filter">
-                {this.renderSearchBar()}
-                {this.renderFilters()}
+                {filterKinds.includes(filterTypes.FILTER_KIND_SEARCH) && this.renderSearchBar()}
+                {filterKinds.filter(item => item !== filterTypes.FILTER_KIND_SEARCH).length > 0
+                    && this.renderFilters()}
             </div>
         );
     }
@@ -183,23 +197,20 @@ class Filter extends Component {
 Filter.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape(),
-    source: PropTypes.oneOf([
-        filterTypes.TYPE_REGULAR,
-        filterTypes.TYPE_RECURRING,
-        filterTypes.TYPE_ONCHAIN,
-    ]).isRequired,
+    filterKinds: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
+    source: PropTypes.oneOf(filterTypes.FILTER_SOURCES).isRequired,
 };
 
 const mapStateToProps = (state, props) => {
     let filter;
     switch (props.source) {
-        case filterTypes.TYPE_REGULAR:
+        case filterTypes.FILTER_REGULAR:
             filter = state.filter.regular;
             break;
-        case filterTypes.TYPE_RECURRING:
+        case filterTypes.FILTER_RECURRING:
             filter = state.filter.recurring;
             break;
-        case filterTypes.TYPE_ONCHAIN:
+        case filterTypes.FILTER_ONCHAIN:
             filter = state.filter.onchain;
             break;
         default:

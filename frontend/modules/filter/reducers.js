@@ -24,7 +24,7 @@ export const initStatePartial = {
             minutes: null,
         },
     },
-    type: types.ALL_PAYMENTS,
+    type: types.TYPE_PAYMENT_ALL,
 };
 
 export const initStateFilter = {

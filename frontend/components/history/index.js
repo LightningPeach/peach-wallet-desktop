@@ -21,7 +21,7 @@ class History extends Component {
 
     render() {
         const {
-            withoutTitle, title, emptyPlaceholder, source, ...table
+            withoutTitle, title, emptyPlaceholder, source, filters, ...table
         } = this.props;
         const renderEmptyList = () => (
             <div className="placeholder_text">
@@ -30,9 +30,12 @@ class History extends Component {
         );
         const renderData = () => (
             <Fragment>
-                <Filter
-                    source={source}
-                />
+                {filters &&
+                    <Filter
+                        source={source}
+                        filterKinds={filters}
+                    />
+                }
                 <ReactTable
                     {...table}
                     page={this.state.page}
@@ -72,11 +75,8 @@ History.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
     dispatch: PropTypes.func.isRequired,
     emptyPlaceholder: PropTypes.string,
-    source: PropTypes.oneOf([
-        filterTypes.TYPE_REGULAR,
-        filterTypes.TYPE_RECURRING,
-        filterTypes.TYPE_ONCHAIN,
-    ]),
+    filters: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
+    source: PropTypes.oneOf(filterTypes.FILTER_SOURCES),
     title: PropTypes.string,
     withoutTitle: PropTypes.bool,
 };
