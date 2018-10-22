@@ -15,20 +15,17 @@ import { BITCOIN_SETTINGS } from "config/node-settings";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import SuccessPayment from "components/common/success-payment";
 import UnSuccessPayment from "components/common/unsuccess-payment";
-import History from "components/history";
-import BlocksLoader from "components/ui/blocks_loader";
 import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
 import BtcToUsd from "components/common/btc-to-usd";
-import BalanceWithMeasure from "components/common/balance-with-measure";
 import { filterTypes } from "modules/filter";
 import { appOperations, appTypes } from "modules/app";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { OnchainFullPath } from "routes";
 import { accountOperations } from "modules/account";
 import DigitsField from "components/ui/digitsField";
-import Ellipsis from "components/common/ellipsis";
 import OnChainDetails from "./modal/details";
 import OnchainWarning from "./modal/warning";
+import OnchainHistory from "./history";
 
 class Onchain extends Component {
     constructor(props) {
@@ -80,108 +77,6 @@ class Onchain extends Component {
             return;
         }
         dispatch(operations.openSendCoinsModal());
-    };
-
-    getHistoryHeader = () => [
-        {
-            Header: <span className="sortable">Name of payment</span>,
-            accessor: "name",
-            className: "name",
-            sortMethod: (a, b) => {
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                return aa > bb ? 1 : (aa < bb ? -1 : 0); // eslint-disable-line
-            },
-            width: 164,
-        },
-        {
-            Header: <span className="">Amount</span>,
-            accessor: "amount",
-            className: "amount",
-            sortable: false,
-            width: 145,
-        },
-        {
-            Header: <span className="sortable">To</span>,
-            accessor: "to",
-            className: "to",
-            sortable: false,
-            width: 156,
-        },
-        {
-            Header: <span className="sortable">Confirmations</span>,
-            accessor: "time",
-            className: "time",
-            sortable: false,
-            width: 157,
-        },
-        {
-            Header: <span>Transaction ID</span>,
-            accessor: "tid",
-            className: "tid",
-            sortable: false,
-            width: 198,
-        },
-        {
-            Header: <span className="sortable">Date</span>,
-            accessor: "date",
-            className: "date",
-            width: 120,
-            // eslint-disable-next-line
-            sortMethod: (a, b) => a.props.dateTime > b.props.dateTime ?
-                1 :
-                (a.props.dateTime < b.props.dateTime ? -1 : 0),
-        },
-    ];
-
-    getHistoryData = () => {
-        const { dispatch, lightningID } = this.props;
-        return this.props.history.map((item, key) => {
-            const tempAddress = item.to !== lightningID ? item.to : "me";
-            const address = (
-                <span
-                    onClick={() => {
-                        if (helpers.hasSelection()) return;
-                        if (tempAddress !== "-") {
-                            analytics.event({ action: "History address", category: "Onchain", label: "Copy" });
-                            dispatch(appOperations.copyToClipboard(item.to));
-                        }
-                    }}
-                    title={tempAddress}
-                >
-                    {tempAddress}
-                </span>
-            );
-            const tid = (
-                <span
-                    onClick={() => {
-                        if (helpers.hasSelection()) return;
-                        analytics.event({ action: "History transaction hash", category: "Onchain", label: "Copy" });
-                        dispatch(appOperations.copyToClipboard(item.tx_hash));
-                    }}
-                    title={item.tx_hash}
-                >
-                    {item.tx_hash}
-                </span>
-            );
-            const [ymd, hms] = helpers.formatDate(item.date).split(" ");
-            return {
-                amount: <BalanceWithMeasure satoshi={item.amount} />,
-                date: (
-                    <span dateTime={item.date}>
-                        <span className="date__ymd">{ymd}</span>
-                        <span className="date__hms">{hms}</span>
-                    </span>
-                ),
-                name: <Ellipsis>{item.name}</Ellipsis>,
-                tid: <Ellipsis>{tid}</Ellipsis>,
-                time: <BlocksLoader
-                    class={item.status === "pending" ? "pending" : "sended"}
-                    countBlocks={item.num_confirmations}
-                />,
-                to: <Ellipsis>{address}</Ellipsis>,
-            };
-        });
     };
 
     getNetwork = () => {
@@ -350,20 +245,7 @@ class Onchain extends Component {
             <div key={2} className="onchain">
                 <div className="container">
                     {this.renderOnchain()}
-                    <History
-                        key={3}
-                        columns={this.getHistoryHeader()}
-                        data={this.getHistoryData()}
-                        defaultSorted={[
-                            {
-                                desc: true,
-                                id: "date",
-                            },
-                        ]}
-                        source={filterTypes.FILTER_ONCHAIN}
-                        title="Onchain payments history"
-                        filters={filterTypes.FILTER_KIND_LIST}
-                    />
+                    <OnchainHistory />,
                 </div>
             </div>,
             <ReactCSSTransitionGroup
@@ -381,19 +263,6 @@ class Onchain extends Component {
 Onchain.propTypes = {
     bitcoinMeasureType: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
-    history: PropTypes.arrayOf(PropTypes.shape({
-        amount: PropTypes.number,
-        block_hash: PropTypes.string,
-        block_height: PropTypes.number,
-        date: PropTypes.instanceOf(Date).isRequired,
-        name: PropTypes.string.isRequired,
-        num_confirmations: PropTypes.number,
-        status: PropTypes.string.isRequired,
-        to: PropTypes.string.isRequired,
-        total_fees: PropTypes.number,
-        tx_hash: PropTypes.string,
-    })).isRequired,
-    lightningID: PropTypes.string.isRequired,
     modalState: PropTypes.string.isRequired,
     sendCoinsDetails: PropTypes.shape({
         amount: PropTypes.number.isRequired,
