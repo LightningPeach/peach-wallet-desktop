@@ -137,7 +137,6 @@ class Onchain extends Component {
     getHistoryData = () => {
         const { dispatch, lightningID } = this.props;
         return this.props.history.map((item, key) => {
-            const className = key === 0 ? "green" : "orange";
             const tempAddress = item.to !== lightningID ? item.to : "me";
             const address = (
                 <span
@@ -361,8 +360,9 @@ class Onchain extends Component {
                                 id: "date",
                             },
                         ]}
-                        source={filterTypes.TYPE_ONCHAIN}
+                        source={filterTypes.FILTER_ONCHAIN}
                         title="Onchain payments history"
+                        filters={filterTypes.FILTER_KIND_LIST}
                     />
                 </div>
             </div>,

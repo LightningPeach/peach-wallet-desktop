@@ -27,7 +27,7 @@ class Pricepicker extends Component {
         const { from, to, currency } = nextProps.price;
         if (!isEqual(nextProps.price, this.props.price)) {
             this.setState({
-                currency,
+                currency: currency || this.props.bitcoinMeasureType,
                 from,
                 to,
             });
@@ -235,7 +235,7 @@ Pricepicker.propTypes = {
     bitcoinMeasureType: PropTypes.string.isRequired,
     className: PropTypes.string,
     price: PropTypes.shape({
-        currency: PropTypes.string.isRequired,
+        currency: PropTypes.string,
         from: PropTypes.string,
         to: PropTypes.string,
     }).isRequired,

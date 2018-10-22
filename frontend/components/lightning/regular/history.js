@@ -110,8 +110,9 @@ class RegularHistory extends Component {
                         id: "date",
                     },
                 ]}
-                source={filterTypes.TYPE_REGULAR}
+                source={filterTypes.FILTER_REGULAR}
                 title="Regular payments history"
+                filters={filterTypes.FILTER_KIND_LIST}
             />
         );
     }

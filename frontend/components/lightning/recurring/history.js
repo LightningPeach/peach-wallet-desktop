@@ -15,6 +15,7 @@ import { filterTypes } from "modules/filter";
 import { appOperations } from "modules/app";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import Ellipsis from "components/common/ellipsis";
+import { FILTER_KIND_SEARCH } from "../../../modules/filter/types";
 
 const compare = (a, b, aPinned, bPinned, desc) => {
     if (aPinned && bPinned) {
@@ -332,8 +333,11 @@ class RecurringHistory extends Component {
                         id: "date",
                     },
                 ]}
-                source={filterTypes.TYPE_RECURRING}
+                source={filterTypes.FILTER_RECURRING}
                 title="Recurring payments history"
+                filters={[
+                    filterTypes.FILTER_KIND_SEARCH,
+                ]}
             />
         );
     }
