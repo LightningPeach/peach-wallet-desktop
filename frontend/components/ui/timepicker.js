@@ -167,7 +167,7 @@ class Timepicker extends Component {
         return (
             <div className="picker">
                 <button
-                    className={`button button__hollow picker__target ${className} ${
+                    className={`button button__hollow picker__target  picker__target--time ${className} ${
                         this.state.showInput ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
@@ -300,6 +300,12 @@ class Timepicker extends Component {
                             <button
                                 className="button button__link"
                                 onClick={this.setData}
+                                disabled={!(
+                                    this.state.from.minutes
+                                    && this.state.from.hours
+                                    && this.state.to.minutes
+                                    && this.state.to.hours
+                                )}
                             >
                                 Apply
                             </button>

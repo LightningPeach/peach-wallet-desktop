@@ -117,7 +117,7 @@ class Datepicker extends Component {
         return (
             <div className="picker">
                 <button
-                    className={`button button__hollow picker__target ${className} ${
+                    className={`button button__hollow picker__target picker__target--date ${className} ${
                         this.state.showInput ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}

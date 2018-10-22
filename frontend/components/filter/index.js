@@ -137,7 +137,7 @@ class Filter extends Component {
             <div className="filter__item filter__item--group">
                 <button
                     className={`button button__hollow filter__type-button ${
-                        this.state.type === "all" ? "active" : ""
+                        this.state.type === filterTypes.ALL_PAYMENTS ? "active" : ""
                     }`}
                     data-name={filterTypes.ALL_PAYMENTS}
                     onClick={this.handleTypeChange}
@@ -146,7 +146,7 @@ class Filter extends Component {
                 </button>
                 <button
                     className={`button button__hollow filter__type-button ${
-                        this.state.type === "income" ? "active" : ""
+                        this.state.type === filterTypes.INCOMING_PAYMENT ? "active" : ""
                     }`}
                     data-name={filterTypes.INCOMING_PAYMENT}
                     onClick={this.handleTypeChange}
@@ -155,7 +155,7 @@ class Filter extends Component {
                 </button>
                 <button
                     className={`button button__hollow filter__type-button ${
-                        this.state.type === "outcome" ? "active" : ""
+                        this.state.type === filterTypes.OUTGOING_PAYMENT ? "active" : ""
                     }`}
                     data-name={filterTypes.OUTGOING_PAYMENT}
                     onClick={this.handleTypeChange}

@@ -117,7 +117,7 @@ class Pricepicker extends Component {
         return (
             <div className="picker">
                 <button
-                    className={`button button__hollow picker__target ${className} ${
+                    className={`button button__hollow picker__target picker__target--price ${className} ${
                         this.state.showInput ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
@@ -214,6 +214,10 @@ class Pricepicker extends Component {
                             <button
                                 className="button button__link"
                                 onClick={this.setData}
+                                disabled={!(
+                                    this.state.from
+                                    && this.state.to
+                                )}
                             >
                                 Apply
                             </button>
