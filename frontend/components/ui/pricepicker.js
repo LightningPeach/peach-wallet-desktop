@@ -8,11 +8,12 @@ class Pricepicker extends Component {
     constructor(props) {
         super(props);
 
+        const { from, to, currency } = this.props.price;
         this.state = {
-            currency: this.props.bitcoinMeasureType,
-            from: null,
+            currency: currency || this.props.bitcoinMeasureType,
+            from,
             showInput: false,
-            to: null,
+            to,
         };
     }
 

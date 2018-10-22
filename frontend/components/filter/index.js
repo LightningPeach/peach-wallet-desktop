@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { filterActions, filterTypes } from "modules/filter";
+import { initStatePartial as initState } from "modules/filter/reducers";
 import DebounceInput from "react-debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
@@ -10,55 +11,29 @@ import Pricepicker from "components/ui/pricepicker";
 class Filter extends Component {
     constructor(props) {
         super(props);
-        this.initState = {
-            date: {
-                from: null,
-                to: null,
-            },
-            price: {
-                currency: this.props.bitcoinMeasureType,
-                from: null,
-                to: null,
-            },
-            searchValue: "",
-            time: {
-                from: {
-                    hours: null,
-                    meridiem: filterTypes.ANTE_MERIDIEM,
-                    minutes: null,
-                },
-                to: {
-                    hours: null,
-                    meridiem: filterTypes.ANTE_MERIDIEM,
-                    minutes: null,
-                },
-            },
-            type: filterTypes.ALL_PAYMENTS,
-        };
-        this.setFilter = (details = {}) => {
-            const { source, dispatch } = this.props;
-            switch (source) {
-                case filterTypes.TYPE_REGULAR:
-                    dispatch(filterActions.setRegularFilterPart(details));
-                    break;
-                case filterTypes.TYPE_RECURRING:
-                    dispatch(filterActions.setRecurringFilterPart(details));
-                    break;
-                case filterTypes.TYPE_ONCHAIN:
-                    dispatch(filterActions.setOnchainFilterPart(details));
-                    break;
-                default:
-                    break;
-            }
-        };
-        this.setFilter(this.initState);
-
-        this.state = this.initState;
+        this.state = this.props.filter;
     }
+
+    setFilterPart = (details = {}) => {
+        const { source, dispatch } = this.props;
+        switch (source) {
+            case filterTypes.TYPE_REGULAR:
+                dispatch(filterActions.setRegularFilterPart(details));
+                break;
+            case filterTypes.TYPE_RECURRING:
+                dispatch(filterActions.setRecurringFilterPart(details));
+                break;
+            case filterTypes.TYPE_ONCHAIN:
+                dispatch(filterActions.setOnchainFilterPart(details));
+                break;
+            default:
+                break;
+        }
+    };
 
     handleSearchChange = (e) => {
         this.setState({
-            searchValue: e.target.value.trim(),
+            search: e.target.value.trim(),
         });
     };
 
@@ -72,50 +47,50 @@ class Filter extends Component {
         this.setState({
             date,
         });
-        this.setFilter({ date });
+        this.setFilterPart({ date });
     };
 
     handleTimeChange = (time) => {
         this.setState({
             time,
         });
-        this.setFilter({ time });
+        this.setFilterPart({ time });
     };
 
     handlePriceChange = (price) => {
         this.setState({
             price,
         });
-        this.setFilter({ price });
+        this.setFilterPart({ price });
     };
 
     handleFilterReset = () => {
         const { dispatch } = this.props;
         dispatch(filterActions.clearAllFilters());
         this.setState({
-            ...this.initState,
+            ...initState,
         });
     };
 
     resetDate = () => {
         this.setState({
-            date: this.initState.date,
+            date: initState.date,
         });
-        this.setFilter({ date: this.initState.date });
+        this.setFilterPart({ date: this.initState.date });
     };
 
     resetTime = () => {
         this.setState({
-            time: this.initState.time,
+            time: initState.time,
         });
-        this.setFilter({ time: this.initState.time });
+        this.setFilterPart({ time: this.initState.time });
     };
 
     resetPrice = () => {
         this.setState({
-            price: this.initState.price,
+            price: initState.price,
         });
-        this.setFilter({ price: this.initState.price });
+        this.setFilterPart({ price: this.initState.price });
     };
 
     renderSearchBar = () => (
@@ -126,7 +101,7 @@ class Filter extends Component {
                     onChange={this.handleSearchChange}
                     className="form-text filter__search"
                     placeholder="&nbsp;"
-                    value={this.state.searchValue}
+                    value={this.state.search}
                 />
             </div>
         </div>
@@ -206,8 +181,8 @@ class Filter extends Component {
 }
 
 Filter.propTypes = {
-    bitcoinMeasureType: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
+    filter: PropTypes.shape(),
     source: PropTypes.oneOf([
         filterTypes.TYPE_REGULAR,
         filterTypes.TYPE_RECURRING,
@@ -215,8 +190,24 @@ Filter.propTypes = {
     ]).isRequired,
 };
 
-const mapStateToProps = state => ({
-    bitcoinMeasureType: state.account.bitcoinMeasureType,
-});
+const mapStateToProps = (state, props) => {
+    let filter;
+    switch (props.source) {
+        case filterTypes.TYPE_REGULAR:
+            filter = state.filter.regular;
+            break;
+        case filterTypes.TYPE_RECURRING:
+            filter = state.filter.recurring;
+            break;
+        case filterTypes.TYPE_ONCHAIN:
+            filter = state.filter.onchain;
+            break;
+        default:
+            break;
+    }
+    return {
+        filter,
+    };
+};
 
 export default connect(mapStateToProps)(Filter);

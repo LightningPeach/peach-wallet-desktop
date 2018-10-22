@@ -1,10 +1,36 @@
 import * as accountTypes from "modules/account/types";
 import * as types from "./types";
 
+export const initStatePartial = {
+    date: {
+        from: null,
+        to: null,
+    },
+    price: {
+        currency: null,
+        from: null,
+        to: null,
+    },
+    search: "",
+    time: {
+        from: {
+            hours: null,
+            meridiem: types.ANTE_MERIDIEM,
+            minutes: null,
+        },
+        to: {
+            hours: null,
+            meridiem: types.ANTE_MERIDIEM,
+            minutes: null,
+        },
+    },
+    type: types.ALL_PAYMENTS,
+};
+
 export const initStateFilter = {
-    onchain: {},
-    recurring: {},
-    regular: {},
+    onchain: initStatePartial,
+    recurring: initStatePartial,
+    regular: initStatePartial,
 };
 
 const defaultState = JSON.parse(JSON.stringify(initStateFilter));
