@@ -11,7 +11,7 @@ import {
     streamPaymentOperations as streamOperations,
     streamPaymentTypes,
 } from "modules/streamPayments";
-import { filterTypes } from "modules/filter";
+import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import Ellipsis from "components/common/ellipsis";
@@ -162,12 +162,15 @@ class RecurringHistory extends Component {
                     ymd,
                 };
             })
-            .filter((item) => {
-                const { search } = filter;
-                const searchCheck = item.name.toLowerCase().includes(search.toLowerCase())
-                    || item.tempAddress.toLowerCase().includes(search.toLowerCase());
-                return searchCheck;
-            })
+            .filter(item => dispatch(filterOperations.filter(
+                filter,
+                {
+                    search: [
+                        item.name,
+                        item.tempAddress,
+                    ],
+                },
+            )))
             .map((item, key) => {
                 console.log(item);
                 const address = (

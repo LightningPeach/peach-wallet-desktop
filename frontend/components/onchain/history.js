@@ -4,11 +4,10 @@ import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
 import History from "components/history";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { filterTypes } from "modules/filter";
+import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
 import Ellipsis from "components/common/ellipsis";
 import BlocksLoader from "components/ui/blocks_loader";
-import moment from "moment/moment";
 
 const compare = (a, b) => !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
 
@@ -77,55 +76,18 @@ class OnchainHistory extends Component {
                     ymd,
                 };
             })
-            .filter((item) => {
-                const {
-                    type, date, search, time, price,
-                } = filter;
-
-                const searchCheck = item.name.toLowerCase().includes(search.toLowerCase())
-                    || item.tempAddress.toLowerCase().includes(search.toLowerCase());
-
-                const typeCheck = !(
-                    (type === filterTypes.TYPE_PAYMENT_INCOMING && item.amount < 0)
-                    || (type === filterTypes.TYPE_PAYMENT_OUTCOMING && item.amount > 0)
-                );
-
-                let amountCheck;
-                if (!price.from && !price.to) {
-                    amountCheck = true;
-                } else if (price.currency === "USD") {
-                    amountCheck = !(
-                        (price.from && dispatch(appOperations.convertUsdToSatoshi(price.from)) > Math.abs(item.amount))
-                        || (price.to && dispatch(appOperations.convertUsdToSatoshi(price.to)) < Math.abs(item.amount))
-                    );
-                } else {
-                    amountCheck = !(
-                        (price.from && dispatch(appOperations.convertToSatoshi(price.from)) > Math.abs(item.amount))
-                        || (price.to && dispatch(appOperations.convertToSatoshi(price.to)) < Math.abs(item.amount))
-                    );
-                }
-
-                const mDate = moment(item.date);
-                const dateCheck = !(date.from || date.to)
-                    || !((date.from && date.from.isAfter(mDate, "day"))
-                        || (date.to && date.to.isBefore(mDate, "day")));
-
-                let timeCheck = true;
-                const hms = (mDate.hours() * 60) + mDate.minutes();
-                if (time.from.minutes && time.from.hours) {
-                    const from = moment(`${time.from.hours}:${time.from.minutes} ${time.from.meridiem}`, "HH:mm a");
-                    if ((from.hours() * 60) + from.minutes() > hms) {
-                        timeCheck = false;
-                    }
-                }
-                if (time.to.minutes && time.to.hours) {
-                    const to = moment(`${time.to.hours}:${time.to.minutes} ${time.to.meridiem}`, "HH:mm a");
-                    if ((to.hours() * 60) + to.minutes() < hms) {
-                        timeCheck = false;
-                    }
-                }
-                return searchCheck && typeCheck && amountCheck && dateCheck && timeCheck;
-            })
+            .filter(item => dispatch(filterOperations.filter(
+                filter,
+                {
+                    date: item.date,
+                    price: item.amount,
+                    search: [
+                        item.name,
+                        item.tempAddress,
+                    ],
+                    type: item.amount,
+                },
+            )))
             .map((item, key) => {
                 const address = (
                     <span
