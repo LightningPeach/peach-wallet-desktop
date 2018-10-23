@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import moment from "moment";
 import { analytics, helpers } from "additional";
 import History from "components/history";
 import BalanceWithMeasure from "components/common/balance-with-measure";
@@ -52,20 +53,78 @@ class RegularHistory extends Component {
 
     getHistoryData = () => {
         const {
-            dispatch, contacts, history, lightningID,
+            dispatch, contacts, history, lightningID, filter,
         } = this.props;
-        let date;
         return history
             .filter(item => item.type !== "stream")
-            .map((item, key) => {
+            .map((item) => {
                 let tempAddress = null;
-                date = new Date(parseInt(item.date, 10));
                 contacts.forEach((contact) => {
                     if (contact.lightningID === item.lightningID) {
                         tempAddress = contact.name;
                     }
                 });
                 tempAddress = tempAddress || (item.lightningID !== lightningID ? item.lightningID : "me");
+                const date = new Date(parseInt(item.date, 10));
+                const [ymd, hms] = helpers.formatDate(date).split(" ");
+                return {
+                    ...item,
+                    date,
+                    hms,
+                    tempAddress,
+                    ymd,
+                };
+            })
+            .filter((item) => {
+                const {
+                    type, date, search, time, price,
+                } = filter;
+
+                const searchCheck = item.name.toLowerCase().includes(search.toLowerCase())
+                    || item.tempAddress.toLowerCase().includes(search.toLowerCase());
+
+                const typeCheck = !(
+                    (type === filterTypes.TYPE_PAYMENT_INCOMING && item.amount < 0)
+                    || (type === filterTypes.TYPE_PAYMENT_OUTCOMING && item.amount > 0)
+                );
+
+                let amountCheck;
+                if (!price.from && !price.to) {
+                    amountCheck = true;
+                } else if (price.currency === "USD") {
+                    amountCheck = !(
+                        (price.from && dispatch(appOperations.convertUsdToSatoshi(price.from)) > Math.abs(item.amount))
+                        || (price.to && dispatch(appOperations.convertUsdToSatoshi(price.to)) < Math.abs(item.amount))
+                    );
+                } else {
+                    amountCheck = !(
+                        (price.from && dispatch(appOperations.convertToSatoshi(price.from)) > Math.abs(item.amount))
+                        || (price.to && dispatch(appOperations.convertToSatoshi(price.to)) < Math.abs(item.amount))
+                    );
+                }
+
+                const mDate = moment(item.date);
+                const dateCheck = !(date.from || date.to)
+                    || !((date.from && date.from.isAfter(mDate, "day"))
+                        || (date.to && date.to.isBefore(mDate, "day")));
+
+                let timeCheck = true;
+                const hms = (mDate.hours() * 60) + mDate.minutes();
+                if (time.from.minutes && time.from.hours) {
+                    const from = moment(`${time.from.hours}:${time.from.minutes} ${time.from.meridiem}`, "HH:mm a");
+                    if ((from.hours() * 60) + from.minutes() > hms) {
+                        timeCheck = false;
+                    }
+                }
+                if (time.to.minutes && time.to.hours) {
+                    const to = moment(`${time.to.hours}:${time.to.minutes} ${time.to.meridiem}`, "HH:mm a");
+                    if ((to.hours() * 60) + to.minutes() < hms) {
+                        timeCheck = false;
+                    }
+                }
+                return searchCheck && typeCheck && amountCheck && dateCheck && timeCheck;
+            })
+            .map((item, key) => {
                 const address = (
                     <span
                         onClick={() => {
@@ -79,18 +138,17 @@ class RegularHistory extends Component {
                                 dispatch(appOperations.copyToClipboard(item.lightningID));
                             }
                         }}
-                        title={tempAddress}
+                        title={item.tempAddress}
                     >
-                        {tempAddress}
+                        {item.tempAddress}
                     </span>
                 );
-                const [ymd, hms] = helpers.formatDate(date).split(" ");
                 return {
                     amount: <BalanceWithMeasure satoshi={item.amount} />,
                     date: (
-                        <div dateTime={date}>
-                            <span className="date__ymd">{ymd}</span>
-                            <span className="date__hms">{hms}</span>
+                        <div dateTime={item.date}>
+                            <span className="date__ymd">{item.ymd}</span>
+                            <span className="date__hms">{item.hms}</span>
                         </div>
                     ),
                     name: <Ellipsis classList="history">{item.name}</Ellipsis>,
@@ -124,12 +182,14 @@ RegularHistory.propTypes = {
         name: PropTypes.string.isRequired,
     })),
     dispatch: PropTypes.func.isRequired,
+    filter: PropTypes.shape(),
     history: PropTypes.arrayOf(PropTypes.shape).isRequired,
     lightningID: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
+    filter: state.filter.regular,
     history: state.lightning.history,
     lightningID: state.account.lightningID,
 });

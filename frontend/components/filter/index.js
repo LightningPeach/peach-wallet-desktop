@@ -7,7 +7,6 @@ import DebounceInput from "react-debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
 import Pricepicker from "components/ui/pricepicker";
-import { FILTER_KIND_PRICE, FILTER_KIND_TIME } from "../../modules/filter/types";
 
 class Filter extends Component {
     constructor(props) {
@@ -33,15 +32,19 @@ class Filter extends Component {
     };
 
     handleSearchChange = (e) => {
+        const search = e.target.value.trim();
         this.setState({
-            search: e.target.value.trim(),
+            search,
         });
+        this.setFilterPart({ search });
     };
 
     handleTypeChange = (e) => {
+        const type = e.target.getAttribute("data-name");
         this.setState({
-            type: e.target.getAttribute("data-name"),
+            type,
         });
+        this.setFilterPart({ type });
     };
 
     handleDateChange = (date) => {

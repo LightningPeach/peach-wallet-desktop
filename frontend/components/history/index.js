@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ReactTable from "react-table";
@@ -28,24 +28,28 @@ class History extends Component {
                 {emptyPlaceholder || "Here all your transactions will be displayed"}
             </div>
         );
-        const renderData = () => (
-            <Fragment>
-                {filters &&
-                    <Filter
-                        source={source}
-                        filterKinds={filters}
-                    />
-                }
-                <ReactTable
-                    {...table}
-                    page={this.state.page}
-                    resizable={false}
-                    showPageSizeOptions={false}
-                    defaultPageSize={HISTORY_ROWS_PER_PAGE}
-                    PaginationComponent={Pagination}
-                    customPagination={this.onPageChange}
+
+        const renderFilter = () => {
+            if (!filters) {
+                return null;
+            }
+            return (
+                <Filter
+                    source={source}
+                    filterKinds={filters}
                 />
-            </Fragment>
+            );
+        };
+        const renderData = () => (
+            <ReactTable
+                {...table}
+                page={this.state.page}
+                resizable={false}
+                showPageSizeOptions={false}
+                defaultPageSize={HISTORY_ROWS_PER_PAGE}
+                PaginationComponent={Pagination}
+                customPagination={this.onPageChange}
+            />
         );
         const renderTitle = () => {
             if (withoutTitle) {
@@ -61,6 +65,7 @@ class History extends Component {
         return (
             <div className="history">
                 {renderTitle()}
+                {renderFilter()}
                 {!this.props.data.length ? renderEmptyList() : renderData()}
             </div>
         );
