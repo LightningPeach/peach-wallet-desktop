@@ -8,6 +8,7 @@ import { filterTypes } from "modules/filter";
 import { appOperations } from "modules/app";
 import Ellipsis from "components/common/ellipsis";
 import BlocksLoader from "components/ui/blocks_loader";
+import moment from "moment/moment";
 
 const compare = (a, b) => !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
 
@@ -64,53 +65,111 @@ class OnchainHistory extends Component {
     ];
 
     getHistoryData = () => {
-        const { dispatch, lightningID } = this.props;
-        return this.props.history.map((item, key) => {
-            const tempAddress = item.to !== lightningID ? item.to : "me";
-            const address = (
-                <span
-                    onClick={() => {
-                        if (helpers.hasSelection()) return;
-                        if (tempAddress !== "-") {
-                            analytics.event({ action: "History address", category: "Onchain", label: "Copy" });
-                            dispatch(appOperations.copyToClipboard(item.to));
-                        }
-                    }}
-                    title={tempAddress}
-                >
-                    {tempAddress}
-                </span>
-            );
-            const tid = (
-                <span
-                    onClick={() => {
-                        if (helpers.hasSelection()) return;
-                        analytics.event({ action: "History transaction hash", category: "Onchain", label: "Copy" });
-                        dispatch(appOperations.copyToClipboard(item.tx_hash));
-                    }}
-                    title={item.tx_hash}
-                >
-                    {item.tx_hash}
-                </span>
-            );
-            const [ymd, hms] = helpers.formatDate(item.date).split(" ");
-            return {
-                amount: <BalanceWithMeasure satoshi={item.amount} />,
-                date: (
-                    <span dateTime={item.date}>
-                        <span className="date__ymd">{ymd}</span>
-                        <span className="date__hms">{hms}</span>
+        const { dispatch, lightningID, filter } = this.props;
+        return this.props.history
+            .map((item) => {
+                const tempAddress = item.to !== lightningID ? item.to : "me";
+                const [ymd, hms] = helpers.formatDate(item.date).split(" ");
+                return {
+                    ...item,
+                    hms,
+                    tempAddress,
+                    ymd,
+                };
+            })
+            .filter((item) => {
+                const {
+                    type, date, search, time, price,
+                } = filter;
+
+                const searchCheck = item.name.toLowerCase().includes(search.toLowerCase())
+                    || item.tempAddress.toLowerCase().includes(search.toLowerCase());
+
+                const typeCheck = !(
+                    (type === filterTypes.TYPE_PAYMENT_INCOMING && item.amount < 0)
+                    || (type === filterTypes.TYPE_PAYMENT_OUTCOMING && item.amount > 0)
+                );
+
+                let amountCheck;
+                if (!price.from && !price.to) {
+                    amountCheck = true;
+                } else if (price.currency === "USD") {
+                    amountCheck = !(
+                        (price.from && dispatch(appOperations.convertUsdToSatoshi(price.from)) > Math.abs(item.amount))
+                        || (price.to && dispatch(appOperations.convertUsdToSatoshi(price.to)) < Math.abs(item.amount))
+                    );
+                } else {
+                    amountCheck = !(
+                        (price.from && dispatch(appOperations.convertToSatoshi(price.from)) > Math.abs(item.amount))
+                        || (price.to && dispatch(appOperations.convertToSatoshi(price.to)) < Math.abs(item.amount))
+                    );
+                }
+
+                const mDate = moment(item.date);
+                const dateCheck = !(date.from || date.to)
+                    || !((date.from && date.from.isAfter(mDate, "day"))
+                        || (date.to && date.to.isBefore(mDate, "day")));
+
+                let timeCheck = true;
+                const hms = (mDate.hours() * 60) + mDate.minutes();
+                if (time.from.minutes && time.from.hours) {
+                    const from = moment(`${time.from.hours}:${time.from.minutes} ${time.from.meridiem}`, "HH:mm a");
+                    if ((from.hours() * 60) + from.minutes() > hms) {
+                        timeCheck = false;
+                    }
+                }
+                if (time.to.minutes && time.to.hours) {
+                    const to = moment(`${time.to.hours}:${time.to.minutes} ${time.to.meridiem}`, "HH:mm a");
+                    if ((to.hours() * 60) + to.minutes() < hms) {
+                        timeCheck = false;
+                    }
+                }
+                return searchCheck && typeCheck && amountCheck && dateCheck && timeCheck;
+            })
+            .map((item, key) => {
+                const address = (
+                    <span
+                        onClick={() => {
+                            if (helpers.hasSelection()) return;
+                            if (item.tempAddress !== "-") {
+                                analytics.event({ action: "History address", category: "Onchain", label: "Copy" });
+                                dispatch(appOperations.copyToClipboard(item.to));
+                            }
+                        }}
+                        title={item.tempAddress}
+                    >
+                        {item.tempAddress}
                     </span>
-                ),
-                name: <Ellipsis>{item.name}</Ellipsis>,
-                tid: <Ellipsis>{tid}</Ellipsis>,
-                time: <BlocksLoader
-                    class={item.status === "pending" ? "pending" : "sended"}
-                    countBlocks={item.num_confirmations}
-                />,
-                to: <Ellipsis>{address}</Ellipsis>,
-            };
-        });
+                );
+                const tid = (
+                    <span
+                        onClick={() => {
+                            if (helpers.hasSelection()) return;
+                            analytics.event({ action: "History transaction hash", category: "Onchain", label: "Copy" });
+                            dispatch(appOperations.copyToClipboard(item.tx_hash));
+                        }}
+                        title={item.tx_hash}
+                    >
+                        {item.tx_hash}
+                    </span>
+                );
+                return {
+                    amount: <BalanceWithMeasure satoshi={item.amount} />,
+                    date: (
+                        <span dateTime={item.date}>
+                            <span className="date__ymd">{item.ymd}</span>
+                            <span className="date__hms">{item.hms}</span>
+                        </span>
+                    ),
+                    name: <Ellipsis>{item.name}</Ellipsis>,
+                    tid: <Ellipsis>{tid}</Ellipsis>,
+                    time: <BlocksLoader
+                        class={item.status === "pending" ? "pending" : "sended"}
+                        countBlocks={item.num_confirmations}
+                    />,
+                    to: <Ellipsis>{address}</Ellipsis>,
+                };
+            });
     };
 
     render() {
@@ -135,6 +194,7 @@ class OnchainHistory extends Component {
 
 OnchainHistory.propTypes = {
     dispatch: PropTypes.func.isRequired,
+    filter: PropTypes.shape(),
     history: PropTypes.arrayOf(PropTypes.shape({
         amount: PropTypes.number,
         block_hash: PropTypes.string,
@@ -151,6 +211,7 @@ OnchainHistory.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    filter: state.filter.onchain,
     history: state.onchain.history,
     lightningID: state.account.lightningID,
 });
