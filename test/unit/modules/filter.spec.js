@@ -1,6 +1,14 @@
-import { filterActions as actions, filterTypes as types } from "modules/filter";
+import moment from "moment";
+import {
+    filterActions as actions,
+    filterTypes as types,
+    filterOperations as operations,
+} from "modules/filter";
 import filterReducer, { initStateFilter } from "modules/filter/reducers";
 import { accountTypes } from "modules/account";
+import { appOperations } from "modules/app";
+import { configureStore, persistedState } from "store/configure-store";
+import { errorPromise, successPromise } from "additional";
 
 describe("Filter Unit Tests", () => {
     describe("Action creators", () => {
@@ -91,6 +99,183 @@ describe("Filter Unit Tests", () => {
             action.type = types.SET_ONCHAIN_FILTER_PART;
             expectedData.onchain = { ...expectedData.onchain, ...data };
             expect(filterReducer(state, action)).to.deep.equal(expectedData);
+        });
+    });
+
+    describe("Operations tests", () => {
+        let sandbox;
+        let data;
+        let store;
+        let initState;
+        let expectedActions;
+        let listActions;
+        let expectedData;
+        let errorResp;
+        let successResp;
+        let fakeDispatchReturnError;
+        let fakeDispatchReturnSuccess;
+        let fakeApp;
+
+        beforeEach(async () => {
+            errorResp = await errorPromise(undefined, { name: undefined });
+            successResp = await successPromise();
+            fakeDispatchReturnError = () => errorResp;
+            fakeDispatchReturnSuccess = () => successResp;
+            listActions = [];
+            sandbox = sinon.sandbox.create();
+            fakeApp = sandbox.stub(appOperations);
+            data = {};
+            initState = JSON.parse(JSON.stringify(persistedState));
+            store = configureStore(initState);
+            store.subscribe(() => listActions.push(store.getState().lastAction));
+            expectedData = undefined;
+            expectedActions = [];
+        });
+
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        describe("filter()", () => {
+            beforeEach(() => {
+                data.sourceFilter = {
+                    date: {
+                        from: moment("2011-11-11"),
+                        to: moment("2011-11-12"),
+                    },
+                    price: {
+                        currency: "Satoshi",
+                        from: "1",
+                        to: "2",
+                    },
+                    search: "a",
+                    time: {
+                        from: {
+                            hours: "1",
+                            meridiem: types.ANTE_MERIDIEM,
+                            minutes: "1",
+                        },
+                        to: {
+                            hours: "2",
+                            meridiem: types.ANTE_MERIDIEM,
+                            minutes: "2",
+                        },
+                    },
+                    type: types.TYPE_PAYMENT_ALL,
+                };
+                fakeApp.convertUsdToSatoshi.returns(fakeDispatchReturnSuccess);
+                fakeApp.convertToSatoshi.returns(fakeDispatchReturnSuccess);
+            });
+
+            it("pass price filter with USD currency", () => {
+                data.sourceFilter.price.currency = "USD";
+                data.itemFiltered = {
+                    price: 1,
+                };
+                expectedData = true;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("pass price filter with no filter values", () => {
+                data.sourceFilter.price.from = null;
+                data.sourceFilter.price.to = null;
+                data.itemFiltered = {
+                    price: 1,
+                };
+                expectedData = true;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("time lower than filter, time.to filter disabled", () => {
+                data.sourceFilter.time.to.minutes = null;
+                data.itemFiltered = {
+                    date: moment(moment("2011-11-11 1:00")),
+                };
+                expectedData = false;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("time bigger than filter, time.from filter disabled", () => {
+                data.sourceFilter.time.from.minutes = null;
+                data.itemFiltered = {
+                    date: moment(moment("2011-11-11 2:03")),
+                };
+                expectedData = false;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("time bigger than filter", () => {
+                data.sourceFilter.time.from.minutes = null;
+                data.itemFiltered = {
+                    date: moment(moment("2011-11-11 2:03")),
+                };
+                expectedData = false;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("pass with time filter disabled", () => {
+                data.sourceFilter.time.to.minutes = null;
+                data.sourceFilter.time.from.minutes = null;
+                data.itemFiltered = {
+                    date: moment(moment("2011-11-11 1:00")),
+                };
+                expectedData = true;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("pass all filters", () => {
+                data.itemFiltered = {
+                    type: types.TYPE_PAYMENT_ALL,
+                    date: moment(moment("2011-11-11 1:02")),
+                    search: "A",
+                    price: 1,
+                };
+                expectedData = true;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
+            it("pass all filters, values passed as arrays", () => {
+                data.itemFiltered = {
+                    type: [types.TYPE_PAYMENT_ALL],
+                    date: [moment(moment("2011-11-11 1:02"))],
+                    search: ["A"],
+                    price: [1],
+                };
+                expectedData = true;
+                expect(store.dispatch(operations.filter(
+                    data.sourceFilter,
+                    data.itemFiltered,
+                ))).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
         });
     });
 });
