@@ -12,7 +12,7 @@ import {
     SIMNET_NETWORK,
 } from "config/consts";
 import { BITCOIN_SETTINGS } from "config/node-settings";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import SuccessPayment from "components/common/success-payment";
 import UnSuccessPayment from "components/common/unsuccess-payment";
 import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
@@ -22,7 +22,7 @@ import { appOperations, appTypes } from "modules/app";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { OnchainFullPath } from "routes";
 import { accountOperations } from "modules/account";
-import DigitsField from "components/ui/digitsField";
+import DigitsField from "components/ui/digits-field";
 import OnChainDetails from "./modal/details";
 import OnchainWarning from "./modal/warning";
 import OnchainHistory from "./history";

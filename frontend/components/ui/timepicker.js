@@ -2,7 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import isEqual from "lodash/isEqual";
-import DigitsField from "components/ui/digitsField";
+import DigitsField from "components/ui/digits-field";
+import Popper from "components/ui/popper";
 
 class Timepicker extends Component {
     constructor(props) {
@@ -24,12 +25,6 @@ class Timepicker extends Component {
         };
     }
 
-    componentDidMount() {
-        document.addEventListener("keyup", this.handleKeyUp);
-        document.addEventListener("mouseup", this.handleMouseUp);
-        document.addEventListener("touchend", this.handleTouchEnd);
-    }
-
     componentWillReceiveProps(nextProps) {
         const { from, to } = nextProps.time;
         if (!isEqual(nextProps.time, this.props.time)) {
@@ -38,12 +33,6 @@ class Timepicker extends Component {
                 to,
             });
         }
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener("keyup", this.handleKeyUp);
-        document.removeEventListener("mouseup", this.handleMouseUp);
-        document.removeEventListener("touchend", this.handleTouchEnd);
     }
 
     setFromMeridiem = (e) => {
@@ -108,24 +97,6 @@ class Timepicker extends Component {
         this.hideInput();
     };
 
-    handleKeyUp = (e) => {
-        if (this.state.showInput && e.keyCode === 27) {
-            this.hideInput();
-        }
-    };
-
-    handleMouseUp = (e) => {
-        if (this.state.showInput && !this.input.contains(e.target)) {
-            this.hideInput();
-        }
-    };
-
-    handleTouchEnd = (e) => {
-        if (this.state.showInput && !this.input.contains(e.target)) {
-            this.hideInput();
-        }
-    };
-
     hideInput = () => {
         this.setState({
             showInput: false,
@@ -177,143 +148,148 @@ class Timepicker extends Component {
                     Time range
                 </button>
                 {this.state.showInput &&
-                <div
-                    className="picker__collapse"
-                    ref={(ref) => { this.input = ref }}
-                >
-                    <div className="picker__row mt-14">
-                        <div className="picker__label">
-                            From
+                    <Popper
+                        className="picker__collapse"
+                        onClose={this.hideInput}
+                        closeWithEsc
+                    >
+                        <div className="picker__row mt-14">
+                            <div className="picker__label">
+                                From
+                            </div>
+                            <div className="picker__group">
+                                <DigitsField
+                                    id="date__from-hours"
+                                    className="form-text form-text--right"
+                                    value={this.state.from.hours}
+                                    pattern={/^([0-9]|1[0-1])$/}
+                                    name="date__from-hours"
+                                    ref={(ref) => {
+                                        this.dateFromHoursComponent = ref;
+                                    }}
+                                    setRef={(ref) => {
+                                        this.dateFromHours = ref;
+                                    }}
+                                    setOnChange={this.setFromHours}
+                                />
+                                <span className="picker__text--xl">:</span>
+                                <DigitsField
+                                    id="date__from-minutes"
+                                    className="form-text"
+                                    value={this.state.from.minutes}
+                                    pattern={/^([0-5]?[0-9])$/}
+                                    name="date__from-minutes"
+                                    ref={(ref) => {
+                                        this.dateFromMinutesComponent = ref;
+                                    }}
+                                    setRef={(ref) => {
+                                        this.dateFromMinutes = ref;
+                                    }}
+                                    setOnChange={this.setFromMinutes}
+                                />
+                            </div>
+                            <div className="picker__group picker__group--vertical">
+                                <button
+                                    className={`button button__link ${this.state.from.meridiem === "AM"
+                                        ? "active" : ""}`}
+                                    onClick={this.setFromMeridiem}
+                                    data-name="AM"
+                                >
+                                    AM
+                                </button>
+                                <button
+                                    className={`button button__link ${this.state.from.meridiem === "PM"
+                                        ? "active" : ""}`}
+                                    onClick={this.setFromMeridiem}
+                                    data-name="PM"
+                                >
+                                    PM
+                                </button>
+                            </div>
                         </div>
-                        <div className="picker__group">
-                            <DigitsField
-                                id="date__from-hours"
-                                className="form-text form-text--right"
-                                value={this.state.from.hours}
-                                pattern={/^([0-9]|1[0-1])$/}
-                                name="date__from-hours"
-                                ref={(ref) => {
-                                    this.dateFromHoursComponent = ref;
-                                }}
-                                setRef={(ref) => {
-                                    this.dateFromHours = ref;
-                                }}
-                                setOnChange={this.setFromHours}
-                            />
-                            <span className="picker__text--xl">:</span>
-                            <DigitsField
-                                id="date__from-minutes"
-                                className="form-text"
-                                value={this.state.from.minutes}
-                                pattern={/^([0-5]?[0-9])$/}
-                                name="date__from-minutes"
-                                ref={(ref) => {
-                                    this.dateFromMinutesComponent = ref;
-                                }}
-                                setRef={(ref) => {
-                                    this.dateFromMinutes = ref;
-                                }}
-                                setOnChange={this.setFromMinutes}
-                            />
+                        <div className="picker__row mt-14">
+                            <div className="picker__label">
+                                To
+                            </div>
+                            <div className="picker__group">
+                                <DigitsField
+                                    id="date__to-hours"
+                                    className="form-text form-text--right"
+                                    value={this.state.to.hours}
+                                    pattern={/^([0-9]|1[0-1])$/}
+                                    name="date__to-hours"
+                                    ref={(ref) => {
+                                        this.dateToHoursComponent = ref;
+                                    }}
+                                    setRef={(ref) => {
+                                        this.dateToHours = ref;
+                                    }}
+                                    setOnChange={this.setToHours}
+                                />
+                                <span className="picker__text--xl">:</span>
+                                <DigitsField
+                                    id="date__to-minutes"
+                                    className="form-text"
+                                    value={this.state.to.minutes}
+                                    pattern={/^([0-5]?[0-9])$/}
+                                    name="date__to-minutes"
+                                    ref={(ref) => {
+                                        this.dateToMinutesComponent = ref;
+                                    }}
+                                    setRef={(ref) => {
+                                        this.dateToMinutes = ref;
+                                    }}
+                                    setOnChange={this.setToMinutes}
+                                />
+                            </div>
+                            <div className="picker__group picker__group--vertical">
+                                <button
+                                    className={`button button__link ${this.state.to.meridiem === "AM"
+                                        ? "active" : ""}`}
+                                    onClick={this.setToMeridiem}
+                                    data-name="AM"
+                                >
+                                    AM
+                                </button>
+                                <button
+                                    className={`button button__link ${this.state.to.meridiem === "PM"
+                                        ? "active" : ""}`}
+                                    onClick={this.setToMeridiem}
+                                    data-name="PM"
+                                >
+                                    PM
+                                </button>
+                            </div>
                         </div>
-                        <div className="picker__group picker__group--vertical">
-                            <button
-                                className={`button button__link ${this.state.from.meridiem === "AM" ? "active" : ""}`}
-                                onClick={this.setFromMeridiem}
-                                data-name="AM"
-                            >
-                                AM
-                            </button>
-                            <button
-                                className={`button button__link ${this.state.from.meridiem === "PM" ? "active" : ""}`}
-                                onClick={this.setFromMeridiem}
-                                data-name="PM"
-                            >
-                                PM
-                            </button>
-                        </div>
-                    </div>
-                    <div className="picker__row mt-14">
-                        <div className="picker__label">
-                            To
-                        </div>
-                        <div className="picker__group">
-                            <DigitsField
-                                id="date__to-hours"
-                                className="form-text form-text--right"
-                                value={this.state.to.hours}
-                                pattern={/^([0-9]|1[0-1])$/}
-                                name="date__to-hours"
-                                ref={(ref) => {
-                                    this.dateToHoursComponent = ref;
-                                }}
-                                setRef={(ref) => {
-                                    this.dateToHours = ref;
-                                }}
-                                setOnChange={this.setToHours}
-                            />
-                            <span className="picker__text--xl">:</span>
-                            <DigitsField
-                                id="date__to-minutes"
-                                className="form-text"
-                                value={this.state.to.minutes}
-                                pattern={/^([0-5]?[0-9])$/}
-                                name="date__to-minutes"
-                                ref={(ref) => {
-                                    this.dateToMinutesComponent = ref;
-                                }}
-                                setRef={(ref) => {
-                                    this.dateToMinutes = ref;
-                                }}
-                                setOnChange={this.setToMinutes}
-                            />
-                        </div>
-                        <div className="picker__group picker__group--vertical">
-                            <button
-                                className={`button button__link ${this.state.to.meridiem === "AM" ? "active" : ""}`}
-                                onClick={this.setToMeridiem}
-                                data-name="AM"
-                            >
-                                AM
-                            </button>
-                            <button
-                                className={`button button__link ${this.state.to.meridiem === "PM" ? "active" : ""}`}
-                                onClick={this.setToMeridiem}
-                                data-name="PM"
-                            >
-                                PM
-                            </button>
-                        </div>
-                    </div>
-                    <div className="picker__row picker__row--controls mt-14">
-                        <button
-                            className="button button__link"
-                            onClick={this.reset}
-                        >
-                            Reset
-                        </button>
-                        <div className="picker__group">
+                        <div className="picker__row picker__row--controls mt-14">
                             <button
                                 className="button button__link"
-                                onClick={this.handleCancel}
+                                onClick={this.reset}
                             >
-                                Cancel
+                                Reset
                             </button>
-                            <button
-                                className="button button__link"
-                                onClick={this.setData}
-                                disabled={!(
-                                    this.state.from.minutes
-                                    && this.state.from.hours
-                                    && this.state.to.minutes
-                                    && this.state.to.hours
-                                )}
-                            >
-                                Apply
-                            </button>
+                            <div className="picker__group">
+                                <button
+                                    className="button button__link"
+                                    onClick={this.handleCancel}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className="button button__link"
+                                    onClick={this.setData}
+                                    disabled={!(
+                                        this.state.from.minutes
+                                        && this.state.from.hours
+                                        && this.state.to.minutes
+                                        && this.state.to.hours
+                                    )}
+                                >
+                                    Apply
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </Popper>
                 }
             </div>
         );
