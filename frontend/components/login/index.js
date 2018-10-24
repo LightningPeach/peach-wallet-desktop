@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";

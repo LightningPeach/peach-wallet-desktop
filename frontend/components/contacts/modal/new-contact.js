@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import * as statusCodes from "config/status-codes";
 import { LIGHTNING_ID_LENGTH, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 import {

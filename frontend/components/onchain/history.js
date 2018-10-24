@@ -7,7 +7,7 @@ import BalanceWithMeasure from "components/common/balance-with-measure";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
 import Ellipsis from "components/common/ellipsis";
-import BlocksLoader from "components/ui/blocks_loader";
+import BlocksLoader from "components/ui/blocks-loader";
 
 const compare = (a, b) => !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
 

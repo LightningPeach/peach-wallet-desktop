@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import isEqual from "lodash/isEqual";
 import moment from "moment";
 import DatePicker from "react-datepicker";
+import Popper from "components/ui/popper";
 
 class Datepicker extends Component {
     constructor(props) {
@@ -16,12 +17,6 @@ class Datepicker extends Component {
         };
     }
 
-    componentDidMount() {
-        document.addEventListener("keyup", this.handleKeyUp);
-        document.addEventListener("mouseup", this.handleMouseUp);
-        document.addEventListener("touchend", this.handleTouchEnd);
-    }
-
     componentWillReceiveProps(nextProps) {
         const { from, to } = nextProps.date;
         if (!isEqual(nextProps.date, this.props.date)) {
@@ -32,35 +27,11 @@ class Datepicker extends Component {
         }
     }
 
-    componentWillUnmount() {
-        document.removeEventListener("keyup", this.handleKeyUp);
-        document.removeEventListener("mouseup", this.handleMouseUp);
-        document.removeEventListener("touchend", this.handleTouchEnd);
-    }
-
     setData = () => {
         this.props.setData({
             from: this.state.from,
             to: this.state.to,
         });
-    };
-
-    handleKeyUp = (e) => {
-        if (this.state.showInput && e.keyCode === 27) {
-            this.hideInput();
-        }
-    };
-
-    handleMouseUp = (e) => {
-        if (this.state.showInput && !this.input.contains(e.target)) {
-            this.hideInput();
-        }
-    };
-
-    handleTouchEnd = (e) => {
-        if (this.state.showInput && !this.input.contains(e.target)) {
-            this.hideInput();
-        }
     };
 
     hideInput = () => {
@@ -127,9 +98,10 @@ class Datepicker extends Component {
                     Date range
                 </button>
                 {this.state.showInput &&
-                    <div
+                    <Popper
                         className="picker__collapse"
-                        ref={(ref) => { this.input = ref }}
+                        onClose={this.hideInput}
+                        closeWithEsc
                     >
                         <DatePicker
                             startDate={this.state.from}
@@ -161,7 +133,7 @@ class Datepicker extends Component {
                                 </div>
                             </div>
                         </DatePicker>
-                    </div>
+                    </Popper>
                 }
             </div>
         );
