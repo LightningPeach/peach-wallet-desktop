@@ -26,8 +26,8 @@ class Datepicker extends Component {
         const { from, to } = nextProps.date;
         if (!isEqual(nextProps.date, this.props.date)) {
             this.setState({
-                from,
-                to,
+                from: from || moment().startOf("day"),
+                to: to || moment().startOf("day"),
             });
         }
     }
@@ -97,6 +97,7 @@ class Datepicker extends Component {
             from,
             to,
         });
+        this.hideInput();
     };
 
     handleCancel = () => {
@@ -110,6 +111,7 @@ class Datepicker extends Component {
 
     reset = () => {
         this.props.reset();
+        this.hideInput();
     };
 
     render() {

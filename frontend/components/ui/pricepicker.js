@@ -46,6 +46,7 @@ class Pricepicker extends Component {
             from: this.state.from,
             to: this.state.to,
         });
+        this.hideInput();
     };
 
     setFromPrice = () => {
@@ -111,6 +112,7 @@ class Pricepicker extends Component {
         this.props.reset();
         this.priceFromComponent.reset();
         this.priceToComponent.reset();
+        this.hideInput();
     };
 
     render() {

@@ -80,21 +80,21 @@ class Filter extends Component {
         this.setState({
             date: initState.date,
         });
-        this.setFilterPart({ date: this.initState.date });
+        this.setFilterPart({ date: initState.date });
     };
 
     resetTime = () => {
         this.setState({
             time: initState.time,
         });
-        this.setFilterPart({ time: this.initState.time });
+        this.setFilterPart({ time: initState.time });
     };
 
     resetPrice = () => {
         this.setState({
             price: initState.price,
         });
-        this.setFilterPart({ price: this.initState.price });
+        this.setFilterPart({ price: initState.price });
     };
 
     renderSearchBar = () => (
