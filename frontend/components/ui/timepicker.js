@@ -105,6 +105,7 @@ class Timepicker extends Component {
             from: this.state.from,
             to: this.state.to,
         });
+        this.hideInput();
     };
 
     handleKeyUp = (e) => {
@@ -160,6 +161,7 @@ class Timepicker extends Component {
         this.dateFromMinutesComponent.reset();
         this.dateToHoursComponent.reset();
         this.dateToMinutesComponent.reset();
+        this.hideInput();
     };
 
     render() {
