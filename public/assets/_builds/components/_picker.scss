@@ -37,10 +37,6 @@
   }
 
   &__collapse {
-    position: absolute;
-    top: 42px;
-    left: 0;
-    z-index: 1;
     background-color: $white;
     box-shadow: 0 6px 14px 0 rgba(0, 0, 0, 0.3);
     border-radius: 2px;
