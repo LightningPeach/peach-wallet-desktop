@@ -87,16 +87,27 @@ class Pricepicker extends Component {
     };
 
     render() {
-        const { className, bitcoinMeasureType } = this.props;
+        const { className, bitcoinMeasureType, price } = this.props;
+        const filled = price.from && price.to;
         return (
             <div className="picker">
                 <button
                     className={`button button__hollow picker__target picker__target--price ${className} ${
-                        this.state.showInput ? "active" : ""
+                        this.state.showInput || filled
+                            ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
                 >
-                    Price range
+                    {filled
+                        ? (
+                            <div className="picker__target--fill">
+                                <span>{`${price.from} ${price.currency}`}</span>
+                                <br />
+                                <span>{`${price.to} ${price.currency}`}</span>
+                            </div>
+                        )
+                        : "Price range"
+                    }
                 </button>
                 {this.state.showInput &&
                     <Popper

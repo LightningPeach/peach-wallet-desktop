@@ -175,10 +175,10 @@ class Filter extends Component {
                 }
                 <div className="filter__item">
                     <button
-                        className="button button__hollow"
+                        className="button button__hollow button__hollow--scarlett-two"
                         onClick={this.handleFilterReset}
                     >
-                        Reset
+                        Reset All
                     </button>
                 </div>
             </div>

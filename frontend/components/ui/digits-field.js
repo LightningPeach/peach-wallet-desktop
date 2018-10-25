@@ -100,7 +100,13 @@ class DigitsField extends Component {
 
 DigitsField.propTypes = {
     defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    pattern: PropTypes.oneOfType([PropTypes.instanceOf(RegExp), PropTypes.string]),
+    pattern: PropTypes.oneOfType([
+        PropTypes.instanceOf(RegExp),
+        PropTypes.oneOf([
+            "above_zero_int",
+            "above_zero_float",
+        ]),
+    ]),
     setOnChange: PropTypes.func,
     setRef: PropTypes.func.isRequired,
     value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),

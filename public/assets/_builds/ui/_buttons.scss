@@ -146,6 +146,16 @@
         &.active {
             background-color: rgba(255, 119, 0, 0.06);
         }
+
+        &--scarlett-two {
+            color: $scarlet-two;
+            border: 1px solid rgba(188, 0, 23, 0.38);
+
+            &:active,
+            &.active {
+                background-color: rgba(188, 0, 23, 0.06);
+            }
+        }
     }
 
     &__under-button {
