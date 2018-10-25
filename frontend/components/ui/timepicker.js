@@ -136,16 +136,27 @@ class Timepicker extends Component {
     };
 
     render() {
-        const { className } = this.props;
+        const { className, time } = this.props;
+        const filled = time.from.minutes && time.from.hours && time.to.minutes && time.to.hours;
         return (
             <div className="picker">
                 <button
                     className={`button button__hollow picker__target  picker__target--time ${className} ${
-                        this.state.showInput ? "active" : ""
+                        this.state.showInput || filled
+                            ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
                 >
-                    Time range
+                    {filled
+                        ? (
+                            <div className="picker__target--fill">
+                                <span>{`${time.from.hours}:${time.from.minutes} ${time.from.meridiem}`}</span>
+                                <br />
+                                <span>{`${time.to.hours}:${time.to.minutes} ${time.to.meridiem}`}</span>
+                            </div>
+                        )
+                        : "Time range"
+                    }
                 </button>
                 {this.state.showInput &&
                     <Popper
@@ -162,7 +173,7 @@ class Timepicker extends Component {
                                     id="date__from-hours"
                                     className="form-text form-text--right"
                                     value={this.state.from.hours}
-                                    pattern={/^([0-9]|1[0-1])$/}
+                                    pattern={/^(0?[0-9]|1[0-1])$/}
                                     name="date__from-hours"
                                     ref={(ref) => {
                                         this.dateFromHoursComponent = ref;
@@ -216,7 +227,7 @@ class Timepicker extends Component {
                                     id="date__to-hours"
                                     className="form-text form-text--right"
                                     value={this.state.to.hours}
-                                    pattern={/^([0-9]|1[0-1])$/}
+                                    pattern={/^(0?[0-9]|1[0-1])$/}
                                     name="date__to-hours"
                                     ref={(ref) => {
                                         this.dateToHoursComponent = ref;

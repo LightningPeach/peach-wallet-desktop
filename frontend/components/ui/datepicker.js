@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import isEqual from "lodash/isEqual";
@@ -32,6 +32,7 @@ class Datepicker extends Component {
             from: this.state.from,
             to: this.state.to,
         });
+        this.hideInput();
     };
 
     hideInput = () => {
@@ -68,7 +69,6 @@ class Datepicker extends Component {
             from,
             to,
         });
-        this.hideInput();
     };
 
     handleCancel = () => {
@@ -86,16 +86,27 @@ class Datepicker extends Component {
     };
 
     render() {
-        const { className } = this.props;
+        const { className, date } = this.props;
+        const filled = date.from && date.to;
         return (
             <div className="picker">
                 <button
                     className={`button button__hollow picker__target picker__target--date ${className} ${
-                        this.state.showInput ? "active" : ""
+                        this.state.showInput || filled
+                            ? "active" : ""
                     }`}
                     onClick={this.toggleDateInput}
                 >
-                    Date range
+                    {filled
+                        ? (
+                            <div className="picker__target--fill">
+                                <span>{date.from.format("DD.MM.YYYY")}</span>
+                                <br />
+                                <span>{date.to.format("DD.MM.YYYY")}</span>
+                            </div>
+                        )
+                        : "Date range"
+                    }
                 </button>
                 {this.state.showInput &&
                     <Popper
