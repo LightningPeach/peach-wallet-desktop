@@ -398,7 +398,7 @@ class RegularPayment extends Component {
         }
         return [
             this.renderForm(),
-            <RegularHistory />,
+            <RegularHistory key={1} />,
             <ReactCSSTransitionGroup
                 transitionName="modal-transition"
                 transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}

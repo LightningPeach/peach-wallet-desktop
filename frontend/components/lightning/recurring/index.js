@@ -547,7 +547,7 @@ class RecurringPayment extends Component {
         const { modalState } = this.props;
         return [
             this.renderForm(),
-            <RecurringHistory />,
+            <RecurringHistory key={1} />,
             modalState === streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS &&
             (
                 <ReactCSSTransitionGroup
