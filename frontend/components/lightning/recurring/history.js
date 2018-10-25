@@ -60,7 +60,7 @@ class RecurringHistory extends Component {
             width: 165,
         },
         {
-            Header: <span className="" />,
+            Header: <span />,
             accessor: "status",
             sortable: false,
             width: 65,
@@ -87,9 +87,15 @@ class RecurringHistory extends Component {
             width: 120,
         },
         {
-            Header: <span className="">Frequency</span>,
+            Header: <span className="sortable">Frequency</span>,
             accessor: "frequency",
-            sortable: false,
+            sortMethod: (a, b, desc) => compare(
+                a.props.frequency,
+                b.props.frequency,
+                a.props["data-pinned"],
+                b.props["data-pinned"],
+                desc,
+            ),
             width: 105,
         },
         {
@@ -114,9 +120,15 @@ class RecurringHistory extends Component {
             width: 105,
         },
         {
-            Header: <span className="">To</span>,
+            Header: <span className="sortable">To</span>,
             accessor: "to",
-            sortable: false,
+            sortMethod: (a, b, desc) => compare(
+                a.props.children.props.children.toLowerCase(),
+                b.props.children.props.children.toLowerCase(),
+                a.props["data-pinned"],
+                b.props["data-pinned"],
+                desc,
+            ),
             width: 265,
         },
         {
@@ -172,7 +184,6 @@ class RecurringHistory extends Component {
                 },
             )))
             .map((item, key) => {
-                console.log(item);
                 const address = (
                     <span
                         onClick={() => {
@@ -275,7 +286,14 @@ class RecurringHistory extends Component {
                             <span className="date__hms">{item.hms}</span>
                         </span>
                     ),
-                    frequency: <span>{helpers.formatTimeRange(item.delay)}</span>,
+                    frequency: (
+                        <span
+                            frequency={item.delay}
+                            data-pinned={item.isActive}
+                        >
+                            {helpers.formatTimeRange(item.delay)}
+                        </span>
+                    ),
                     name: <Ellipsis data-pinned={item.isActive}>{item.name}</Ellipsis>,
                     status: <span data-pinned={item.isActive}>{status}</span>,
                     to: <Ellipsis>{address}</Ellipsis>,

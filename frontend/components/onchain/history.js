@@ -24,21 +24,27 @@ class OnchainHistory extends Component {
             width: 164,
         },
         {
-            Header: <span className="">Amount</span>,
+            Header: <span className="sortable">Amount</span>,
             accessor: "amount",
             className: "amount",
-            sortable: false,
+            sortMethod: (a, b) => compare(
+                a.props.satoshi,
+                b.props.satoshi,
+            ),
             width: 145,
         },
         {
             Header: <span className="sortable">To</span>,
             accessor: "to",
             className: "to",
-            sortable: false,
+            sortMethod: (a, b) => compare(
+                a.props.children.props.children.toLowerCase(),
+                b.props.children.props.children.toLowerCase(),
+            ),
             width: 156,
         },
         {
-            Header: <span className="sortable">Confirmations</span>,
+            Header: <span>Confirmations</span>,
             accessor: "time",
             className: "time",
             sortable: false,
