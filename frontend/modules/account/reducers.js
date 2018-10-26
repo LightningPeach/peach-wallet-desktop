@@ -21,7 +21,6 @@ export const initStateAccount = {
     lightningMeasureType: ALL_MEASURES[0].ln,
     lisStatus: types.LIS_NONE,
     login: "",
-    maximumPayment: 0,
     menuStatus: "menu-hidden",
     // TODO refactor
     newAccount: {
@@ -30,6 +29,7 @@ export const initStateAccount = {
     },
     peers: [],
     signedMessage: null,
+    systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
     toFixedMeasure: ALL_MEASURES[0].toFixed,
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,
@@ -91,12 +91,12 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, amountStatus: "undefined", errorAmountEnter: "" };
         case types.CORRECT_PAYMENT_AMOUNT:
             return { ...state, amountStatus: "correct", errorAmountEnter: "" };
-        case types.SET_MAXIMUM_PAYMENT:
-            return { ...state, maximumPayment: action.payload };
         case types.SUCCESS_CHECK_BALANCE:
             return { ...state, ...action.payload };
         case types.SET_LIS_STATUS:
             return { ...state, lisStatus: action.payload };
+        case types.SET_SYSTEM_NOTIFICATIONS_STATUS:
+            return { ...state, systemNotifications: action.payload };
         default:
             return state;
     }

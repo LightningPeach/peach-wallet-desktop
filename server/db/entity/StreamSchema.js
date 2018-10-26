@@ -13,13 +13,13 @@ module.exports = {
             type: "varchar",
         },
         totalParts: {
-            type: "int",
+            type: "integer",
         },
-        currentPart: {
-            type: "int",
+        partsPaid: {
+            type: "integer",
         },
         price: {
-            type: "int",
+            type: "integer",
         },
         memo: {
             type: "varchar",
@@ -28,14 +28,20 @@ module.exports = {
             type: "varchar",
         },
         date: {
-            type: "int",
+            type: "integer",
+        },
+        lastPayment: {
+            type: "integer",
         },
         status: {
             type: "varchar",
             default: "active",
         },
         delay: {
-            type: "int",
+            type: "integer",
+        },
+        currency: {
+            type: "varchar",
         },
     },
     relations: {

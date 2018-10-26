@@ -24,7 +24,9 @@ class Profile extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            notifications: (props.systemNotifications >> 2) & 1, // eslint-disable-line
             payReqAmountError: null,
+            sound: (props.systemNotifications >> 1) & 1, // eslint-disable-line
             tooltips: {
                 address: "Generate new BTC address",
                 copy: "Copy to clipboard",
@@ -34,11 +36,15 @@ class Profile extends Component {
                     "Lightning Network will have possibility to pay",
                     "generated invoice (one payment for each request).",
                 ],
+                sounds: "Enable or disable sounds of system notifications.",
+                systemNotifications: [
+                    "Enable or disable system notifications. When enabled",
+                    "they will be shown as push messages on your PC. System",
+                    "notifications will inform you about incoming payments,",
+                    "opening and closing channels and other types of the",
+                    "wallet activities.",
+                ],
             },
-        };
-        this.cachedSelection = {
-            end: 0,
-            start: 0,
         };
 
         analytics.pageview(ProfileFullPath, "Profile");
@@ -113,6 +119,24 @@ class Profile extends Component {
         dispatch(appActions.setAppAsDefaultStatus(true));
     };
 
+    toggleNotifications = () => {
+        const { dispatch, systemNotifications } = this.props;
+        this.setState({
+            notifications: !this.state.notifications,
+        });
+        dispatch(accountOperations.setSystemNotificationsStatus(systemNotifications ^ 4)); // eslint-disable-line
+    };
+
+    toggleSound = () => {
+        if (this.state.notifications) {
+            const { dispatch, systemNotifications } = this.props;
+            this.setState({
+                sound: !this.state.sound,
+            });
+            dispatch(accountOperations.setSystemNotificationsStatus(systemNotifications ^ 2)); // eslint-disable-line
+        }
+    };
+
     renderProfile = () => {
         const { dispatch } = this.props;
         let BTCAddress = null;
@@ -141,7 +165,7 @@ class Profile extends Component {
                             <span className="profile__utils_btns">
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.copy)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />}
@@ -176,7 +200,7 @@ class Profile extends Component {
                             <span className="profile__utils_btns">
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.address)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.address)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />}
@@ -197,7 +221,7 @@ class Profile extends Component {
                                 </Tooltip>
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatTooltips(this.state.tooltips.copy)}
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -251,7 +275,7 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="pay_req_amount">
@@ -259,7 +283,7 @@ class Profile extends Component {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.payReq)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.payReq)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -330,7 +354,7 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="profile__currency">
@@ -378,6 +402,54 @@ class Profile extends Component {
                 </div>
                 <div className="row profile__row">
                     <div className="col-xs-12">
+                        <div className="profile__switcher switcher">
+                            <div className="switcher-text">
+                                System notifications
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.systemNotifications)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="form-label__icon form-label__icon--info" />
+                                </Tooltip>
+                            </div>
+                            <div
+                                className={`switcher-toggle ${this.state.notifications ? "active" : ""}`}
+                                onClick={this.toggleNotifications}
+                            />
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <div className={`profile__switcher switcher ${this.state.notifications ? "" : "disabled"}`}>
+                            <div className="switcher-text">
+                                Sounds
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.sounds)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="form-label__icon form-label__icon--info" />
+                                </Tooltip>
+                            </div>
+                            <div
+                                className={`switcher-toggle ${this.state.sound ? "active" : ""}`}
+                                onClick={this.toggleSound}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="row profile__row profile__row--wrap">
+                    <div className="col-xs-12 profile__flex">
                         {
                             appAsDefaultStatus ?
                                 <span className="profile__app-status">
@@ -392,7 +464,7 @@ class Profile extends Component {
                                 </button>
                         }
                         <button
-                            className="button button__link button__link--logout pull-right"
+                            className="button button__link button__link--logout"
                             type="button"
                             onClick={() => {
                                 analytics.event({
@@ -460,6 +532,7 @@ Profile.propTypes = {
     modalState: PropTypes.string.isRequired,
     paymentRequest: PropTypes.string,
     paymentRequestAmount: PropTypes.number,
+    systemNotifications: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -471,6 +544,7 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
     paymentRequest: state.lightning.paymentRequest,
     paymentRequestAmount: state.lightning.paymentRequestAmount,
+    systemNotifications: state.account.systemNotifications,
 });
 
 export default connect(mapStateToProps)(Profile);

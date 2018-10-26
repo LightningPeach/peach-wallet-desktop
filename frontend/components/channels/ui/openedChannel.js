@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import { channelsTypes } from "modules/channels";
 
-const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose }) => { // eslint-disable-line
+const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose, clickEdit }) => { // eslint-disable-line
     const contact = contacts.filter(c => c.lightningID === channel.remote_pubkey)[0];
     const active = channel.status === channelsTypes.CHANNEL_STATUS_ACTIVE;
     let channelClass = `channel channel__${active ? "active" : "not-active"}`;
@@ -46,13 +46,24 @@ const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose })
                 <div className="col-xs-10 channel__name">
                     {name}{subName}
                 </div>
-                <div className="col-xs-2">
-                    {!deleting &&
-                    <button type="button" className="pull-right channel__close" onClick={clickClose}>
+                {!deleting &&
+                <div className="col-xs-2 channel__buttons">
+                    <button
+                        type="button"
+                        className="pull-right channel__button channel__button--close"
+                        onClick={clickClose}
+                    >
                         Close
                     </button>
-                    }
+                    <button
+                        type="button"
+                        className="pull-right channel__button channel__button--edit"
+                        onClick={clickEdit}
+                    >
+                        Edit
+                    </button>
                 </div>
+                }
             </div>
             <div className="row">
                 <div className="col-xs-12">

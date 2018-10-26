@@ -1,13 +1,22 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { hashHistory } from "react-router";
+import { logger } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
 import { hubOperations } from "modules/hub";
+import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
+    WalletPath,
+    OnchainFullPath,
+    ChannelsFullPath,
+    AddressBookFullPath,
+    ProfileFullPath,
+    MerchantsFullPath,
     LightningPanel,
     OnchainPanel,
     ChannelsPanel,
@@ -24,42 +33,97 @@ import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
+import SystemNotifications from "components/modal/system-notifications";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
     constructor(props) {
         super(props);
+
+        this.state = {
+            pageAddressIndex: 0,
+            pageAddressList: [
+                {
+                    fullPath: WalletPath,
+                    panel: LightningPanel,
+                },
+                {
+                    fullPath: OnchainFullPath,
+                    panel: OnchainPanel,
+                },
+                {
+                    fullPath: ChannelsFullPath,
+                    panel: ChannelsPanel,
+                },
+                {
+                    fullPath: AddressBookFullPath,
+                    panel: AddressBookPanel,
+                },
+                {
+                    fullPath: MerchantsFullPath,
+                    panel: MerchantsPanel,
+                },
+                {
+                    fullPath: ProfileFullPath,
+                    panel: ProfilePanel,
+                },
+            ],
+        };
+
         this.balanceIntervalId = 0;
         this.channelsIntervalId = 0;
         this.usdPerBtcIntervalId = 0;
+        this.lndSyncStatusIntervalId = 0;
     }
 
     componentWillMount() {
         const { dispatch, isLogined, isIniting } = this.props;
         if (!isLogined && !isIniting) {
-            console.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
+            logger.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
             dispatch(accountOperations.logout());
             return;
         }
         dispatch(hubOperations.getMerchants());
-        this.channelsIntervalId = setInterval(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        this.balanceIntervalId = setInterval(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        this.usdPerBtcIntervalId = setInterval(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
+    }
+
+    componentDidMount() {
+        document.addEventListener("keydown", this.onKeyClick, false);
     }
 
     componentWillReceiveProps(nextProps) {
         const { dispatch, isIniting } = this.props;
+        const { location } = nextProps;
+        const { pageAddressList } = this.state;
         if (!nextProps.isLogined && !isIniting && !this.props.isLogouting) {
             dispatch(accountOperations.logout());
             return;
         }
         this.checkYourBalance();
-        this.checkChannels();
+        this.checkChannels(false);
+
+        if (location !== this.props.location) {
+            const path = location.pathname;
+            let index = -1;
+            while (index < pageAddressList.length) {
+                index += 1;
+                if (pageAddressList[index].panel.includes(path)) {
+                    break;
+                }
+            }
+            this.setState({
+                pageAddressIndex: index,
+            });
+        }
 
         const isKernelDisconnected = nextProps.kernelConnectIndicator === accountTypes.KERNEL_DISCONNECTED;
         if (isKernelDisconnected) {
@@ -70,36 +134,67 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
-        clearInterval(this.balanceIntervalId);
-        clearInterval(this.channelsIntervalId);
-        clearInterval(this.usdPerBtcIntervalId);
+        document.removeEventListener("keydown", this.onKeyClick, false);
+        clearTimeout(this.balanceIntervalId);
+        clearTimeout(this.channelsIntervalId);
+        clearTimeout(this.usdPerBtcIntervalId);
+        clearTimeout(this.lndSyncStatusIntervalId);
     }
 
-    checkUsdBtcRate = () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            dispatch(appOperations.usdBtcRate());
+    onKeyClick = (e) => {
+        if (e.ctrlKey && e.key === "Tab") {
+            const { pageAddressIndex, pageAddressList } = this.state;
+            const index = e.shiftKey
+                ? (pageAddressIndex + (pageAddressList.length - 1)) % pageAddressList.length
+                : (pageAddressIndex + 1) % pageAddressList.length;
+            this.setState({
+                pageAddressIndex: index,
+            });
+            hashHistory.push(pageAddressList[index].fullPath);
         }
     };
 
-    checkYourBalance = () => {
+    setAsyncInterval = (holder, func, timeout) => {
+        const intervalTick = async () => {
+            await func();
+            this[holder] = setTimeout(intervalTick, timeout);
+        };
+        intervalTick();
+    };
+
+    checkUsdBtcRate = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
-            dispatch(accountOperations.checkBalance());
+            await dispatch(appOperations.usdBtcRate());
         }
     };
 
-    checkChannels = () => {
+    checkYourBalance = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
-            dispatch(channelsOperations.getChannels());
+            await dispatch(accountOperations.checkBalance());
+        }
+    };
+
+    checkChannels = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(channelsOperations.getChannels());
+        }
+    };
+
+    checkLndSyncStatus = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(lndOperations.checkLndSync());
         }
     };
 
     render() {
         const {
-            isLogined, location, modalState,
+            isLogined, modalState,
         } = this.props;
+        const { pageAddressIndex } = this.state;
         if (!isLogined) {
             return null;
         }
@@ -111,28 +206,34 @@ class WalletPage extends Component {
             case appTypes.MODAL_STATE_FORCE_LOGOUT:
                 modal = <ForceLogout />;
                 break;
+            case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
+                modal = <SystemNotifications />;
+                break;
             default:
                 modal = null;
         }
         let Panel = null;
-        const path = location.pathname;
-        if (LightningPanel.includes(path)) {
-            Panel = <Lightning />;
-        }
-        if (OnchainPanel.includes(path)) {
-            Panel = <Onchain />;
-        }
-        if (ChannelsPanel.includes(path)) {
-            Panel = <ChannelsPage />;
-        }
-        if (AddressBookPanel.includes(path)) {
-            Panel = <ContactsPage />;
-        }
-        if (ProfilePanel.includes(path)) {
-            Panel = <ProfilePage />;
-        }
-        if (MerchantsPanel.includes(path)) {
-            Panel = <MerchantsPage />;
+        switch (pageAddressIndex) {
+            case 0:
+                Panel = <Lightning />;
+                break;
+            case 1:
+                Panel = <Onchain />;
+                break;
+            case 2:
+                Panel = <ChannelsPage />;
+                break;
+            case 3:
+                Panel = <ContactsPage />;
+                break;
+            case 4:
+                Panel = <MerchantsPage />;
+                break;
+            case 5:
+                Panel = <ProfilePage />;
+                break;
+            default:
+                break;
         }
 
         return (

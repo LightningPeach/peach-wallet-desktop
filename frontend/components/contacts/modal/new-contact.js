@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import * as statusCodes from "config/status-codes";
-import { LIGHTNING_ID_LENGTH, USERNAME_MAX_LENGTH } from "config/consts";
+import { LIGHTNING_ID_LENGTH, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 import {
     contactsActions as actions,
     contactsOperations as operations,
@@ -25,6 +25,17 @@ class NewContact extends Component {
         const basePath = this.props.page && this.props.page === "lightning" ? LightningFullPath : AddressBookFullPath;
         analytics.pageview(`${basePath}/new-contact`, "New contact");
     }
+
+    showErrorNotification = (text) => {
+        const { dispatch } = this.props;
+        dispatch(error({
+            action: {
+                callback: () => dispatch(operations.openNewContactModal()),
+                label: "Retry",
+            },
+            message: helpers.formatNotificationMessage(text),
+        }));
+    };
 
     closeModal = () => {
         analytics.event({ action: "New Contact Modal", category: "Address Book", label: "Back" });
@@ -64,20 +75,16 @@ class NewContact extends Component {
         dispatch(actions.prepareNewContact({ lightningID, name }));
         const response = await dispatch(operations.addNewContact(name, lightningID));
         if (!response.ok) {
-            dispatch(error({
-                action: {
-                    callback: () => dispatch(operations.openNewContactModal()),
-                    label: "Retry",
-                },
-                message: response.error,
-            }));
+            this.showErrorNotification(response.error);
             return;
         }
 
         dispatch(actions.prepareNewContact(null));
         dispatch(actions.newContactAdded(name));
         dispatch(operations.getContacts());
-        dispatch(info({ message: <span>Contact <strong>{name}</strong> added</span> }));
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Contact <strong>{name}</strong> added</span>),
+        }));
     };
 
     render() {
@@ -86,7 +93,7 @@ class NewContact extends Component {
             <Modal title="Add new contact" onClose={this.closeModal}>
                 <form onSubmit={this.addContact}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">
@@ -104,14 +111,14 @@ class NewContact extends Component {
                                         this.contact__name = input;
                                     }}
                                     defaultValue={newContactDetails ? newContactDetails.name : null}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__lightning">

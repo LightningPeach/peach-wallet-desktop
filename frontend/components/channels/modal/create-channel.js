@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { MAX_CHANNEL_SIZE, USERNAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
+import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
 import * as statusCodes from "config/status-codes";
 import { PEACH } from "config/node-settings";
 import { ChannelsFullPath } from "routes";
@@ -25,6 +25,15 @@ class CreateChannel extends Component {
             lightningError: null,
             nameError: null,
             processing: false,
+            tooltips: {
+                createChannel: [
+                    "The payment channel allows users to make payments between",
+                    "each other without broadcasting such transactions to the",
+                    "Bitcoin blockchain. Creating a channel can take some time",
+                    "as opening transaction should be confirmed on the Bitcoin",
+                    "blockchain.",
+                ],
+            },
         };
 
         analytics.pageview(`${ChannelsFullPath}/create-channel`, "Create Channel");
@@ -41,7 +50,7 @@ class CreateChannel extends Component {
                 callback: () => dispatch(operations.openNewChannelModal()),
                 label: "Retry",
             },
-            message: text,
+            message: helpers.formatNotificationMessage(text),
         }));
     };
 
@@ -78,7 +87,6 @@ class CreateChannel extends Component {
         } else if (amountInStoshi > bitcoinBalance) {
             return statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
         } else if (amountInStoshi > MAX_CHANNEL_SIZE) {
-            const amountSize = `${amount} ${bitcoinMeasureType}`;
             const channelSize = `${toCurMeasure(MAX_CHANNEL_SIZE)} ${bitcoinMeasureType}`;
             return statusCodes.EXCEPTION_AMOUNT_MORE_MAX_CHANNEL(channelSize);
         }
@@ -87,15 +95,22 @@ class CreateChannel extends Component {
 
     addChannel = async (e) => {
         e.preventDefault();
-        const { dispatch, namelessChannelCount } = this.props;
+        const { dispatch, firstEmptyChannelDefaultName, channels } = this.props;
         this.setState({ processing: true });
         analytics.event({ action: "Create Channel Modal", category: "Channels", label: "Create" });
         let name = this.channel__name.value.trim();
         let amount = parseFloat(this.channel__amount.value.trim());
         const lightning = this.channel__lightningId.value.trim();
-        const nameError = validators.validateName(name);
+        let nameError = validators.validateName(name);
         const amountError = this._validateAmount(amount);
         const lightningError = this.state.custom ? validators.validateChannelHost(lightning) : null;
+        if (channels) {
+            channels.forEach((channel) => {
+                if (name === channel.name) {
+                    nameError = statusCodes.EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS;
+                }
+            });
+        }
         if (nameError || amountError || lightningError) {
             this.setState({
                 amountError, lightningError, nameError, processing: false,
@@ -113,7 +128,7 @@ class CreateChannel extends Component {
             peer = [PEACH.host, PEACH.peerPort].join(":");
         }
         amount = dispatch(appOperations.convertToSatoshi(amount));
-        name = name || `CHANNEL ${namelessChannelCount + 1}`;
+        name = name || `CHANNEL ${firstEmptyChannelDefaultName}`;
         dispatch(appOperations.closeModal());
         let response = await dispatch(operations.prepareNewChannel(lightningId, amount, peer, name, this.state.custom));
         if (!response.ok) {
@@ -126,12 +141,14 @@ class CreateChannel extends Component {
             return;
         }
         dispatch(operations.getChannels());
-        dispatch(info({ message: <span>Channel <strong>{name}</strong> added</span> }));
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Channel <strong>{name}</strong> added</span>),
+        }));
     };
 
     render() {
         const {
-            prepareNewChannel, bitcoinMeasureType, namelessChannelCount, toCurMeasure,
+            prepareNewChannel, bitcoinMeasureType, firstEmptyChannelDefaultName, toCurMeasure,
         } = this.props;
         let customLightningHost = null;
         let helpText = "* To create a channel, you need to specify the amount you want to transfer from Onchain";
@@ -143,10 +160,10 @@ class CreateChannel extends Component {
         }
         helpText += ".";
         return (
-            <Modal title="Create channel" onClose={this.closeModal}>
+            <Modal title="Create channel" onClose={this.closeModal} titleTooltip={this.state.tooltips.createChannel}>
                 <form onSubmit={this.addChannel}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <Checkbox
                                     text="Custom channel"
@@ -164,20 +181,20 @@ class CreateChannel extends Component {
                                     id="channel__name"
                                     className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                     name="channel_name"
-                                    placeholder={`CHANNEL ${namelessChannelCount + 1}`}
+                                    placeholder={`CHANNEL ${firstEmptyChannelDefaultName}`}
                                     ref={(ref) => {
                                         this.channel__name = ref;
                                     }}
                                     defaultValue={prepareNewChannel ? prepareNewChannel.name : null}
                                     disabled={this.state.processing}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__amount">Amount in {bitcoinMeasureType} *</label>
@@ -201,10 +218,12 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.amountError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
-                                    <label htmlFor="channel__lightningId">Lightning address *</label>
+                                    <label htmlFor="channel__lightningId">
+                                        {`Lightning address${this.state.custom ? " *" : ""}`}
+                                    </label>
                                 </div>
                             </div>
                             <div className="col-xs-12">
@@ -212,7 +231,7 @@ class CreateChannel extends Component {
                                     id="channel__lightningId"
                                     className={`form-text ${this.state.lightningError ? "form-text__error" : ""}`}
                                     name="channel_lightningId"
-                                    placeholder="Lightning ID@Host IP"
+                                    placeholder="Lightning ID@Host IP:Port"
                                     ref={(ref) => {
                                         this.channel__lightningId = ref;
                                     }}
@@ -262,8 +281,16 @@ class CreateChannel extends Component {
 CreateChannel.propTypes = {
     bitcoinBalance: PropTypes.number.isRequired,
     bitcoinMeasureType: PropTypes.string.isRequired,
+    channels: PropTypes.arrayOf(PropTypes.shape({
+        capacity: PropTypes.number.isRequired,
+        channel_point: PropTypes.string.isRequired,
+        commit_fee: PropTypes.number.isRequired,
+        local_balance: PropTypes.number.isRequired,
+        remote_pubkey: PropTypes.string.isRequired,
+        status: PropTypes.string.isRequired,
+    })),
     dispatch: PropTypes.func.isRequired,
-    namelessChannelCount: PropTypes.number,
+    firstEmptyChannelDefaultName: PropTypes.number,
     prepareNewChannel: PropTypes.shape({
         capacity: PropTypes.number.isRequired,
         custom: PropTypes.bool.isRequired,
@@ -277,7 +304,8 @@ CreateChannel.propTypes = {
 const mapStateToProps = state => ({
     bitcoinBalance: state.account.bitcoinBalance,
     bitcoinMeasureType: state.account.bitcoinMeasureType,
-    namelessChannelCount: selectors.getCountNamelessChannels(state.channels.channels),
+    channels: state.channels.channels,
+    firstEmptyChannelDefaultName: selectors.getFirstNotInUseDefaultChannelName(state.channels.channels),
     prepareNewChannel: state.channels.prepareNewChannel,
 });
 

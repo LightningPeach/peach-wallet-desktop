@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
     contactsActions as actions,
@@ -39,25 +39,28 @@ class DeleteContact extends Component {
                     callback: () => dispatch(operations.openDeleteContactModal()),
                     label: "Retry",
                 },
-                message: response.error,
+                message: helpers.formatNotificationMessage(response.error),
             }));
         }
 
         dispatch(actions.setCurrentContact(null));
         dispatch(operations.getContacts());
-        dispatch(info({ message: <span>Contact <strong>{currentContact.name}</strong> deleted</span> }));
+        const message = (<span>Contact <strong>{currentContact.name}</strong> deleted</span>);
+        dispatch(info({
+            message: helpers.formatNotificationMessage(message),
+        }));
     };
 
     render() {
         const { currentContact } = this.props;
         if (!currentContact) {
-            console.log("Cant show Delete Contact 'cause currentContact not provided");
+            logger.log("Cant show Delete Contact 'cause currentContact not provided");
             return null;
         }
         return (
             <Modal title="Delete contact" onClose={this.closeModal} showCloseButton>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to
                             delete <strong title={currentContact.name}>{currentContact.name}</strong>?

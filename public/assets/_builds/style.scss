@@ -1,8 +1,8 @@
 @import "libs/normalize";
 @import "libs/bootstrap-tooltip";
 @import "libs/scrollbar";
-@import "libs/slick.1.6.0/_slick.min";
-@import "libs/slick.1.6.0/_slick-theme.min";
+@import "libs/slick.1.6.0/slick.min";
+@import "libs/slick.1.6.0/slick-theme.min";
 
 @import "core/vars";
 @import "core/fonts";
@@ -41,4 +41,3 @@
 @import "components/tourgide";
 @import "components/license";
 @import "components/merchants";
-@import "modules/media-queries";

@@ -1,7 +1,7 @@
 import * as statusCodes from "config/status-codes";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations } from "modules/account";
-import { db, successPromise, errorPromise } from "additional";
+import { db, successPromise, errorPromise, logger } from "additional";
 import orderBy from "lodash/orderBy";
 import { store } from "store/configure-store";
 import * as actions from "./actions";
@@ -76,8 +76,8 @@ export function preparePayment(
 async function getInvoices() {
     const response = await window.ipcClient("listInvoices");
     if (!response.ok) {
-        console.error("ERROR ON GET INVOICES");
-        console.error(response);
+        logger.error("ERROR ON GET INVOICES");
+        logger.error(response);
         return [];
     }
     const streamInvoices = {};
@@ -112,8 +112,8 @@ async function getInvoices() {
 async function getPayments() {
     const lndPayments = await window.ipcClient("listPayments");
     if (!lndPayments.ok) {
-        console.error("Error on Lightning:getPayments");
-        console.error(lndPayments.error);
+        logger.error("Error on Lightning:getPayments");
+        logger.error(lndPayments.error);
         return [];
     }
     const [dbPayments, dbStreams] = await Promise.all([
@@ -189,12 +189,12 @@ function getHistory() {
     };
 }
 
-function addInvoiceRemote(lightningID, amount) {
+function addInvoiceRemote(lightningID, amount, memo = "") {
     return async (dispatch, getState) => {
-        console.log("Sending rpc");
+        logger.log("Sending rpc");
         const response = await window.ipcClient("addInvoiceRemote", {
             lightning_id: lightningID,
-            memo: getState().account.lightningID,
+            memo: memo || getState().account.lightningID,
             value: amount.toString(),
         });
         if (!response.ok) {
@@ -224,7 +224,7 @@ function pay(details) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(statusCodes.EXCEPTION_EXTRA, e);
         }
         dispatch(actions.successPayment());
         dispatch(accountOperations.checkBalance());
@@ -237,7 +237,7 @@ function pay(details) {
 
 function makePayment() {
     return async (dispatch, getState) => {
-        console.log("Will send payment");
+        logger.log("Will send payment");
         dispatch(pendingPayment());
         let payReq = getState().lightning.paymentDetails[0].pay_req || null;
         const details = {
@@ -247,8 +247,8 @@ function makePayment() {
             name: getState().lightning.paymentDetails[0].name,
         };
         if (!payReq) {
-            console.log("Will add remote invoice");
-            console.log(details.lightningID, details.amount);
+            logger.log("Will add remote invoice");
+            logger.log(details.lightningID, details.amount);
             const response = await dispatch(addInvoiceRemote(details.lightningID, details.amount));
             if (!response.ok) {
                 dispatch(actions.errorPayment(response.error));

@@ -25,6 +25,11 @@
                 padding-top: 35px;
             }
         }
+
+        &__fail {
+            width: 368px;
+            padding: 50px 40px;
+        }
     }
 
     &-wrapper {
@@ -36,6 +41,12 @@
         display: flex;
         justify-content: center;
         align-items: center;
+
+        .spinner {
+            position: absolute;
+            top: 17px;
+            right: 17px;
+        }
     }
 
     &-layout {
@@ -55,6 +66,10 @@
         padding: 20px;
         text-transform: uppercase;
         letter-spacing: -0.8px;
+
+        &__label {
+            position: relative;
+        }
     }
 
     &-body {
@@ -180,6 +195,27 @@
 
         &:first-child {
             padding-top: 0;
+        }
+
+        &--error {
+            max-height: 62px;
+            text-overflow: ellipsis;
+        }
+
+        &--helper {
+            margin-top: 20px;
+            line-height: 1.2;
+
+            .helper {
+                &__header {
+                    color: $pumpkin-orange;
+                }
+
+                &__list {
+                    margin-top: 5px;
+                    -webkit-padding-start: 20px;
+                }
+            }
         }
     }
 }

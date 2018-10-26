@@ -1,9 +1,16 @@
 import React, { PureComponent } from "react";
+import Tooltip from "rc-tooltip";
 import PropTypes from "prop-types";
+import { helpers } from "additional";
 import { connect } from "react-redux";
 import BtcToUsd from "components/common/btc-to-usd";
 
 class SubHeader extends PureComponent {
+    lockedBalance = [
+        "Your onchain balance which is not yet",
+        "confirmed on the Bitcoin blockchain.",
+    ];
+
     render() {
         const {
             button, bitcoinBalance, unConfirmedBitcoinBalance, lightningBalance,
@@ -15,25 +22,43 @@ class SubHeader extends PureComponent {
                         <div className="col-xs-12">
                             <div className="balance">
                                 <div className="balance__row">
-                                    <span className="balance__title">Lightning balance:</span>
+                                    <span className="balance__title">
+                                        Lightning balance:
+                                    </span>
                                     <span className="balance__value">
-                                        <BtcToUsd satoshi={lightningBalance} />
+                                        <BtcToUsd amount={lightningBalance} />
                                     </span>
                                 </div>
                                 <div className="balance__row">
-                                    <span className="balance__title">Onchain balance:</span>
-                                    <span className="balance__value"><BtcToUsd satoshi={bitcoinBalance} /></span>
+                                    <span className="balance__title">
+                                        Onchain balance:
+                                    </span>
+                                    <span className="balance__value"><BtcToUsd amount={bitcoinBalance} /></span>
                                 </div>
                                 <div className="balance__row">
-                                    <span className="balance__title">Locked Onchain balance:</span>
+                                    <Tooltip
+                                        placement="right"
+                                        overlay={helpers.formatMultilineText(this.lockedBalance)}
+                                        trigger="hover"
+                                        arrowContent={
+                                            <div className="rc-tooltip-arrow-inner" />
+                                        }
+                                        prefixCls="rc-tooltip__small rc-tooltip"
+                                        mouseLeaveDelay={0}
+                                    >
+                                        <i className="form-label__icon form-label__icon--left form-label__icon--info" />
+                                    </Tooltip>
+                                    <span className="balance__title">
+                                        Locked Onchain balance:
+                                    </span>
                                     <span className="balance__value">
-                                        <BtcToUsd satoshi={unConfirmedBitcoinBalance} />
+                                        <BtcToUsd amount={unConfirmedBitcoinBalance} />
                                     </span>
                                 </div>
                             </div>
                             <div className="subheader__exchange_rate">
                                 <div className={`exchange_rate ${button ? "exchange_rate--with_btn" : ""}`}>
-                                    1BTC <BtcToUsd satoshi={100000000} hideBtc />
+                                    1BTC <BtcToUsd amount={100000000} hideBase />
                                 </div>
                                 {button || null}
                             </div>

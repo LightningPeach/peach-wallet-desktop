@@ -22,6 +22,12 @@ class RegistrationForm extends PureComponent {
             passwordError: null,
             processing: false,
             tooltips: {
+                password: [
+                    "The password must be at least 8 characters and contain",
+                    "minimum 1 uppercase letter [A-Z], 1 lower case letter [a-z]",
+                    "and 1 digit [0-9]. Also, you can use special characters",
+                    "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
+                ],
                 username: [
                     "Username is a name of wallet (folder),",
                     "it is stored locally on your PC.",
@@ -64,13 +70,13 @@ class RegistrationForm extends PureComponent {
         const response = await dispatch(operations.regStartLnd(username));
         if (!response.ok) {
             this.setState({ processing: false });
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         const seed = await dispatch(lndOperations.getSeed());
         this.setState({ processing: false });
         if (!seed.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         onValid({ password, seed: seed.response.seed });
@@ -84,9 +90,9 @@ class RegistrationForm extends PureComponent {
         return (
             <form onSubmit={this.handleRegistration}>
                 <div className="home__title">
-                    Sign up and start working with peach wallet
+                    Sign up and start working with LightningPeach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="username">
@@ -94,7 +100,7 @@ class RegistrationForm extends PureComponent {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.username)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -123,10 +129,24 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
-                            <label htmlFor="password">Password</label>
+                            <label htmlFor="password">
+                                Password
+                            </label>
+                            <Tooltip
+                                placement="right"
+                                overlay={helpers.formatMultilineText(this.state.tooltips.password)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info" />
+                            </Tooltip>
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -150,7 +170,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.passwordError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="conf_password">
@@ -174,7 +194,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.confPasswordError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

@@ -3,16 +3,18 @@ import thunk from "redux-thunk";
 
 import "../../utils";
 import * as statusCodes from "config/status-codes";
-import * as actions from "modules/account/actions";
-import * as operations from "modules/account/operations";
-import * as types from "modules/account/types";
-import * as notificationsTypes from "modules/notifications/types";
-import * as lndOperations from "modules/lnd/operations";
-import * as streamOperations from "modules/streamPayments/operations";
-import * as lightningOperations from "modules/lightning/operations";
-import * as channelsOperations from "modules/channels/operations";
-import * as onchainOperations from "modules/onchain/operations";
-import { SATOSHI_MEASURE } from "config/consts";
+import {
+    accountActions as actions,
+    accountTypes as types,
+    accountOperations as operations,
+} from "modules/account";
+import { notificationsTypes } from "modules/notifications";
+import { lndOperations } from "modules/lnd";
+import { streamPaymentOperations } from "modules/streamPayments";
+import { lightningOperations } from "modules/lightning";
+import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
+import { onChainOperations } from "modules/onchain";
+import { SATOSHI_MEASURE, MAX_PAYMENT_REQUEST } from "config/consts";
 import accountReducer, { initStateAccount } from "modules/account/reducers";
 import { appTypes, appOperations } from "modules/app";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
@@ -302,11 +304,6 @@ describe("Account Unit Tests", () => {
             expect(actions.correctPaymentAmount()).to.deep.equal(expectedData);
         });
 
-        it("should create an action to set maximum payment", () => {
-            expectedData.type = types.SET_MAXIMUM_PAYMENT;
-            expect(actions.setMaximumPayment(data)).to.deep.equal(expectedData);
-        });
-
         it("should create an action to successfully set check balance", () => {
             data = {
                 bitcoinBalance: "foo",
@@ -327,6 +324,11 @@ describe("Account Unit Tests", () => {
         it("should create an action to set check balance error", () => {
             expectedData.type = types.ERROR_CHECK_BALANCE;
             expect(actions.errorCheckBalance(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set system notifications status", () => {
+            expectedData.type = types.SET_SYSTEM_NOTIFICATIONS_STATUS;
+            expect(actions.setSystemNotificationsStatus(data)).to.deep.equal(expectedData);
         });
     });
 
@@ -363,7 +365,7 @@ describe("Account Unit Tests", () => {
             sandbox = sinon.sandbox.create();
             fakeDB = sandbox.stub(db);
             window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcRenderer.send.resetHistory();
             data = {
                 configBuilder: {
                     select: sinon.stub(),
@@ -377,7 +379,6 @@ describe("Account Unit Tests", () => {
                     whereValue: ["lightningId = :lightningID", { lightningID: lightningId }],
                 },
             };
-            expectedData = data;
             expectedData = undefined;
             expectedActions = [];
             initState = {
@@ -394,7 +395,6 @@ describe("Account Unit Tests", () => {
             fakeStore = sandbox.stub(defaultStore);
             fakeStore.dispatch = store.dispatch;
             fakeStore.getState = store.getState;
-            window.ipcRenderer.send.reset();
         });
 
         afterEach(() => {
@@ -479,6 +479,19 @@ describe("Account Unit Tests", () => {
             });
         });
 
+        describe("Modal Windows", () => {
+            beforeEach(() => {
+                expectedData = { type: appTypes.SET_MODAL_STATE };
+            });
+
+            it("openPaymentDetailsModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_SYSTEM_NOTIFICATIONS;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openSystemNotificationsModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+        });
+
         describe("createNewBitcoinAccount()", () => {
             beforeEach(() => {
                 data.btc_address = "new_address";
@@ -533,9 +546,30 @@ describe("Account Unit Tests", () => {
                 activeMeasure: "mBTC",
                 createChannelViewed: 0,
                 lightningId,
-                lightningPaymentViewed: 0,
+                systemNotifications: 3,
             };
-            expect(await operations.setInitConfig(lightningId)).to.deep.equal(undefined);
+            expectedData = { ...successResp };
+            expectedActions = [
+                {
+                    payload: {
+                        bitcoinMeasureMultiplier: 0.00001,
+                        bitcoinMeasureType: "mBTC",
+                        lightningMeasureType: "mLN",
+                        toFixedMeasure: 5,
+                        toFixedMeasureAll: 5,
+                    },
+                    type: types.SET_BITCOIN_MEASURE,
+                },
+                {
+                    payload: 3,
+                    type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                },
+                {
+                    payload: types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
+                    type: appTypes.SET_MODAL_STATE,
+                },
+            ];
+            expect(await store.dispatch(operations.setInitConfig(lightningId))).to.deep.equal(expectedData);
             expect(store.getActions()).to.deep.equal(expectedActions);
             expect(fakeDB.configBuilder).to.be.calledOnce;
             expect(data.configBuilder.insert).to.be.calledOnce;
@@ -547,7 +581,7 @@ describe("Account Unit Tests", () => {
             expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.values);
         });
 
-        describe("loadBitcoinMeasure()", () => {
+        describe("loadAccountSettings()", () => {
             let error;
 
             beforeEach(() => {
@@ -557,7 +591,13 @@ describe("Account Unit Tests", () => {
                     activeMeasure: "mBTC",
                     createChannelViewed: 0,
                     lightningId,
-                    lightningPaymentViewed: 0,
+                    systemNotifications: 3,
+                };
+                data.getOneValues = {
+                    activeMeasure: "BTC",
+                    createChannelViewed: 0,
+                    lightningId,
+                    systemNotifications: 3,
                 };
                 fakeDB.configBuilder.returns({
                     insert: data.configBuilder.insert.returns({
@@ -577,10 +617,10 @@ describe("Account Unit Tests", () => {
                 fakeDB.configBuilder.throws(new Error(error));
                 expectedData = {
                     ...errorResp,
-                    f: "loadBitcoinMeasure",
+                    f: "loadAccountSettings",
                     error,
                 };
-                expect(await store.dispatch(operations.loadBitcoinMeasure())).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.select).not.to.be.called;
@@ -600,8 +640,16 @@ describe("Account Unit Tests", () => {
                         },
                         type: types.SET_BITCOIN_MEASURE,
                     },
+                    {
+                        payload: 3,
+                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                    },
+                    {
+                        payload: types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
+                        type: appTypes.SET_MODAL_STATE,
+                    },
                 ];
-                expect(await store.dispatch(operations.loadBitcoinMeasure())).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledTwice;
                 expect(data.configBuilder.select).to.be.calledOnce;
@@ -619,11 +667,11 @@ describe("Account Unit Tests", () => {
                 expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.values);
             });
 
-            it("success on BTC measure in db", async () => {
+            it("success on all default measures in db", async () => {
                 fakeDB.configBuilder.returns({
                     select: data.configBuilder.select.returns({
                         where: data.configBuilder.where.returns({
-                            getOne: data.configBuilder.getOne.returns({ activeMeasure: "BTC" }),
+                            getOne: data.configBuilder.getOne.returns(data.getOneValues),
                         }),
                     }),
                 });
@@ -640,8 +688,16 @@ describe("Account Unit Tests", () => {
                         },
                         type: types.SET_BITCOIN_MEASURE,
                     },
+                    {
+                        payload: 3,
+                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                    },
+                    {
+                        payload: types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
+                        type: appTypes.SET_MODAL_STATE,
+                    },
                 ];
-                expect(await store.dispatch(operations.loadBitcoinMeasure())).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.select).to.be.calledOnce;
@@ -651,6 +707,56 @@ describe("Account Unit Tests", () => {
                 expect(data.configBuilder.where).to.be.calledWith(...data.selectWhere);
                 expect(data.configBuilder.getOne).to.be.calledOnce;
                 expect(data.configBuilder.getOne).to.be.calledImmediatelyAfter(data.configBuilder.where);
+                expect(data.configBuilder.insert).not.to.be.called;
+            });
+
+            it("success on updated measures in db", async () => {
+                data.getOneValues = {
+                    activeMeasure: "BTC",
+                    createChannelViewed: 1,
+                    lightningId,
+                    systemNotifications: 6,
+                };
+                fakeDB.configBuilder.returns({
+                    select: data.configBuilder.select.returns({
+                        where: data.configBuilder.where.returns({
+                            getOne: data.configBuilder.getOne.returns(data.getOneValues),
+                        }),
+                    }),
+                });
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: {
+                            bitcoinMeasureMultiplier: 1e-8,
+                            bitcoinMeasureType: "BTC",
+                            lightningMeasureType: "LN",
+                            toFixedMeasure: 8,
+                            toFixedMeasureAll: 8,
+
+                        },
+                        type: types.SET_BITCOIN_MEASURE,
+                    },
+                    {
+                        payload: channelsTypes.HIDE,
+                        type: channelsTypes.UPDATE_CREATE_TUTORIAL_STATUS,
+                    },
+                    {
+                        payload: 6,
+                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                    },
+                ];
+                expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.select).to.be.calledOnce;
+                expect(data.configBuilder.select).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.select);
+                expect(data.configBuilder.where).to.be.calledWith(...data.selectWhere);
+                expect(data.configBuilder.getOne).to.be.calledOnce;
+                expect(data.configBuilder.getOne).to.be.calledImmediatelyAfter(data.configBuilder.where);
+                expect(data.configBuilder.insert).not.to.be.called;
             });
         });
 
@@ -664,8 +770,9 @@ describe("Account Unit Tests", () => {
                 fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
                 fakeApp.closeModal.returns(fakeDispatchReturnSuccess);
                 fakeApp.usdBtcRate.returns(fakeDispatchReturnSuccess);
-                fakeStreamOperations = sandbox.stub(streamOperations);
-                fakeStreamOperations.pauseAllStream.returns(fakeDispatchReturnSuccess);
+                fakeStreamOperations = sandbox.stub(streamPaymentOperations);
+                fakeStreamOperations.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+                fakeStreamOperations.loadStreams.returns(fakeDispatchReturnSuccess);
                 fakeLightning = sandbox.stub(lightningOperations);
                 fakeLightning.getHistory.returns(fakeDispatchReturnSuccess);
                 fakeLightning.subscribeInvoices.returns(fakeDispatchReturnSuccess);
@@ -674,9 +781,15 @@ describe("Account Unit Tests", () => {
                 fakeChannels.getChannels.returns(fakeDispatchReturnSuccess);
                 fakeChannels.shouldShowCreateTutorial.returns(fakeDispatchReturnSuccess);
                 fakeChannels.shouldShowLightningTutorial.returns(fakeDispatchReturnSuccess);
-                fakeOnchain = sandbox.stub(onchainOperations);
+                fakeOnchain = sandbox.stub(onChainOperations);
                 fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
+                window.ipcClient
+                    .withArgs("listChannels")
+                    .returns({
+                        ok: false,
+                        error: "foo",
+                    });
             });
 
             it("error lndSync", async () => {
@@ -743,11 +856,11 @@ describe("Account Unit Tests", () => {
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
             });
 
-            it("error startStreamManager", async () => {
+            it("error getLightningID", async () => {
                 window.ipcClient
                     .withArgs("startLis")
                     .returns({ ok: true })
-                    .withArgs("startStreamManager")
+                    .withArgs("getInfo")
                     .returns({ ok: false });
                 expectedData = { ...errorResp, f: "initAccount" };
                 expectedActions = [
@@ -770,49 +883,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("startLis");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
-                expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
-                expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
-                expect(fakeLnd.waitLndSync).to.be.calledOnce;
-            });
-
-            it("error getLightningID", async () => {
-                window.ipcClient
-                    .withArgs("startLis")
-                    .returns({ ok: true })
-                    .withArgs("getInfo")
-                    .returns({ ok: false })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
-                expectedData = { ...errorResp, f: "initAccount" };
-                expectedActions = [
-                    {
-                        type: types.FINISH_INIT_ACCOUNT,
-                    },
-                    {
-                        type: types.START_LOGOUT,
-                    },
-                    {
-                        payload: true,
-                        type: types.LOGOUT_ACCOUNT,
-                    },
-                    {
-                        type: types.FINISH_LOGOUT,
-                    },
-                    {
-                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
-                    },
-                ];
-                expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(4);
+                expect(window.ipcClient).to.be.callCount(3);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
             });
@@ -822,9 +896,7 @@ describe("Account Unit Tests", () => {
                     .withArgs("startLis")
                     .returns({ ok: true })
                     .withArgs("getInfo")
-                    .returns({ ok: true, response: { identity_pubkey: lightningId } })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
+                    .returns({ ok: true, response: { identity_pubkey: lightningId } });
                 fakeLightning.getHistory.returns(fakeDispatchReturnError);
                 expectedData = { ...errorResp, f: "initAccount" };
                 expectedActions = [
@@ -851,11 +923,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(4);
+                expect(window.ipcClient).to.be.callCount(3);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;
@@ -869,9 +940,7 @@ describe("Account Unit Tests", () => {
                     .onFirstCall()
                     .returns({ ok: true, response: { identity_pubkey: lightningId } })
                     .onSecondCall()
-                    .returns({ ok: false })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
+                    .returns({ ok: false });
                 expectedData = { ...errorResp, f: "initAccount" };
                 expectedActions = [
                     {
@@ -901,11 +970,10 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(5);
+                expect(window.ipcClient).to.be.callCount(4);
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;
@@ -919,9 +987,7 @@ describe("Account Unit Tests", () => {
                     .withArgs("getInfo")
                     .returns({ ok: true, response: { identity_pubkey: lightningId } })
                     .withArgs("newAddress")
-                    .returns({ ok: true, response: { address: data.new_adress } })
-                    .withArgs("startStreamManager")
-                    .returns({ ok: true });
+                    .returns({ ok: true, response: { address: data.new_adress } });
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
@@ -949,6 +1015,10 @@ describe("Account Unit Tests", () => {
                         payload: [{ address: data.new_adress }],
                         type: types.ADD_BITCOIN_ACCOUNT,
                     },
+                    {
+                        payload: "foo",
+                        type: types.ERROR_CHECK_BALANCE,
+                    },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -956,7 +1026,7 @@ describe("Account Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith("startLis");
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("newAddress");
-                expect(window.ipcClient).to.be.calledWith("startStreamManager");
+                expect(window.ipcClient).to.be.calledWith("listChannels");
                 expect(fakeOnchain.subscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(fakeLightning.getHistory).to.be.calledOnce;
@@ -965,6 +1035,7 @@ describe("Account Unit Tests", () => {
                 expect(fakeChannels.shouldShowCreateTutorial).to.be.calledOnce;
                 expect(fakeChannels.shouldShowLightningTutorial).to.be.calledOnce;
                 expect(fakeApp.usdBtcRate).to.be.calledOnce;
+                expect(fakeStreamOperations.loadStreams).to.be.calledOnce;
             });
         });
 
@@ -1303,6 +1374,75 @@ describe("Account Unit Tests", () => {
             });
         });
 
+        describe("setSystemNotificationsStatus()", () => {
+            let error;
+
+            beforeEach(() => {
+                error = "error";
+                data.value = 6;
+                fakeDB.configBuilder.returns({
+                    update: data.configBuilder.update.returns({
+                        set: data.configBuilder.set.returns({
+                            where: data.configBuilder.where.returns({
+                                execute: data.configBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
+            });
+
+            it("db error", async () => {
+                fakeDB.configBuilder.throws(new Error(error));
+                expectedData = {
+                    ...errorResp,
+                    f: "setSystemNotificationsStatus",
+                    error,
+                };
+                expectedActions = [
+                    {
+                        payload: data.value,
+                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                    },
+                ];
+                expect(await store.dispatch(operations.setSystemNotificationsStatus(data.value)))
+                    .to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).not.to.be.called;
+            });
+
+            it("success", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: data.value,
+                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                    },
+                ];
+                expect(await store.dispatch(operations.setSystemNotificationsStatus(data.value)))
+                    .to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.set).to.be.calledOnce;
+                expect(data.configBuilder.set).to.be.calledImmediatelyAfter(data.configBuilder.update);
+                expect(data.configBuilder.set).to.be.calledWithExactly({
+                    systemNotifications: data.value,
+                });
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
+                expect(data.configBuilder.where).to.be.calledWithExactly(
+                    "lightningId = :lightningID",
+                    {
+                        lightningID: lightningId,
+                    },
+                );
+                expect(data.configBuilder.execute).to.be.calledOnce;
+                expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
+            });
+        });
+
         describe("getPeers()", () => {
             beforeEach(() => {
                 data.peers = [
@@ -1460,7 +1600,6 @@ describe("Account Unit Tests", () => {
                         bitcoinBalance: 1e5,
                         lightningBalance: 1e5,
                         unConfirmedBitcoinBalance: 1e5,
-                        maximumPayment: 1e3,
                         bitcoinMeasureMultiplier: 1e-5,
                         bitcoinMeasureType: "mBTC",
                         toFixedMeasure: 5,
@@ -1501,8 +1640,21 @@ describe("Account Unit Tests", () => {
             });
 
             it("should check lightning balance with max payment error", () => {
-                const resp = store.dispatch(operations.checkAmount(1));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_MORE_MAX(0.01));
+                initState = {
+                    account: {
+                        bitcoinBalance: 1e5,
+                        lightningBalance: 1e8,
+                        unConfirmedBitcoinBalance: 1e5,
+                        bitcoinMeasureMultiplier: 1e-5,
+                        bitcoinMeasureType: "mBTC",
+                        toFixedMeasure: 5,
+                    },
+                    onchain: { fee: 11468 },
+                };
+                store = mockStore(initState);
+                const resp = store.dispatch(operations.checkAmount(50));
+                expect(resp)
+                    .to.equal(statusCodes.EXCEPTION_AMOUNT_MORE_MAX((MAX_PAYMENT_REQUEST * 1e-5).toFixed(5)));
             });
 
             it("should check bitcoin balance without errors", () => {
@@ -1523,8 +1675,6 @@ describe("Account Unit Tests", () => {
 
         describe("checkBalance()", () => {
             beforeEach(() => {
-                initState.account.maximumPayment = 5;
-                store = mockStore(initState);
                 window.ipcClient
                     .withArgs("listChannels")
                     .returns({
@@ -1577,10 +1727,6 @@ describe("Account Unit Tests", () => {
                 };
                 expectedActions = [
                     {
-                        payload: 117,
-                        type: types.SET_MAXIMUM_PAYMENT,
-                    },
-                    {
                         payload: undefined,
                         type: types.ERROR_CHECK_BALANCE,
                     },
@@ -1595,10 +1741,6 @@ describe("Account Unit Tests", () => {
             it("success", async () => {
                 expectedData = { ...successResp };
                 expectedActions = [
-                    {
-                        payload: 117,
-                        type: types.SET_MAXIMUM_PAYMENT,
-                    },
                     {
                         payload: {
                             bitcoinBalance: 30,
@@ -1866,12 +2008,6 @@ describe("Account Unit Tests", () => {
             expect(accountReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle SET_MAXIMUM_PAYMENT action", () => {
-            action.type = types.SET_MAXIMUM_PAYMENT;
-            expectedData.maximumPayment = data;
-            expect(accountReducer(state, action)).to.deep.equal(expectedData);
-        });
-
         it("should handle SUCCESS_CHECK_BALANCE action", () => {
             data = {
                 bitcoinBalance: "foo",
@@ -1892,6 +2028,12 @@ describe("Account Unit Tests", () => {
         it("should handle SET_LIS_STATUS action", () => {
             action.type = types.SET_LIS_STATUS;
             expectedData.lisStatus = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_SYSTEM_NOTIFICATIONS_STATUS action", () => {
+            action.type = types.SET_SYSTEM_NOTIFICATIONS_STATUS;
+            expectedData.systemNotifications = data;
             expect(accountReducer(state, action)).to.deep.equal(expectedData);
         });
     });

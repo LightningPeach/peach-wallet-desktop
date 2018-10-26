@@ -7,7 +7,7 @@ import * as statusCodes from "config/status-codes";
 import { onChainActions as actions, onChainTypes as types, onChainOperations as operations } from "modules/onchain";
 import onChainReducer, { initStateOnchain } from "modules/onchain/reducers";
 import { accountTypes, accountOperations } from "modules/account";
-import { appTypes } from "modules/app";
+import { appOperations, appTypes } from "modules/app";
 import { store as defaultStore } from "store/configure-store";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
 
@@ -157,6 +157,7 @@ describe("OnChain Unit Tests", () => {
         let successResp;
         let unsuccessResp;
         let fakeAccount;
+        let fakeApp;
         let fakeDispatchReturnError;
         let fakeDispatchReturnSuccess;
         let fakeDispatchReturnUnsuccess;
@@ -170,20 +171,27 @@ describe("OnChain Unit Tests", () => {
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
             sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             fakeAccount = sandbox.stub(accountOperations);
+            fakeApp = sandbox.stub(appOperations);
             fakeDB = sandbox.stub(db);
             fakeStore = sandbox.stub(defaultStore);
             data = {
                 onchainBuilder: {
-                    getMany: sinon.stub(),
+                    update: sinon.stub(),
+                    set: sinon.stub(),
+                    where: sinon.stub(),
                     insert: sinon.stub(),
                     values: sinon.stub(),
                     execute: sinon.stub(),
+                    getMany: sinon.stub(),
                 },
             };
             initState = {
+                account: {
+                    bitcoinMeasureType: "mBTC",
+                },
                 onchain: { ...initStateOnchain },
             };
             expectedData = undefined;
@@ -286,38 +294,6 @@ describe("OnChain Unit Tests", () => {
             expect(await store.dispatch(operations.clearSendCoinsDetails())).to.deep.equal(expectedData);
             expect(store.getActions()).to.deep.equal(expectedActions);
         });
-
-        /* it("getInitOnChainFee()", async () => {
-            data.response = {
-                response: {
-                    fee_per_kb: "123",
-                },
-            };
-            window.ipcClient
-                .withArgs("get-onchain-fee")
-                .returns(data.response);
-            expectedData = { ...successResp };
-            expectedActions = [
-                {
-                    payload: 123,
-                    type: types.SET_ONCHAIN_FEE,
-                },
-            ];
-            expect(await store.dispatch(operations.getInitOnChainFee())).to.deep.equal(expectedData);
-            expect(store.getActions()).to.deep.equal(expectedActions);
-            expect(window.ipcClient).to.be.calledWith("get-onchain-fee");
-            expect(window.ipcClient).to.be.calledOnce;
-        });
-
-        it("setOnChainFee()", async () => {
-            window.ipcClient.returns({});
-            expectedData = { ...successResp };
-            expect(await store.dispatch(operations.setOnChainFee())).to.deep.equal(expectedData);
-            expect(store.getActions()).to.deep.equal(expectedActions);
-            expect(window.ipcClient).to.be.calledWith("set-onchain-fee");
-            expect(window.ipcClient).to.be.calledWith("get-onchain-fee");
-            expect(window.ipcClient).to.be.calledTwice;
-        }); */
 
         describe("prepareSendCoins()", () => {
             beforeEach(() => {
@@ -455,6 +431,7 @@ describe("OnChain Unit Tests", () => {
                 );
                 expect(fakeDB.onchainBuilder).to.be.calledOnce;
                 expect(data.onchainBuilder.insert).to.be.calledOnce;
+                expect(data.onchainBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.onchainBuilder);
                 expect(data.onchainBuilder.values).to.be.calledOnce;
                 expect(data.onchainBuilder.values).to.be.calledImmediatelyAfter(data.onchainBuilder.insert);
                 expect(data.onchainBuilder.execute).to.be.calledOnce;
@@ -483,6 +460,7 @@ describe("OnChain Unit Tests", () => {
                         blockHash: 402,
                         blockHeight: 502,
                         status: "not-sended",
+                        numConfirmations: 2,
                     },
                 ];
                 chainTxns = {
@@ -512,10 +490,23 @@ describe("OnChain Unit Tests", () => {
                 };
                 fakeDB.onchainBuilder.returns({
                     getMany: data.onchainBuilder.getMany.returns(dbTxns),
+                    insert: data.onchainBuilder.insert.returns({
+                        values: data.onchainBuilder.values.returns({
+                            execute: data.onchainBuilder.execute,
+                        }),
+                    }),
+                    update: data.onchainBuilder.insert.returns({
+                        set: data.onchainBuilder.values.returns({
+                            where: data.onchainBuilder.execute.returns({
+                                execute: data.onchainBuilder.execute,
+                            }),
+                        }),
+                    }),
                 });
                 window.ipcClient
                     .withArgs("getTransactions")
                     .returns(chainTxns);
+                fakeApp.sendSystemNotification.returns(fakeDispatchReturnSuccess);
             });
 
             it("throw error", async () => {
@@ -548,6 +539,23 @@ describe("OnChain Unit Tests", () => {
             });
 
             it("success", async () => {
+                fakeApp.convertSatoshiToCurrentMeasure
+                    .returns(fakeDispatchReturnSuccess);
+                fakeDB.onchainBuilder.returns({
+                    getMany: data.onchainBuilder.getMany.returns(dbTxns),
+                    insert: data.onchainBuilder.insert.returns({
+                        values: data.onchainBuilder.values.returns({
+                            execute: data.onchainBuilder.execute,
+                        }),
+                    }),
+                    update: data.onchainBuilder.update.returns({
+                        set: data.onchainBuilder.set.returns({
+                            where: data.onchainBuilder.where.returns({
+                                execute: data.onchainBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
@@ -594,6 +602,47 @@ describe("OnChain Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.getOnchainHistory())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(fakeDB.onchainBuilder).to.be.calledThrice;
+                expect(data.onchainBuilder.getMany).to.be.calledOnce;
+                expect(data.onchainBuilder.getMany).to.be.calledAfter(fakeDB.onchainBuilder);
+                expect(data.onchainBuilder.insert).to.be.calledOnce;
+                expect(data.onchainBuilder.insert).to.be.calledAfter(fakeDB.onchainBuilder);
+                expect(data.onchainBuilder.values).to.be.calledOnce;
+                expect(data.onchainBuilder.values).to.be.calledImmediatelyAfter(data.onchainBuilder.insert);
+                expect(data.onchainBuilder.values).to.be.calledWithExactly({
+                    address: "-",
+                    amount: 100,
+                    blockHash: 400,
+                    blockHeight: 500,
+                    name: "Regular payment",
+                    numConfirmations: 6,
+                    status: "sended",
+                    timeStamp: 200,
+                    totalFees: 600,
+                    txHash: "baz",
+                });
+                expect(data.onchainBuilder.update).to.be.calledOnce;
+                expect(data.onchainBuilder.update).to.be.calledImmediatelyAfter(fakeDB.onchainBuilder);
+                expect(data.onchainBuilder.set).to.be.calledOnce;
+                expect(data.onchainBuilder.set).to.be.calledImmediatelyAfter(data.onchainBuilder.update);
+                expect(data.onchainBuilder.set).to.be.calledWithExactly({
+                    amount: 101,
+                    blockHash: 401,
+                    blockHeight: 501,
+                    name: "Regular payment",
+                    numConfirmations: 6,
+                    status: "sended",
+                    timeStamp: 201,
+                    totalFees: 601,
+                    txHash: "foo",
+                });
+                expect(data.onchainBuilder.where).to.be.calledOnce;
+                expect(data.onchainBuilder.where).to.be.calledImmediatelyAfter(data.onchainBuilder.set);
+                expect(data.onchainBuilder.where).to.be.calledWithExactly("txHash = :txID", { txID: "foo" });
+                expect(data.onchainBuilder.execute).to.be.calledTwice;
+                expect(data.onchainBuilder.execute).to.be.calledAfter(data.onchainBuilder.values);
+                expect(data.onchainBuilder.execute).to.be.calledImmediatelyAfter(data.onchainBuilder.where);
+                expect(fakeApp.sendSystemNotification).to.be.calledTwice;
             });
         });
     });

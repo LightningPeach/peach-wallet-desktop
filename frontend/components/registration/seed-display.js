@@ -1,12 +1,27 @@
 import React, { PureComponent } from "react";
 import PropTypes from "prop-types";
-import { analytics } from "additional";
+import Tooltip from "rc-tooltip";
+import { analytics, helpers } from "additional";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
 import { accountActions } from "modules/account";
 
 class SeedDisplay extends PureComponent {
+    constructor(props) {
+        super(props);
+        this.state = {
+            tooltips: {
+                seedWords: [
+                    "Seed words are random words that are used to regain access",
+                    "to the wallet when computer breaks or hard drive is corrupted.",
+                    "You should keep seed words safe and do not share with anyone.",
+                    "When someone knows your seed words, they can have access to",
+                    "your wallet and funds.",
+                ],
+            },
+        };
+    }
     submitSeedView = (e) => {
         e.preventDefault();
         const { dispatch } = this.props;
@@ -26,7 +41,7 @@ class SeedDisplay extends PureComponent {
         const { dispatch, onReload } = this.props;
         const response = await dispatch(lndOperations.getSeed());
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         onReload(response.response.seed);
@@ -36,14 +51,26 @@ class SeedDisplay extends PureComponent {
         return (
             <form onSubmit={this.submitSeedView}>
                 <div className="home__title">
-                    Sign up and start working with peach wallet
+                    Sign up and start working with LightningPeach wallet
                 </div>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
-                        <div className="form-label form-label__wrapper">
-                            <label htmlFor="seed" className="form-label__seed">
+                        <div className="form-label">
+                            <label htmlFor="seed">
                                 Save your seed words to a file or write them down.
                             </label>
+                            <Tooltip
+                                placement="bottom"
+                                overlay={helpers.formatMultilineText(this.state.tooltips.seedWords)}
+                                trigger="hover"
+                                arrowContent={
+                                    <div className="rc-tooltip-arrow-inner" />
+                                }
+                                prefixCls="rc-tooltip__small rc-tooltip"
+                                mouseLeaveDelay={0}
+                            >
+                                <i className="form-label__icon form-label__icon--info" />
+                            </Tooltip>
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -59,7 +86,7 @@ class SeedDisplay extends PureComponent {
                         />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row mt-30">
                     <div className="col-xs-12">
                         <button
                             type="submit"

@@ -4,6 +4,7 @@ import * as types from "./types";
 export const initStateLnd = {
     initStatus: "",
     lndBlocks: 0,
+    lndBlocksOnLogin: 0,
     lndInitError: null,
     lndIniting: false,
     lndSyncedToChain: false,
@@ -17,7 +18,7 @@ const lndReducer = (state = defaultState, action) => {
         case accountTypes.LOGOUT_ACCOUNT:
             return defaultState;
         case types.LND_SYNCED:
-            return { ...state, lndSyncedToChain: true };
+            return { ...state, ...state, lndSyncedToChain: action.payload };
         case types.LND_INITING_ERROR:
             return { ...state, lndInitError: action.payload, lndIniting: false };
         case types.START_INIT_LND:
@@ -28,8 +29,10 @@ const lndReducer = (state = defaultState, action) => {
             return { ...state, initStatus: action.payload };
         case types.SET_NETWORK_BLOCKS:
             return { ...state, networkBlocks: parseInt(action.payload, 10) };
-        case types.SET_LND_BLOCKS:
+        case types.SET_LND_BLOCKS_HEIGHT:
             return { ...state, lndBlocks: parseInt(action.payload, 10) };
+        case types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN:
+            return { ...state, lndBlocksOnLogin: parseInt(action.payload, 10) };
         default:
             return state;
     }

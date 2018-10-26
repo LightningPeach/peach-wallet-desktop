@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { logger } from "additional";
 import Legal from "components/legal";
 
 class Agreement extends Component {
@@ -30,7 +31,7 @@ class Agreement extends Component {
     };
 
     ipcError = () => {
-        console.error("this should not been occurred");
+        logger.error("this should not been occurred");
     };
 
     process = (e) => {
@@ -61,7 +62,7 @@ class Agreement extends Component {
                         <Legal />
                     </div>
                 </div>
-                <form className="row form-row agreement__form" onSubmit={this.process}>
+                <form className="row agreement__form" onSubmit={this.process}>
                     <div className="col-xs-12">
                         <label className="form-checkbox label_line pull-left js-agreement">
                             <input id="eula-agreement-checkbox" name="eula" type="checkbox" onChange={this.onChange} />

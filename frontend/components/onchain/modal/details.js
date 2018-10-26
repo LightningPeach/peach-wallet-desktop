@@ -17,6 +17,13 @@ class OnChainDetails extends Component {
         super(props);
         this.state = {
             processing: false,
+            tooltips: {
+                processing: [
+                    "You need to wait for transaction processing.",
+                    "Your payment will be processed when it is",
+                    "confirmed on the Bitcoin blockchain",
+                ],
+            },
         };
 
         analytics.pageview(`${OnchainFullPath}/details`, "Payment details");
@@ -50,7 +57,7 @@ class OnChainDetails extends Component {
     render() {
         const { sendCoinsDetails } = this.props;
         return (
-            <Modal title="Check your data" onClose={this.closeModal}>
+            <Modal title="Check your data" onClose={this.closeModal} titleTooltip={this.state.tooltips.processing}>
                 <div className="modal-body send-form">
                     {sendCoinsDetails.name ?
                         <div className="row send-form__row">
@@ -101,7 +108,7 @@ class OnChainDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd satoshi={(sendCoinsDetails.amount + this.props.fee)} />
+                                <BtcToUsd amount={(sendCoinsDetails.amount + this.props.fee)} />
                             </div>
                         </div>
                     </div>

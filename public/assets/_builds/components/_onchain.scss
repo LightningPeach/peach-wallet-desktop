@@ -89,6 +89,10 @@
 
     &__label {
         width: 175px;
+
+        &--text {
+            position: relative;
+        }
     }
 
     &__value {

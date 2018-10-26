@@ -1,27 +1,61 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-const validDigit = /^([0-9]+)?(\.)?([0-9]+)?$/;
+const validAboveZeroFloat = /^([0-9]+)?(\.)?([0-9]+)?$/;
+const validAboveZeroInt = /^(?:[1-9]\d*)$/;
+const validInt = /^(?:(-)?[1-9]\d*|0)$/;
 
 class DigitsField extends Component {
+    static defaultProps = {
+        pattern: "above_zero_float",
+    };
+
     constructor(props) {
         super(props);
-
-        const { value } = this.props;
-        if (value && validDigit.test(value)) {
-            this.state = { value };
-        } else {
-            this.state = { value: "" };
-        }
-
         this.cachedSelection = {
             end: 0,
             start: 0,
         };
+        const { pattern } = this.props;
+        let { value, defaultValue } = this.props;
+        switch (pattern.toLowerCase()) {
+            case "above_zero_int":
+                this.pattern = validAboveZeroInt;
+                break;
+            case "above_zero_float":
+                this.pattern = validAboveZeroFloat;
+                break;
+            default:
+                this.pattern = validAboveZeroFloat;
+                break;
+        }
+        value = value && this.pattern.test(value) ? value : "";
+        defaultValue = defaultValue && this.pattern.test(defaultValue) ? defaultValue : "";
+        this.state = {
+            defaultValue,
+            value: value || defaultValue,
+        };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const pattern = nextProps.pattern || "above_zero_float";
+        if (nextProps.pattern !== this.props.pattern) {
+            switch (pattern.toLowerCase()) {
+                case "natural_int":
+                    this.pattern = validAboveZeroInt;
+                    break;
+                case "above_zero_float":
+                    this.pattern = validAboveZeroFloat;
+                    break;
+                default:
+                    this.pattern = validAboveZeroFloat;
+                    break;
+            }
+        }
     }
 
     reset = () => {
-        this.setState({ value: "" });
+        this.setState({ value: this.state.defaultValue || "" });
     };
 
     reference = (input) => {
@@ -35,7 +69,7 @@ class DigitsField extends Component {
     };
 
     handleChange = (e) => {
-        if (!e.target.value || validDigit.test(e.target.value)) {
+        if (!e.target.value || this.pattern.test(e.target.value)) {
             this.setState({ value: e.target.value });
             if (this.props.setOnChange) {
                 this.props.setOnChange(e);
@@ -50,7 +84,7 @@ class DigitsField extends Component {
 
     render() {
         const {
-            value, setRef, setOnChange, ...otherProps
+            value, setRef, setOnChange, pattern, defaultValue, ...otherProps
         } = this.props;
         return (
             <input
@@ -65,6 +99,8 @@ class DigitsField extends Component {
 }
 
 DigitsField.propTypes = {
+    defaultValue: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    pattern: PropTypes.string,
     setOnChange: PropTypes.func,
     setRef: PropTypes.func.isRequired,
     value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),

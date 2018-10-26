@@ -16,7 +16,7 @@ const ipcClient = sinon.stub();
 window.ipcClient = ipcClient;
 
 // Constants
-window.LND_SYNC_TIMEOUT = 1;
+window.env = process.env;
 window.PEACH = { replenishUrl: "replenishurl" };
 window.DB = { Connection: {}, Entities: {} };
 window.DB.databasePath = sinon.stub();

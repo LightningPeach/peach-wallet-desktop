@@ -1,3 +1,4 @@
+import React from "react";
 import {
     USERNAME_MAX_LENGTH,
     MIN_PASS_LENGTH,
@@ -79,41 +80,58 @@ const EXCEPTION_USERNAME_EXISTS = "User already exist.";
 
 // ACCOUNT
 // Account not connected to kernel
-const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND";
+const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND.";
 
 // REMOTE ACTIONS
 // Invalid reponse upon remote invoice add
-const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline";
+const EXCEPTION_REMOTE_OFFLINE = "Probably client is offline.";
 
 // CHANNELS
 // No channel upon set channel event
-const EXCEPTION_CHANNEL_ABSENT = "There is no such channel";
+const EXCEPTION_CHANNEL_ABSENT = "There is no such channel.";
+// Attempt to create channel - channel with such name already exists
+const EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS = "Unable to create channel. This name already exists.";
+// Attempt to edit channel - channel with such name already exists
+const EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS = "Unable to edit channel. This name already exists.";
+
+// RECURRING PAYMENTS
+// Stream not found in store
+const EXCEPTION_RECURRING_NOT_IN_STORE = "Recurring Payment not found in store.";
+// Frequency is 0
+const EXCEPTION_RECURRING_FEQUENCY_IS_ZERO = "Frequency must be greater than 0.";
+// Recurring payment error deadline exceeded;
+const EXCEPTION_RECURRING_TIMEOUT = "Recurring payment: deadline exceeded.";
+// Recurring payment no funds for next payment;
+const EXCEPTION_RECURRING_NO_FUNDS = [
+    "Insufficient funds on Lightning balance.",
+    "Please, open new channel to process payment.",
+];
 
 // TRANSACITONS
-// Empty stream details
-const EXCEPTION_STREAM_DETAILS_REQUIRED = "There are no stream details";
+// Empty recurring payment details
+const EXCEPTION_RECURRING_DETAILS_REQUIRED = "There are no recurring payment details.";
 // Empty send coin details
 const EXCEPTION_SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty";
-// Amount is less than fee for operation
+// PD: Amount is less than fee for operation
 const EXCEPTION_AMOUNT_LESS_THAN_FEE = (currentFee = 0, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `Your payment must be greater than ${currentFee} ${bitcoinMeasureType} fee.`;
 // No funds on onchain balance for this operation
 const EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS = "Insufficient funds on Onchain balance.";
-// Field exists but amount is 0 Satoshi
+// PD: Field exists but amount is 0 Satoshi
 const EXCEPTION_AMOUNT_EQUAL_ZERO = (bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `0 ${bitcoinMeasureType} payment is not allowed.`;
 // Field exists but amount is negative
 const EXCEPTION_AMOUNT_NEGATIVE = "The value must contain positive number.";
 // No funds on lightning balance for this operation
 const EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS = "Insufficient funds on Lightning balance.";
-// More than max allowed payment
+// PD: More than max allowed payment
 const EXCEPTION_AMOUNT_MORE_MAX = (capacity, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `Maximum allowed payment is ${capacity} ${bitcoinMeasureType}.`;
-// More than max allowed channel size
+// PD: More than max allowed channel size
 const EXCEPTION_AMOUNT_LESS_MIN_CHANNEL =
     (channelSize = MIN_CHANNEL_SIZE, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
         `Minimum allowed channel size is ${channelSize} ${bitcoinMeasureType}`;
-// Less than min allowed channel size
+// PD: Less than min allowed channel size
 const EXCEPTION_AMOUNT_MORE_MAX_CHANNEL = (channelSize = MIN_CHANNEL_SIZE) =>
     `Maximum allowed channel size is ${channelSize}`;
 // Time value is lower than zero
@@ -162,7 +180,9 @@ export {
     EXCEPTION_PASSWORD_SEED_COUNT_MISMATCH,
     EXCEPTION_PASSWORD_SEED_WRONG_FORMAT,
     EXCEPTION_PASSWORD_MISMATCH,
-    EXCEPTION_STREAM_DETAILS_REQUIRED,
+    EXCEPTION_RECURRING_DETAILS_REQUIRED,
+    EXCEPTION_RECURRING_FEQUENCY_IS_ZERO,
+    EXCEPTION_RECURRING_NOT_IN_STORE,
     EXCEPTION_SEND_COINS_DETAILS_REQUIRED,
     EXCEPTION_DB_NOT_OPENED,
     EXCEPTION_FIELD_IS_REQUIRED,
@@ -190,10 +210,14 @@ export {
     EXCEPTION_REMOTE_OFFLINE,
     EXCEPTION_ACCOUNT_NO_KERNEL,
     EXCEPTION_CHANNEL_ABSENT,
+    EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS,
+    EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS,
     EXCEPTION_EXTRA,
     EXCEPTION_PASSWORD_DIFF,
     EXCEPTION_TIME_NEGATIVE,
     EXCEPTION_LIS_DOWN_DURING_TX,
+    EXCEPTION_RECURRING_TIMEOUT,
+    EXCEPTION_RECURRING_NO_FUNDS,
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
     EXCEPTION_HUB_UNAVAILABLE,

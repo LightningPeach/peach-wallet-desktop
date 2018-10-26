@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
@@ -35,26 +35,28 @@ class ForceCloseChannel extends Component {
         dispatch(appOperations.closeModal());
         const response = await dispatch(operations.closeChannel(currentChannel, true));
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         const tempName = currentChannel.name || currentChannel.remote_pubkey;
         dispatch(operations.clearCurrentChannel());
         dispatch(operations.getChannels());
-        dispatch(info({ message: <span>Channel <strong>{tempName}</strong> deleted</span> }));
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Channel <strong>{tempName}</strong> deleted</span>),
+        }));
     }
 
     render() {
         const { currentChannel } = this.props;
         if (!currentChannel) {
-            console.log("FORCE CLOSE CHANNEL: No current channel");
+            logger.log("FORCE CLOSE CHANNEL: No current channel");
             return null;
         }
         const title = currentChannel.name || currentChannel.remote_pubkey;
         return (
             <Modal title="Force Close Channel" onClose={this.closeModal}>
                 <div className="modal-body">
-                    <div className="row form-row">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Cooperative close of <strong title={title}>{title}</strong> is failed. You can close channel
                             not cooperatively and receive you funds in 24 hours.

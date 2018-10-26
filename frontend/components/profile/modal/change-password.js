@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import { info } from "modules/notifications";
@@ -56,7 +56,7 @@ class ChangePassword extends Component {
             newPasswordError,
             oldPasswordError,
         });
-        dispatch(info({ message: "Password updated" }));
+        dispatch(info({ message: helpers.formatNotificationMessage("Password updated") }));
         this.closeModal();
     }
 
@@ -65,7 +65,7 @@ class ChangePassword extends Component {
             <Modal title="Change password" onClose={this.closeModal}>
                 <form onSubmit={this.changePassword}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="old_password">
@@ -88,7 +88,7 @@ class ChangePassword extends Component {
                                 <ErrorFieldTooltip text={this.state.oldPasswordError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="new_password">
@@ -111,7 +111,7 @@ class ChangePassword extends Component {
                                 <ErrorFieldTooltip text={this.state.newPasswordError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="conf_new_password">

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, validators } from "additional";
+import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
     contactsActions as actions,
@@ -12,7 +12,7 @@ import { AddressBookFullPath } from "routes";
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import * as statusCodes from "config/status-codes";
-import { USERNAME_MAX_LENGTH } from "config/consts";
+import { ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 
 class EditContact extends Component {
     constructor(props) {
@@ -23,6 +23,17 @@ class EditContact extends Component {
 
         analytics.pageview(`${AddressBookFullPath}/update-contact`, "Update contact");
     }
+
+    showErrorNotification = (text) => {
+        const { dispatch } = this.props;
+        dispatch(error({
+            action: {
+                callback: () => dispatch(operations.openNewContactModal()),
+                label: "Retry",
+            },
+            message: helpers.formatNotificationMessage(text),
+        }));
+    };
 
     closeModal = () => {
         const { dispatch } = this.props;
@@ -64,35 +75,35 @@ class EditContact extends Component {
         ));
         dispatch(appOperations.closeModal());
         if (!response.ok) {
-            dispatch(error({
-                action: {
-                    callback: () => dispatch(operations.openEditContactModal()),
-                    label: "Retry",
-                },
-                message: response.error,
-            }));
+            this.showErrorNotification(response.error);
             return;
         }
 
         dispatch(actions.setCurrentContact(null));
         dispatch(actions.prepareNewContact(null));
         dispatch(operations.getContacts());
+        const message = (
+            <span>Contact&nbsp;
+                <strong>
+                    {currentContact.name}
+                </strong> renamed to <strong>{name}</strong>
+            </span>);
         dispatch(info({
-            message: <span>Contact <strong>{currentContact.name}</strong> renamed to <strong>{name}</strong></span>,
+            message: helpers.formatNotificationMessage(message),
         }));
     };
 
     render() {
         const { currentContact } = this.props;
         if (!currentContact) {
-            console.log("Cant show Edit contact 'cause currentContact not provided");
+            logger.log("Cant show Edit contact 'cause currentContact not provided");
             return null;
         }
         return (
             <Modal title="Edit contact" onClose={this.closeModal} showCloseButton>
                 <form onSubmit={this.updateContact}>
                     <div className="modal-body">
-                        <div className="row form-row">
+                        <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">
@@ -110,14 +121,14 @@ class EditContact extends Component {
                                         this.contact__name = input;
                                     }}
                                     defaultValue={currentContact.name}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row form-row">
+                        <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">

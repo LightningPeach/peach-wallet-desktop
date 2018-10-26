@@ -52,7 +52,7 @@ class GuidePage extends Component {
                 </button>
             );
         }
-        return `LND ${currentPercent}%`;
+        return `Synchronization - ${currentPercent}%`;
     };
 
     openUserGuide = () => {

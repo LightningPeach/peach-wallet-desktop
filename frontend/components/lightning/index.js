@@ -21,13 +21,13 @@ import {
     streamPaymentTypes,
 } from "modules/streamPayments";
 import { appOperations, appTypes } from "modules/app";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
+import { MODAL_ANIMATION_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { LightningFullPath } from "routes";
 import Ellipsis from "components/common/ellipsis";
 import ChannelWarning from "./modal/channel_warning";
 import RegularPayment from "./regular";
-import StreamPayment from "./stream";
+import RecurringPayment from "./recurring";
 
 class Lightning extends Component {
     constructor(props) {
@@ -41,7 +41,6 @@ class Lightning extends Component {
     componentWillMount() {
         const { dispatch } = this.props;
         dispatch(operations.getHistory());
-        dispatch(streamOperations.loadStreams());
         dispatch(channelsOperations.getChannels());
     }
 
@@ -61,9 +60,9 @@ class Lightning extends Component {
             if (this.state.activeTab === "regular") {
                 path = `${LightningFullPath}/regular`;
                 title = "Lightning / Regular Payment";
-            } else if (this.state.activeTab === "stream") {
-                path = `${LightningFullPath}/stream`;
-                title = "Lightning / Stream Payment";
+            } else if (this.state.activeTab === "recurring") {
+                path = `${LightningFullPath}/recurring`;
+                title = "Lightning / Recurring Payment";
             }
             analytics.pageview(path, title);
         }
@@ -157,8 +156,12 @@ class Lightning extends Component {
                     tempAddress = contact.name;
                 }
             });
-            let price = item.price * (!item.currentPart ? item.totalParts : item.currentPart);
-            let seconds = !item.currentPart ? item.totalParts : item.currentPart;
+            let price = item.totalParts === STREAM_INFINITE_TIME_VALUE
+                ? item.price * (!item.partsPaid ? 1 : item.partsPaid)
+                : item.price * (!item.partsPaid ? item.totalParts : item.partsPaid);
+            let seconds = item.totalParts === STREAM_INFINITE_TIME_VALUE
+                ? (!item.partsPaid ? "∞" : item.partsPaid)
+                : (!item.partsPaid ? item.totalParts : item.partsPaid);
             const address = (
                 <span
                     onClick={() => {
@@ -177,7 +180,7 @@ class Lightning extends Component {
                     {tempAddress}
                 </span>
             );
-            if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSE) {
+            if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED) {
                 type = (
                     <Fragment>
                         <span
@@ -203,7 +206,7 @@ class Lightning extends Component {
                                     category: "Lightning",
                                     label: "Stop",
                                 });
-                                dispatch(streamOperations.stopStreamPayment(item.streamId));
+                                dispatch(streamOperations.finishStreamPayment(item.streamId));
                             }}
                         />
                     </Fragment>
@@ -229,12 +232,16 @@ class Lightning extends Component {
             } else {
                 type = "Stream";
                 ({ price } = item);
-                seconds = item.currentPart;
+                seconds = item.partsPaid;
                 price *= seconds;
             }
             const [ymd, hms] = helpers.formatDate(date).split(" ");
             return {
-                amount: <span><BalanceWithMeasure satoshi={price} /> / {seconds} sec</span>,
+                amount: (
+                    <span>{item.currency === "USD"
+                        ? `${price} USD`
+                        : <BalanceWithMeasure satoshi={price} />} / {seconds} payments
+                    </span>),
                 date: (
                     <span dateTime={date} data-pinned={isActive}>
                         <span className="date__ymd">{ymd}</span>
@@ -306,9 +313,9 @@ class Lightning extends Component {
             if (tab === "regular") {
                 path = `${LightningFullPath}/regular`;
                 title = "Lightning / Regular Payment";
-            } else if (tab === "stream") {
-                path = `${LightningFullPath}/stream`;
-                title = "Lightning / Stream Payment";
+            } else if (tab === "recurring") {
+                path = `${LightningFullPath}/recurring`;
+                title = "Lightning / Recurring Payment";
             }
             analytics.pageview(path, title);
         }
@@ -335,8 +342,8 @@ class Lightning extends Component {
             case "regular":
                 tabContent = <RegularPayment />;
                 break;
-            case "stream":
-                tabContent = <StreamPayment />;
+            case "recurring":
+                tabContent = <RecurringPayment />;
                 break;
             default:
                 tabContent = null;
@@ -349,7 +356,11 @@ class Lightning extends Component {
                     <div className="tabs">
                         <div className="row tabs__row">
                             <div className="col-xs-12 tabs__wrapper">
-                                <div className={`tabs__container tabs__${activeTab}`}>
+                                <div className={`tabs__container ${
+                                    activeTab === "recurring"
+                                        ? "tabs__container--end"
+                                        : ""}`}
+                                >
                                     <a
                                         className={`tab-link ${activeTab === "regular" ? "tab-link-active" : ""}`}
                                         onClick={() => this.handleTabClick("regular")}
@@ -357,10 +368,10 @@ class Lightning extends Component {
                                         Regular payment
                                     </a>
                                     <a
-                                        className={`tab-link ${activeTab === "stream" ? "tab-link-active" : ""}`}
-                                        onClick={() => this.handleTabClick("stream")}
+                                        className={`tab-link ${activeTab === "recurring" ? "tab-link-active" : ""}`}
+                                        onClick={() => this.handleTabClick("recurring")}
                                     >
-                                        Stream payment
+                                        Recurring payment
                                     </a>
                                 </div>
                             </div>
@@ -404,15 +415,15 @@ Lightning.propTypes = {
     modalState: PropTypes.string,
     streams: PropTypes.arrayOf(PropTypes.shape({
         comment: PropTypes.string,
-        currentPart: PropTypes.number.isRequired,
         date: PropTypes.number.isRequired,
         delay: PropTypes.number,
         description: PropTypes.string,
         lightningID: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
+        partsPaid: PropTypes.number.isRequired,
         price: PropTypes.number.isRequired,
         status: PropTypes.string.isRequired,
-        totalParts: PropTypes.number.isRequired,
+        totalParts: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     })).isRequired,
 };
 

@@ -194,7 +194,7 @@ go install . .\cmd\...
 
 After lnd is insalled **from wallet directory** run:
 ```bash
-copy %GOPATH%bin\lnd.exe node_modules\executable\
+copy %GOPATH%\bin\lnd.exe node_modules\executable\
 ```
 
 ## Running the wallet

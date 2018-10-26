@@ -61,16 +61,34 @@
     &-message {
         margin: 0;
         padding: 0;
-        display: inline-block;
+        display: flex;
+        flex-direction: column;
         font-size: 14px;
         line-height: 2.15;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
-        max-height: 90px;
 
         &:first-letter {
             text-transform: uppercase;
+        }
+
+        &--helper {
+            line-height: 1.5;
+            margin-top: 15px;
+
+            ul {
+                margin-top: 0;
+                -webkit-padding-start: 20px;
+                -webkit-margin-after: 0;
+            }
+        }
+
+        &--error {
+            display: inline-block;
+            max-height: 84px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
@@ -119,9 +137,7 @@
     }
 
     .notification{
-        &-message {
-            max-height: 130px;
-        }
+        padding: 14px 20px;
 
         &-action-wrapper {
             padding-left: 5px;

@@ -59,7 +59,7 @@ class UserForm extends Component {
         const disabled = this.state.processing;
         return (
             <form onSubmit={this.handleRestore}>
-                <div className="row form-row">
+                <div className="row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="username">
@@ -67,7 +67,7 @@ class UserForm extends Component {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatTooltips(this.state.tooltips.username)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -95,7 +95,7 @@ class UserForm extends Component {
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="password">Password</label>
@@ -122,7 +122,7 @@ class UserForm extends Component {
                         <ErrorFieldTooltip text={this.state.passwordError} />
                     </div>
                 </div>
-                <div className="row form-row">
+                <div className="row mt-14">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="conf_password">
@@ -145,7 +145,7 @@ class UserForm extends Component {
                         <ErrorFieldTooltip text={this.state.confPasswordError} />
                     </div>
                 </div>
-                <div className="row form-row form-row__footer">
+                <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button type="submit" className="button button__orange button__fullwide" disabled={disabled}>
                             Proceed

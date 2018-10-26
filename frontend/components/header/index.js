@@ -5,9 +5,19 @@ import { Link } from "react-router";
 import { accountOperations } from "modules/account";
 import { channelsActions, channelsTypes } from "modules/channels";
 import {
-    WalletPath, OnchainFullPath, ChannelsFullPath, AddressBookFullPath, ProfileFullPath,
-    LightningPanel, OnchainPanel, ChannelsPanel, AddressBookPanel, ProfilePanel,
-    MerchantsFullPath, MerchantsPanel,
+    WalletPath,
+    OnchainFullPath,
+    ChannelsFullPath,
+    AddressBookFullPath,
+    ProfileFullPath,
+    LightningPanel,
+    OnchainPanel,
+    ChannelsPanel,
+    AddressBookPanel,
+    ProfilePanel,
+    HomeFullPath,
+    MerchantsFullPath,
+    MerchantsPanel,
 } from "routes";
 
 class Header extends Component {
@@ -17,7 +27,31 @@ class Header extends Component {
         this.hideBurger = this.hideBurger.bind(this);
         this.state = {
             burgerState: "close",
+            pageAddressList: [
+                { fullPath: WalletPath, name: "lightning" },
+                { fullPath: OnchainFullPath, name: "onchain" },
+                { fullPath: ChannelsFullPath, name: "channels" },
+                { fullPath: AddressBookFullPath, name: "address" },
+                { fullPath: MerchantsFullPath, name: "merchants" },
+                { fullPath: ProfileFullPath, name: "profile" },
+            ],
         };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        const { location } = nextProps;
+        const { pageAddressList } = this.state;
+        if (location !== this.props.location) {
+            const path = location.pathname;
+            let index = 0;
+            while (index < pageAddressList.length) {
+                if (pageAddressList[index].fullPath.includes(path)) {
+                    this.wrapper.querySelectorAll("a")[index].focus();
+                    break;
+                }
+                index += 1;
+            }
+        }
     }
 
     toggleClass(e) {
@@ -30,37 +64,30 @@ class Header extends Component {
     }
 
     render() {
-        const { dispatch } = this.props;
+        const { lndSyncedToChain } = this.props;
         let profileClass = "";
         let lightningClass = "";
         let onchainClass = "";
         let channelsClass = "";
         let addressClass = "";
         let merchantsClass = "";
-        let pageName = "";
         const path = this.props.location.pathname;
         if (LightningPanel.includes(path)) {
-            pageName = "Lightning";
             lightningClass = "active";
         }
         if (OnchainPanel.includes(path)) {
-            pageName = "Lightning";
             onchainClass = "active";
         }
         if (ChannelsPanel.includes(path)) {
-            pageName = "Lightning";
             channelsClass = "active";
         }
         if (AddressBookPanel.includes(path)) {
-            pageName = "Lightning";
             addressClass = "active";
         }
         if (ProfilePanel.includes(path)) {
-            pageName = "Profile";
             profileClass = "active";
         }
         if (MerchantsPanel.includes(path)) {
-            pageName = "Merchants";
             merchantsClass = "active";
         }
         let navClass = this.state.burgerState;
@@ -72,10 +99,16 @@ class Header extends Component {
                 <div className="container">
                     <div className="row">
                         <div className="col-xs-3">
-                            <Link to={WalletPath} className="logo" />
+                            <Link
+                                to={WalletPath}
+                                className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
+                            />
                         </div>
                         <div className="col-xs-9">
-                            <nav className={navClass}>
+                            <nav
+                                className={navClass}
+                                ref={(ref) => { this.wrapper = ref }}
+                            >
                                 <div
                                     className={`burger burger__${this.state.burgerState}`}
                                     onClick={this.toggleClass}
@@ -88,7 +121,6 @@ class Header extends Component {
                                     to={WalletPath}
                                     className={`nav__lightning ${lightningClass}`}
                                     onClick={() => {
-                                        // dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));
                                         this.hideBurger();
                                     }}
                                 >
@@ -117,7 +149,7 @@ class Header extends Component {
                                 </Link>
                                 <Link
                                     to={MerchantsFullPath}
-                                    className={`contacts ${merchantsClass}`}
+                                    className={`merchants ${merchantsClass}`}
                                     onClick={this.hideBurger}
                                 >
                                     Merchants
@@ -140,7 +172,7 @@ class Header extends Component {
 }
 
 Header.propTypes = {
-    dispatch: PropTypes.func.isRequired,
+    lndSyncedToChain: PropTypes.bool.isRequired,
     location: PropTypes.shape({
         action: PropTypes.string.isRequired,
         hash: PropTypes.string.isRequired,
@@ -153,6 +185,7 @@ Header.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    lndSyncedToChain: state.lnd.lndSyncedToChain,
     location: state.routing.locationBeforeTransitions,
     skipCreateTutorial: state.channels.skipCreateTutorial,
 });
