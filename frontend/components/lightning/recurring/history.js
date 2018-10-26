@@ -317,6 +317,7 @@ class RecurringHistory extends Component {
                 filters={[
                     filterTypes.FILTER_KIND_SEARCH,
                 ]}
+                emptyPlaceholder="No payments found"
             />
         );
     }
@@ -328,7 +329,7 @@ RecurringHistory.propTypes = {
         name: PropTypes.string.isRequired,
     })),
     dispatch: PropTypes.func.isRequired,
-    filter: PropTypes.shape(),
+    filter: PropTypes.shape().isRequired,
     history: PropTypes.arrayOf(PropTypes.shape).isRequired,
     isThereActiveChannel: PropTypes.bool,
     lightningID: PropTypes.string.isRequired,

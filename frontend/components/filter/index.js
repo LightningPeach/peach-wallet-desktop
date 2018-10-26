@@ -26,6 +26,9 @@ class Filter extends Component {
             case filterTypes.FILTER_ONCHAIN:
                 dispatch(filterActions.setOnchainFilterPart(details));
                 break;
+            case filterTypes.FILTER_CONTACTS:
+                dispatch(filterActions.setContactsFilterPart(details));
+                break;
             default:
                 break;
         }
@@ -114,7 +117,7 @@ class Filter extends Component {
     renderFilters = () => {
         const { filterKinds } = this.props;
         return (
-            <div className="filter__row mt-16">
+            <div className="filter__row filter__row--items mt-16">
                 {filterKinds.includes(filterTypes.FILTER_KIND_TYPE) &&
                     <div className="filter__item filter__item--group">
                         <button
@@ -215,6 +218,9 @@ const mapStateToProps = (state, props) => {
             break;
         case filterTypes.FILTER_ONCHAIN:
             filter = state.filter.onchain;
+            break;
+        case filterTypes.FILTER_CONTACTS:
+            filter = state.filter.contacts;
             break;
         default:
             break;

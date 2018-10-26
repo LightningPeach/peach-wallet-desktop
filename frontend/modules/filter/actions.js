@@ -15,6 +15,11 @@ const setOnchainFilterPart = payload => ({
     type: types.SET_ONCHAIN_FILTER_PART,
 });
 
+const setContactsFilterPart = payload => ({
+    payload,
+    type: types.SET_CONTACTS_FILTER_PART,
+});
+
 const clearAllFilters = () => ({
     type: types.CLEAR_ALL_FILTERS,
 });
@@ -23,5 +28,6 @@ export {
     setRecurringFilterPart,
     setRegularFilterPart,
     setOnchainFilterPart,
+    setContactsFilterPart,
     clearAllFilters,
 };
