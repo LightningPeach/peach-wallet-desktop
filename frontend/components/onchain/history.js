@@ -155,6 +155,7 @@ class OnchainHistory extends Component {
                 source={filterTypes.FILTER_ONCHAIN}
                 title="Onchain payments history"
                 filters={filterTypes.FILTER_KIND_LIST}
+                emptyPlaceholder="No payments found"
             />
         );
     }
@@ -162,7 +163,7 @@ class OnchainHistory extends Component {
 
 OnchainHistory.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    filter: PropTypes.shape(),
+    filter: PropTypes.shape().isRequired,
     history: PropTypes.arrayOf(PropTypes.shape({
         amount: PropTypes.number,
         block_hash: PropTypes.string,

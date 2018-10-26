@@ -8,11 +8,6 @@
         margin-top: 150px;
     }
 
-    .placeholder_text {
-        text-transform: uppercase;
-        letter-spacing: -0.6px;
-    }
-
     .container {
         margin-top: 30px;
     }
@@ -23,7 +18,6 @@
     }
 
     .table {
-        margin-top: 30px;
         &__header {
             padding-bottom: 10px;
 
@@ -125,11 +119,7 @@
             }
 
             .rt-tr:not(.-padRow):hover {
-                padding-top: 3px;
-                padding-bottom: 3px;
                 background-color: transparentize($orange, 0.9);
-                margin-top: -3px;
-                margin-bottom: -3px;
                 box-shadow: 1px 1px 10px 0 rgba(225, 225, 225, 0.5);
 
                 .table__button {

@@ -133,6 +133,7 @@ class RegularHistory extends Component {
                 source={filterTypes.FILTER_REGULAR}
                 title="Regular payments history"
                 filters={filterTypes.FILTER_KIND_LIST}
+                emptyPlaceholder="No payments found"
             />
         );
     }
@@ -144,7 +145,7 @@ RegularHistory.propTypes = {
         name: PropTypes.string.isRequired,
     })),
     dispatch: PropTypes.func.isRequired,
-    filter: PropTypes.shape(),
+    filter: PropTypes.shape().isRequired,
     history: PropTypes.arrayOf(PropTypes.shape).isRequired,
     lightningID: PropTypes.string.isRequired,
 };
