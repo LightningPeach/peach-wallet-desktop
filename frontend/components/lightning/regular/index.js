@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { accountOperations, accountTypes } from "modules/account";
 import { lightningOperations, lightningActions, lightningTypes } from "modules/lightning";
 import SuccessPayment from "components/common/success-payment";
@@ -19,9 +19,10 @@ import { appOperations, appTypes } from "modules/app";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
-import DigitsField from "components/ui/digitsField";
-import ToField from "./ui/to";
-import LightningDetails from "./modal/lightning-details";
+import DigitsField from "components/ui/digits-field";
+import RegularHistory from "./history";
+import ToField from "../ui/to";
+import LightningDetails from "../modal/lightning-details";
 
 const getInitialState = (params) => {
     const initState = {
@@ -42,7 +43,6 @@ const getInitialState = (params) => {
 class RegularPayment extends Component {
     constructor(props) {
         super(props);
-        this.handleTo = this.handleTo.bind(this);
         this.state = getInitialState();
     }
 
@@ -398,6 +398,7 @@ class RegularPayment extends Component {
         }
         return [
             this.renderForm(),
+            <RegularHistory key={1} />,
             <ReactCSSTransitionGroup
                 transitionName="modal-transition"
                 transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}

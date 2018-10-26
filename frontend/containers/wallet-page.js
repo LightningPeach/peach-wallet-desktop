@@ -87,17 +87,17 @@ class WalletPage extends Component {
         if (!isLogined && !isIniting) {
             logger.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
             dispatch(accountOperations.logout());
-            return;
         }
+    }
+
+    componentDidMount() {
+        const { dispatch } = this.props;
+        document.addEventListener("keydown", this.onKeyClick, false);
         dispatch(hubOperations.getMerchants());
         this.setAsyncInterval("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         this.setAsyncInterval("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         this.setAsyncInterval("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
         this.setAsyncInterval("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
-    }
-
-    componentDidMount() {
-        document.addEventListener("keydown", this.onKeyClick, false);
     }
 
     componentWillReceiveProps(nextProps) {

@@ -237,13 +237,6 @@ describe("App Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
-            it("openChangePasswordModal()", async () => {
-                expectedData.payload = types.PROFILE_CHANGE_PASS_MODAL_STATE;
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.openChangePasswordModal())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
             it("openLogoutModal()", async () => {
                 expectedData.payload = types.LOGOUT_MODAL_STATE;
                 expectedActions = [expectedData];

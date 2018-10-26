@@ -5,7 +5,7 @@ import { analytics, helpers } from "additional";
 import SubHeader from "components/subheader";
 import { accountOperations } from "modules/account";
 import { appOperations, appTypes, appActions } from "modules/app";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import * as statusCodes from "config/status-codes";
 import { ALL_MEASURES, MODAL_ANIMATION_TIMEOUT, MAX_PAYMENT_REQUEST } from "config/consts";
 import Tooltip from "rc-tooltip";
@@ -15,8 +15,7 @@ import Select from "react-select";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { ProfileFullPath } from "routes";
 import Ellipsis from "components/common/ellipsis";
-import DigitsField from "components/ui/digitsField";
-import ChangePassword from "./modal/change-password";
+import DigitsField from "components/ui/digits-field";
 import ConfirmLogout from "./modal/logout";
 import Legal from "./modal/law";
 
@@ -485,9 +484,6 @@ class Profile extends Component {
     render() {
         let modal;
         switch (this.props.modalState) {
-            case appTypes.PROFILE_CHANGE_PASS_MODAL_STATE:
-                modal = <ChangePassword />;
-                break;
             case appTypes.LOGOUT_MODAL_STATE:
                 modal = <ConfirmLogout />;
                 break;

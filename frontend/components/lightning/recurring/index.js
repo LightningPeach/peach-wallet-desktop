@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { accountOperations, accountTypes } from "modules/account";
 import {
     streamPaymentOperations as streamOperations,
@@ -21,14 +21,16 @@ import {
     BTC_MEASURE,
     MBTC_MEASURE,
     SATOSHI_MEASURE,
+    TIME_RANGE_MEASURE,
 } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
-import DigitsField from "components/ui/digitsField";
+import DigitsField from "components/ui/digits-field";
 import Checkbox from "components/ui/checkbox";
-import ToField from "./ui/to";
-import StreamDetails from "./modal/stream-details";
+import RecurringHistory from "./history";
+import ToField from "../ui/to";
+import StreamDetails from "../modal/stream-details";
 
 const getInitialState = (params = {}) => {
     const initState = {
@@ -38,7 +40,7 @@ const getInitialState = (params = {}) => {
         isInfinite: false,
         nameError: null,
         textError: null,
-        timeCurrency: "seconds",
+        timeCurrency: TIME_RANGE_MEASURE[0].measure,
         timeError: null,
         toError: null,
         toValue: null,
@@ -208,28 +210,11 @@ class RecurringPayment extends Component {
             amount = dispatch(appOperations.convertToSatoshi(amount));
         }
         let delay = 1000;
-        switch (this.state.timeCurrency) {
-            case "seconds":
-                delay *= 1;
-                break;
-            case "minutes":
-                delay *= 60;
-                break;
-            case "hours":
-                delay *= 60 * 60;
-                break;
-            case "days":
-                delay *= 60 * 60 * 24;
-                break;
-            case "weeks":
-                delay *= 60 * 60 * 24 * 7;
-                break;
-            case "months":
-                delay *= 60 * 60 * 24 * 7 * 30;
-                break;
-            default:
-                break;
-        }
+        TIME_RANGE_MEASURE.forEach((item) => {
+            if (this.state.timeCurrency === item.measure) {
+                delay = item.range;
+            }
+        });
         delay *= frequency;
 
         const response = await dispatch(streamOperations.prepareStreamPayment(
@@ -380,14 +365,10 @@ class RecurringPayment extends Component {
                                             id="stream__frequency--currency"
                                             value={this.state.timeCurrency}
                                             searchable={false}
-                                            options={[
-                                                { label: "seconds", value: "seconds" },
-                                                { label: "minutes", value: "minutes" },
-                                                { label: "hours", value: "hours" },
-                                                { label: "days", value: "days" },
-                                                { label: "weeks", value: "weeks" },
-                                                { label: "months", value: "months" },
-                                            ]}
+                                            options={TIME_RANGE_MEASURE.map(item => ({
+                                                label: item.measure,
+                                                value: item.measure,
+                                            }))}
                                             onChange={(newOption) => {
                                                 this.setState({
                                                     timeCurrency: newOption.value,
@@ -566,6 +547,7 @@ class RecurringPayment extends Component {
         const { modalState } = this.props;
         return [
             this.renderForm(),
+            <RecurringHistory key={1} />,
             modalState === streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS &&
             (
                 <ReactCSSTransitionGroup

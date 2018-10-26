@@ -503,7 +503,7 @@ describe("Stream Payment Unit Tests", () => {
                             fee: "fee",
                             lastPayment: 0,
                             lightningID: data.lightningID,
-                            name: "Stream payment",
+                            name: "Recurring payment",
                             partsPaid: 0,
                             partsPending: 0,
                             paymentIntervalId: null,
