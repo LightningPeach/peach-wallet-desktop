@@ -43,6 +43,11 @@ describe("Filter Unit Tests", () => {
             expect(actions.setContactsFilterPart(data)).to.deep.equal(expectedData);
         });
 
+        it("should create an action to set merchants filter part", () => {
+            expectedData.type = types.SET_MERCHANTS_FILTER_PART;
+            expect(actions.setMerchantsFilterPart(data)).to.deep.equal(expectedData);
+        });
+
         it("should create an action to clear all filters", () => {
             expectedData = { type: types.CLEAR_ALL_FILTERS };
             expect(actions.clearAllFilters(data)).to.deep.equal(expectedData);
@@ -103,6 +108,12 @@ describe("Filter Unit Tests", () => {
         it("should handle SET_CONTACTS_FILTER_PART action", () => {
             action.type = types.SET_CONTACTS_FILTER_PART;
             expectedData.contacts = { ...expectedData.contacts, ...data };
+            expect(filterReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_MERCHANTS_FILTER_PART action", () => {
+            action.type = types.SET_MERCHANTS_FILTER_PART;
+            expectedData.merchants = { ...expectedData.merchants, ...data };
             expect(filterReducer(state, action)).to.deep.equal(expectedData);
         });
 
