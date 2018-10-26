@@ -39,7 +39,7 @@ header {
         display: none;
     }
 
-    nav {
+    .nav {
         float: right;
         display: flex;
         align-items: center;
@@ -50,7 +50,8 @@ header {
             display: none;
         }
 
-        a {
+        &__link {
+            white-space: nowrap;
             font-size: 18px;
             color: $white;
             line-height: 1;
@@ -68,21 +69,13 @@ header {
                 color: $pumpkin-orange;
             }
 
-            &.onchain {
-                width: 109px;
+            & + .nav__link {
+                margin-left: 20px;
             }
 
-            &.channels {
-                width: 122.6px;
-            }
-
-            &.contacts {
-                width: 170px;
-            }
-
-            &.profile {
+            &--profile {
                 text-transform: capitalize;
-                width: 77px;
+                margin-left: 20px;
                 line-height: 0.89;
                 letter-spacing: -0.3px;
             }
@@ -99,7 +92,7 @@ header {
     }
 }
 
-@media screen and (max-width: 799px) {
+@media screen and (max-width: 909px) {
     header {
         nav {
             flex-direction: column;

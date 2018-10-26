@@ -65,31 +65,7 @@ class Header extends Component {
 
     render() {
         const { lndSyncedToChain } = this.props;
-        let profileClass = "";
-        let lightningClass = "";
-        let onchainClass = "";
-        let channelsClass = "";
-        let addressClass = "";
-        let merchantsClass = "";
         const path = this.props.location.pathname;
-        if (LightningPanel.includes(path)) {
-            lightningClass = "active";
-        }
-        if (OnchainPanel.includes(path)) {
-            onchainClass = "active";
-        }
-        if (ChannelsPanel.includes(path)) {
-            channelsClass = "active";
-        }
-        if (AddressBookPanel.includes(path)) {
-            addressClass = "active";
-        }
-        if (ProfilePanel.includes(path)) {
-            profileClass = "active";
-        }
-        if (MerchantsPanel.includes(path)) {
-            merchantsClass = "active";
-        }
         let navClass = this.state.burgerState;
         if (this.props.skipCreateTutorial === channelsTypes.SHOW) {
             navClass += " --z_index_fix";
@@ -106,7 +82,7 @@ class Header extends Component {
                         </div>
                         <div className="col-xs-9">
                             <nav
-                                className={navClass}
+                                className={`nav ${navClass}`}
                                 ref={(ref) => { this.wrapper = ref }}
                             >
                                 <div
@@ -119,7 +95,7 @@ class Header extends Component {
                                 </div>
                                 <Link
                                     to={WalletPath}
-                                    className={`nav__lightning ${lightningClass}`}
+                                    className={`nav__link ${LightningPanel.includes(path) ? "active" : ""}`}
                                     onClick={() => {
                                         this.hideBurger();
                                     }}
@@ -128,28 +104,28 @@ class Header extends Component {
                                 </Link>
                                 <Link
                                     to={OnchainFullPath}
-                                    className={`onchain ${onchainClass}`}
+                                    className={`nav__link ${OnchainPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >
                                     Onchain
                                 </Link>
                                 <Link
                                     to={ChannelsFullPath}
-                                    className={`channels ${channelsClass}`}
+                                    className={`nav__link ${ChannelsPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >
                                     Channels
                                 </Link>
                                 <Link
                                     to={AddressBookFullPath}
-                                    className={`contacts ${addressClass}`}
+                                    className={`nav__link ${AddressBookPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >
                                     Address Book
                                 </Link>
                                 <Link
                                     to={MerchantsFullPath}
-                                    className={`merchants ${merchantsClass}`}
+                                    className={`nav__link ${MerchantsPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >
                                     Merchants
@@ -157,7 +133,9 @@ class Header extends Component {
                                 <span className="separator" />
                                 <Link
                                     to={ProfileFullPath}
-                                    className={`profile ${profileClass}`}
+                                    className={`nav__link nav__link--profile ${
+                                        ProfilePanel.includes(path) ? "active" : ""
+                                    }`}
                                     onClick={this.hideBurger}
                                 >
                                     Profile
