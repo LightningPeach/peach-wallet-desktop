@@ -94,7 +94,7 @@ header {
 
 @media screen and (max-width: 909px) {
     header {
-        nav {
+        .nav {
             flex-direction: column;
             width: 60px;
             background: $black;
@@ -113,11 +113,12 @@ header {
 
             &.open {
                 box-shadow: 0 2px 4px 0 rgba(45, 45, 45, 0.5);
-                max-height: 330px;
+                max-height: 375px;
                 width: 241px;
+                margin-right: -8px;
             }
 
-            a {
+            &__link {
                 line-height: 1;
                 text-align: center;
                 width: 100%;
@@ -126,7 +127,7 @@ header {
 
                 &:after {
                     content: "";
-                    height: 2px;
+                    height: 1px;
                     width: calc(100% - 20px);
                     position: absolute;
                     display: block;
@@ -143,18 +144,15 @@ header {
                     padding-top: 7px;
                 }
 
-                &.onchain,
-                &.channels,
-                &.contacts,
-                &.profile {
-                    line-height: 1;
-                    width: 100%;
-                }
-
-                &.profile {
+                &--profile {
                     border-bottom: 0;
                     padding-bottom: 26px;
                     padding-top: 21px;
+                    margin-left: 0;
+                }
+
+                & + .nav__link {
+                    margin-left: 0;
                 }
             }
 
