@@ -29,6 +29,7 @@ export const initStatePartial = {
 
 export const initStateFilter = {
     contacts: initStatePartial,
+    merchants: initStatePartial,
     onchain: initStatePartial,
     recurring: initStatePartial,
     regular: initStatePartial,
@@ -70,6 +71,14 @@ const filterReducer = (state = defaultState, action) => {
                 ...state,
                 contacts: {
                     ...state.contacts,
+                    ...action.payload,
+                },
+            };
+        case types.SET_MERCHANTS_FILTER_PART:
+            return {
+                ...state,
+                merchants: {
+                    ...state.merchants,
                     ...action.payload,
                 },
             };

@@ -31,6 +31,7 @@ const compare = (a, b, aPinned, bPinned, desc) => {
 class RecurringHistory extends Component {
     constructor(props) {
         super(props);
+
         this.state = {
             tooltips: {
                 amount: [

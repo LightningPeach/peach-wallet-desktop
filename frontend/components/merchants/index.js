@@ -2,9 +2,9 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import isEqual from "lodash/isEqual";
-
 import { hubOperations } from "modules/hub";
-
+import { filterTypes, filterOperations } from "modules/filter";
+import Filter from "components/filter";
 import SubHeader from "components/subheader";
 
 class MerchantsPage extends Component {
@@ -12,23 +12,9 @@ class MerchantsPage extends Component {
         super(props);
 
         this.state = {
-            merchants: props.merchants,
             selected: null,
         };
     }
-
-    componentWillMount() {
-        this.props.getMerchants();
-    }
-
-    componentDidUpdate(preProps) {
-        const { merchants } = this.props;
-        if (!isEqual(preProps.merchants, merchants)) {
-            this.handleUpdate(merchants);
-        }
-    }
-
-    handleUpdate = merchants => this.setState({ merchants });
 
     renderEmptyList = () => (
         <div className="empty-placeholder">
@@ -36,25 +22,18 @@ class MerchantsPage extends Component {
         </div>
     );
 
-    renderLogo = (merchant) => {
-        if (!merchant.logo) {
-            return null;
-        }
-        return (
-            <div className="merchants__logo">
-                <img src={merchant.logo} className="merchants__img" alt={merchant.name} />
-            </div>
-        );
-    };
-
-    renderMerchant = (merchant) => {
+    renderMerchant = (merchant, index) => {
         const onClick = () => this.setState({ selected: this.state.selected === merchant.name ? null : merchant.name });
         const isSelected = this.state.selected === merchant.name;
 
         return (
             <div className={`merchants__item ${!isSelected ? "" : "merchants__item--opened"}`} key={merchant.name}>
                 <div className="merchants__title" onClick={onClick}>
-                    {this.renderLogo(merchant)}
+                    {merchant.logo &&
+                        <div className="merchants__logo">
+                            <img src={merchant.logo} className="merchants__img" alt={merchant.name} />
+                        </div>
+                    }
                     <div className="merchants__name">
                         {merchant.name}
                     </div>
@@ -67,7 +46,7 @@ class MerchantsPage extends Component {
                             </div>
                             <div className="merchants__value">
                                 <a
-                                    className="button button__link footer__legal"
+                                    className="button button__link"
                                     href={merchant.website}
                                     onClick={(e) => {
                                         e.preventDefault();
@@ -105,20 +84,39 @@ class MerchantsPage extends Component {
     };
 
     renderMerchants = () => {
-        const { merchants } = this.state;
+        const { dispatch, filter, merchants } = this.props;
         return (
             <div className="container">
-                {merchants.map(this.renderMerchant)}
+                <div className="merchants__header">Merchants list</div>
+                <Filter
+                    source={filterTypes.FILTER_MERCHANTS}
+                    filterKinds={[
+                        filterTypes.FILTER_KIND_SEARCH,
+                    ]}
+                />
+                {merchants
+                    .filter(merchant => dispatch(filterOperations.filter(
+                        filter,
+                        {
+                            search: [
+                                merchant.name,
+                                merchant.website,
+                                merchant.description,
+                                merchant.channel_info,
+                            ],
+                        },
+                    )))
+                    .map(this.renderMerchant)}
             </div>
         );
     };
 
     render() {
-        const { merchants } = this.state;
+        const { merchants } = this.props;
         return (
             <Fragment>
                 <SubHeader />
-                <div className="contacts-page">
+                <div className="merchants">
                     {!merchants.length ? this.renderEmptyList() : this.renderMerchants()}
                 </div>
             </Fragment>
@@ -127,7 +125,8 @@ class MerchantsPage extends Component {
 }
 
 MerchantsPage.propTypes = {
-    getMerchants: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
+    filter: PropTypes.shape().isRequired,
     merchants: PropTypes.arrayOf(PropTypes.shape({
         channel_info: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
@@ -138,11 +137,8 @@ MerchantsPage.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    filter: state.filter.merchants,
     merchants: state.hub.merchantsData,
 });
 
-const mapDispatchToProps = dispatch => ({
-    getMerchants: () => dispatch(hubOperations.getMerchants()),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(MerchantsPage);
+export default connect(mapStateToProps)(MerchantsPage);

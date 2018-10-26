@@ -40,6 +40,7 @@ import {
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+    GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -80,6 +81,7 @@ class WalletPage extends Component {
         this.channelsIntervalId = 0;
         this.usdPerBtcIntervalId = 0;
         this.lndSyncStatusIntervalId = 0;
+        this.getMerchantsIntervalId = 0;
     }
 
     componentWillMount() {
@@ -91,13 +93,12 @@ class WalletPage extends Component {
     }
 
     componentDidMount() {
-        const { dispatch } = this.props;
         document.addEventListener("keydown", this.onKeyClick, false);
-        dispatch(hubOperations.getMerchants());
         this.setAsyncInterval("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         this.setAsyncInterval("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         this.setAsyncInterval("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
         this.setAsyncInterval("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
+        this.setAsyncInterval("getMerchantsIntervalId", this.checkMerchants, GET_MERCHANTS_INTERVAL_TIMEOUT);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -139,6 +140,7 @@ class WalletPage extends Component {
         clearTimeout(this.channelsIntervalId);
         clearTimeout(this.usdPerBtcIntervalId);
         clearTimeout(this.lndSyncStatusIntervalId);
+        clearTimeout(this.getMerchantsIntervalId);
     }
 
     onKeyClick = (e) => {
@@ -187,6 +189,13 @@ class WalletPage extends Component {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
             await dispatch(lndOperations.checkLndSync());
+        }
+    };
+
+    checkMerchants = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(hubOperations.getMerchants());
         }
     };
 

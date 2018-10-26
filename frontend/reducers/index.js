@@ -12,7 +12,7 @@ import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
 import hubReducer from "modules/hub/reducers";
-import filterReducer from "modules/filter";
+import filterReducer from "modules/filter/reducers";
 
 const testReducer = NODE_ENV === "test"
     ? { lastAction: (state = null, action) => action }

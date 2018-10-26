@@ -1,4 +1,13 @@
 .merchants {
+    .empty-placeholder {
+        background: url(./../images/address-book.svg) no-repeat center top;
+        font-size: 16px;
+        line-height: 1.13;
+        padding-top: 118px;
+        text-align: center;
+        margin-top: 150px;
+    }
+
     &__item {
         margin-bottom: 10px;
 

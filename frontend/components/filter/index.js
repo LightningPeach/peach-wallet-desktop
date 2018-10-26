@@ -29,6 +29,9 @@ class Filter extends Component {
             case filterTypes.FILTER_CONTACTS:
                 dispatch(filterActions.setContactsFilterPart(details));
                 break;
+            case filterTypes.FILTER_MERCHANTS:
+                dispatch(filterActions.setMerchantsFilterPart(details));
+                break;
             default:
                 break;
         }
@@ -221,6 +224,9 @@ const mapStateToProps = (state, props) => {
             break;
         case filterTypes.FILTER_CONTACTS:
             filter = state.filter.contacts;
+            break;
+        case filterTypes.FILTER_MERCHANTS:
+            filter = state.filter.merchants;
             break;
         default:
             break;

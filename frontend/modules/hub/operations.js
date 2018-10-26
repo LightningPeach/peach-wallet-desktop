@@ -1,8 +1,8 @@
-/* eslint-disable import/prefer-default-export */
 import fetch from "isomorphic-fetch";
 import { PEACH_API_HOST } from "config/node-settings";
 import { EXCEPTION_HUB_UNAVAILABLE } from "config/status-codes";
 import { error } from "modules/notifications";
+import { logger } from "additional";
 import * as actions from "./actions";
 import * as types from "./types";
 
@@ -20,12 +20,11 @@ function getMerchants() {
             response = await response.json();
             dispatch(actions.merchantsSuccess(response));
         } catch (e) {
-            console.error(e.message);
+            logger.error(e.message);
             dispatch(actions.merchantsFail(EXCEPTION_HUB_UNAVAILABLE));
             dispatch(error({ message: EXCEPTION_HUB_UNAVAILABLE }));
         }
     };
 }
 
-export { getMerchants };
-/* eslint-enable import/prefer-default-export */
+export { getMerchants }; // eslint-disable-line import/prefer-default-export
