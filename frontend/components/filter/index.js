@@ -15,7 +15,8 @@ class Filter extends Component {
     }
 
     setFilterPart = (details = {}) => {
-        const { source, dispatch } = this.props;
+        const { source, dispatch, onChange } = this.props;
+        onChange();
         switch (source) {
             case filterTypes.FILTER_REGULAR:
                 dispatch(filterActions.setRegularFilterPart(details));
@@ -100,19 +101,22 @@ class Filter extends Component {
         this.setFilterPart({ price: initState.price });
     };
 
-    renderSearchBar = () => (
-        <div className="row">
-            <div className="col-xs-12">
-                <DebounceInput
-                    debounceTimeout={500}
-                    onChange={this.handleSearchChange}
-                    className="form-text filter__search"
-                    placeholder="&nbsp;"
-                    value={this.state.search || ""}
-                />
+    renderSearchBar = () => {
+        const { searchPlaceholder } = this.props;
+        return (
+            <div className="row">
+                <div className="col-xs-12">
+                    <DebounceInput
+                        debounceTimeout={500}
+                        onChange={this.handleSearchChange}
+                        className="form-text filter__search"
+                        placeholder={searchPlaceholder || ""}
+                        value={this.state.search || ""}
+                    />
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     renderFilters = () => {
         const { filterKinds } = this.props;
@@ -204,6 +208,8 @@ Filter.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape(),
     filterKinds: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
+    onChange: PropTypes.func.isRequired,
+    searchPlaceholder: PropTypes.string,
     source: PropTypes.oneOf(filterTypes.FILTER_SOURCES).isRequired,
 };
 

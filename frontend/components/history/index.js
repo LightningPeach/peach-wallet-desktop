@@ -19,9 +19,13 @@ class History extends Component {
         this.setState({ page });
     };
 
+    handleFilterChange = () => {
+        this.onPageChange(0);
+    };
+
     render() {
         const {
-            withoutTitle, title, emptyPlaceholder, source, filters, ...table
+            withoutTitle, title, emptyPlaceholder, searchPlaceholder, source, filters, ...table
         } = this.props;
         const renderEmptyList = () => (
             <div className="placeholder_text">
@@ -35,8 +39,10 @@ class History extends Component {
             }
             return (
                 <Filter
+                    onChange={this.handleFilterChange}
                     source={source}
                     filterKinds={filters}
+                    searchPlaceholder={searchPlaceholder}
                 />
             );
         };
@@ -81,6 +87,7 @@ History.propTypes = {
     dispatch: PropTypes.func.isRequired,
     emptyPlaceholder: PropTypes.string,
     filters: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
+    searchPlaceholder: PropTypes.string,
     source: PropTypes.oneOf(filterTypes.FILTER_SOURCES),
     title: PropTypes.string,
     withoutTitle: PropTypes.bool,

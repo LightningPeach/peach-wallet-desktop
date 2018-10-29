@@ -191,7 +191,7 @@ class RecurringHistory extends Component {
                             if (item.lightningID !== "-") {
                                 if (helpers.hasSelection()) return;
                                 analytics.event({
-                                    action: "History address",
+                                    action: "History address / Recurring payment",
                                     category: "Lightning",
                                     label: "Copy",
                                 });
@@ -211,9 +211,9 @@ class RecurringHistory extends Component {
                                 className="start"
                                 onClick={() => {
                                     analytics.event({
-                                        action: "Stream",
+                                        action: "Recurring",
                                         category: "Lightning",
-                                        label: "Play",
+                                        label: "Start",
                                     });
                                     if (!isThereActiveChannel) {
                                         dispatch(operations.channelWarningModal());
@@ -226,7 +226,7 @@ class RecurringHistory extends Component {
                                 className="stop"
                                 onClick={() => {
                                     analytics.event({
-                                        action: "Stream",
+                                        action: "Recurring",
                                         category: "Lightning",
                                         label: "Stop",
                                     });
@@ -241,7 +241,7 @@ class RecurringHistory extends Component {
                             className="pause"
                             onClick={() => {
                                 analytics.event({
-                                    action: "Stream",
+                                    action: "Recurring",
                                     category: "Lightning",
                                     label: "Pause",
                                 });
@@ -319,6 +319,7 @@ class RecurringHistory extends Component {
                     filterTypes.FILTER_KIND_SEARCH,
                 ]}
                 emptyPlaceholder="No payments found"
+                searchPlaceholder="Name, To, Lightning ID"
             />
         );
     }
