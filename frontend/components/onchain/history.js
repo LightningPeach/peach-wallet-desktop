@@ -48,14 +48,14 @@ class OnchainHistory extends Component {
             accessor: "time",
             className: "time",
             sortable: false,
-            width: 157,
+            width: 150,
         },
         {
             Header: <span>Transaction ID</span>,
             accessor: "tid",
             className: "tid",
             sortable: false,
-            width: 198,
+            width: 190,
         },
         {
             Header: <span className="sortable">Date</span>,
@@ -65,7 +65,7 @@ class OnchainHistory extends Component {
                 a.props.dateTime,
                 b.props.dateTime,
             ),
-            width: 120,
+            width: 135,
         },
     ];
 
@@ -74,12 +74,9 @@ class OnchainHistory extends Component {
         return this.props.history
             .map((item) => {
                 const tempAddress = item.to !== lightningID ? item.to : "me";
-                const [ymd, hms] = helpers.formatDate(item.date).split(" ");
                 return {
                     ...item,
-                    hms,
                     tempAddress,
-                    ymd,
                 };
             })
             .filter(item => dispatch(filterOperations.filter(
@@ -126,8 +123,7 @@ class OnchainHistory extends Component {
                     amount: <BalanceWithMeasure satoshi={item.amount} />,
                     date: (
                         <span dateTime={item.date}>
-                            <span className="date__ymd">{item.ymd}</span>
-                            <span className="date__hms">{item.hms}</span>
+                            {helpers.formatDate(item.date)}
                         </span>
                     ),
                     name: <Ellipsis>{item.name}</Ellipsis>,
