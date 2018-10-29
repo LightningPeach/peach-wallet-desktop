@@ -82,6 +82,7 @@ class RegularHistory extends Component {
                     search: [
                         item.name,
                         item.tempAddress,
+                        item.lightningID,
                     ],
                     type: item.amount,
                 },
