@@ -94,7 +94,7 @@ class RegularHistory extends Component {
                             if (item.lightningID !== "-") {
                                 if (helpers.hasSelection()) return;
                                 analytics.event({
-                                    action: "History address",
+                                    action: "History address / Regular payment",
                                     category: "Lightning",
                                     label: "Copy",
                                 });
@@ -135,6 +135,7 @@ class RegularHistory extends Component {
                 title="Regular payments history"
                 filters={filterTypes.FILTER_KIND_LIST}
                 emptyPlaceholder="No payments found"
+                searchPlaceholder="Name, To, Lightning ID"
             />
         );
     }

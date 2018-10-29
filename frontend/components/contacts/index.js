@@ -147,6 +147,7 @@ class ContactsPage extends Component {
                             filterTypes.FILTER_KIND_SEARCH,
                         ]}
                         emptyPlaceholder="No contacts found"
+                        searchPlaceholder="Name, Lightning ID"
                     />
                 </div>
             </div>

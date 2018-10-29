@@ -157,6 +157,7 @@ class OnchainHistory extends Component {
                 title="Onchain payments history"
                 filters={filterTypes.FILTER_KIND_LIST}
                 emptyPlaceholder="No payments found"
+                searchPlaceholder="Name, To, Transaction ID"
             />
         );
     }
