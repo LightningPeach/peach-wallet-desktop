@@ -129,7 +129,7 @@ class RecurringHistory extends Component {
                 b.props["data-pinned"],
                 desc,
             ),
-            width: 265,
+            width: 245,
         },
         {
             Header: <span className="sortable">Date & Time</span>,
@@ -141,7 +141,7 @@ class RecurringHistory extends Component {
                 b.props["data-pinned"],
                 desc,
             ),
-            width: 115,
+            width: 135,
         },
     ]);
 
@@ -164,14 +164,11 @@ class RecurringHistory extends Component {
                 });
                 tempAddress = tempAddress || (item.lightningID !== lightningID ? item.lightningID : "me");
                 const date = new Date(parseInt(item.date, 10));
-                const [ymd, hms] = helpers.formatDate(date).split(" ");
                 return {
                     ...item,
                     date,
-                    hms,
                     isActive,
                     tempAddress,
-                    ymd,
                 };
             })
             .filter(item => dispatch(filterOperations.filter(
@@ -283,8 +280,7 @@ class RecurringHistory extends Component {
                     count,
                     date: (
                         <span dateTime={item.date} data-pinned={item.isActive}>
-                            <span className="date__ymd">{item.ymd}</span>
-                            <span className="date__hms">{item.hms}</span>
+                            {helpers.formatDate(item.date)}
                         </span>
                     ),
                     frequency: (
