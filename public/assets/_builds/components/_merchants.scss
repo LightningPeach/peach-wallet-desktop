@@ -1,4 +1,6 @@
 .merchants {
+    padding-top: 37px;
+
     .empty-placeholder {
         background: url(./../images/address-book.svg) no-repeat center top;
         font-size: 16px;
@@ -8,56 +10,62 @@
         margin-top: 150px;
     }
 
-    &__item {
-        margin-bottom: 10px;
-
-        &--opened {
-            margin-bottom: 20px;
-            .merchants__info {
-                max-height: 500px;
-            }
-        }
+    &__header {
+        margin-bottom: 32px;
+        font-size: 20px;
+        text-transform: uppercase;
+        color: $pumpkin-orange;
     }
 
-    &__title {
+    &__content {
+        padding-top: 24px;
+    }
+
+    &__item {
         display: flex;
-        align-items: center;
-        cursor: pointer;
-        margin-bottom: 10px;
+        padding: 12px;
+        background: rgba(245, 166, 35, 0.1);
+        margin-bottom: 16px;
     }
 
     &__logo {
-        max-width: 110px;
-        margin-right: 10px;
+        width: 60px;
+        flex-shrink: 0;
+
+        &-img {
+            width: 100%;
+            height: auto;
+        }
     }
 
-    &__img {
-        display: block;
-        max-width: 100%;
-    }
-
-    &__name {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    &__info {
-        max-height: 0;
-        transition: max-height .3s ease-in-out;
-        overflow: hidden;
+    &__body {
+        margin-left: 16px;
     }
 
     &__row {
         display: flex;
-        padding-bottom: 10px;
+        flex-wrap: wrap;
+
+        &--name {
+            font-size: 18px;
+            font-weight: bold;
+            padding-bottom: 3px;
+        }
+
+        &--channel-info {
+            padding-top: 12px;
+            padding-bottom: 3px;
+        }
     }
 
     &__label {
-        font-weight: 800;
-        width: 120px;
+        width: 116px;
+        font-weight: bold;
     }
 
-    &__value {
-        flex: 1;
+    &__link {
+        line-height: inherit;
+        height: inherit;
+        font-size: 14px;
     }
 }
