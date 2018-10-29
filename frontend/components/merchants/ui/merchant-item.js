@@ -1,49 +1,72 @@
-import React from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { channelsOperations, channelsActions } from "modules/channels";
 
-const Merchant = ({ merchant }) => (
-    <div className="merchants__item">
-        {merchant.logo &&
-        <div className="merchants__logo">
-            <img src={merchant.logo} className="merchants__logo-img" alt={merchant.name} />
-        </div>
-        }
-        <div className="merchants__body">
-            <div className="merchants__row merchants__row--name">
-                {merchant.name}
-            </div>
-            <div className="merchants__row">
-                {merchant.description}
-            </div>
-            <div className="merchants__row merchants__row--channel-info">
-                <div className="merchants__label">
-                    Channel info:
+class Merchant extends Component {
+    openCreateChannelModal = () => {
+        const { merchant, dispatch } = this.props;
+        dispatch(channelsActions.newChannelPreparing({
+            channel_info: merchant.channel_info,
+            custom: true,
+        }));
+        dispatch(channelsOperations.openNewChannelModal());
+    };
+
+    openWebsiteExternal = (e) => {
+        e.preventDefault();
+        const { merchant } = this.props;
+        window.ELECTRON_SHELL.openExternal(merchant.website);
+    };
+
+    render() {
+        const { merchant } = this.props;
+        return (
+            <div className="merchants__item">
+                {merchant.logo &&
+                <div className="merchants__logo">
+                    <img src={merchant.logo} className="merchants__logo-img" alt={merchant.name} />
                 </div>
-                <div className="merchants__value">
-                    {merchant.channel_info}
+                }
+                <div className="merchants__body">
+                    <div className="merchants__row merchants__row--name">
+                        {merchant.name}
+                    </div>
+                    <div className="merchants__row">
+                        {merchant.description}
+                    </div>
+                    <div className="merchants__row merchants__row--channel-info">
+                        <div className="merchants__label">
+                            Channel info:
+                        </div>
+                        <button
+                            className="button button__link merchants__link"
+                            onClick={this.openCreateChannelModal}
+                        >
+                            {merchant.channel_info}
+                        </button>
+                    </div>
+                    <div className="merchants__row">
+                        <div className="merchants__label">
+                            Website:
+                        </div>
+                        <div className="merchants__value">
+                            <button
+                                className="button button__link merchants__link"
+                                onClick={this.openWebsiteExternal}
+                            >
+                                {merchant.website}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div className="merchants__row">
-                <div className="merchants__label">
-                    Website:
-                </div>
-                <div className="merchants__value">
-                    <button
-                        className="button button__link merchants__link"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            window.ELECTRON_SHELL.openExternal(merchant.website);
-                        }}
-                    >
-                        {merchant.website}
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-);
+        );
+    }
+}
 
 Merchant.propTypes = {
+    dispatch: PropTypes.func.isRequired,
     merchant: PropTypes.shape({
         channel_info: PropTypes.string.isRequired,
         description: PropTypes.string.isRequired,
@@ -53,4 +76,4 @@ Merchant.propTypes = {
     }).isRequired,
 };
 
-export default Merchant;
+export default connect(null)(Merchant);

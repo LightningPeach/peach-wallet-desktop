@@ -1,10 +1,14 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { hubOperations } from "modules/hub";
 import { filterTypes, filterOperations } from "modules/filter";
+import { channelsTypes } from "modules/channels";
 import Filter from "components/filter";
 import SubHeader from "components/subheader";
+import CreateChannel from "components/channels/modal/create-channel";
 import Merchant from "./ui/merchant-item";
 
 class MerchantsPage extends Component {
@@ -48,13 +52,30 @@ class MerchantsPage extends Component {
     };
 
     render() {
-        const { merchants } = this.props;
+        const { merchants, modalState } = this.props;
+        let modal;
+        switch (modalState) {
+            case channelsTypes.MODAL_STATE_NEW_CHANNEL:
+                modal = <CreateChannel page="merchants" />;
+                break;
+            default:
+                modal = null;
+                break;
+        }
         return (
             <Fragment>
                 <SubHeader />
                 <div className="merchants">
                     {!merchants.length ? this.renderEmptyList() : this.renderMerchants()}
                 </div>
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    key={2}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>,
             </Fragment>
         );
     }
@@ -70,11 +91,13 @@ MerchantsPage.propTypes = {
         name: PropTypes.string.isRequired,
         website: PropTypes.string.isRequired,
     })).isRequired,
+    modalState: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
     filter: state.filter.merchants,
     merchants: state.hub.merchantsData,
+    modalState: state.app.modalState,
 });
 
 export default connect(mapStateToProps)(MerchantsPage);

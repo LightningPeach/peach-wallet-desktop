@@ -10,7 +10,7 @@ import { error, info } from "modules/notifications";
 import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
 import * as statusCodes from "config/status-codes";
 import { PEACH } from "config/node-settings";
-import { ChannelsFullPath } from "routes";
+import { ChannelsFullPath, MerchantsFullPath } from "routes";
 import Modal from "components/modal";
 import DigitsField from "components/ui/digits-field";
 
@@ -36,7 +36,8 @@ class CreateChannel extends Component {
             },
         };
 
-        analytics.pageview(`${ChannelsFullPath}/create-channel`, "Create Channel");
+        const basePath = this.props.page && this.props.page === "merchants" ? MerchantsFullPath : ChannelsFullPath;
+        analytics.pageview(`${basePath}/create-channel`, "Create Channel");
     }
 
     setAmount = () => {
@@ -153,7 +154,9 @@ class CreateChannel extends Component {
         let customLightningHost = null;
         let helpText = "* To create a channel, you need to specify the amount you want to transfer from Onchain";
         if (prepareNewChannel && prepareNewChannel.custom) {
-            customLightningHost = `${prepareNewChannel.lightningID}@${prepareNewChannel.host}`;
+            customLightningHost = prepareNewChannel.channel_info
+                ? prepareNewChannel.channel_info
+                : `${prepareNewChannel.lightningID}@${prepareNewChannel.host}`;
         }
         if (this.state.custom) {
             helpText += ", Lightning ID and IP address of counterparty";
@@ -291,6 +294,7 @@ CreateChannel.propTypes = {
     })),
     dispatch: PropTypes.func.isRequired,
     firstEmptyChannelDefaultName: PropTypes.number,
+    page: PropTypes.string,
     prepareNewChannel: PropTypes.shape({
         capacity: PropTypes.number.isRequired,
         custom: PropTypes.bool.isRequired,
