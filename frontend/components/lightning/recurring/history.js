@@ -180,6 +180,7 @@ class RecurringHistory extends Component {
                     search: [
                         item.name,
                         item.tempAddress,
+                        item.lightningID,
                     ],
                 },
             )))

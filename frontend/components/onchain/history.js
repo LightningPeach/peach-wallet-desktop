@@ -90,6 +90,7 @@ class OnchainHistory extends Component {
                     search: [
                         item.name,
                         item.tempAddress,
+                        item.tx_hash,
                     ],
                     type: item.amount,
                 },
