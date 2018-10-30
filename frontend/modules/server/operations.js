@@ -1,10 +1,24 @@
 import fetch from "isomorphic-fetch";
-import { PEACH_API_HOST } from "config/node-settings";
+import { PEACH_API_HOST, BLOCK_HEIGHT_URL } from "config/node-settings";
 import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
 import { error } from "modules/notifications";
-import { logger } from "additional";
+import { successPromise, logger } from "additional";
 import * as actions from "./actions";
 import * as types from "./types";
+
+function getBlocksHeight() {
+    return async (dispatch) => {
+        let response;
+        try {
+            response = await fetch(BLOCK_HEIGHT_URL, { method: "GET" });
+            response = await response.json();
+        } catch (e) {
+            return dispatch(actions.setNetworkBlocksHeight(0));
+        }
+        dispatch(actions.setNetworkBlocksHeight(response.height));
+        return successPromise();
+    };
+}
 
 function getMerchants() {
     return async (dispatch) => {
@@ -27,4 +41,7 @@ function getMerchants() {
     };
 }
 
-export { getMerchants }; // eslint-disable-line import/prefer-default-export
+export {
+    getBlocksHeight,
+    getMerchants,
+};

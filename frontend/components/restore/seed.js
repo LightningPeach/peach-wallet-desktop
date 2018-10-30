@@ -140,7 +140,7 @@ const mapStateToProps = state => ({
     initStatus: state.lnd.initStatus,
     lndBlocks: state.lnd.lndBlocks,
     lndSyncedToChain: state.lnd.lndSyncedToChain,
-    networkBlocks: state.lnd.networkBlocks,
+    networkBlocks: state.server.networkBlocks,
 });
 
 export default connect(mapStateToProps)(Seed);

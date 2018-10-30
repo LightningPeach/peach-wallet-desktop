@@ -256,7 +256,7 @@ const mapStateToProps = state => ({
     lndBlocks: state.lnd.lndBlocks,
     lndBlocksOnLogin: state.lnd.lndBlocksOnLogin,
     lndSyncedToChain: state.lnd.lndSyncedToChain,
-    networkBlocks: state.lnd.networkBlocks,
+    networkBlocks: state.server.networkBlocks,
 });
 
 export default connect(mapStateToProps)(Login);

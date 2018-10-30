@@ -14,8 +14,14 @@ const merchantsFail = error => ({
     type: types.MERCHANTS_FAIL,
 });
 
+const setNetworkBlocksHeight = payload => ({
+    payload,
+    type: types.SET_NETWORK_BLOCKS,
+});
+
 export {
     merchantsRequest,
     merchantsSuccess,
     merchantsFail,
+    setNetworkBlocksHeight,
 };

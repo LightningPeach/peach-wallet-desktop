@@ -5,6 +5,7 @@ export const initStateServer = {
     merchantsData: [],
     merchantsError: null,
     merchantsRequest: false,
+    networkBlocks: 0,
 };
 
 const serverReducer = (state = initStateServer, action) => {
@@ -17,6 +18,8 @@ const serverReducer = (state = initStateServer, action) => {
             return { ...state, merchantsData: action.payload, merchantsRequest: false };
         case types.MERCHANTS_FAIL:
             return { ...state, merchantsError: action.payload, merchantsRequest: false };
+        case types.SET_NETWORK_BLOCKS:
+            return { ...state, networkBlocks: parseInt(action.payload, 10) };
         default:
             return state;
     }

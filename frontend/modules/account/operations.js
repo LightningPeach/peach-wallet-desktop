@@ -2,6 +2,7 @@ import { hashHistory } from "react-router";
 import { appOperations, appActions } from "modules/app";
 import { accountActions, accountTypes } from "modules/account";
 import { lndActions, lndOperations } from "modules/lnd";
+import { serverOperations } from "modules/server";
 import { notificationsActions } from "modules/notifications";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { lightningOperations } from "modules/lightning";
@@ -221,7 +222,7 @@ function initAccount(login, newAccount = false) {
         return errorPromise(error, initAccount);
     };
     return async (dispatch, getState) => {
-        await dispatch(lndOperations.getBlocksHeight());
+        await dispatch(serverOperations.getBlocksHeight());
         logger.log("Check is LND synced to chain");
         let response = await dispatch(lndOperations.waitLndSync());
         if (!response.ok) {

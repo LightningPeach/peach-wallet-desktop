@@ -2,15 +2,15 @@ import omit from "lodash/omit";
 import nock from "nock";
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
-
 import {
     serverActions as actions,
     serverTypes as types,
     serverOperations as operations,
 } from "modules/server";
-import serverReeducer, { initStateServer } from "modules/server/reducers";
+import { errorPromise, successPromise } from "additional";
+import serverReducer, { initStateServer } from "modules/server/reducers";
 import { notificationsTypes } from "modules/notifications";
-import { PEACH_API_HOST } from "config/node-settings";
+import { PEACH_API_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
 import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
 import { accountTypes } from "modules/account";
 import { store as defaultStore } from "store/configure-store";
@@ -18,7 +18,7 @@ import { store as defaultStore } from "store/configure-store";
 const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
 
-describe("Contacts Unit Tests", () => {
+describe("Server Unit Tests", () => {
     describe("Action creators", () => {
         let data;
         let expectedData;
@@ -60,6 +60,11 @@ describe("Contacts Unit Tests", () => {
             expectedData.payload = data;
             expect(actions.merchantsFail(data)).to.deep.equal(expectedData);
         });
+
+        it("should create an action to set network blocks height", () => {
+            expectedData.type = types.SET_NETWORK_BLOCKS;
+            expect(actions.setNetworkBlocksHeight(data)).to.deep.equal(expectedData);
+        });
     });
 
     describe("Operations tests", () => {
@@ -67,12 +72,18 @@ describe("Contacts Unit Tests", () => {
         let data;
         let store;
         let expectedActions;
+        let expectedData;
         let fakeStore;
+        let errorResp;
+        let successResp;
 
         beforeEach(async () => {
+            errorResp = await errorPromise(undefined, { name: undefined });
+            successResp = await successPromise();
             sandbox = sinon.sandbox.create();
             fakeStore = sandbox.stub(defaultStore);
             expectedActions = [];
+            expectedData = undefined;
             store = mockStore(initStateServer);
             fakeStore.dispatch = store.dispatch;
             fakeStore.getState = store.getState;
@@ -160,6 +171,32 @@ describe("Contacts Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
         });
+
+        describe("getBlocksHeight()", () => {
+            it("error response", async () => {
+                nock(PEACH_API_HOST).get(BLOCK_HEIGHT_QUERY).reply(404);
+                expectedData = {
+                    payload: 0,
+                    type: types.SET_NETWORK_BLOCKS,
+                };
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("success", async () => {
+                nock(PEACH_API_HOST).get(BLOCK_HEIGHT_QUERY).reply(200, { height: 1000000 });
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: 1000000,
+                        type: types.SET_NETWORK_BLOCKS,
+                    },
+                ];
+                expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+        });
     });
 
     describe("Reducer actions", () => {
@@ -179,13 +216,13 @@ describe("Contacts Unit Tests", () => {
         });
 
         it("should return the initial state", () => {
-            expect(serverReeducer(state, {})).to.deep.equal(expectedData);
+            expect(serverReducer(state, {})).to.deep.equal(expectedData);
         });
 
         it("should handle LOGOUT_ACCOUNT action", () => {
             action.type = accountTypes.LOGOUT_ACCOUNT;
             state = initStateServer;
-            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReducer(state, action)).to.deep.equal(expectedData);
         });
 
         it("should handle MERCHANTS_REQUEST action", () => {
@@ -195,7 +232,7 @@ describe("Contacts Unit Tests", () => {
             expectedData.merchantsData = [];
             expectedData.merchantsError = null;
             expectedData.merchantsRequest = true;
-            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReducer(state, action)).to.deep.equal(expectedData);
         });
 
         it("should handle MERCHANTS_SUCCESS action", () => {
@@ -203,7 +240,7 @@ describe("Contacts Unit Tests", () => {
             expectedData.merchantsData = data;
             expectedData.merchantsError = null;
             expectedData.merchantsRequest = false;
-            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReducer(state, action)).to.deep.equal(expectedData);
         });
 
         it("should handle MERCHANTS_FAIL action", () => {
@@ -211,7 +248,14 @@ describe("Contacts Unit Tests", () => {
             expectedData.merchantsData = [];
             expectedData.merchantsError = data;
             expectedData.merchantsRequest = false;
-            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_NETWORK_BLOCKS action", () => {
+            action.type = types.SET_NETWORK_BLOCKS;
+            action.payload = 10;
+            expectedData.networkBlocks = 10;
+            expect(serverReducer(state, action)).to.deep.equal(expectedData);
         });
     });
 });

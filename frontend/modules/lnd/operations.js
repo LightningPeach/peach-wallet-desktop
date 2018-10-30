@@ -1,25 +1,9 @@
 import * as statusCodes from "config/status-codes";
-import fetch from "isomorphic-fetch";
 import { delay, successPromise, errorPromise, logger } from "additional";
 import { store } from "store/configure-store";
-import { BLOCK_HEIGHT_URL } from "config/node-settings";
 import { LND_SYNC_TIMEOUT } from "config/consts";
 import { appOperations } from "modules/app";
 import * as actions from "./actions";
-
-function getBlocksHeight() {
-    return async (dispatch) => {
-        let response;
-        try {
-            response = await fetch(BLOCK_HEIGHT_URL, { method: "GET" });
-            response = await response.json();
-        } catch (e) {
-            return dispatch(actions.setNetworkBlocksHeight(0));
-        }
-        dispatch(actions.setNetworkBlocksHeight(response.height));
-        return successPromise();
-    };
-}
 
 function waitLndSync(restoreConnection = false) {
     return async (dispatch, getState) => {
@@ -136,7 +120,6 @@ window.ipcRenderer.on("setLndInitStatus", (event, status) => {
 });
 
 export {
-    getBlocksHeight,
     waitLndSync,
     checkLndSync,
     getSeed,

@@ -1,2 +1,1 @@
-* move modules/lnd getBlocksHeight to modules/hub
 * upgrade to react-router v4
