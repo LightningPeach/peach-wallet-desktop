@@ -83,6 +83,7 @@ export const LIGHTNING_ID_LENGTH = 66;
 export const PAYMENT_REQUEST_LENGTH = 124;
 export const MODAL_ANIMATION_TIMEOUT = 200;
 export const DEFAULT_TABLE_RECORDS_PER_PAGE = 8;
+export const DEFAULT_PAGINNATION_SPREAD_PAGES = 2;
 export const USD_PER_BTC_HOST = "https://blockchain.info";
 export const USD_PER_BTC_QUERY = "/ru/ticker";
 export const USD_PER_BTC_URL = `${USD_PER_BTC_HOST}${USD_PER_BTC_QUERY}`;

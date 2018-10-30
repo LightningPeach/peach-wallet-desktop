@@ -5,7 +5,7 @@ import ReactTable from "react-table";
 import { filterTypes } from "modules/filter";
 import { DEFAULT_TABLE_RECORDS_PER_PAGE } from "config/consts";
 import Filter from "components/filter";
-import Pagination from "./pagination";
+import Pagination from "components/pagination";
 
 class History extends Component {
     constructor(props) {
