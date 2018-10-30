@@ -117,6 +117,8 @@ class Datepicker extends Component {
                         className="picker__collapse"
                         onClose={this.hideInput}
                         closeWithEsc
+                        verticalDiff={46}
+                        horizontalDiff={130}
                     >
                         <DatePicker
                             startDate={this.state.from}
