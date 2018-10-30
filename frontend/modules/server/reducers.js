@@ -1,16 +1,16 @@
 import * as accountTypes from "modules/account/types";
 import * as types from "./types";
 
-export const initStateHub = {
+export const initStateServer = {
     merchantsData: [],
     merchantsError: null,
     merchantsRequest: false,
 };
 
-const hubReducer = (state = initStateHub, action) => {
+const serverReducer = (state = initStateServer, action) => {
     switch (action.type) {
         case accountTypes.LOGOUT_ACCOUNT:
-            return initStateHub;
+            return initStateServer;
         case types.MERCHANTS_REQUEST:
             return { ...state, merchantsError: null, merchantsRequest: true };
         case types.MERCHANTS_SUCCESS:
@@ -22,4 +22,4 @@ const hubReducer = (state = initStateHub, action) => {
     }
 };
 
-export default hubReducer;
+export default serverReducer;

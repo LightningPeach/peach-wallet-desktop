@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ReactTable from "react-table";
 import { filterTypes } from "modules/filter";
-import { HISTORY_ROWS_PER_PAGE } from "config/consts";
+import { DEFAULT_TABLE_RECORDS_PER_PAGE } from "config/consts";
 import Filter from "components/filter";
 import Pagination from "./pagination";
 
@@ -40,17 +40,20 @@ class History extends Component {
                 />
             );
         };
-        const renderData = () => (
-            <ReactTable
-                {...table}
-                page={this.state.page}
-                resizable={false}
-                showPageSizeOptions={false}
-                defaultPageSize={HISTORY_ROWS_PER_PAGE}
-                PaginationComponent={Pagination}
-                customPagination={this.onPageChange}
-            />
-        );
+        const renderData = () => {
+            const { recordsPerPage } = this.props;
+            return (
+                <ReactTable
+                    {...table}
+                    page={this.state.page}
+                    resizable={false}
+                    showPageSizeOptions={false}
+                    defaultPageSize={recordsPerPage || DEFAULT_TABLE_RECORDS_PER_PAGE}
+                    PaginationComponent={Pagination}
+                    customPagination={this.onPageChange}
+                />
+            );
+        };
         const renderTitle = () => {
             if (withoutTitle) {
                 return null;
@@ -81,6 +84,7 @@ History.propTypes = {
     dispatch: PropTypes.func.isRequired,
     emptyPlaceholder: PropTypes.string,
     filters: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
+    recordsPerPage: PropTypes.number,
     source: PropTypes.oneOf(filterTypes.FILTER_SOURCES),
     title: PropTypes.string,
     withoutTitle: PropTypes.bool,

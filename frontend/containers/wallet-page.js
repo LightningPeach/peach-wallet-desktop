@@ -6,7 +6,7 @@ import { logger } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
-import { hubOperations } from "modules/hub";
+import { serverOperations } from "modules/server";
 import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
@@ -195,7 +195,7 @@ class WalletPage extends Component {
     checkMerchants = async () => {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
-            await dispatch(hubOperations.getMerchants());
+            await dispatch(serverOperations.getMerchants());
         }
     };
 

@@ -11,7 +11,7 @@ import channelsReducer from "modules/channels/reducers";
 import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
-import hubReducer from "modules/hub/reducers";
+import serverReeducer from "modules/server/reducers";
 import filterReducer from "modules/filter/reducers";
 
 const testReducer = NODE_ENV === "test"
@@ -26,12 +26,12 @@ const combinedReducer = {
     channels: channelsReducer,
     contacts: contactsReducer,
     filter: filterReducer,
-    hub: hubReducer,
     lightning: lightningReducer,
     lnd: lndReducer,
     notifications: notificationsReducer,
     onchain: onChainReducer,
     routing: routerReducer,
+    server: serverReeducer,
     streamPayment: streamPaymentReducer,
 };
 

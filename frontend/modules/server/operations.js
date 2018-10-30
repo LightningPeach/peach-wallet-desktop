@@ -1,6 +1,6 @@
 import fetch from "isomorphic-fetch";
 import { PEACH_API_HOST } from "config/node-settings";
-import { EXCEPTION_HUB_UNAVAILABLE } from "config/status-codes";
+import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
 import { error } from "modules/notifications";
 import { logger } from "additional";
 import * as actions from "./actions";
@@ -12,8 +12,8 @@ function getMerchants() {
         const url = PEACH_API_HOST + types.ENDPOINT_MERCHANTS;
         let response = await fetch(url);
         if (response.status !== 200) {
-            dispatch(actions.merchantsFail(EXCEPTION_HUB_UNAVAILABLE));
-            dispatch(error({ message: EXCEPTION_HUB_UNAVAILABLE }));
+            dispatch(actions.merchantsFail(EXCEPTION_SERVER_UNAVAILABLE));
+            dispatch(error({ message: EXCEPTION_SERVER_UNAVAILABLE }));
             return;
         }
         try {
@@ -21,8 +21,8 @@ function getMerchants() {
             dispatch(actions.merchantsSuccess(response));
         } catch (e) {
             logger.error(e.message);
-            dispatch(actions.merchantsFail(EXCEPTION_HUB_UNAVAILABLE));
-            dispatch(error({ message: EXCEPTION_HUB_UNAVAILABLE }));
+            dispatch(actions.merchantsFail(EXCEPTION_SERVER_UNAVAILABLE));
+            dispatch(error({ message: EXCEPTION_SERVER_UNAVAILABLE }));
         }
     };
 }

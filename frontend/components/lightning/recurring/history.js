@@ -5,7 +5,7 @@ import Tooltip from "rc-tooltip";
 import { analytics, helpers } from "additional";
 import { lightningOperations as operations } from "modules/lightning";
 import { channelsOperations, channelsSelectors } from "modules/channels";
-import History from "components/history";
+import HistoryTable from "components/history-table";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import {
     streamPaymentOperations as streamOperations,
@@ -304,7 +304,7 @@ class RecurringHistory extends Component {
 
     render() {
         return (
-            <History
+            <HistoryTable
                 columns={this.getHistoryHeader()}
                 data={this.getHistoryData()}
                 defaultSorted={[

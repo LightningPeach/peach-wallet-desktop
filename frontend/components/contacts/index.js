@@ -10,7 +10,7 @@ import {
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
 import DebounceInput from "react-debounce-input";
-import History from "components/history";
+import HistoryTable from "components/history-table";
 import Ellipsis from "components/common/ellipsis";
 import { WalletPath, AddressBookFullPath } from "routes";
 import { push } from "react-router-redux";
@@ -139,7 +139,7 @@ class ContactsPage extends Component {
         <div className="container">
             <div className="row">
                 <div className="col-xs-12 table">
-                    <History
+                    <HistoryTable
                         key={3}
                         data={this.getContactsData()}
                         columns={this.getHistoryHeader()}

@@ -4,14 +4,14 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
 import {
-    hubActions as actions,
-    hubTypes as types,
-    hubOperations as operations,
-} from "modules/hub";
-import hubReducer, { initStateHub } from "modules/hub/reducers";
+    serverActions as actions,
+    serverTypes as types,
+    serverOperations as operations,
+} from "modules/server";
+import serverReeducer, { initStateServer } from "modules/server/reducers";
 import { notificationsTypes } from "modules/notifications";
 import { PEACH_API_HOST } from "config/node-settings";
-import { EXCEPTION_HUB_UNAVAILABLE } from "config/status-codes";
+import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
 import { accountTypes } from "modules/account";
 import { store as defaultStore } from "store/configure-store";
 
@@ -24,7 +24,7 @@ describe("Contacts Unit Tests", () => {
         let expectedData;
 
         beforeEach(() => {
-            data = EXCEPTION_HUB_UNAVAILABLE;
+            data = EXCEPTION_SERVER_UNAVAILABLE;
             expectedData = {
                 payload: data,
                 type: undefined,
@@ -73,7 +73,7 @@ describe("Contacts Unit Tests", () => {
             sandbox = sinon.sandbox.create();
             fakeStore = sandbox.stub(defaultStore);
             expectedActions = [];
-            store = mockStore(initStateHub);
+            store = mockStore(initStateServer);
             fakeStore.dispatch = store.dispatch;
             fakeStore.getState = store.getState;
         });
@@ -90,14 +90,14 @@ describe("Contacts Unit Tests", () => {
                         type: types.MERCHANTS_REQUEST,
                     },
                     {
-                        payload: EXCEPTION_HUB_UNAVAILABLE,
+                        payload: EXCEPTION_SERVER_UNAVAILABLE,
                         type: types.MERCHANTS_FAIL,
                     },
                     {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_HUB_UNAVAILABLE,
+                            message: EXCEPTION_SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
@@ -116,14 +116,14 @@ describe("Contacts Unit Tests", () => {
                         type: types.MERCHANTS_REQUEST,
                     },
                     {
-                        payload: EXCEPTION_HUB_UNAVAILABLE,
+                        payload: EXCEPTION_SERVER_UNAVAILABLE,
                         type: types.MERCHANTS_FAIL,
                     },
                     {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_HUB_UNAVAILABLE,
+                            message: EXCEPTION_SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
@@ -174,18 +174,18 @@ describe("Contacts Unit Tests", () => {
                 payload: data,
                 type: undefined,
             };
-            expectedData = initStateHub;
+            expectedData = initStateServer;
             state = undefined;
         });
 
         it("should return the initial state", () => {
-            expect(hubReducer(state, {})).to.deep.equal(expectedData);
+            expect(serverReeducer(state, {})).to.deep.equal(expectedData);
         });
 
         it("should handle LOGOUT_ACCOUNT action", () => {
             action.type = accountTypes.LOGOUT_ACCOUNT;
-            state = initStateHub;
-            expect(hubReducer(state, action)).to.deep.equal(expectedData);
+            state = initStateServer;
+            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
         });
 
         it("should handle MERCHANTS_REQUEST action", () => {
@@ -195,7 +195,7 @@ describe("Contacts Unit Tests", () => {
             expectedData.merchantsData = [];
             expectedData.merchantsError = null;
             expectedData.merchantsRequest = true;
-            expect(hubReducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
         });
 
         it("should handle MERCHANTS_SUCCESS action", () => {
@@ -203,7 +203,7 @@ describe("Contacts Unit Tests", () => {
             expectedData.merchantsData = data;
             expectedData.merchantsError = null;
             expectedData.merchantsRequest = false;
-            expect(hubReducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
         });
 
         it("should handle MERCHANTS_FAIL action", () => {
@@ -211,7 +211,7 @@ describe("Contacts Unit Tests", () => {
             expectedData.merchantsData = [];
             expectedData.merchantsError = data;
             expectedData.merchantsRequest = false;
-            expect(hubReducer(state, action)).to.deep.equal(expectedData);
+            expect(serverReeducer(state, action)).to.deep.equal(expectedData);
         });
     });
 });

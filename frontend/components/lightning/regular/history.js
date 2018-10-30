@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
-import History from "components/history";
+import HistoryTable from "components/history-table";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
@@ -121,7 +121,7 @@ class RegularHistory extends Component {
 
     render() {
         return (
-            <History
+            <HistoryTable
                 columns={this.getHistoryHeader()}
                 data={this.getHistoryData()}
                 defaultSorted={[

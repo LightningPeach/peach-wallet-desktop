@@ -1,5 +1,5 @@
 /* eslint-disable import/prefer-default-export */
-const prefix = "app/hub/";
+const prefix = "app/server/";
 
 const ENDPOINT_MERCHANTS = "/merchants/";
 

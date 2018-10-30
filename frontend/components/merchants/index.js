@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { hubOperations } from "modules/hub";
+import { serverOperations } from "modules/server";
 import { filterTypes, filterOperations } from "modules/filter";
 import { channelsTypes } from "modules/channels";
 import Filter from "components/filter";
@@ -96,7 +96,7 @@ MerchantsPage.propTypes = {
 
 const mapStateToProps = state => ({
     filter: state.filter.merchants,
-    merchants: state.hub.merchantsData,
+    merchants: state.server.merchantsData,
     modalState: state.app.modalState,
 });
 

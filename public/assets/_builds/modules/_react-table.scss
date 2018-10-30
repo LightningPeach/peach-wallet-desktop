@@ -1,5 +1,6 @@
 .ReactTable {
     border: 0;
+    padding-bottom: 50px;
 
     .rt-table {
         overflow: inherit;
@@ -201,7 +202,6 @@
 @media screen and (max-width: 980px) {
     .ReactTable {
         overflow-y: hidden;
-        padding-bottom: 50px;
 
         .rt-table {
             overflow-y: auto;
