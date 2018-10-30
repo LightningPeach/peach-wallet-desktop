@@ -169,6 +169,8 @@ class Timepicker extends Component {
                         className="picker__collapse"
                         onClose={this.hideInput}
                         closeWithEsc
+                        verticalDiff={46}
+                        horizontalDiff={130}
                     >
                         <div className="picker__row mt-14">
                             <div className="picker__label">
