@@ -88,7 +88,7 @@ class Pricepicker extends Component {
 
     render() {
         const { className, bitcoinMeasureType, price } = this.props;
-        const filled = price.from && price.to;
+        const filled = price.from || price.to;
         return (
             <div className="picker">
                 <button
@@ -204,7 +204,7 @@ class Pricepicker extends Component {
                                     onClick={this.setData}
                                     disabled={!(
                                         this.state.from
-                                        && this.state.to
+                                        || this.state.to
                                     )}
                                 >
                                     Apply
