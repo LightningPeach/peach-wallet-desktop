@@ -137,7 +137,7 @@ class Timepicker extends Component {
 
     render() {
         const { className, time } = this.props;
-        const filled = time.from.minutes && time.from.hours && time.to.minutes && time.to.hours;
+        const filled = (time.from.minutes && time.from.hours) || (time.to.minutes && time.to.hours);
         return (
             <div className="picker">
                 <button
@@ -175,6 +175,7 @@ class Timepicker extends Component {
                                     value={this.state.from.hours}
                                     pattern={/^(0?[0-9]|1[0-1])$/}
                                     name="date__from-hours"
+                                    placeholder="00"
                                     ref={(ref) => {
                                         this.dateFromHoursComponent = ref;
                                     }}
@@ -190,6 +191,7 @@ class Timepicker extends Component {
                                     value={this.state.from.minutes}
                                     pattern={/^([0-5]?[0-9])$/}
                                     name="date__from-minutes"
+                                    placeholder="00"
                                     ref={(ref) => {
                                         this.dateFromMinutesComponent = ref;
                                     }}
@@ -229,6 +231,7 @@ class Timepicker extends Component {
                                     value={this.state.to.hours}
                                     pattern={/^(0?[0-9]|1[0-1])$/}
                                     name="date__to-hours"
+                                    placeholder="00"
                                     ref={(ref) => {
                                         this.dateToHoursComponent = ref;
                                     }}
@@ -244,6 +247,7 @@ class Timepicker extends Component {
                                     value={this.state.to.minutes}
                                     pattern={/^([0-5]?[0-9])$/}
                                     name="date__to-minutes"
+                                    placeholder="00"
                                     ref={(ref) => {
                                         this.dateToMinutesComponent = ref;
                                     }}
@@ -290,10 +294,10 @@ class Timepicker extends Component {
                                     className="button button__link"
                                     onClick={this.setData}
                                     disabled={!(
-                                        this.state.from.minutes
-                                        && this.state.from.hours
-                                        && this.state.to.minutes
-                                        && this.state.to.hours
+                                        (this.state.from.minutes
+                                        && this.state.from.hours)
+                                        || (this.state.to.minutes
+                                        && this.state.to.hours)
                                     )}
                                 >
                                     Apply
