@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import isEqual from "lodash/isEqual";
@@ -101,9 +101,18 @@ class Pricepicker extends Component {
                     {filled
                         ? (
                             <div className="picker__target--fill">
-                                <span>{`${price.from} ${price.currency}`}</span>
-                                <br />
-                                <span>{`${price.to} ${price.currency}`}</span>
+                                {price.from && price.to ?
+                                    <Fragment>
+                                        <span>{`${price.from} ${price.currency}`}</span>
+                                        <br />
+                                        <span>{`${price.to} ${price.currency}`}</span>
+                                    </Fragment> :
+                                    <Fragment>
+                                        <span>{price.from ? "From:" : "Up to:"}</span>
+                                        <br />
+                                        <span>{`${price.from || price.to} ${price.currency}`}</span>
+                                    </Fragment>
+                                }
                             </div>
                         )
                         : "Price range"
