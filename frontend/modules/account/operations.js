@@ -22,7 +22,7 @@ import {
     ALL_MEASURES,
     LOGOUT_ACCOUNT_TIMEOUT,
 } from "config/consts";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());

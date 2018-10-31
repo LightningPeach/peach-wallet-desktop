@@ -6,7 +6,7 @@ import SubHeader from "components/subheader";
 import { accountOperations } from "modules/account";
 import { appOperations, appTypes, appActions } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { ALL_MEASURES, MODAL_ANIMATION_TIMEOUT, MAX_PAYMENT_REQUEST } from "config/consts";
 import Tooltip from "rc-tooltip";
 import { lightningOperations } from "modules/lightning";

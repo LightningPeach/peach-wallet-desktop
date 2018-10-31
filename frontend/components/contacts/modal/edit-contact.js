@@ -11,7 +11,7 @@ import { error, info } from "modules/notifications";
 import { AddressBookFullPath } from "routes";
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 
 class EditContact extends Component {

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import bitcoin from "bitcoinjs-lib";
 import { analytics, helpers, validators } from "additional";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import SubHeader from "components/subheader";
 import {
     MODAL_ANIMATION_TIMEOUT,

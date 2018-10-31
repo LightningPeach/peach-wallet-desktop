@@ -7,7 +7,7 @@ import { accountOperations, accountTypes } from "modules/account";
 import { lightningOperations, lightningActions, lightningTypes } from "modules/lightning";
 import SuccessPayment from "components/common/success-payment";
 import UnSuccessPayment from "components/common/unsuccess-payment";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     PAYMENT_REQUEST_LENGTH,
     LIGHTNING_ID_LENGTH,

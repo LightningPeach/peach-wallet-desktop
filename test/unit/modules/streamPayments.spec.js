@@ -1,7 +1,7 @@
 import omit from "lodash/omit";
 
 import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     streamPaymentActions as actions,
     streamPaymentTypes as types,

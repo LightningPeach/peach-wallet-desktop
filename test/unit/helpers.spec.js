@@ -1,4 +1,4 @@
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { helpers } from "additional";
 import moment from "moment";
 

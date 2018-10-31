@@ -1,4 +1,4 @@
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
