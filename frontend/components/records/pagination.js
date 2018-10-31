@@ -25,7 +25,7 @@ class Pagination extends Component {
             return (
                 <button
                     className={`pagination__item ${
-                        index === page ? "pagination__current" : ""} ${isSpread ? "pagination__spread" : ""}`}
+                        index === page ? "pagination__current" : ""} ${isSpread ? "pagination__not-item" : ""}`}
                     onClick={!isSpread ? () => this.handleChange(index) : null}
                     key={index}
                 >

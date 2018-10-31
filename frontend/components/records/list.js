@@ -1,12 +1,11 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
-import ReactTable from "react-table";
 import { filterTypes } from "modules/filter";
 import { DEFAULT_TABLE_RECORDS_PER_PAGE } from "config/consts";
 import Filter from "components/filter";
-import Pagination from "components/pagination";
+import Pagination from "./pagination";
 
-class PaginatedTable extends Component {
+class RecordsList extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -28,29 +27,30 @@ class PaginatedTable extends Component {
     };
 
     renderData = () => {
-        const {
-            title, emptyPlaceholder, source, filters, recordsPerPage, ...table
-        } = this.props;
+        const { recordsPerPage, data } = this.props;
+        const { page } = this.state;
+        const pageRecords = recordsPerPage || DEFAULT_TABLE_RECORDS_PER_PAGE;
+        const pages = Math.floor((data.length + (pageRecords - 1)) / pageRecords);
         return (
-            <ReactTable
-                {...table}
-                page={this.state.page}
-                resizable={false}
-                showPageSizeOptions={false}
-                defaultPageSize={recordsPerPage || DEFAULT_TABLE_RECORDS_PER_PAGE}
-                PaginationComponent={Pagination}
-                customPagination={this.onPageChange}
-            />
+            <Fragment>
+                {data.filter((item, index) => Math.floor(index / pageRecords) === page)}
+                <Pagination
+                    canNext={page < pages - 1}
+                    canPrevious={page > 0}
+                    customPagination={this.onPageChange}
+                    page={page}
+                    pages={pages}
+                />
+            </Fragment>
         );
     };
 
     render() {
         const { title, source, filters } = this.props;
-
         return (
-            <div className="history">
+            <div className="records">
                 {title &&
-                    <div className="paginated-list__title" key={0}>
+                    <div className="records__title" key={0}>
                         {title}
                     </div>
                 }
@@ -60,20 +60,16 @@ class PaginatedTable extends Component {
                         filterKinds={filters}
                     />
                 }
-                {!this.props.data.length
-                    ? this.renderEmptyList()
-                    : this.renderData()
+                {!this.props.data.length ?
+                    this.renderEmptyList() :
+                    this.renderData()
                 }
             </div>
         );
     }
 }
 
-PaginatedTable.propTypes = {
-    columns: PropTypes.arrayOf(PropTypes.shape({
-        Header: PropTypes.any,
-        accessor: PropTypes.any,
-    })).isRequired,
+RecordsList.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
     emptyPlaceholder: PropTypes.string,
     filters: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
@@ -82,4 +78,4 @@ PaginatedTable.propTypes = {
     title: PropTypes.string,
 };
 
-export default PaginatedTable;
+export default RecordsList;

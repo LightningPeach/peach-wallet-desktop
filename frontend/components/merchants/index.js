@@ -8,7 +8,7 @@ import { filterTypes, filterOperations } from "modules/filter";
 import { channelsTypes } from "modules/channels";
 import SubHeader from "components/subheader";
 import CreateChannel from "components/channels/modal/create-channel";
-import PaginatedList from "components/paginated-list";
+import RecordsList from "components/records/list";
 import Merchant from "./ui/merchant-item";
 
 class MerchantsPage extends Component {
@@ -40,17 +40,15 @@ class MerchantsPage extends Component {
     renderMerchants = () => (
         <div className="container">
             <div className="merchants__header">Merchants list</div>
-            <div className="merchants__content">
-                <PaginatedList
-                    data={this.getMerchantsData()}
-                    source={filterTypes.FILTER_MERCHANTS}
-                    withoutTitle
-                    filters={[
-                        filterTypes.FILTER_KIND_SEARCH,
-                    ]}
-                    emptyPlaceholder="No merchants found"
-                />
-            </div>
+            <RecordsList
+                data={this.getMerchantsData()}
+                source={filterTypes.FILTER_MERCHANTS}
+                withoutTitle
+                filters={[
+                    filterTypes.FILTER_KIND_SEARCH,
+                ]}
+                emptyPlaceholder="No merchants found"
+            />
         </div>
     );
 
