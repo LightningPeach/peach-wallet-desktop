@@ -24,41 +24,47 @@ class Merchant extends Component {
         return (
             <div className="merchants__item">
                 {merchant.logo &&
-                <div className="merchants__logo">
-                    <img src={merchant.logo} className="merchants__logo-img" alt={merchant.name} />
-                </div>
+                    <div className="merchants__logo">
+                        <img src={merchant.logo} className="merchants__logo-img" alt={merchant.name} />
+                    </div>
                 }
                 <div className="merchants__body">
                     <div className="merchants__row merchants__row--name">
                         {merchant.name}
                     </div>
-                    <div className="merchants__row">
-                        {merchant.description}
-                    </div>
-                    <div className="merchants__row merchants__row--channel-info">
-                        <div className="merchants__label">
-                            Channel info:
+                    {merchant.description &&
+                        <div className="merchants__row">
+                            {merchant.description}
                         </div>
-                        <button
-                            className="button button__link merchants__link"
-                            onClick={this.openCreateChannelModal}
-                        >
-                            {merchant.channel_info}
-                        </button>
-                    </div>
-                    <div className="merchants__row">
-                        <div className="merchants__label">
-                            Website:
-                        </div>
-                        <div className="merchants__value">
+                    }
+                    {merchant.channel_info &&
+                        <div className="merchants__row merchants__row--channel-info">
+                            <div className="merchants__label">
+                                Channel info:
+                            </div>
                             <button
                                 className="button button__link merchants__link"
-                                onClick={this.openWebsiteExternal}
+                                onClick={this.openCreateChannelModal}
                             >
-                                {merchant.website}
+                                {merchant.channel_info}
                             </button>
                         </div>
-                    </div>
+                    }
+                    {merchant.website &&
+                        <div className="merchants__row">
+                            <div className="merchants__label">
+                                Website:
+                            </div>
+                            <div className="merchants__value">
+                                <button
+                                    className="button button__link merchants__link"
+                                    onClick={this.openWebsiteExternal}
+                                >
+                                    {merchant.website}
+                                </button>
+                            </div>
+                        </div>
+                    }
                 </div>
             </div>
         );
@@ -68,11 +74,11 @@ class Merchant extends Component {
 Merchant.propTypes = {
     dispatch: PropTypes.func.isRequired,
     merchant: PropTypes.shape({
-        channel_info: PropTypes.string.isRequired,
-        description: PropTypes.string.isRequired,
-        logo: PropTypes.string.isRequired,
+        channel_info: PropTypes.string,
+        description: PropTypes.string,
+        logo: PropTypes.string,
         name: PropTypes.string.isRequired,
-        website: PropTypes.string.isRequired,
+        website: PropTypes.string,
     }).isRequired,
 };
 

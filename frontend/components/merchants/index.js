@@ -6,50 +6,53 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { serverOperations } from "modules/server";
 import { filterTypes, filterOperations } from "modules/filter";
 import { channelsTypes } from "modules/channels";
-import Filter from "components/filter";
 import SubHeader from "components/subheader";
 import CreateChannel from "components/channels/modal/create-channel";
+import PaginatedList from "components/paginated-list";
 import Merchant from "./ui/merchant-item";
 
 class MerchantsPage extends Component {
+    getMerchantsData = () => {
+        const { merchants, filter, dispatch } = this.props;
+        return merchants
+            .filter(merchant => dispatch(filterOperations.filter(
+                filter,
+                {
+                    search: [
+                        merchant.name,
+                        merchant.website,
+                        merchant.description,
+                        merchant.channel_info,
+                    ],
+                },
+            )))
+            .map(merchant => (
+                <Merchant merchant={merchant} key={merchant.name} />
+            ));
+    };
+
     renderEmptyList = () => (
         <div className="empty-placeholder">
             <span className="placeholder_text">Here all merchants will be displayed</span>
         </div>
     );
 
-    renderMerchants = () => {
-        const { dispatch, filter, merchants } = this.props;
-        return (
-            <div className="container">
-                <div className="merchants__header">Merchants list</div>
-                <Filter
+    renderMerchants = () => (
+        <div className="container">
+            <div className="merchants__header">Merchants list</div>
+            <div className="merchants__content">
+                <PaginatedList
+                    data={this.getMerchantsData()}
                     source={filterTypes.FILTER_MERCHANTS}
-                    filterKinds={[
+                    withoutTitle
+                    filters={[
                         filterTypes.FILTER_KIND_SEARCH,
                     ]}
+                    emptyPlaceholder="No merchants found"
                 />
-                <div className="merchants__content">
-                    {merchants
-                        .filter(merchant => dispatch(filterOperations.filter(
-                            filter,
-                            {
-                                search: [
-                                    merchant.name,
-                                    merchant.website,
-                                    merchant.description,
-                                    merchant.channel_info,
-                                ],
-                            },
-                        )))
-                        .map(merchant => (
-                            <Merchant merchant={merchant} key={merchant.name} />
-                        ))
-                    }
-                </div>
             </div>
-        );
-    };
+        </div>
+    );
 
     render() {
         const { merchants, modalState } = this.props;

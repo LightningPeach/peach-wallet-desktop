@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
-import HistoryTable from "components/history-table";
+import PaginatedTable from "components/paginated-table";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
@@ -142,7 +142,7 @@ class OnchainHistory extends Component {
 
     render() {
         return (
-            <HistoryTable
+            <PaginatedTable
                 key={3}
                 columns={this.getHistoryHeader()}
                 data={this.getHistoryData()}

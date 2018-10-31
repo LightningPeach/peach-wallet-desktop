@@ -48,7 +48,7 @@ class Pagination extends Component {
             null;
     };
 
-    renderNext =() => {
+    renderNext = () => {
         const { canNext, page, pages } = this.props;
         return canNext ?
             <button
@@ -62,6 +62,10 @@ class Pagination extends Component {
     };
 
     render() {
+        const { pages } = this.props;
+        if (pages < 2) {
+            return null;
+        }
         return (
             <Fragment>
                 { this.renderPrevious() }
