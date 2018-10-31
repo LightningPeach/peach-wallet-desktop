@@ -1,7 +1,7 @@
 import React, { Fragment } from "react";
 import { TIME_RANGE_MEASURE } from "config/consts";
 import moment from "moment";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 
 /**
  * @param {Date} date - date

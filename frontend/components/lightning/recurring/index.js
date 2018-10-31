@@ -12,7 +12,7 @@ import Select from "react-select";
 import { lightningOperations } from "modules/lightning";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations } from "modules/app";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,

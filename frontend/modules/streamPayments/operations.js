@@ -1,6 +1,6 @@
 import React from "react";
 import orderBy from "lodash/orderBy";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { appActions, appOperations } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
