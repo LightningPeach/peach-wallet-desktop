@@ -22,6 +22,7 @@ import {
     MBTC_MEASURE,
     SATOSHI_MEASURE,
     TIME_RANGE_MEASURE,
+    MAX_INTERVAL_FREUENCY,
 } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
@@ -132,9 +133,11 @@ class RecurringPayment extends Component {
         return { contactName, lightningId };
     };
 
-    _validateFrequency = (frequency) => {
+    _validateFrequency = (frequency, measuredMax, measure) => {
         if (!frequency) {
             return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        } else if (frequency > MAX_INTERVAL_FREUENCY) {
+            return statusCodes.EXCEPTION_RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
         }
         return null;
     };
@@ -187,6 +190,13 @@ class RecurringPayment extends Component {
                 currency = "BTC";
                 break;
         }
+        let delayRange = 1000;
+        TIME_RANGE_MEASURE.forEach((item) => {
+            if (this.state.timeCurrency === item.measure) {
+                delayRange = item.range;
+            }
+        });
+        const delay = frequency * delayRange;
 
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
@@ -194,7 +204,11 @@ class RecurringPayment extends Component {
             ? dispatch(appOperations.convertUsdToCurrentMeasure(amount))
             : amount));
         const timeError = this._validateTime(time);
-        const frequencyError = this._validateFrequency(frequency);
+        const frequencyError = this._validateFrequency(
+            delay,
+            Math.floor(MAX_INTERVAL_FREUENCY / delayRange),
+            this.state.timeCurrency,
+        );
 
         if (nameError || toError || amountError || timeError || frequencyError) {
             this.setState({
@@ -209,13 +223,6 @@ class RecurringPayment extends Component {
         if (currency === "BTC") {
             amount = dispatch(appOperations.convertToSatoshi(amount));
         }
-        let delay = 1000;
-        TIME_RANGE_MEASURE.forEach((item) => {
-            if (this.state.timeCurrency === item.measure) {
-                delay = item.range;
-            }
-        });
-        delay *= frequency;
 
         const response = await dispatch(streamOperations.prepareStreamPayment(
             to,

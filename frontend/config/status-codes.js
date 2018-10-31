@@ -106,6 +106,8 @@ const EXCEPTION_RECURRING_NO_FUNDS = [
     "Insufficient funds on Lightning balance.",
     "Please, open new channel to process payment.",
 ];
+const EXCEPTION_RECURRING_MORE_MAX_FREQUENCY = (frequency, measure) =>
+    `Maximum allowed frequency is ${frequency} ${measure}.`;
 
 // TRANSACITONS
 // Empty recurring payment details
@@ -216,4 +218,5 @@ export {
     EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT,
     EXCEPTION_CONTACT_EDIT_USER_EXISTS,
     EXCEPTION_RECURRING_NOT_IN_STORE,
+    EXCEPTION_RECURRING_MORE_MAX_FREQUENCY,
 };

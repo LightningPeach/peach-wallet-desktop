@@ -66,6 +66,7 @@ export const ALL_MEASURES = [MBTC_MEASURE, BTC_MEASURE, SATOSHI_MEASURE];
 
 export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnectInterval: 3000 };
 
+export const MAX_INTERVAL_FREUENCY = 100000000000;
 export const STREAM_INFINITE_TIME_VALUE = "Infinite";
 export const LOGOUT_ACCOUNT_TIMEOUT = NODE_ENV === "test" ? 1 : 5000;
 export const LND_SYNC_TIMEOUT = NODE_ENV === "test" ? 1 : 15000;
