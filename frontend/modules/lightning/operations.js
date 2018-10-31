@@ -161,10 +161,10 @@ async function getPayments() {
             type: "stream",
         }));
     dbStreams.forEach((dbStream) => {
-        if (dbStream.status === "pause") {
+        if (dbStream.status !== "end") {
             return;
         }
-        const partsPaid = dbStream.status === "end" && !foundedInDb.includes(dbStream.id)
+        const partsPaid = !foundedInDb.includes(dbStream.id)
             ? 0
             : streamPayments[dbStream.id].partsPaid;
         if (dbStream.partsPaid !== partsPaid) {
