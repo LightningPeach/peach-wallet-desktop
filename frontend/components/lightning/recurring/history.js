@@ -284,12 +284,12 @@ class RecurringHistory extends Component {
                         </span>
                     ),
                     frequency: (
-                        <span
+                        <Ellipsis
                             frequency={item.delay}
                             data-pinned={item.isActive}
                         >
                             {helpers.formatTimeRange(item.delay)}
-                        </span>
+                        </Ellipsis>
                     ),
                     name: <Ellipsis data-pinned={item.isActive}>{item.name}</Ellipsis>,
                     status: <span data-pinned={item.isActive}>{status}</span>,
