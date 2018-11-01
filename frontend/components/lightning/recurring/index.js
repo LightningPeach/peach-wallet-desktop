@@ -552,20 +552,28 @@ class RecurringPayment extends Component {
 
     render() {
         const { modalState } = this.props;
+        let modal;
+        switch (modalState) {
+            case streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS:
+                modal = <StreamDetails onClose={this.clean} />;
+                break;
+            case streamPaymentTypes.MODAL_STATE_EDIT_STREAM_PAYMENT:
+                modal = <StreamDetails onClose={this.clean} />;
+                break;
+            default:
+                modal = null;
+        }
         return [
             this.renderForm(),
             <RecurringHistory key={1} />,
-            modalState === streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS &&
-            (
-                <ReactCSSTransitionGroup
-                    transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                    key="streamsModals"
-                >
-                    <StreamDetails onClose={this.clean} />
-                </ReactCSSTransitionGroup>
-            ),
+            <ReactCSSTransitionGroup
+                transitionName="modal-transition"
+                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                key="streamsModals"
+            >
+                {modal}
+            </ReactCSSTransitionGroup>,
         ];
     }
 }

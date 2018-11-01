@@ -1,5 +1,10 @@
 import * as types from "./types";
 
+const setCurrentStream = payload => ({
+    payload,
+    type: types.SET_CURRENT_STREAM,
+});
+
 const prepareStreamPayment = payload => ({
     payload,
     type: types.PREPARE_STREAM_PAYMENT,
@@ -60,6 +65,7 @@ const clearStreamPaymentIntervalId = payload => ({
 });
 
 export {
+    setCurrentStream,
     prepareStreamPayment,
     setStreamPaymentStatus,
     changeStreamPartsPaid,
