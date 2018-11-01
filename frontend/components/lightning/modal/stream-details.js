@@ -24,12 +24,12 @@ class StreamDetails extends Component {
                 ],
             },
         };
-        analytics.pageview(`${LightningFullPath}/stream/details`, "Lightning / Stream Payment / Details");
+        analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Details");
     }
 
     closeModal = () => {
         const { dispatch } = this.props;
-        analytics.event({ action: "Stream Payment Modal", category: "Lightning", label: "Cancel" });
+        analytics.event({ action: "Create Recurring Modal", category: "Lightning", label: "Cancel" });
         dispatch(appOperations.closeModal());
     };
 
@@ -40,7 +40,7 @@ class StreamDetails extends Component {
         if (onClose) {
             onClose();
         }
-        analytics.event({ action: "Stream Payment Modal", category: "Lightning", label: "Pay" });
+        analytics.event({ action: "Create Recurring Modal", category: "Lightning", label: "Create" });
         dispatch(appOperations.closeModal());
     };
 

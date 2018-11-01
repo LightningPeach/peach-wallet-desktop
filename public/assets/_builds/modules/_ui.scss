@@ -60,6 +60,7 @@
             font-size: 14px;
             line-height: 1;
             color: #000;
+            white-space: nowrap;
             display: inline-block;
             padding-left: 19px;
             position: relative;
@@ -265,6 +266,7 @@
         letter-spacing: -0.6px;
         position: relative;
         display: inline-block;
+        white-space: nowrap;
 
         &__icon {
             position: absolute;
