@@ -1,5 +1,7 @@
 .ReactTable {
     border: 0;
+    margin-left: -20px;
+    margin-right: -20px;
 
     .rt-table {
         overflow: inherit;
@@ -13,6 +15,13 @@
     .rt-tr {
         align-items: center;
         border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        padding-left: 20px;
+        padding-right: 20px;
+        transition:
+                background-color .3s ease-in-out,
+                padding .3s ease-in-out,
+                margin .3s ease-in-out,
+                box-shadow .3s ease-in-out;
     }
 
     .rt-thead {
@@ -142,6 +151,17 @@
             display: none;
         }
 
+        .rt-tr:not(.-padRow):hover {
+            background-color: transparentize($orange, 0.9);
+            box-shadow: 1px 1px 10px 0 rgba(225, 225, 225, 0.5);
+
+            .table__button {
+                opacity: 1;
+                pointer-events: all;
+                font-size: 12px;
+            }
+        }
+
         .green {
             color: $apple-green;
         }
@@ -194,6 +214,27 @@
 
         .pagination__not-item {
             cursor: default;
+        }
+    }
+}
+
+.table {
+    &__button {
+        opacity: 0;
+        pointer-events: none;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0;
+        line-height: 1;
+        color: $orange;
+        padding: 0 5px;
+        margin-top: 2px;
+        transition: opacity .3s ease-in-out, font-size .3s ease-in-out;
+
+        &:hover {
+            color: #d0021b;
+            text-decoration: underline;
         }
     }
 }

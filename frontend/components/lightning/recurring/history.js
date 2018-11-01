@@ -291,7 +291,27 @@ class RecurringHistory extends Component {
                             {helpers.formatTimeRange(item.delay)}
                         </Ellipsis>
                     ),
-                    name: <Ellipsis data-pinned={item.isActive}>{item.name}</Ellipsis>,
+                    name: (
+                        <div>
+                            <Ellipsis data-pinned={item.isActive}>{item.name}</Ellipsis>
+                            <div className="stream__actions">
+                                <button
+                                    className="table__button"
+                                    type="button"
+                                    onClick={() => {}}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="table__button"
+                                    type="button"
+                                    onClick={() => {}}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    ),
                     status: <span data-pinned={item.isActive}>{status}</span>,
                     to: <Ellipsis>{address}</Ellipsis>,
                 };
