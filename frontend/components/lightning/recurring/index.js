@@ -16,7 +16,7 @@ import { statusCodes } from "config";
 import {
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,
-    USERNAME_MAX_LENGTH,
+    ELEMENT_NAME_MAX_LENGTH,
     STREAM_INFINITE_TIME_VALUE,
     BTC_MEASURE,
     MBTC_MEASURE,
@@ -32,6 +32,7 @@ import Checkbox from "components/ui/checkbox";
 import RecurringHistory from "./history";
 import ToField from "../ui/to";
 import StreamDetails from "../modal/stream-details";
+import EditStream from "../modal/edit-stream";
 
 const getInitialState = (params = {}) => {
     const initState = {
@@ -259,11 +260,9 @@ class RecurringPayment extends Component {
                 </span>
             );
         }
-        const formClass =
-            `send form ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`;
         return (
             <form
-                className={formClass}
+                className={`send form ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`}
                 onSubmit={this.streamPay}
                 key={0}
                 ref={(ref) => {
@@ -289,8 +288,8 @@ class RecurringPayment extends Component {
                                     }}
                                     onChange={() => this.setState({ nameError: null })}
                                     disabled={this.state.processing}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                 />
                             </div>
                         </div>
@@ -558,7 +557,7 @@ class RecurringPayment extends Component {
                 modal = <StreamDetails onClose={this.clean} />;
                 break;
             case streamPaymentTypes.MODAL_STATE_EDIT_STREAM_PAYMENT:
-                modal = <StreamDetails onClose={this.clean} />;
+                modal = <EditStream />;
                 break;
             default:
                 modal = null;
