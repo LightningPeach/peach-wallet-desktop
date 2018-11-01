@@ -2,6 +2,7 @@ import * as accountTypes from "modules/account/types";
 import * as types from "./types";
 
 export const initStateStreamPayment = {
+    currentStream: null,
     streamDetails: null,
     streamId: undefined,
     streams: [],
@@ -22,6 +23,8 @@ const streamPaymentReducer = (state = defaultState, action) => {
             };
         case types.PREPARE_STREAM_PAYMENT:
             return { ...state, streamDetails: action.payload };
+        case types.SET_CURRENT_STREAM:
+            return { ...state, currentStream: action.payload };
         case types.CHANGE_STREAM_PARTS_PAID:
             return {
                 ...state,

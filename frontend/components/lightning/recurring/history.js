@@ -8,8 +8,9 @@ import { channelsOperations, channelsSelectors } from "modules/channels";
 import History from "components/history";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import {
-    streamPaymentOperations as streamOperations,
+    streamPaymentOperations,
     streamPaymentTypes,
+    streamPaymentActions,
 } from "modules/streamPayments";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
@@ -216,7 +217,7 @@ class RecurringHistory extends Component {
                                         dispatch(operations.channelWarningModal());
                                         return;
                                     }
-                                    dispatch(streamOperations.startStreamPayment(item.streamId));
+                                    dispatch(streamPaymentOperations.startStreamPayment(item.streamId));
                                 }}
                             />
                             <span
@@ -227,7 +228,7 @@ class RecurringHistory extends Component {
                                         category: "Lightning",
                                         label: "Stop",
                                     });
-                                    dispatch(streamOperations.finishStreamPayment(item.streamId));
+                                    dispatch(streamPaymentOperations.finishStreamPayment(item.streamId));
                                 }}
                             />
                         </Fragment>
@@ -242,7 +243,7 @@ class RecurringHistory extends Component {
                                     category: "Lightning",
                                     label: "Pause",
                                 });
-                                dispatch(streamOperations.pauseStreamPayment(item.streamId));
+                                dispatch(streamPaymentOperations.pauseStreamPayment(item.streamId));
                             }}
                         />
                     );
@@ -298,14 +299,14 @@ class RecurringHistory extends Component {
                                 <button
                                     className="table__button"
                                     type="button"
-                                    onClick={() => {}}
+                                    onClick={() => { this.handleEdit(item) }}
                                 >
                                     Edit
                                 </button>
                                 <button
                                     className="table__button"
                                     type="button"
-                                    onClick={() => {this.handleCopy(item.lightningID)}}
+                                    onClick={() => { this.handleCopy(item.lightningID) }}
                                 >
                                     Copy
                                 </button>
@@ -322,6 +323,13 @@ class RecurringHistory extends Component {
         analytics.event({ action: "Recurring", category: "Lightning", label: "Copy lightning ID" });
         const { dispatch } = this.props;
         dispatch(appOperations.copyToClipboard(address, "Lightning ID copied"));
+    };
+
+    handleEdit = (payment) => {
+        analytics.event({ action: "Recurring", category: "Lightning", label: "Edit payment" });
+        const { dispatch } = this.props;
+        dispatch(streamPaymentActions.setCurrentStream(payment));
+        dispatch(streamPaymentOperations.openEditStreamModal());
     };
 
     render() {

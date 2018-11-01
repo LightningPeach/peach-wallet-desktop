@@ -27,6 +27,10 @@ function openStreamPaymentDetailsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_STREAM_PAYMENT_DETAILS));
 }
 
+function openEditStreamModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_EDIT_STREAM_PAYMENT));
+}
+
 function clearPrepareStreamPayment() {
     return async (dispatch, getState) => {
         dispatch(actions.prepareStreamPayment(null));
@@ -393,6 +397,7 @@ export {
     finishStreamPayment,
     pauseStreamPayment,
     openStreamPaymentDetailsModal,
+    openEditStreamModal,
     addStreamPaymentToList,
     loadStreams,
     clearPrepareStreamPayment,
