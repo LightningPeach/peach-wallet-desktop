@@ -305,7 +305,7 @@ class RecurringHistory extends Component {
                                 <button
                                     className="table__button"
                                     type="button"
-                                    onClick={() => {}}
+                                    onClick={() => {this.handleCopy(item.lightningID)}}
                                 >
                                     Copy
                                 </button>
@@ -316,6 +316,12 @@ class RecurringHistory extends Component {
                     to: <Ellipsis>{address}</Ellipsis>,
                 };
             });
+    };
+
+    handleCopy = (address) => {
+        analytics.event({ action: "Recurring", category: "Lightning", label: "Copy lightning ID" });
+        const { dispatch } = this.props;
+        dispatch(appOperations.copyToClipboard(address, "Lightning ID copied"));
     };
 
     render() {
