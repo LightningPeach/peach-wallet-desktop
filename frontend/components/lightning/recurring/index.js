@@ -41,7 +41,6 @@ const getInitialState = (params = {}) => {
         frequencyError: null,
         isInfinite: false,
         nameError: null,
-        textError: null,
         timeCurrency: TIME_RANGE_MEASURE[0].measure,
         timeError: null,
         toError: null,
@@ -59,6 +58,12 @@ class RecurringPayment extends Component {
 
         this.state = getInitialState({ valueCurrency: props.bitcoinMeasureType });
     }
+
+    setName = () => {
+        this.setState({
+            nameError: null,
+        });
+    };
 
     setAmount = () => {
         this.setState({
@@ -286,7 +291,7 @@ class RecurringPayment extends Component {
                                     ref={(ref) => {
                                         this.name = ref;
                                     }}
-                                    onChange={() => this.setState({ nameError: null })}
+                                    onChange={this.setName}
                                     disabled={this.state.processing}
                                     max={ELEMENT_NAME_MAX_LENGTH}
                                     maxLength={ELEMENT_NAME_MAX_LENGTH}

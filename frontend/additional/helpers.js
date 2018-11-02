@@ -95,7 +95,7 @@ const formatNotificationMessage = (error, helper = false) => (
  * @param {number} time
  * @returns {*}
  */
-const formatTimeRange = (time) => {
+const formatTimeRange = (time, removeQuantity = true) => {
     let index = -1;
     TIME_RANGE_MEASURE.forEach((item, key) => {
         if (time % item.range === 0) {
@@ -107,7 +107,7 @@ const formatTimeRange = (time) => {
     }
     const count = Math.round(time / TIME_RANGE_MEASURE[index].range);
     let response = `${count} ${TIME_RANGE_MEASURE[index].measure}`;
-    if (count === 1) {
+    if (removeQuantity && count === 1) {
         response = response.slice(0, -1);
     }
     return response;

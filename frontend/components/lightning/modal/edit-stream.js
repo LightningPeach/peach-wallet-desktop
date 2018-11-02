@@ -4,7 +4,10 @@ import { connect } from "react-redux";
 import Select from "react-select";
 import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
+import { accountOperations } from "modules/account";
+import { lightningOpeartions } from "modules/lightning";
 import {
+    streamPaymentTypes as types,
     streamPaymentActions as actions,
     streamPaymentOperations as operations,
 } from "modules/streamPayments";
@@ -36,13 +39,8 @@ class EditStream extends Component {
             frequencyError: null,
             isInfinite: props.currentStream.totalParts === STREAM_INFINITE_TIME_VALUE,
             nameError: null,
-            textError: null,
-            timeCurrency: helpers.formatTimeRange(props.currentStream.delay).split(" ")[1],
+            timeCurrency: helpers.formatTimeRange(props.currentStream.delay, false).split(" ")[1],
             timeError: null,
-            toError: null,
-            toValue: null,
-            totalAmount: null,
-            valueCurrency: null,
         };
 
         analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Edit");
@@ -63,25 +61,11 @@ class EditStream extends Component {
         this.setState({
             amountError: null,
         });
-        this.setTotalAmount();
     };
 
     setTime = () => {
         this.setState({
             timeError: null,
-        });
-        this.setTotalAmount();
-    };
-
-    setTotalAmount = (isInfinite = this.state.isInfinite) => {
-        const amount = parseFloat(this.amount.value.trim()) || null;
-        const time = isInfinite
-            ? STREAM_INFINITE_TIME_VALUE
-            : Math.round(parseInt(this.time.value.trim(), 10)) || null;
-        this.setState({
-            totalAmount: time === STREAM_INFINITE_TIME_VALUE
-                ? amount
-                : amount && time ? amount * time : null,
         });
     };
 
@@ -93,20 +77,12 @@ class EditStream extends Component {
         });
     };
 
-    handleTo = (value) => {
-        this.setState({
-            toError: null,
-            toValue: value.trim(),
-        });
-    };
-
     toggleInfinite = () => {
         const isInfinite = !this.state.isInfinite;
         this.setState({
             isInfinite,
             timeError: null,
         });
-        this.setTotalAmount(isInfinite);
     };
 
     _validateFrequency = (frequency, measuredMax, measure) => {
@@ -119,6 +95,9 @@ class EditStream extends Component {
     };
 
     _validateTime = (time) => {
+        const { currentStream } = this.props;
+        const currentParts =
+            (currentStream.status !== "end" ? currentStream.partsPending : 0) + currentStream.partsPaid;
         if (time === STREAM_INFINITE_TIME_VALUE) {
             return null;
         } else if (!time) {
@@ -127,6 +106,8 @@ class EditStream extends Component {
             return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
         } else if (time <= 0) {
             return statusCodes.EXCEPTION_TIME_NEGATIVE;
+        } else if (currentStream.status !== "end" && currentParts >= time) {
+            return statusCodes.EXCEPTION_RECURRING_LESS_PAID_PARTS(currentParts);
         }
         return null;
     };
@@ -134,27 +115,93 @@ class EditStream extends Component {
     closeModal = () => {
         const { dispatch } = this.props;
         analytics.event({ action: "Edit Recurring Modal", category: "Lightning", label: "Close" });
-        dispatch(actions.setCurrentStream(null));
         dispatch(appOperations.closeModal());
     };
 
     updateStream = async (e) => {
         e.preventDefault();
         analytics.event({ action: "Edit Recurring Modal", category: "Lightning", label: "Edit" });
+        const { currentStream, dispatch } = this.props;
+        this.setState({ processing: true });
+        const name = this.name.value.trim();
+        let amount = parseFloat(this.amount.value.trim());
+        const time = this.state.isInfinite
+            ? STREAM_INFINITE_TIME_VALUE
+            : Math.round(parseInt(this.time.value.trim(), 10)) || 0;
+        const frequency = Math.round(parseInt(this.frequency.value.trim(), 10)) || 0;
+        const { currency } = currentStream;
+        let delayRange = 1000;
+        TIME_RANGE_MEASURE.forEach((item) => {
+            if (this.state.timeCurrency === item.measure) {
+                delayRange = item.range;
+            }
+        });
+        const delay = frequency * delayRange;
+
+        const nameError = validators.validateName(name, false, true, true, undefined, true);
+        const amountError = dispatch(accountOperations.checkAmount(currency === "USD"
+            ? dispatch(appOperations.convertUsdToCurrentMeasure(amount))
+            : amount));
+        const timeError = this._validateTime(time);
+        console.log(timeError);
+        const frequencyError = this._validateFrequency(
+            delay,
+            Math.floor(MAX_INTERVAL_FREUENCY / delayRange),
+            this.state.timeCurrency,
+        );
+
+        if (nameError || amountError || timeError || frequencyError) {
+            this.setState({
+                amountError, frequencyError, nameError, processing: false, timeError,
+            });
+            return;
+        }
+        this.setState({
+            amountError, nameError, timeError,
+        });
+        if (currency === "BTC") {
+            amount = dispatch(appOperations.convertToSatoshi(amount));
+        }
+
+        const response = await dispatch(operations.updateStreamPayment(
+            currentStream.streamId,
+            amount,
+            delay,
+            time,
+            name,
+            currency,
+        ));
+        this.setState({ processing: false });
+        dispatch(appOperations.closeModal());
+        if (!response.ok) {
+            this.showErrorNotification(response.error);
+            return;
+        }
+
+        dispatch(actions.setCurrentStream(null));
+        dispatch(lightningOpeartions.getHistory());
+        const message = (
+            <span>Payment&nbsp;
+                <strong>
+                    {currentStream.name}
+                </strong> edited
+            </span>);
+        dispatch(info({
+            message: helpers.formatNotificationMessage(message),
+        }));
     };
 
     render() {
         console.log("EDIT");
-        const { currentStream } = this.props;
+        const { currentStream, bitcoinMeasureType } = this.props;
         console.log(currentStream);
-        const filledFrequency = this.state.frequency;
-        const filledAmount = this.amount && this.amount.value.trim();
         if (!currentStream) {
-            logger.log("Cant show Edit stream cause currentStream not provided");
             return null;
         }
+        const filledFrequency = this.state.frequency;
+        const filledAmount = this.amount && this.amount.value.trim();
         return (
-            <Modal title="Edit recurring payment" onClose={this.closeModal} showCloseButton>
+            <Modal styleSet="wide" title="Edit recurring payment" onClose={this.closeModal} showCloseButton>
                 <form
                     className="send form"
                     onSubmit={this.updateStream}
@@ -178,7 +225,7 @@ class EditStream extends Component {
                                             ref={(ref) => {
                                                 this.name = ref;
                                             }}
-                                            onChange={() => this.setState({ nameError: null })}
+                                            onChange={this.setName}
                                             disabled={this.state.processing}
                                             max={ELEMENT_NAME_MAX_LENGTH}
                                             maxLength={ELEMENT_NAME_MAX_LENGTH}
@@ -196,13 +243,13 @@ class EditStream extends Component {
                                     </div>
                                     <div className="col-xs-12">
                                         <input
+                                            id="stream__to_field"
                                             className="form-text"
                                             value={currentStream.tempAddress}
                                             disabled
                                         />
                                     </div>
                                 </div>
-                                <ErrorFieldTooltip text={this.state.toError} />
                             </div>
                             <div className="col-xs-12 col-sm-4">
                                 <div className={`row mt-14 connected-field ${filledFrequency
@@ -236,7 +283,7 @@ class EditStream extends Component {
                                                         this.frequency = ref;
                                                     }}
                                                     setOnChange={this.setFrequency}
-                                                    disabled={this.state.processing}
+                                                    disabled={this.state.processing || currentStream.status === "end"}
                                                 />
                                             </div>
                                         </div>
@@ -279,6 +326,7 @@ class EditStream extends Component {
                                                         }}
                                                         className="Select-arrow"
                                                     />)}
+                                                    disabled={this.state.processing || currentStream.status === "end"}
                                                 />
                                             </div>
                                         </div>
@@ -324,7 +372,7 @@ class EditStream extends Component {
                                                         this.amount = ref;
                                                     }}
                                                     setOnChange={this.setAmount}
-                                                    disabled={this.state.processing}
+                                                    disabled={this.state.processing || currentStream.status === "end"}
                                                 />
                                             </div>
                                         </div>
@@ -342,8 +390,10 @@ class EditStream extends Component {
                                         <div className="row">
                                             <div className="col-xs-12">
                                                 <input
+                                                    id="stream__amount--currency"
                                                     className="form-text Select-control"
-                                                    value={currentStream.currency}
+                                                    value={currentStream.currency === "USD"
+                                                        ? "USD" : bitcoinMeasureType}
                                                     disabled
                                                 />
                                             </div>
@@ -381,13 +431,15 @@ class EditStream extends Component {
                                                 this.time = ref;
                                             }}
                                             setOnChange={this.setTime}
-                                            disabled={this.state.isInfinite}
+                                            disabled={this.state.isInfinite || this.state.processing
+                                                || currentStream.status === "end"}
                                         />
                                         <Checkbox
                                             text="Infinite"
                                             checked={this.state.isInfinite}
                                             onChange={this.toggleInfinite}
                                             class="check-input__checkbox"
+                                            disabled={this.state.processing || currentStream.status === "end"}
                                         />
                                     </div>
                                 </div>
@@ -421,11 +473,13 @@ class EditStream extends Component {
 }
 
 EditStream.propTypes = {
+    bitcoinMeasureType: PropTypes.string.isRequired,
     currentStream: PropTypes.shape(),
     dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
+    bitcoinMeasureType: state.account.bitcoinMeasureType,
     currentStream: state.streamPayment.currentStream,
 });
 
