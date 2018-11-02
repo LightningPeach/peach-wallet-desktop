@@ -25,6 +25,13 @@ const streamPaymentReducer = (state = defaultState, action) => {
             return { ...state, streamDetails: action.payload };
         case types.SET_CURRENT_STREAM:
             return { ...state, currentStream: action.payload };
+        case types.UPDATE_STREAM_PAYMENT:
+            return {
+                ...state,
+                streams: state.streams.map(item =>
+                    (item.streamId === action.payload.streamId
+                        ? { ...item, ...action.payload.details } : item)),
+            };
         case types.CHANGE_STREAM_PARTS_PAID:
             return {
                 ...state,

@@ -93,6 +93,57 @@ function prepareStreamPayment(
     };
 }
 
+function updateStreamPayment(
+    streamId,
+    lightningID,
+    status,
+    price,
+    delay,
+    totalParts,
+    paymentName,
+    currency,
+) {
+    return async (dispatch, getState) => {
+        if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
+            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, updateStreamPayment);
+        }
+        if (status !== "end") {
+            const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+            if (!payment) {
+                return errorPromise(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE, updateStreamPayment);
+            }
+        }
+        const name = paymentName || "Recurring payment";
+        let amount;
+        switch (currency) {
+            case "USD":
+                amount = dispatch(appOperations.convertUsdToSatoshi(price));
+                break;
+            default:
+                amount = price;
+                break;
+        }
+        const fees = await dispatch(lightningOperations.getLightningFee(lightningID, amount));
+        if (!fees.ok) {
+            return errorPromise(fees.error, updateStreamPayment);
+        }
+        const details = {
+            currency, delay, name, price, totalParts,
+        };
+        dispatch(actions.updateStreamPayment(streamId, details));
+        try {
+            db.streamBuilder()
+                .update()
+                .set(details)
+                .where("id = :id", { id: streamId })
+                .execute();
+        } catch (err) {
+            logger.error(err);
+        }
+        return successPromise();
+    };
+}
+
 function addStreamPaymentToList() {
     return async (dispatch, getState) => {
         const details = getState().streamPayment.streamDetails;
@@ -393,6 +444,7 @@ function loadStreams() {
 export {
     pauseDbStreams,
     prepareStreamPayment,
+    updateStreamPayment,
     startStreamPayment,
     finishStreamPayment,
     pauseStreamPayment,

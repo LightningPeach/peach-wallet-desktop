@@ -110,7 +110,7 @@ export const EXCEPTION_RECURRING_NO_FUNDS = [
 export const EXCEPTION_RECURRING_MORE_MAX_FREQUENCY = (frequency, measure) =>
     `Maximum allowed frequency is ${frequency} ${measure}.`;
 export const EXCEPTION_RECURRING_LESS_PAID_PARTS = number =>
-    `Can’t be less than number of paid ones(${number})`;
+    `Must be greater than number of paid ones(${number})`;
 
 // TRANSACITONS
 // Empty recurring payment details

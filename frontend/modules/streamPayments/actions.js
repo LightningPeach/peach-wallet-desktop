@@ -10,6 +10,14 @@ const prepareStreamPayment = payload => ({
     type: types.PREPARE_STREAM_PAYMENT,
 });
 
+const updateStreamPayment = (streamId, details) => ({
+    payload: {
+        details,
+        streamId,
+    },
+    type: types.UPDATE_STREAM_PAYMENT,
+});
+
 const setStreamPaymentStatus = (streamId, status) => ({
     payload: {
         status,
@@ -67,6 +75,7 @@ const clearStreamPaymentIntervalId = payload => ({
 export {
     setCurrentStream,
     prepareStreamPayment,
+    updateStreamPayment,
     setStreamPaymentStatus,
     changeStreamPartsPaid,
     changeStreamPartsPending,
