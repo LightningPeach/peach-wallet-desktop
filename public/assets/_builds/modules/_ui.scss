@@ -51,8 +51,7 @@
             }
 
             &:disabled + .form-checkbox__label {
-                border-color: #333;
-                opacity: 0.1;
+                opacity: 0.3;
             }
         }
 
