@@ -905,6 +905,7 @@ describe("Channels Unit Tests", () => {
                 data.channelPeerAddress = "peer";
                 data.channelName = "test";
                 data.channelCutom = false;
+                data.confTarget = 1;
                 initState.account = { kernelConnectIndicator: accountTypes.KERNEL_CONNECTED };
             });
 
@@ -936,6 +937,7 @@ describe("Channels Unit Tests", () => {
                             host: data.channelPeerAddress,
                             lightningID: data.channelLightningID,
                             name: "Channel 1",
+                            confTarget: data.confTarget,
                         },
                         type: types.NEW_CHANNEL_PREPARING,
                     },
@@ -946,6 +948,7 @@ describe("Channels Unit Tests", () => {
                     data.channelPeerAddress,
                     undefined,
                     data.channelCutom,
+                    data.confTarget,
                 ))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
@@ -960,6 +963,7 @@ describe("Channels Unit Tests", () => {
                             host: data.channelPeerAddress,
                             lightningID: data.channelLightningID,
                             name: data.channelName,
+                            confTarget: 3,
                         },
                         type: types.NEW_CHANNEL_PREPARING,
                     },
@@ -1167,6 +1171,7 @@ describe("Channels Unit Tests", () => {
                 data.capacity = 100;
                 data.lightningID = "xx";
                 data.channelHost = "test@host";
+                data.confTarget = 1;
                 store = mockStore({
                     account: {
                         bitcoinBalance: 200,
@@ -1177,6 +1182,7 @@ describe("Channels Unit Tests", () => {
                             lightningID: data.lightningID,
                             capacity: data.capacity,
                             host: data.channelHost,
+                            confTarget: 1,
                         },
                     },
                 });
@@ -1273,8 +1279,12 @@ describe("Channels Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("listPeers");
                 expect(window.ipcClient)
-                    .to.be.calledWith("openChannel", {
-                        local_funding_amount: data.capacity, node_pubkey_string: data.lightningID,
+                    .to
+                    .be
+                    .calledWith("openChannel", {
+                        local_funding_amount: data.capacity,
+                        node_pubkey_string: data.lightningID,
+                        target_conf: data.confTarget,
                     });
             });
 
@@ -1286,7 +1296,12 @@ describe("Channels Unit Tests", () => {
                     .withArgs("listPeers")
                     .returns({ ok: true, response: { peers: [{ address: data.lightningID }] } })
                     .withArgs("openChannel")
-                    .returns({ ok: true, funding_txid_str: data.txid, block_height: data.blockHeight });
+                    .returns({
+                        ok: true,
+                        funding_txid_str: data.txid,
+                        block_height: data.blockHeight,
+                        target_conf: data.confTarget,
+                    });
                 expectedData = { ...successResp, response: { trnID: data.txid } };
                 expectedActions = [
                     {
@@ -1308,8 +1323,12 @@ describe("Channels Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("listPeers");
                 expect(window.ipcClient)
-                    .to.be.calledWith("openChannel", {
-                        local_funding_amount: data.capacity, node_pubkey_string: data.lightningID,
+                    .to
+                    .be
+                    .calledWith("openChannel", {
+                        local_funding_amount: data.capacity,
+                        node_pubkey_string: data.lightningID,
+                        target_conf: data.confTarget,
                     });
                 expect(fakeDB.channelsBuilder).to.be.calledOnce;
                 expect(data.channelsBuilder.insert).to.be.calledOnce;

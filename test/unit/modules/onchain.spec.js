@@ -37,6 +37,7 @@ describe("OnChain Unit Tests", () => {
                 recepient: "foo",
                 amount: "bar",
                 name: "baz",
+                confTarget: 1,
             };
             expectedData = {
                 payload: data,
@@ -46,6 +47,7 @@ describe("OnChain Unit Tests", () => {
                 data.recepient,
                 data.amount,
                 data.name,
+                data.confTarget,
             )).to.deep.equal(expectedData);
         });
 
@@ -54,6 +56,7 @@ describe("OnChain Unit Tests", () => {
                 recepient: "foo",
                 amount: "bar",
                 name: "",
+                confTarget: 1,
             };
             expectedData = {
                 payload: data,
@@ -62,6 +65,8 @@ describe("OnChain Unit Tests", () => {
             expect(actions.sendCoinsPreparing(
                 data.recepient,
                 data.amount,
+                undefined,
+                data.confTarget,
             )).to.deep.equal(expectedData);
         });
 
@@ -305,6 +310,7 @@ describe("OnChain Unit Tests", () => {
                     recepient: "foo",
                     amount: "bar",
                     name: "baz",
+                    confTarget: 1,
                 };
             });
 
@@ -319,6 +325,7 @@ describe("OnChain Unit Tests", () => {
                     data.attr.recepient,
                     data.attr.amount,
                     data.attr.name,
+                    data.attr.confTarget,
                 ))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
@@ -335,6 +342,7 @@ describe("OnChain Unit Tests", () => {
                     data.attr.recepient,
                     data.attr.amount,
                     data.attr.name,
+                    data.attr.confTarget,
                 ))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
@@ -346,6 +354,7 @@ describe("OnChain Unit Tests", () => {
                     recepient: "foo",
                     amount: "bar",
                     name: "baz",
+                    confTarget: 1,
                 };
                 store = mockStore(initState);
                 window.ipcClient
@@ -405,6 +414,7 @@ describe("OnChain Unit Tests", () => {
                     {
                         addr: "foo",
                         amount: "bar",
+                        target_conf: 1,
                     },
                 );
             });
@@ -427,6 +437,7 @@ describe("OnChain Unit Tests", () => {
                     {
                         addr: "foo",
                         amount: "bar",
+                        target_conf: 1,
                     },
                 );
                 expect(fakeDB.onchainBuilder).to.be.calledOnce;
