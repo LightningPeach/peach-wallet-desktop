@@ -381,4 +381,46 @@ describe("Validators Unit Tests", () => {
             expect(window.ipcClient).to.be.calledWith("checkUser", { username });
         });
     });
+
+    describe("validateConfTarget", () => {
+        it("should return error for undefined required value", () => {
+            const valid = validators.validateConfTarget(null, true);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+        });
+
+        it("should return error for string required value", () => {
+            const valid = validators.validateConfTarget("test", true);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_DIGITS_ONLY);
+        });
+
+        it("should return error for float required value", () => {
+            const valid = validators.validateConfTarget(1.5, true);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_DIGITS_ONLY);
+        });
+
+        it("should return success for integer required value", () => {
+            const valid = validators.validateConfTarget(1, true);
+            expect(valid).to.equal(null);
+        });
+
+        it("should return error for string non required value", () => {
+            const valid = validators.validateConfTarget("test");
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_DIGITS_ONLY);
+        });
+
+        it("should return error for float non required value", () => {
+            const valid = validators.validateConfTarget(1.5);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_DIGITS_ONLY);
+        });
+
+        it("should return success for integer non required value", () => {
+            const valid = validators.validateConfTarget(1);
+            expect(valid).to.equal(null);
+        });
+
+        it("should return success for undefined non required value", () => {
+            const valid = validators.validateConfTarget(1);
+            expect(valid).to.equal(null);
+        });
+    });
 });
