@@ -5,7 +5,7 @@ import Select from "react-select";
 import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
-import { lightningOpeartions } from "modules/lightning";
+import { lightningOperations } from "modules/lightning";
 import {
     streamPaymentTypes as types,
     streamPaymentActions as actions,
@@ -46,17 +46,6 @@ class EditStream extends Component {
         analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Edit");
     }
 
-    showErrorNotification = (text) => {
-        const { dispatch } = this.props;
-        dispatch(error({
-            action: {
-                callback: () => dispatch(operations.openEditStreamModal()),
-                label: "Retry",
-            },
-            message: helpers.formatNotificationMessage(text),
-        }));
-    };
-
     setAmount = () => {
         this.setState({
             amountError: null,
@@ -75,6 +64,17 @@ class EditStream extends Component {
             frequency,
             frequencyError: null,
         });
+    };
+
+    showErrorNotification = (text) => {
+        const { dispatch } = this.props;
+        dispatch(error({
+            action: {
+                callback: () => dispatch(operations.openEditStreamModal()),
+                label: "Retry",
+            },
+            message: helpers.formatNotificationMessage(text),
+        }));
     };
 
     toggleInfinite = () => {
@@ -143,7 +143,6 @@ class EditStream extends Component {
             ? dispatch(appOperations.convertUsdToCurrentMeasure(amount))
             : amount));
         const timeError = this._validateTime(time);
-        console.log(timeError);
         const frequencyError = this._validateFrequency(
             delay,
             Math.floor(MAX_INTERVAL_FREUENCY / delayRange),
@@ -165,6 +164,8 @@ class EditStream extends Component {
 
         const response = await dispatch(operations.updateStreamPayment(
             currentStream.streamId,
+            currentStream.lightningID,
+            currentStream.status,
             amount,
             delay,
             time,
@@ -179,7 +180,7 @@ class EditStream extends Component {
         }
 
         dispatch(actions.setCurrentStream(null));
-        dispatch(lightningOpeartions.getHistory());
+        dispatch(lightningOperations.getHistory());
         const message = (
             <span>Payment&nbsp;
                 <strong>
@@ -192,9 +193,7 @@ class EditStream extends Component {
     };
 
     render() {
-        console.log("EDIT");
         const { currentStream, bitcoinMeasureType } = this.props;
-        console.log(currentStream);
         if (!currentStream) {
             return null;
         }
@@ -221,7 +220,7 @@ class EditStream extends Component {
                                             className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                             name="stream__name"
                                             placeholder="Enter name"
-                                            value={currentStream.name}
+                                            defaultValue={currentStream.name}
                                             ref={(ref) => {
                                                 this.name = ref;
                                             }}
