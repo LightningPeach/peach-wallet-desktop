@@ -59,6 +59,9 @@ class Modal extends Component {
             disabled, onClose, styleSet, children, showCloseButton,
         } = this.props;
         const spinner = <div className="spinner" />;
+        const styleSetFull = styleSet
+            ? styleSet.split(" ").map(style => `modal__${style}`).join(" ")
+            : "";
 
         return (
             <div className="modal-wrapper">
