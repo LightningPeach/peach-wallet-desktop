@@ -138,7 +138,8 @@ function updateStreamPayment(
                 .where("id = :id", { id: streamId })
                 .execute();
         } catch (err) {
-            logger.error(err);
+            /* istanbul ignore next */
+            logger.error(statusCodes.EXCEPTION_EXTRA, err);
         }
         return successPromise();
     };
