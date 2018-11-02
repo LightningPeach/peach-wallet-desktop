@@ -43,6 +43,10 @@ describe("Settings tests", () => {
         expect(settings.lnd.restlisten).to.deep.equal("10014");
     });
 
+    it("lnd.maxpendingchannels is natural", () => {
+        expect(parseInt(settings.lnd.maxpendingchannels, 10)).to.be.at.least(0);
+    });
+
     it("lnd.no_macaroons set to false", () => {
         expect(settings.lnd.no_macaroons).to.deep.equal(true);
     });
