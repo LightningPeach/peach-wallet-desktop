@@ -27,6 +27,10 @@ function openStreamPaymentDetailsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_STREAM_PAYMENT_DETAILS));
 }
 
+function openActiveRecurringWarningModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_ACTIVE_RECURRING_WARNING));
+}
+
 function openEditStreamModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_EDIT_STREAM_PAYMENT));
 }
@@ -450,6 +454,7 @@ export {
     finishStreamPayment,
     pauseStreamPayment,
     openStreamPaymentDetailsModal,
+    openActiveRecurringWarningModal,
     openEditStreamModal,
     addStreamPaymentToList,
     loadStreams,
