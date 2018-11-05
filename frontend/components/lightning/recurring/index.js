@@ -33,6 +33,7 @@ import RecurringHistory from "./history";
 import ToField from "../ui/to";
 import StreamDetails from "../modal/stream-details";
 import EditStream from "../modal/edit-stream";
+import ActiveRecurringWarning from "../modal/active-recurring-warning";
 
 const getInitialState = (params = {}) => {
     const initState = {
@@ -560,6 +561,9 @@ class RecurringPayment extends Component {
         switch (modalState) {
             case streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS:
                 modal = <StreamDetails onClose={this.clean} />;
+                break;
+            case streamPaymentTypes.MODAL_STATE_ACTIVE_RECURRING_WARNING:
+                modal = <ActiveRecurringWarning />;
                 break;
             case streamPaymentTypes.MODAL_STATE_EDIT_STREAM_PAYMENT:
                 modal = <EditStream />;

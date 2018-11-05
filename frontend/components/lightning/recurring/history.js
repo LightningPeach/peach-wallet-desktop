@@ -329,7 +329,11 @@ class RecurringHistory extends Component {
         analytics.event({ action: "Recurring", category: "Lightning", label: "Edit payment" });
         const { dispatch } = this.props;
         dispatch(streamPaymentActions.setCurrentStream(payment));
-        dispatch(streamPaymentOperations.openEditStreamModal());
+        if (payment.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING) {
+            dispatch(streamPaymentOperations.openActiveRecurringWarningModal());
+        } else {
+            dispatch(streamPaymentOperations.openEditStreamModal());
+        }
     };
 
     render() {
