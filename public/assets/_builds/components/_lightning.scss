@@ -45,7 +45,7 @@
             .Select-control {
                 &:disabled {
                     opacity: 1;
-                    color: transparentize($black, 0.3);
+                    color: transparentize($black, 0.7);
                 }
             }
 
@@ -66,6 +66,18 @@
                     .Select-control {
                         border: 1px solid $black;
                         border-left: 1px dashed $black;
+                    }
+                }
+            }
+
+            &--disabled {
+                opacity: 0.3;
+                
+                .connected-field__input,
+                .Select-control {
+                    &:disabled {
+                        opacity: 1;
+                        color: $black;
                     }
                 }
             }

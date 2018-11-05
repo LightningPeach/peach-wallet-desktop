@@ -261,6 +261,8 @@ class EditStream extends Component {
                             <div className="col-xs-12 col-sm-4">
                                 <div className={`row mt-14 connected-field ${filledFrequency
                                     ? "connected-field--filled"
+                                    : ""} ${currentStream.status === types.STREAM_PAYMENT_FINISHED
+                                    ? "connected-field--disabled"
                                     : ""}`}
                                 >
                                     <div className="col-xs-6">
@@ -350,6 +352,8 @@ class EditStream extends Component {
                             <div className="col-xs-12 col-sm-4">
                                 <div className={`row mt-14 connected-field ${filledAmount
                                     ? "connected-field--filled"
+                                    : ""} ${currentStream.status === types.STREAM_PAYMENT_FINISHED
+                                    ? "connected-field--disabled"
                                     : ""}`}
                                 >
                                     <div className="col-xs-6">
