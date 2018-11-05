@@ -15,8 +15,8 @@ function pauseDbStreams() {
     try {
         db.streamBuilder()
             .update()
-            .set({ status: "pause" })
-            .where("status = :status", { status: "run" })
+            .set({ status: types.STREAM_PAYMENT_PAUSED })
+            .where("status = :status", { status: types.STREAM_PAYMENT_STREAMING })
             .execute();
     } catch (e) {
         logger.error(e);
@@ -111,7 +111,7 @@ function updateStreamPayment(
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
             return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, updateStreamPayment);
         }
-        if (status !== "end") {
+        if (status !== types.STREAM_PAYMENT_FINISHED) {
             const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
             if (!payment) {
                 return errorPromise(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE, updateStreamPayment);
@@ -170,7 +170,7 @@ function addStreamPaymentToList() {
                     name: details.name,
                     partsPaid: details.partsPaid,
                     price: details.price,
-                    status: "pause",
+                    status: types.STREAM_PAYMENT_PAUSED,
                     totalParts: details.totalParts,
                 })
                 .execute();
@@ -200,7 +200,7 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
                         .update()
                         .set({
                             partsPaid: payment.partsPaid,
-                            status: "pause",
+                            status: types.STREAM_PAYMENT_PAUSED,
                         })
                         .where("id = :id", { id: payment.streamId })
                         .execute();
@@ -241,7 +241,7 @@ function finishStreamPayment(streamId) {
             try {
                 db.streamBuilder()
                     .update()
-                    .set({ partsPaid: payment.partsPaid, status: "end" })
+                    .set({ partsPaid: payment.partsPaid, status: types.STREAM_PAYMENT_FINISHED })
                     .where("id = :id", { id: payment.streamId })
                     .execute();
             } catch (e) {
@@ -376,7 +376,7 @@ function startStreamPayment(streamId, forceStart = false) {
             try {
                 db.streamBuilder()
                     .update()
-                    .set({ partsPaid: payment.partsPaid, status: "run" })
+                    .set({ partsPaid: payment.partsPaid, status: types.STREAM_PAYMENT_STREAMING })
                     .where("id = :id", { id: payment.streamId })
                     .execute();
             } catch (e) {
@@ -422,7 +422,7 @@ function loadStreams() {
             .getMany();
         const streams = orderBy(response, "date", "desc")
             .reduce((reducedStreams, item) => {
-                if (item.status === "end") {
+                if (item.status === types.STREAM_PAYMENT_FINISHED) {
                     return reducedStreams;
                 }
                 reducedStreams.push({
@@ -430,7 +430,7 @@ function loadStreams() {
                     contact_name: "",
                     partsPending: 0,
                     paymentIntervalId: null,
-                    status: item.status === "run" ? types.STREAM_PAYMENT_STREAMING : types.STREAM_PAYMENT_PAUSED,
+                    status: item.status,
                     streamId: item.id,
                     uuid: item.id,
                 });

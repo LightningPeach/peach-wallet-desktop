@@ -103,7 +103,9 @@ class EditStream extends Component {
     _validateTime = (time) => {
         const { currentStream } = this.props;
         const currentParts =
-            (currentStream.status !== "end" ? currentStream.partsPending : 0) + currentStream.partsPaid;
+            (currentStream.status !== types.STREAM_PAYMENT_FINISHED
+                ? currentStream.partsPending : 0
+            ) + currentStream.partsPaid;
         if (time === STREAM_INFINITE_TIME_VALUE) {
             return null;
         } else if (!time) {
@@ -112,7 +114,7 @@ class EditStream extends Component {
             return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
         } else if (time <= 0) {
             return statusCodes.EXCEPTION_TIME_NEGATIVE;
-        } else if (currentStream.status !== "end" && currentParts >= time) {
+        } else if (currentStream.status !== types.STREAM_PAYMENT_FINISHED && currentParts >= time) {
             return statusCodes.EXCEPTION_RECURRING_LESS_PAID_PARTS(currentParts);
         }
         return null;
@@ -288,7 +290,10 @@ class EditStream extends Component {
                                                         this.frequency = ref;
                                                     }}
                                                     setOnChange={this.setFrequency}
-                                                    disabled={this.state.processing || currentStream.status === "end"}
+                                                    disabled={
+                                                        this.state.processing
+                                                        || currentStream.status === types.STREAM_PAYMENT_FINISHED
+                                                    }
                                                 />
                                             </div>
                                         </div>
@@ -331,7 +336,10 @@ class EditStream extends Component {
                                                         }}
                                                         className="Select-arrow"
                                                     />)}
-                                                    disabled={this.state.processing || currentStream.status === "end"}
+                                                    disabled={
+                                                        this.state.processing
+                                                        || currentStream.status === types.STREAM_PAYMENT_FINISHED
+                                                    }
                                                 />
                                             </div>
                                         </div>
@@ -377,7 +385,10 @@ class EditStream extends Component {
                                                         this.amount = ref;
                                                     }}
                                                     setOnChange={this.setAmount}
-                                                    disabled={this.state.processing || currentStream.status === "end"}
+                                                    disabled={
+                                                        this.state.processing
+                                                        || currentStream.status === types.STREAM_PAYMENT_FINISHED
+                                                    }
                                                 />
                                             </div>
                                         </div>
@@ -436,15 +447,20 @@ class EditStream extends Component {
                                                 this.time = ref;
                                             }}
                                             setOnChange={this.setTime}
-                                            disabled={this.state.isInfinite || this.state.processing
-                                                || currentStream.status === "end"}
+                                            disabled={
+                                                this.state.isInfinite
+                                                || this.state.processing
+                                                || currentStream.status === types.STREAM_PAYMENT_FINISHED}
                                         />
                                         <Checkbox
                                             text="Infinite"
                                             checked={this.state.isInfinite}
                                             onChange={this.toggleInfinite}
                                             class="check-input__checkbox"
-                                            disabled={this.state.processing || currentStream.status === "end"}
+                                            disabled={
+                                                this.state.processing
+                                                || currentStream.status === "end"
+                                            }
                                         />
                                     </div>
                                 </div>
