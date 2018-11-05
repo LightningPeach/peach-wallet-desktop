@@ -11,13 +11,20 @@
         line-height: 40px;
         text-overflow: ellipsis;
         transition: border-color 0.2s ease, background-color 0.25s ease;
-        display: inline-block;
-        overflow: hidden;
+        display: inline-flex;
 
         &--disabled {
             opacity: .3;
             pointer-events: none;
         }
+    }
+    &__button {
+        margin: -1px -10px 0 0;
+    }
+    &__value {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     &__input {
         display: none;

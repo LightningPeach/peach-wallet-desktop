@@ -57,6 +57,7 @@ class UserForm extends Component {
         const lndPathError = defaultPath ? null : await validators.validateLndPath(lndPath);
         this.setState({
             confPasswordError,
+            lndPathError,
             passwordError,
             processing: false,
             usernameError,
@@ -104,6 +105,7 @@ class UserForm extends Component {
                             placeholder="Enter your username"
                             disabled={disabled}
                             defaultValue={this.props.username}
+                            onChange={() => { this.setState({ usernameError: null }) }}
                         />
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
@@ -127,6 +129,7 @@ class UserForm extends Component {
                             type="password"
                             placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
                             disabled={disabled}
+                            onChange={() => { this.setState({ passwordError: null }) }}
                         />
                         <i
                             className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
@@ -154,6 +157,7 @@ class UserForm extends Component {
                             type="password"
                             placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
                             disabled={disabled}
+                            onChange={() => { this.setState({ confPasswordError: null }) }}
                         />
                         <ErrorFieldTooltip text={this.state.confPasswordError} />
                     </div>
@@ -190,9 +194,9 @@ class UserForm extends Component {
                             className={this.state.lndPathError ? "form-text__error" : ""}
                             onChange={(e) => {
                                 if (e.target.files[0]) {
-                                    this.setState({ lndPath: e.target.files[0].path });
+                                    this.setState({ lndPath: e.target.files[0].path, lndPathError: null });
                                 } else {
-                                    this.setState({ lndPath: "" });
+                                    this.setState({ lndPath: "", lndPathError: null });
                                 }
                             }}
                         />

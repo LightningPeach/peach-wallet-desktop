@@ -237,9 +237,9 @@ class RegistrationForm extends PureComponent {
                             className={this.state.lndPathError ? "form-text__error" : ""}
                             onChange={(e) => {
                                 if (e.target.files[0]) {
-                                    this.setState({ lndPath: e.target.files[0].path });
+                                    this.setState({ lndPath: e.target.files[0].path, lndPathError: null });
                                 } else {
-                                    this.setState({ lndPath: "" });
+                                    this.setState({ lndPath: "", lndPathError: null });
                                 }
                             }}
                         />

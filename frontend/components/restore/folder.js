@@ -3,7 +3,7 @@ import Tooltip from "rc-tooltip";
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, togglePasswordVisibility, helpers } from "additional";
+import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import ErrorFieldTooltip from "components/ui/error_field_tooltip";
 import File from "components/ui/file";
 import { authOperations as operations, authTypes as types } from "modules/auth";
@@ -19,6 +19,7 @@ class Folder extends Component {
 
         this.state = {
             lndPath: "",
+            lndPathError: null,
             passwordError: null,
             processing: false,
             tooltips: {
@@ -28,35 +29,38 @@ class Folder extends Component {
     }
 
     cancelRestore = () => {
+        const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Return to method" });
-        this.props.cancelRestore();
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_SELECT_METHOD));
     };
 
     handleRestore = async (e) => {
         e.preventDefault();
+        const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Submit Restore folder" });
         this.setState({ processing: true });
         const { lndPath } = this.state;
         const paths = lndPath.split(window.pathSep);
         const username = paths.pop();
         const lnPath = paths.join(window.pathSep);
+        const lndPathError = await validators.validateLndPath(lnPath);
         const password = this.password.value.trim();
         const passwordError = !password ? statusCodes.EXCEPTION_FIELD_IS_REQUIRED : null;
 
-        if (passwordError) {
-            this.setState({ passwordError, processing: false });
+        if (passwordError || lndPathError) {
+            this.setState({ lndPathError, passwordError, processing: false });
             return;
         }
         this.setState({ passwordError });
         await window.ipcClient("setLndPath", { defaultPath: false, lndPath: lnPath });
         await window.ipcClient("saveLndPath", { username });
-        const init = await this.props.login(username, password);
+        const init = await dispatch(operations.login(username, password));
         this.setState({ processing: false });
         if (!init.ok) {
-            this.props.handleError(init.error);
+            dispatch(error({ message: helpers.formatNotificationMessage(init.error) }));
             return;
         }
-        this.props.goToMain();
+        dispatch(push(WalletPath));
     };
 
     render() {
@@ -92,9 +96,9 @@ class Folder extends Component {
                             className={this.state.lndPathError ? "form-text__error" : ""}
                             onChange={(e) => {
                                 if (e.target.files[0]) {
-                                    this.setState({ lndPath: e.target.files[0].path });
+                                    this.setState({ lndPath: e.target.files[0].path, lndPathError: null });
                                 } else {
-                                    this.setState({ lndPath: "" });
+                                    this.setState({ lndPath: "", lndPathError: null });
                                 }
                             }}
                         />
@@ -120,6 +124,7 @@ class Folder extends Component {
                             type="password"
                             placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
                             disabled={disabled}
+                            onChange={() => { this.setState({ passwordError: null }) }}
                         />
                         <i
                             className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
@@ -152,17 +157,7 @@ class Folder extends Component {
 }
 
 Folder.propTypes = {
-    cancelRestore: PropTypes.func.isRequired,
-    goToMain: PropTypes.func.isRequired,
-    handleError: PropTypes.func.isRequired,
-    login: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
-    cancelRestore: () => dispatch(operations.setAuthStep(types.RESTORE_STEP_SELECT_METHOD)),
-    goToMain: () => dispatch(push(WalletPath)),
-    handleError: msg => dispatch(error({ message: helpers.formatNotificationMessage(msg) })),
-    login: (username, password) => dispatch(operations.login(username, password)),
-});
-
-export default connect(null, mapDispatchToProps)(Folder);
+export default connect()(Folder);

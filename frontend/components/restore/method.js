@@ -6,18 +6,21 @@ import * as analytics from "additional/analytics";
 
 class Method extends Component {
     useWalletData = () => {
+        const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Use wallet data" });
-        this.props.useData();
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_USE_WALLET_DATA));
     };
 
     useSeed = () => {
+        const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Use seed words" });
-        this.props.useSeed();
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_USER_PASS));
     };
 
     cancelRestore = () => {
+        const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Cancel select method" });
-        this.props.cancelRestore();
+        dispatch(operations.setForm(types.LOGIN_FORM));
     };
 
     render() {
@@ -56,15 +59,7 @@ class Method extends Component {
 }
 
 Method.propTypes = {
-    cancelRestore: PropTypes.func.isRequired,
-    useData: PropTypes.func.isRequired,
-    useSeed: PropTypes.func.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
-const mapDispatchToProps = dispatch => ({
-    cancelRestore: () => dispatch(operations.setForm(types.LOGIN_FORM)),
-    useData: () => dispatch(operations.setAuthStep(types.RESTORE_STEP_USE_WALLET_DATA)),
-    useSeed: () => dispatch(operations.setAuthStep(types.RESTORE_STEP_USER_PASS)),
-});
-
-export default connect(null, mapDispatchToProps)(Method);
+export default connect()(Method);
