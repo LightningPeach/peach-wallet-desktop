@@ -153,6 +153,7 @@ class Login extends Component {
                             max={USERNAME_MAX_LENGTH}
                             maxLength={USERNAME_MAX_LENGTH}
                             onChange={() => { this.setState({ usernameError: null }) }}
+                            defaultValue="simnet"
                         />
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
@@ -179,6 +180,7 @@ class Login extends Component {
                             }}
                             disabled={disabled}
                             onChange={() => { this.setState({ passwordError: null }) }}
+                            defaultValue="1a1a1a1aA"
                         />
                         <i
                             className="form-text__icon form-text__icon--eye form-text__icon--eye_open"

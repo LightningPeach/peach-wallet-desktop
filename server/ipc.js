@@ -99,8 +99,6 @@ registerIpc("createLndFolder", async (event, arg) => {
 registerIpc("logout", this.shutdown);
 
 registerIpc("checkUser", async (event, arg) => {
-    const loadedPath = await settings.get.loadLndPath(arg.username);
-    settings.set("lndPath", loadedPath);
     const exists = await helpers.checkDir(path.join(settings.get.lndPath, arg.username, "data"));
     if (!exists.ok) {
         exists.error = "User doesn't exist.";
@@ -120,7 +118,7 @@ registerIpc("loadLndPath", async (event, arg) => {
 
 registerIpc("validateLndPath", async (event, arg) => helpers.checkDir(path.join(arg.lndPath)));
 
-registerIpc("newAddress", async () => lnd.call("newWitnessAddress"));
+registerIpc("newAddress", async () => lnd.call("newAddress", { type: 0 }));
 
 registerIpc("walletBalance", async () => lnd.call("walletBalance"));
 

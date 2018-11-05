@@ -37,7 +37,7 @@ class UserForm extends Component {
 
     cancelRestore = () => {
         analytics.event({ action: "Restore Password", category: "Auth", label: "Return to login" });
-        this.props.dispatch(operations.setForm(types.LOGIN_FORM));
+        this.props.dispatch(operations.setAuthStep(types.RESTORE_STEP_SELECT_METHOD));
     };
 
     handleRestore = async (e) => {
@@ -46,6 +46,8 @@ class UserForm extends Component {
         this.setState({ processing: true });
         const { dispatch, onValidUser } = this.props;
         const { lndPath, defaultPath } = this.state;
+        await window.ipcClient("setLndPath", { defaultPath, lndPath });
+
         const username = this.username.value.trim();
         const password = this.password.value.trim();
         const confPassword = this.confPassword.value.trim();
@@ -62,7 +64,6 @@ class UserForm extends Component {
         if (usernameError || passwordError || confPasswordError || lndPathError) {
             return;
         }
-        await window.ipcClient("setLndPath", { defaultPath, lndPath });
         onValidUser({ password, username });
         dispatch(operations.setAuthStep(types.RESTORE_STEP_SEED));
     };
@@ -162,7 +163,9 @@ class UserForm extends Component {
                         <div className="form-label">
                             <Checkbox
                                 text="Use default path"
-                                onChange={() => this.setState({ defaultPath: !this.state.defaultPath })}
+                                onChange={() => this.setState({
+                                    defaultPath: !this.state.defaultPath, lndPathError: null,
+                                })}
                                 checked={this.state.defaultPath}
                             />
                             <Tooltip
