@@ -634,7 +634,7 @@ describe("Stream Payment Unit Tests", () => {
             beforeEach(async () => {
                 data.streamId = "bar";
                 data.lightningID = lightningID;
-                data.status = "end";
+                data.status = types.STREAM_PAYMENT_FINISHED;
                 data.price = 10;
                 data.delay = 1000;
                 data.totalParts = 10;
@@ -858,10 +858,12 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
                 expect(data.streamBuilder.set)
-                    .to.be.calledWithExactly({ status: "pause" });
+                    .to.be.calledWithExactly({ status: types.STREAM_PAYMENT_PAUSED });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
-                expect(data.streamBuilder.where).to.be.calledWithExactly("status = :status", { status: "run" });
+                expect(data.streamBuilder.where).to.be.calledWithExactly("status = :status", {
+                    status: types.STREAM_PAYMENT_STREAMING,
+                });
                 expect(data.streamBuilder.execute).to.be.calledOnce;
                 expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
             });
@@ -927,7 +929,7 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
                 expect(data.streamBuilder.set)
-                    .to.be.calledWithExactly({ partsPaid: 0, status: "pause" });
+                    .to.be.calledWithExactly({ partsPaid: 0, status: types.STREAM_PAYMENT_PAUSED });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
@@ -996,7 +998,7 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
                 expect(data.streamBuilder.set)
-                    .to.be.calledWithExactly({ partsPaid: 0, status: "pause" });
+                    .to.be.calledWithExactly({ partsPaid: 0, status: types.STREAM_PAYMENT_PAUSED });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
@@ -1009,14 +1011,14 @@ describe("Stream Payment Unit Tests", () => {
             const streams = [
                 {
                     date: 1,
-                    status: "end",
+                    status: types.STREAM_PAYMENT_FINISHED,
                     lightningID: "foo",
                     id: 1,
                     extra: "buz",
                 },
                 {
                     date: 2,
-                    status: "run",
+                    status: types.STREAM_PAYMENT_STREAMING,
                     lightningID: "bar",
                     id: 2,
                     totalParts: 1,
@@ -1026,7 +1028,7 @@ describe("Stream Payment Unit Tests", () => {
                 },
                 {
                     date: 3,
-                    status: "pause",
+                    status: types.STREAM_PAYMENT_PAUSED,
                     lightningID: "baz",
                     id: 3,
                 },
@@ -1148,7 +1150,7 @@ describe("Stream Payment Unit Tests", () => {
                 const streams = [
                     {
                         date: 1,
-                        status: "end",
+                        status: types.STREAM_PAYMENT_PAUSED,
                         lightningID: "foo",
                         id: 1,
                         uuid: "baz",
@@ -1181,7 +1183,10 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.calledOnce;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "end" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_FINISHED,
+                });
                 expect(data.streamBuilder.where).to.be.calledOnce;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "baz" });
@@ -1284,8 +1289,14 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.calledTwice;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "pause" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_STREAMING,
+                });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_PAUSED,
+                });
                 expect(data.streamBuilder.where).to.be.calledTwice;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
@@ -1356,8 +1367,14 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.calledTwice;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "pause" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_STREAMING,
+                });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_PAUSED,
+                });
                 expect(data.streamBuilder.where).to.be.calledTwice;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
@@ -1435,8 +1452,14 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.calledTwice;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "pause" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_STREAMING,
+                });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_PAUSED,
+                });
                 expect(data.streamBuilder.where).to.be.calledTwice;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
@@ -1572,8 +1595,14 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.callCount(4);
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 3, status: "end" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_STREAMING,
+                });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 3,
+                    status: types.STREAM_PAYMENT_FINISHED,
+                });
                 expect(data.streamBuilder.where).to.be.callCount(4);
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });
@@ -1678,8 +1707,14 @@ describe("Stream Payment Unit Tests", () => {
                 expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
                 expect(data.streamBuilder.set).to.be.calledThrice;
                 expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 1, status: "run" });
-                expect(data.streamBuilder.set).to.be.calledWithExactly({ partsPaid: 2, status: "end" });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 1,
+                    status: types.STREAM_PAYMENT_STREAMING,
+                });
+                expect(data.streamBuilder.set).to.be.calledWithExactly({
+                    partsPaid: 2,
+                    status: types.STREAM_PAYMENT_FINISHED,
+                });
                 expect(data.streamBuilder.where).to.be.calledThrice;
                 expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
                 expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: "foo" });

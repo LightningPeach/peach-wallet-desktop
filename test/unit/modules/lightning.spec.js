@@ -12,6 +12,7 @@ import {
 import lightningReducer, { initStateLightning } from "modules/lightning/reducers";
 import { accountOperations, accountTypes } from "modules/account";
 import { appTypes } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
 import { store as defaultStore } from "store/configure-store";
 import { db, errorPromise, successPromise } from "additional";
 
@@ -1164,19 +1165,19 @@ describe("Lightning Unit Tests", () => {
                 dbStreams = [
                     {
                         parts: [{ payment_hash: "no-bar" }],
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
                     },
                     {
                         id: 101,
-                        status: "pause",
+                        status: streamPaymentTypes.STREAM_PAYMENT_PAUSED,
                         parts: [{ payment_hash: "1" }],
                         name: "name-foo",
                         partsPaid: 0,
                     },
                     {
                         id: 102,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "2" }],
                         name: "name-bar",
                         price: 502,
@@ -1186,7 +1187,7 @@ describe("Lightning Unit Tests", () => {
                     },
                     {
                         id: 104,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "4" }],
                         name: "name-quux",
                         price: 504,
@@ -1252,10 +1253,10 @@ describe("Lightning Unit Tests", () => {
                         type: "stream",
                         id: 102,
                         partsPaid: 1,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                     },
                     {
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
                         type: "stream",
                     },
@@ -1265,7 +1266,7 @@ describe("Lightning Unit Tests", () => {
                         date: 604,
                         lightningID: "quux",
                         name: "name-quux",
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
                         type: "stream",
                     },

@@ -1,5 +1,6 @@
 import { statusCodes } from "config";
 import { appOperations, appActions } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
 import orderBy from "lodash/orderBy";
@@ -132,7 +133,7 @@ async function getPayments() {
         const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false))[0];
         if (dbStream) {
             foundedInDb.push(dbStream.id);
-            if (dbStream.status !== "end") {
+            if (dbStream.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED) {
                 return reducedPayments;
             }
             const partsPaid = streamPayments[dbStream.id] ? streamPayments[dbStream.id].partsPaid + 1 : 1;
@@ -154,14 +155,16 @@ async function getPayments() {
         });
         return reducedPayments;
     }, []);
-    const orphansStreams = dbStreams.filter(dbStream => !foundedInDb.includes(dbStream.id) && dbStream.status === "end")
+    const orphansStreams = dbStreams.filter(dbStream =>
+        !foundedInDb.includes(dbStream.id)
+        && dbStream.status === streamPaymentTypes.STREAM_PAYMENT_FINISHED)
         .map(dbStream => ({
             ...omit(dbStream, "parts"),
             partsPaid: 0,
             type: "stream",
         }));
     dbStreams.forEach((dbStream) => {
-        if (dbStream.status !== "end") {
+        if (dbStream.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED) {
             return;
         }
         const partsPaid = !foundedInDb.includes(dbStream.id)

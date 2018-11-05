@@ -156,8 +156,7 @@ class RecurringHistory extends Component {
         ]
             .map((item) => {
                 let tempAddress = item.lightningID;
-                const isActive = item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED
-                    || item.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING;
+                const isActive = item.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED;
                 contacts.forEach((contact) => {
                     if (contact.lightningID === item.lightningID) {
                         tempAddress = contact.name;
@@ -262,7 +261,6 @@ class RecurringHistory extends Component {
                             ({item.price} USD)
                         </span>);
                 const count = item.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED
-                    && item.status !== "end"
                     ? (
                         <span>
                             <span
