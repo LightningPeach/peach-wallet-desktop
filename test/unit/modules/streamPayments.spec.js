@@ -493,6 +493,13 @@ describe("Stream Payment Unit Tests", () => {
                 expect(listActions).to.deep.equal(expectedActions);
             });
 
+            it("openActiveRecurringWarningModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_ACTIVE_RECURRING_WARNING;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openActiveRecurringWarningModal())).to.deep.equal(expectedData);
+                expect(listActions).to.deep.equal(expectedActions);
+            });
+
             it("openEditStreamModal()", async () => {
                 expectedData.payload = types.MODAL_STATE_EDIT_STREAM_PAYMENT;
                 expectedActions = [expectedData];
