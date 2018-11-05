@@ -118,7 +118,7 @@ registerIpc("loadLndPath", async (event, arg) => {
 
 registerIpc("validateLndPath", async (event, arg) => helpers.checkDir(path.join(arg.lndPath)));
 
-registerIpc("newAddress", async () => lnd.call("newAddress", { type: 0 }));
+registerIpc("newAddress", async () => lnd.call("newWitnessAddress"));
 
 registerIpc("walletBalance", async () => lnd.call("walletBalance"));
 
