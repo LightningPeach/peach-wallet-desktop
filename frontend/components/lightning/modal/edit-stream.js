@@ -34,20 +34,26 @@ class EditStream extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            amount: props.currentStream.price,
             amountError: null,
-            frequency: 1,
+            frequency: helpers.formatTimeRange(props.currentStream.delay, false).split(" ")[0],
             frequencyError: null,
             isInfinite: props.currentStream.totalParts === STREAM_INFINITE_TIME_VALUE,
             nameError: null,
             timeCurrency: helpers.formatTimeRange(props.currentStream.delay, false).split(" ")[1],
             timeError: null,
+            valueCurrency: props.currentStream.currency === "BTC"
+                ? props.bitcoinMeasureType
+                : props.currentStream.currency,
         };
 
         analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Edit");
     }
 
     setAmount = () => {
+        const amount = parseFloat(this.amount.value.trim()) || null;
         this.setState({
+            amount,
             amountError: null,
         });
     };
@@ -198,11 +204,11 @@ class EditStream extends Component {
             return null;
         }
         const filledFrequency = this.state.frequency;
-        const filledAmount = this.amount && this.amount.value.trim();
+        const filledAmount = this.state.amount;
         return (
             <Modal styleSet="wide" title="Edit recurring payment" onClose={this.closeModal} showCloseButton>
                 <form
-                    className="send form"
+                    className="send send--no-pt form"
                     onSubmit={this.updateStream}
                 >
                     <div className="modal-body">
@@ -271,7 +277,7 @@ class EditStream extends Component {
                                                     id="stream__frequency"
                                                     className={`connected-field__input form-text ${
                                                         this.state.frequencyError ? "form-text__error" : ""}`}
-                                                    value={helpers.formatTimeRange(currentStream.delay).split(" ")[0]}
+                                                    value={this.state.frequency}
                                                     pattern="above_zero_int"
                                                     name="stream__frequency"
                                                     placeholder="0"

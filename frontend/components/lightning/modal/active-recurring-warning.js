@@ -33,7 +33,7 @@ class ActiveRecurringWarning extends Component {
                 <div className="modal-body text-center text-16">
                     <div className="row">
                         <div className="col-xs-12">
-                            Recurring payment must be stopped before making any changes.
+                            Recurring payment must be paused before making any changes.
                         </div>
                     </div>
                 </div>

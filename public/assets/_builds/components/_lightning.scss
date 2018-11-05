@@ -6,6 +6,10 @@
     .send {
         padding-top: 23px;
 
+        &--no-pt {
+            padding-top: 0;
+        }
+
         &.narrow {
             width: 420px;
             max-width: 100%;
@@ -34,6 +38,14 @@
                     border-top-left-radius: 0;
                     border: 1px solid rgba(74,74,74,0.3);
                     border-left: 1px dashed rgba(74,74,74,0.3);
+                }
+            }
+
+            .connected-field__input,
+            .Select-control {
+                &:disabled {
+                    opacity: 1;
+                    color: transparentize($black, 0.3);
                 }
             }
 
@@ -149,10 +161,11 @@
         &__actions {
             position: absolute;
             right: 0;
-            padding: 10px 10px 10px 20px;
+            padding: 10px 10px 10px 28px;
             margin-top: -26px;
             background: transparent;
-            transition: all 0.5s ease-in-out;
+            opacity: 0;
+            transition: opacity .3s ease-in-out;
             z-index: 1;
         }
     }
