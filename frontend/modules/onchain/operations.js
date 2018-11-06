@@ -208,6 +208,7 @@ function sendCoins() {
             recepient,
             amount,
             confTarget,
+            fee,
         } = getState().onchain.sendCoinsDetails;
         const response = await window.ipcClient("sendCoins", {
             addr: recepient,
@@ -222,7 +223,7 @@ function sendCoins() {
                     .insert()
                     .values({
                         address: recepient,
-                        amount: -amount - getState().onchain.fee,
+                        amount: -amount - fee,
                         blockHash: "",
                         blockHeight: 0,
                         name: name || "Regular payment",
