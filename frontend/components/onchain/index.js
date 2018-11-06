@@ -59,7 +59,7 @@ class Onchain extends Component {
         const { dispatch } = this.props;
         const name = this.name.value.trim();
         const to = this.to.value.trim();
-        let confTarget = parseInt(this.conf_target.value.trim(), 10);
+        let confTarget = parseInt(this.confTarget.value.trim(), 10);
         confTarget = Number.isNaN(confTarget) || confTarget < 0 ? ONCHAIN_SEND_COINS_CONFIRMATION : confTarget;
         let amount = parseFloat(this.amount.value.trim());
         const nameError = validators.validateName(name, false, true, true, undefined, true);
@@ -212,6 +212,7 @@ class Onchain extends Component {
         this.setState({ amount: null });
         this.form.reset();
         this.amountComponent.reset();
+        this.confTargetComponent.reset();
     };
 
     renderOnchain = () => {
@@ -317,8 +318,11 @@ class Onchain extends Component {
                             className={`form-text ${this.state.confTargetError ? "form-text__error" : ""}`}
                             name="conf_target"
                             placeholder={`${ONCHAIN_SEND_COINS_CONFIRMATION} blocks`}
+                            ref={(ref) => {
+                                this.confTargetComponent = ref;
+                            }}
                             setRef={(ref) => {
-                                this.conf_target = ref;
+                                this.confTarget = ref;
                             }}
                             setOnChange={() => { this.setState({ confTargetError: null }) }}
                         />

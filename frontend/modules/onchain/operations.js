@@ -15,6 +15,23 @@ import has from "lodash/has";
 import * as actions from "./actions";
 import * as types from "./types";
 
+/**
+ * @param {String} addr
+ * @param {Integer} amount
+ * @param {Integer} target_conf
+ * @returns {Object}
+ */
+async function calculateFee(addr, amount, target_conf = 0) {
+    const { ok, response } = await window.ipcClient("estimateFee", { AddrToAmount: { [addr]: amount }, target_conf });
+    if (!ok) {
+        return { fee_sat: 0, feerate_sat_per_kw: 0 };
+    }
+    return {
+        fee_sat: parseInt(response.fee_sat, 10),
+        feerate_sat_per_kw: parseInt(response.feerate_sat_per_kw, 10),
+    };
+}
+
 function openSendCoinsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SEND_COINS));
 }
@@ -169,7 +186,8 @@ function prepareSendCoins(recepient, amount, name, confTarget = ONCHAIN_SEND_COI
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
             return unsuccessPromise(prepareSendCoins);
         }
-        dispatch(actions.sendCoinsPreparing(recepient, amount, name, confTarget));
+        const fee = await calculateFee(recepient, amount, confTarget);
+        dispatch(actions.sendCoinsPreparing(recepient, amount, name, confTarget, fee.fee_sat));
         return successPromise();
     };
 }
@@ -248,6 +266,7 @@ window.ipcRenderer.on("transactions-update", (event) => {
 });
 
 export {
+    calculateFee,
     getOnchainHistory,
     openSendCoinsModal,
     prepareSendCoins,

@@ -38,6 +38,7 @@ describe("OnChain Unit Tests", () => {
                 amount: "bar",
                 name: "baz",
                 confTarget: 1,
+                fee: 0,
             };
             expectedData = {
                 payload: data,
@@ -48,6 +49,7 @@ describe("OnChain Unit Tests", () => {
                 data.amount,
                 data.name,
                 data.confTarget,
+                data.fee,
             )).to.deep.equal(expectedData);
         });
 
@@ -57,6 +59,7 @@ describe("OnChain Unit Tests", () => {
                 amount: "bar",
                 name: "",
                 confTarget: 1,
+                fee: 0,
             };
             expectedData = {
                 payload: data,
@@ -67,6 +70,7 @@ describe("OnChain Unit Tests", () => {
                 data.amount,
                 undefined,
                 data.confTarget,
+                data.fee,
             )).to.deep.equal(expectedData);
         });
 
@@ -266,6 +270,65 @@ describe("OnChain Unit Tests", () => {
             });
         });
 
+        describe("calculateFee()", () => {
+            beforeEach(() => {
+                data.attr = {
+                    recepient: "foo",
+                    amount: "bar",
+                    defaultConfTarget: 0,
+                };
+            });
+
+            it("should handle error", async () => {
+                window.ipcClient
+                    .withArgs("estimateFee")
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    fee_sat: 0,
+                    feerate_sat_per_kw: 0,
+                };
+                expect(await operations.calculateFee(data.attr.recepient, data.attr.amount))
+                    .to
+                    .deep
+                    .equal(expectedData);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient)
+                    .to
+                    .be
+                    .calledWith("estimateFee", {
+                        AddrToAmount: { [data.attr.recepient]: data.attr.amount },
+                        target_conf: data.attr.defaultConfTarget,
+                    });
+            });
+
+            it("should handle error", async () => {
+                expectedData = {
+                    fee_sat: 100,
+                    feerate_sat_per_kw: 1100,
+                };
+                window.ipcClient
+                    .withArgs("estimateFee")
+                    .returns({
+                        ok: true,
+                        response: expectedData,
+                    });
+                expect(await operations.calculateFee(data.attr.recepient, data.attr.amount))
+                    .to
+                    .deep
+                    .equal(expectedData);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient)
+                    .to
+                    .be
+                    .calledWith("estimateFee", {
+                        AddrToAmount: { [data.attr.recepient]: data.attr.amount },
+                        target_conf: data.attr.defaultConfTarget,
+                    });
+            });
+        });
+
         it("subscribeTransactions()", async () => {
             expect(await store.dispatch(operations.subscribeTransactions())).to.deep.equal(expectedData);
             expect(store.getActions()).to.deep.equal(expectedActions);
@@ -311,6 +374,7 @@ describe("OnChain Unit Tests", () => {
                     amount: "bar",
                     name: "baz",
                     confTarget: 1,
+                    fee: 0,
                 };
             });
 
@@ -330,7 +394,12 @@ describe("OnChain Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
-            it("success", async () => {
+            it("success with estimateFee error", async () => {
+                window.ipcClient
+                    .withArgs("estimateFee")
+                    .returns({
+                        ok: false,
+                    });
                 expectedActions = [
                     {
                         payload: data.attr,
@@ -345,6 +414,48 @@ describe("OnChain Unit Tests", () => {
                     data.attr.confTarget,
                 ))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient)
+                    .to
+                    .be
+                    .calledWith("estimateFee", {
+                        AddrToAmount: { [data.attr.recepient]: data.attr.amount },
+                        target_conf: data.attr.confTarget,
+                    });
+            });
+
+            it("success", async () => {
+                window.ipcClient
+                    .withArgs("estimateFee")
+                    .returns({
+                        ok: true,
+                        response: {
+                            fee_sat: data.attr.fee,
+                            feerate_sat_per_kw: 106,
+                        },
+                    });
+                expectedActions = [
+                    {
+                        payload: data.attr,
+                        type: types.SEND_COINS_PREPARING,
+                    },
+                ];
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.prepareSendCoins(
+                    data.attr.recepient,
+                    data.attr.amount,
+                    data.attr.name,
+                    data.attr.confTarget,
+                ))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient)
+                    .to
+                    .be
+                    .calledWith("estimateFee", {
+                        AddrToAmount: { [data.attr.recepient]: data.attr.amount },
+                        target_conf: data.attr.confTarget,
+                    });
             });
         });
 
