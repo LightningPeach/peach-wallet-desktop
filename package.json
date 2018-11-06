@@ -41,13 +41,16 @@
       "!settings.peach.local.json",
       "!agreement.ini"
     ],
-    "extraFiles": {
-      "from": "node_modules/executable",
-      "to": "resources/app.asar.unpacked/node_modules/executable",
-      "filter": [
-        "**/*"
-      ]
-    },
+    "extraFiles": [
+      {
+        "from": "node_modules/executable",
+        "to": "resources/app.asar.unpacked/node_modules/executable"
+      },
+      {
+        "from": "node_modules/preload",
+        "to": "resources/app.asar.unpacked/node_modules/preload"
+      }
+    ],
     "extraResources": [
       "settings.ini"
     ],
