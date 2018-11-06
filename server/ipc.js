@@ -14,8 +14,6 @@ const grpcStatus = require("grpc").status;
 
 const lnd = new Lnd();
 
-registerIpc("validateBinaries", async () => ({ ok: true }));
-
 /**
  * User agreed the eula.txt
  */

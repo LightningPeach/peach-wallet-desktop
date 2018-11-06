@@ -22,12 +22,7 @@ function regStartLnd(username) {
     return async (dispatch) => {
         dispatch(accountActions.createAccount());
         dispatch(lndOperations.setClearLndData(true));
-        let response = await window.ipcClient("validateBinaries");
-        if (!response.ok) {
-            dispatch(accountActions.finishInitAccount());
-            return errorPromise(response.error, regStartLnd);
-        }
-        response = await window.ipcClient("checkUser", { username });
+        let response = await window.ipcClient("checkUser", { username });
         if (response.ok) {
             const error = "User already exist";
             dispatch(accountActions.errorCreateNewAccount(error));
@@ -101,12 +96,7 @@ function restore(username, password, seed) {
 function login(username, password) {
     return async (dispatch) => {
         dispatch(accountActions.startInitAccount());
-        let response = await window.ipcClient("validateBinaries");
-        if (!response.ok) {
-            dispatch(accountActions.finishInitAccount());
-            return errorPromise(response.error, login);
-        }
-        response = await dispatch(lndOperations.startLnd(username));
+        let response = await dispatch(lndOperations.startLnd(username));
         if (!response.ok) {
             dispatch(accountActions.finishInitAccount());
             return errorPromise(response.error, login);
