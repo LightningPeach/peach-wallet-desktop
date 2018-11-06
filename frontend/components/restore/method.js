@@ -41,7 +41,7 @@ class Method extends Component {
                         className="button button__orange button__fullwide button__under-button"
                         onClick={this.useSeed}
                     >
-                        From seeds words
+                        From seed words
                     </button>
                 </div>
                 <div className="col-xs-12 text-center">

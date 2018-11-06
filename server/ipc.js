@@ -98,6 +98,16 @@ registerIpc("createLndFolder", async (event, arg) => {
 
 registerIpc("logout", this.shutdown);
 
+registerIpc("checkUsername", async (event, arg) => {
+    const usernames = await settings.get.getCustomPathLndUsernames();
+    const response = { ok: true };
+    if (arg.username in usernames) {
+        response.ok = false;
+        response.error = "User exist.";
+    }
+    return response;
+});
+
 registerIpc("checkUser", async (event, arg) => {
     const exists = await helpers.checkDir(path.join(settings.get.lndPath, arg.username, "data"));
     if (!exists.ok) {

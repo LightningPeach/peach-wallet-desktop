@@ -97,14 +97,18 @@ module.exports = ({
         await helpers.writeFile(peersFile, JSON.stringify(peers));
     };
 
-    const loadLndPath = async (username) => {
-        const defaultPath = config.get("dataPath");
+    const getCustomPathLndUsernames = async () => {
         const fileExists = fs.existsSync(userPathsFile);
         if (!fileExists) {
-            return defaultPath;
+            return {};
         }
-        const paths = JSON.parse(fs.readFileSync(userPathsFile).toString());
-        logger.info("[SETTINGS] - getLndPath", { fileExists, username, paths });
+        return JSON.parse(fs.readFileSync(userPathsFile).toString());
+    };
+
+    const loadLndPath = async (username) => {
+        const defaultPath = config.get("dataPath");
+        const paths = getCustomPathLndUsernames();
+        logger.info("[SETTINGS] - getLndPath", { username, paths });
         if (username in paths) {
             return paths[username];
         }
@@ -112,12 +116,7 @@ module.exports = ({
     };
 
     const saveLndPath = async (username, lndPath) => {
-        const fileExists = fs.existsSync(userPathsFile);
-        if (!fileExists) {
-            await helpers.writeFile(userPathsFile, JSON.stringify({ [username]: lndPath }));
-            return;
-        }
-        const paths = JSON.parse(fs.readFileSync(userPathsFile).toString());
+        const paths = getCustomPathLndUsernames();
         logger.info("[SETTINGS] - saveLndPath", { paths });
         if (username in paths && paths[username] === lndPath) {
             return;
@@ -127,6 +126,7 @@ module.exports = ({
     };
 
     return {
+        getCustomPathLndUsernames,
         databasePath,
         listenPort,
         setAgreement,

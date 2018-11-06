@@ -43,7 +43,7 @@ class Folder extends Component {
         const paths = lndPath.split(window.pathSep);
         const username = paths.pop();
         const lnPath = paths.join(window.pathSep);
-        const lndPathError = await validators.validateLndPath(lnPath);
+        const lndPathError = await validators.validateLndPath(lnPath) || await this._validateUsername(username);
         const password = this.password.value.trim();
         const passwordError = !password ? statusCodes.EXCEPTION_FIELD_IS_REQUIRED : null;
 
@@ -61,6 +61,14 @@ class Folder extends Component {
             return;
         }
         dispatch(push(WalletPath));
+    };
+
+    _validateUsername = async (username) => {
+        const { ok } = await window.ipcClient("checkUsername", { username });
+        if (!ok) {
+            return statusCodes.EXCEPTION_FOLDER_USERNAME_EXISTS;
+        }
+        return null;
     };
 
     render() {
