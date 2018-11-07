@@ -270,6 +270,10 @@ function isPortTaken(port, extreaIp) {
     });
 }
 
+function readFolderWithinFolder(folder) {
+    return fs.readdirSync(folder).filter(f => fs.statSync(path.join(folder, f)).isDirectory()) || [];
+}
+
 module.exports.delay = delay;
 module.exports.checkDir = checkDir;
 module.exports.readFile = readFile;
@@ -283,3 +287,4 @@ module.exports.hasProperty = hasProperty;
 module.exports.ipcSend = ipcSend;
 module.exports.isPortTaken = isPortTaken;
 module.exports.noExponents = noExponents;
+module.exports.readFolderWithinFolder = readFolderWithinFolder;

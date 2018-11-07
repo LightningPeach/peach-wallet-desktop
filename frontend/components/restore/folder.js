@@ -64,8 +64,8 @@ class Folder extends Component {
     };
 
     _validateUsername = async (username) => {
-        const { ok } = await window.ipcClient("checkUsername", { username });
-        if (!ok) {
+        const response = await validators.validateUserExistence(username);
+        if (response) {
             return statusCodes.EXCEPTION_FOLDER_USERNAME_EXISTS;
         }
         return null;

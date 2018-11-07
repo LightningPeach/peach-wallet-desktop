@@ -98,11 +98,16 @@ module.exports = ({
     };
 
     const getCustomPathLndUsernames = async () => {
+        const basePath = config.get("dataPath");
+        const data = {};
+        helpers.readFolderWithinFolder(basePath).forEach((item, key) => {
+            data[item] = join(basePath, item);
+        });
         const fileExists = fs.existsSync(userPathsFile);
         if (!fileExists) {
-            return {};
+            return data;
         }
-        return JSON.parse(fs.readFileSync(userPathsFile).toString());
+        return Object.assign({}, data, JSON.parse(fs.readFileSync(userPathsFile).toString()));
     };
 
     const loadLndPath = async (username) => {

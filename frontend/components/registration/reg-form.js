@@ -62,7 +62,7 @@ class RegistrationForm extends PureComponent {
         const username = this.username.value.trim();
         const password = this.password.value.trim();
         const confPassword = this.confPassword.value.trim();
-        const usernameError = validators.validateName(username, true, false, false);
+        const usernameError = await validators.validateUserExistence(username);
         const passwordError = validators.validatePass(password);
         const confPasswordError = validators.validatePassMismatch(password, confPassword);
         const lndPathError = defaultPath ? null : await validators.validateLndPath(lndPath);
