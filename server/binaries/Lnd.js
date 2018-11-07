@@ -27,7 +27,7 @@ const MACAROON_FILE = "admin.macaroon";
 const READONLY_MACAROON_FILE = "readonly.macaroon";
 const BLOCK_HEADERS_FILE = "block_headers.bin";
 const NEUTRINO_FILE = "neutrino.db";
-const REG_FILTER_HEADERS_FILE = "reg_filter_hedaers.bin";
+const REG_FILTER_HEADERS_FILE = "reg_filter_headers.bin";
 
 process.env.GRPC_SSL_CIPHER_SUITES = "HIGH+ECDSA";
 
@@ -186,29 +186,44 @@ class Lnd extends Exec {
             logger.info({ func: "injectPreload" }, `Will check preload files in ${userDataDir}`);
             exists = await helpers.checkAccess(userDataDir, false);
             if (!exists.ok) {
-                helpers.mkDirRecursive(path.join(settings.get.lndPath, "test", dataDir));
+                await helpers.mkDirRecursive(userDataDir);
             }
-            exists = await helpers.checkAccess(path.join(userDataDir, BLOCK_HEADERS_FILE), false);
-            if (!exists.ok) {
-                await fs.copyFile(
-                    path.join(preloadDataDir, BLOCK_HEADERS_FILE),
-                    path.join(userDataDir, BLOCK_HEADERS_FILE),
-                );
-            }
-            exists = await helpers.checkAccess(path.join(userDataDir, NEUTRINO_FILE), false);
-            if (!exists.ok) {
-                await fs.copyFile(
-                    path.join(preloadDataDir, NEUTRINO_FILE),
-                    path.join(userDataDir, NEUTRINO_FILE),
-                );
-            }
-            exists = await helpers.checkAccess(path.join(userDataDir, REG_FILTER_HEADERS_FILE), false);
-            if (!exists.ok) {
-                await fs.copyFile(
-                    path.join(preloadDataDir, REG_FILTER_HEADERS_FILE),
-                    path.join(userDataDir, REG_FILTER_HEADERS_FILE),
-                );
-            }
+            await fs.copyFile(
+                path.join(preloadDataDir, BLOCK_HEADERS_FILE),
+                path.join(userDataDir, BLOCK_HEADERS_FILE),
+                fs.constants.COPYFILE_EXCL,
+                (err) => {
+                    if (err) {
+                        logger.error({ func: "injectPreload" }, err);
+                    } else {
+                        logger.info({ func: "injectPreload" }, `${BLOCK_HEADERS_FILE} copied`);
+                    }
+                },
+            );
+            await fs.copyFile(
+                path.join(preloadDataDir, NEUTRINO_FILE),
+                path.join(userDataDir, NEUTRINO_FILE),
+                fs.constants.COPYFILE_EXCL,
+                (err) => {
+                    if (err) {
+                        logger.error({ func: "injectPreload" }, err);
+                    } else {
+                        logger.info({ func: "injectPreload" }, `${NEUTRINO_FILE} copied`);
+                    }
+                },
+            );
+            await fs.copyFile(
+                path.join(preloadDataDir, REG_FILTER_HEADERS_FILE),
+                path.join(userDataDir, REG_FILTER_HEADERS_FILE),
+                fs.constants.COPYFILE_EXCL,
+                (err) => {
+                    if (err) {
+                        logger.error({ func: "injectPreload" }, err);
+                    } else {
+                        logger.info({ func: "injectPreload" }, `${REG_FILTER_HEADERS_FILE} copied`);
+                    }
+                },
+            );
             return { ok: true };
         } catch (e) {
             return { ok: false, error: e.message, type: "internal" };
