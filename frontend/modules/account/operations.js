@@ -84,7 +84,7 @@ function checkBalance() {
 
 function createNewBitcoinAccount() {
     return async (dispatch, getState) => {
-        const response = await window.ipcClient("newAddress");
+        const response = await window.ipcClient("newAddress", { type: 1 });
         if (response.ok) {
             dispatch(accountActions.addBitcoinAccount(response.response.address));
             return successPromise();

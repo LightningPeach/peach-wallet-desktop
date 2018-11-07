@@ -128,17 +128,13 @@ registerIpc("loadLndPath", async (event, arg) => {
 
 registerIpc("validateLndPath", async (event, arg) => helpers.checkDir(path.join(arg.lndPath)));
 
-registerIpc("newAddress", async () => lnd.call("newWitnessAddress"));
+registerIpc("newAddress", async (event, arg) => lnd.call("newAddress", arg));
 
 registerIpc("walletBalance", async () => lnd.call("walletBalance"));
 
 registerIpc("getInfo", async () => lnd.call("getInfo"));
 
-registerIpc("describeGraph", async () => lnd.call("describeGraph"));
-
 registerIpc("listInvoices", async () => lnd.call("listInvoices"));
-
-registerIpc("listFailedPayments", async () => lnd.call("listFailedPayments"));
 
 registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(
     arg.value,

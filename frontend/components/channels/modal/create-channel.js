@@ -231,7 +231,7 @@ class CreateChannel extends Component {
                                     id="channel__lightningId"
                                     className={`form-text ${this.state.lightningError ? "form-text__error" : ""}`}
                                     name="channel_lightningId"
-                                    placeholder="Lightning ID@Host IP"
+                                    placeholder="Lightning ID@Host IP:Port"
                                     ref={(ref) => {
                                         this.channel__lightningId = ref;
                                     }}
