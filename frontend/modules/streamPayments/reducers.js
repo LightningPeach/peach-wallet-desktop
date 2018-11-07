@@ -4,7 +4,6 @@ import * as types from "./types";
 export const initStateStreamPayment = {
     currentStream: null,
     streamDetails: null,
-    streamId: undefined,
     streams: [],
 };
 

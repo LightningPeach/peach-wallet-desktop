@@ -1164,6 +1164,7 @@ describe("Lightning Unit Tests", () => {
                 ];
                 dbStreams = [
                     {
+                        id: 103,
                         parts: [{ payment_hash: "no-bar" }],
                         status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
@@ -1251,6 +1252,7 @@ describe("Lightning Unit Tests", () => {
                         lightningID: "qux",
                         name: "name-bar",
                         type: "stream",
+                        streamId: 102,
                         id: 102,
                         partsPaid: 1,
                         status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
@@ -1258,6 +1260,8 @@ describe("Lightning Unit Tests", () => {
                     {
                         status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
+                        id: 103,
+                        streamId: 103,
                         type: "stream",
                     },
                     {
@@ -1266,6 +1270,7 @@ describe("Lightning Unit Tests", () => {
                         date: 604,
                         lightningID: "quux",
                         name: "name-quux",
+                        streamId: 104,
                         status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
                         type: "stream",

@@ -171,7 +171,7 @@ class EditStream extends Component {
         }
 
         const response = await dispatch(operations.updateStreamPayment(
-            currentStream.streamId,
+            currentStream.streamId || currentStream.id,
             currentStream.lightningID,
             currentStream.status,
             amount,

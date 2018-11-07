@@ -140,6 +140,7 @@ async function getPayments() {
             streamPayments[dbStream.id] = {
                 ...omit(dbStream, "parts"),
                 partsPaid,
+                streamId: dbStream.id,
                 type: "stream",
             };
             return reducedPayments;
@@ -161,6 +162,7 @@ async function getPayments() {
         .map(dbStream => ({
             ...omit(dbStream, "parts"),
             partsPaid: 0,
+            streamId: dbStream.id,
             type: "stream",
         }));
     dbStreams.forEach((dbStream) => {
