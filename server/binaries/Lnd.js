@@ -8,6 +8,7 @@ const rmrf = require("rimraf");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const { ipcSend, isPortTaken, noExponents } = require("../utils/helpers");
 const settings = require("../settings");
+const helpers = require("../utils/helpers");
 
 const LND_ERRORS = ["2 UNKNOWN:", "102 undefined:", "103 undefined:", "101 undefined:", "14 UNAVAILABLE:"];
 const logger = baseLogger.child("binaries");
@@ -24,6 +25,9 @@ const LND_CERT_FILE = "tls.cert";
 const LND_KEY_FILE = "tls.key";
 const MACAROON_FILE = "admin.macaroon";
 const READONLY_MACAROON_FILE = "readonly.macaroon";
+const BLOCK_HEADERS_FILE = "block_headers.bin";
+const NEUTRINO_FILE = "neutrino.db";
+const REG_FILTER_HEADERS_FILE = "reg_filter_hedaers.bin";
 
 process.env.GRPC_SSL_CIPHER_SUITES = "HIGH+ECDSA";
 
@@ -158,6 +162,52 @@ class Lnd extends Exec {
             if (!isFreePorts.ok) {
                 this.starting = false;
                 return isFreePorts;
+            }
+            return { ok: true };
+        } catch (e) {
+            return { ok: false, error: e.message, type: "internal" };
+        }
+    }
+
+    // Function checks if preload not injected yet, and inserts data from "node_modules/preload/"
+    // Data has following directories structure: "lnd/data/chain/bitcoin/testnet/neutrino";
+    async injectPreload() {
+        try {
+            if (!this.name) {
+                return { ok: false, error: "No name for LND given" };
+            }
+            const dataDir = path.join("data", "chain", "bitcoin", "testnet", "neutrino");
+            const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
+            const preloadDataDir = path.join(settings.get.preloadBasePath, dataDir);
+            let exists = await helpers.checkAccess(preloadDataDir);
+            if (!exists.ok) {
+                return { ok: false, error: "Preload files not found" };
+            }
+            logger.info({ func: "injectPreload" }, `Will check preload files in ${userDataDir}`);
+            exists = await helpers.checkAccess(userDataDir, false);
+            if (!exists.ok) {
+                helpers.mkDirRecursive(path.join(settings.get.lndPath, "test", dataDir));
+            }
+            exists = await helpers.checkAccess(path.join(userDataDir, BLOCK_HEADERS_FILE), false);
+            if (!exists.ok) {
+                await fs.copyFile(
+                    path.join(preloadDataDir, BLOCK_HEADERS_FILE),
+                    path.join(userDataDir, BLOCK_HEADERS_FILE),
+                );
+            }
+            exists = await helpers.checkAccess(path.join(userDataDir, NEUTRINO_FILE), false);
+            if (!exists.ok) {
+                await fs.copyFile(
+                    path.join(preloadDataDir, NEUTRINO_FILE),
+                    path.join(userDataDir, NEUTRINO_FILE),
+                );
+            }
+            exists = await helpers.checkAccess(path.join(userDataDir, REG_FILTER_HEADERS_FILE), false);
+            if (!exists.ok) {
+                await fs.copyFile(
+                    path.join(preloadDataDir, REG_FILTER_HEADERS_FILE),
+                    path.join(userDataDir, REG_FILTER_HEADERS_FILE),
+                );
             }
             return { ok: true };
         } catch (e) {
@@ -381,6 +431,10 @@ class Lnd extends Exec {
         if (!validStartup.ok) {
             this.starting = false;
             return validStartup;
+        }
+        const injectPreload = await this.injectPreload();
+        if (!injectPreload.ok) {
+            logger.error("Preload injection failed:", injectPreload);
         }
         logger.info("Will start lnd with params: \n", this.getOptions().join(" "));
         ipcSend("setLndInitStatus", "Lnd prepare to start");

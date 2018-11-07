@@ -35,6 +35,7 @@ const appPath = app.getAppPath();
 const config = convict(configSchema);
 
 config.set("userDataPath", app.getPath("userData"));
+config.set("preloadBasePath", join(appPath, "node_modules", "preload").replace("app.asar", "app.asar.unpacked"));
 config.set("binariesBasePath", join(appPath, "node_modules", "executable").replace("app.asar", "app.asar.unpacked"));
 config.set("binariesLndPath", join(config.get("binariesBasePath"), lndName));
 const dataPath = join(config.get("userDataPath"), ".lnd");
