@@ -13,13 +13,6 @@ const streamPaymentReducer = (state = defaultState, action) => {
     switch (action.type) {
         case accountTypes.LOGOUT_ACCOUNT:
             return defaultState;
-        case types.SET_STREAM_PAYMENT_STATUS:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.id === action.payload.streamId
-                        ? { ...item, status: action.payload.status } : item),
-            };
         case types.PREPARE_STREAM_PAYMENT:
             return { ...state, streamDetails: action.payload };
         case types.SET_CURRENT_STREAM:
@@ -53,26 +46,10 @@ const streamPaymentReducer = (state = defaultState, action) => {
             };
         case types.SET_STREAM_PAYMENTS:
             return { ...state, streams: action.payload };
-        case types.SET_STREAM_PAYMENT_INTERVAL_ID:
+        case types.FINISH_STREAM_PAYMENT:
             return {
                 ...state,
-                streams: state.streams.map(item =>
-                    item.id === action.payload.streamId
-                        ? { ...item, paymentIntervalId: action.payload.paymentIntervalId } : item),
-            };
-        case types.CLEAR_STREAM_PAYMENT_INTERVAL_ID:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.id === action.payload
-                        ? { ...item, paymentIntervalId: null } : item),
-            };
-        case types.SET_STREAM_LAST_PAYMENT:
-            return {
-                ...state,
-                streams: state.streams.map(item =>
-                    item.id === action.payload.streamId
-                        ? { ...item, lastPayment: action.payload.lastPayment } : item),
+                streams: state.streams.filter(item => item.id !== action.payload),
             };
         default:
             return state;
