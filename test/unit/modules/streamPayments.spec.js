@@ -156,7 +156,6 @@ describe("Stream Payment Unit Tests", () => {
             action.type = accountTypes.LOGOUT_ACCOUNT;
             state = JSON.parse(JSON.stringify(initStateStreamPayment));
             state.streamDetails = "foo";
-            state.streamId = "bar";
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
         });
 
@@ -173,21 +172,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     status: "foo",
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     status: "baz",
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     status: "foo",
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     status: "quux",
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -220,21 +219,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     some: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     some: 3,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     some: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     some: 1,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -253,21 +252,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     partsPaid: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     partsPaid: 3,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     partsPaid: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     partsPaid: 4,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -286,21 +285,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     partsPending: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     partsPending: 3,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     partsPending: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     partsPending: 4,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -340,21 +339,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     paymentIntervalId: 1,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     paymentIntervalId: 2,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     paymentIntervalId: 1,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     paymentIntervalId: 5,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -373,21 +372,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     lastPayment: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     lastPayment: 3,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     lastPayment: 2,
-                    streamId: "bar",
+                    id: "bar",
                 },
                 {
                     lastPayment: 5,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -399,21 +398,21 @@ describe("Stream Payment Unit Tests", () => {
             state.streams = [
                 {
                     paymentIntervalId: 1,
-                    streamId: "foo",
+                    id: "foo",
                 },
                 {
                     paymentIntervalId: 2,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expectedData.streams = [
                 {
                     paymentIntervalId: null,
-                    streamId: "foo",
+                    id: "foo",
                 },
                 {
                     paymentIntervalId: 2,
-                    streamId: "qux",
+                    id: "qux",
                 },
             ];
             expect(streamPaymentReducer(state, action)).to.deep.equal(expectedData);
@@ -583,6 +582,7 @@ describe("Stream Payment Unit Tests", () => {
                             paymentIntervalId: null,
                             price: 10,
                             status: types.STREAM_PAYMENT_PAUSED,
+                            totalAmount: 0,
                             totalParts: STREAM_INFINITE_TIME_VALUE,
                         },
                         type: types.PREPARE_STREAM_PAYMENT,
@@ -592,7 +592,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.lightningID,
                     data.price,
                 ))).to.deep.equal(expectedData);
-                listActions[0].payload = omit(listActions[0].payload, ["date", "uuid", "streamId", "memo", "id"]);
+                listActions[0].payload = omit(listActions[0].payload, ["date", "memo", "id"]);
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
             });
@@ -615,6 +615,7 @@ describe("Stream Payment Unit Tests", () => {
                             paymentIntervalId: null,
                             price: 10,
                             status: types.STREAM_PAYMENT_PAUSED,
+                            totalAmount: 0,
                             totalParts: 10,
                         },
                         type: types.PREPARE_STREAM_PAYMENT,
@@ -629,7 +630,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.contact_name,
                     data.currency,
                 ))).to.deep.equal(expectedData);
-                listActions[0].payload = omit(listActions[0].payload, ["date", "uuid", "streamId", "memo", "id"]);
+                listActions[0].payload = omit(listActions[0].payload, ["date", "memo", "id"]);
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
             });
@@ -687,7 +688,7 @@ describe("Stream Payment Unit Tests", () => {
 
             it("active stream not in store", async () => {
                 data.status = types.STREAM_PAYMENT_PAUSED;
-                initState.streamPayment.streams = [{ streamId: "foo" }];
+                initState.streamPayment.streams = [{ id: "foo" }];
                 store = configureStore(initState);
                 store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
@@ -901,13 +902,13 @@ describe("Stream Payment Unit Tests", () => {
                 initState.streamPayment.streams = [
                     {
                         paymentIntervalId: 1,
-                        streamId: "foo",
+                        id: "foo",
                         partsPaid: 0,
                         status: types.STREAM_PAYMENT_STREAMING,
                     },
                     {
                         paymentIntervalId: 1,
-                        streamId: "bar",
+                        id: "bar",
                         partsPaid: 0,
                         status: types.STREAM_PAYMENT_STREAMING,
                     },
@@ -969,13 +970,13 @@ describe("Stream Payment Unit Tests", () => {
             it("success", async () => {
                 initState.streamPayment.streams = [
                     {
-                        streamId: "foo",
+                        id: "foo",
                         partsPaid: 0,
                         status: types.STREAM_PAYMENT_STREAMING,
                         paymentIntervalId: 1,
                     },
                     {
-                        streamId: "bar",
+                        id: "bar",
                         partsPaid: 0,
                         status: types.STREAM_PAYMENT_PAUSED,
                         paymentIntervalId: 1,
@@ -1058,8 +1059,6 @@ describe("Stream Payment Unit Tests", () => {
                             partsPending: 0,
                             paymentIntervalId: null,
                             status: types.STREAM_PAYMENT_PAUSED,
-                            uuid: 3,
-                            streamId: 3,
                         },
                         {
                             contact_name: "",
@@ -1072,8 +1071,6 @@ describe("Stream Payment Unit Tests", () => {
                             paymentIntervalId: null,
                             status: types.STREAM_PAYMENT_STREAMING,
                             totalParts: 1,
-                            uuid: 2,
-                            streamId: 2,
                         },
                     ],
                     type: types.SET_STREAM_PAYMENTS,
@@ -1159,9 +1156,7 @@ describe("Stream Payment Unit Tests", () => {
                         date: 1,
                         status: types.STREAM_PAYMENT_PAUSED,
                         lightningID: "foo",
-                        id: 1,
-                        uuid: "baz",
-                        streamId: "baz",
+                        id: "baz",
                         partsPaid: 1,
                         paymentIntervalId: 1,
                     },
@@ -1256,8 +1251,7 @@ describe("Stream Payment Unit Tests", () => {
                         delay: 100,
                         lastPayment: Date.now() - 50,
                         totalParts: 2,
-                        uuid: "foo",
-                        streamId: "foo",
+                        id: "foo",
                         price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
@@ -1321,8 +1315,7 @@ describe("Stream Payment Unit Tests", () => {
                         delay: 100,
                         lastPayment: Date.now() - 50,
                         totalParts: 2,
-                        uuid: "foo",
-                        streamId: "foo",
+                        id: "foo",
                         price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
@@ -1406,8 +1399,7 @@ describe("Stream Payment Unit Tests", () => {
                         delay: 100,
                         lastPayment: Date.now() - 50,
                         totalParts: 2,
-                        uuid: "foo",
-                        streamId: "foo",
+                        id: "foo",
                         price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
@@ -1496,8 +1488,7 @@ describe("Stream Payment Unit Tests", () => {
                         delay: 100,
                         lastPayment: Date.now() - 10,
                         totalParts: 3,
-                        uuid: "foo",
-                        streamId: "foo",
+                        id: "foo",
                         price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "BTC",
@@ -1647,8 +1638,7 @@ describe("Stream Payment Unit Tests", () => {
                         delay: 100,
                         lastPayment: Date.now() - 110,
                         totalParts: 2,
-                        uuid: "foo",
-                        streamId: "foo",
+                        id: "foo",
                         price: 100,
                         status: types.STREAM_PAYMENT_PAUSED,
                         currency: "USD",

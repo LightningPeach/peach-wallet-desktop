@@ -216,7 +216,7 @@ class RecurringHistory extends Component {
                                         dispatch(operations.channelWarningModal());
                                         return;
                                     }
-                                    dispatch(streamPaymentOperations.startStreamPayment(item.streamId));
+                                    dispatch(streamPaymentOperations.startStreamPayment(item.id));
                                 }}
                             />
                             <span
@@ -227,7 +227,7 @@ class RecurringHistory extends Component {
                                         category: "Lightning",
                                         label: "Stop",
                                     });
-                                    dispatch(streamPaymentOperations.finishStreamPayment(item.streamId));
+                                    dispatch(streamPaymentOperations.finishStreamPayment(item.id));
                                 }}
                             />
                         </Fragment>
@@ -242,7 +242,7 @@ class RecurringHistory extends Component {
                                     category: "Lightning",
                                     label: "Pause",
                                 });
-                                dispatch(streamPaymentOperations.pauseStreamPayment(item.streamId));
+                                dispatch(streamPaymentOperations.pauseStreamPayment(item.id));
                             }}
                         />
                     );
