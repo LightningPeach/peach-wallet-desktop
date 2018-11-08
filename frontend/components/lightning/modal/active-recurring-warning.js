@@ -23,7 +23,7 @@ class ActiveRecurringWarning extends Component {
     handlePause = () => {
         const { dispatch, currentStream } = this.props;
         analytics.event({ action: "Active Recurring Modal", category: "Lightning", label: "Pause stream" });
-        dispatch(streamPaymentOperations.pauseStreamPayment(currentStream.streamId));
+        dispatch(streamPaymentOperations.pauseStreamPayment(currentStream.id));
         dispatch(streamPaymentOperations.openEditStreamModal());
     };
 

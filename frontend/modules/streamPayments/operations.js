@@ -1,5 +1,6 @@
 import React from "react";
 import orderBy from "lodash/orderBy";
+import pick from "lodash/pick";
 import { statusCodes } from "config";
 import { appActions, appOperations } from "modules/app";
 import { lightningOperations } from "modules/lightning";
@@ -58,7 +59,7 @@ function prepareStreamPayment(
         }
         const name = paymentName || "Recurring payment";
         const id = btoa(unescape(encodeURIComponent(`${name}_${new Date().getTime()}`)));
-        const memo = `recurring_payment_${new Date().getTime()}`;
+        const memo = `recurring_payment_${id}`;
         let amount;
         switch (currency) {
             case "USD":
@@ -88,9 +89,8 @@ function prepareStreamPayment(
             paymentIntervalId: null,
             price,
             status: types.STREAM_PAYMENT_PAUSED,
-            streamId: id,
+            totalAmount: 0,
             totalParts,
-            uuid: id,
         };
         dispatch(actions.prepareStreamPayment(details));
         return successPromise();
@@ -112,7 +112,7 @@ function updateStreamPayment(
             return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, updateStreamPayment);
         }
         if (status !== types.STREAM_PAYMENT_FINISHED) {
-            const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+            const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
             if (!payment) {
                 return errorPromise(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE, updateStreamPayment);
             }
@@ -159,20 +159,21 @@ function addStreamPaymentToList() {
         try {
             await db.streamBuilder()
                 .insert()
-                .values({
-                    currency: details.currency,
-                    date: details.date,
-                    delay: details.delay,
-                    id: details.uuid,
-                    lastPayment: details.lastPayment,
-                    lightningID: details.lightningID,
-                    memo: `recurring_payment_${details.uuid}`,
-                    name: details.name,
-                    partsPaid: details.partsPaid,
-                    price: details.price,
-                    status: types.STREAM_PAYMENT_PAUSED,
-                    totalParts: details.totalParts,
-                })
+                .values(pick(details, [
+                    "currency",
+                    "date",
+                    "delay",
+                    "id",
+                    "lastPayment",
+                    "lightningID",
+                    "memo",
+                    "name",
+                    "partsPaid",
+                    "price",
+                    "totalAmount",
+                    "status",
+                    "totalParts",
+                ]))
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
@@ -184,16 +185,16 @@ function addStreamPaymentToList() {
 
 function pauseStreamPayment(streamId, pauseInDb = true) {
     return (dispatch, getState) => {
-        const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
         if (!payment) {
             return;
         }
         if (payment.paymentIntervalId !== null) {
             clearInterval(payment.paymentIntervalId);
-            dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
+            dispatch(actions.clearStreamPaymentIntervalId(payment.id));
         }
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
-            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_PAUSED));
+            dispatch(actions.setStreamPaymentStatus(payment.id, types.STREAM_PAYMENT_PAUSED));
             if (pauseInDb) {
                 try {
                     db.streamBuilder()
@@ -202,7 +203,7 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
                             partsPaid: payment.partsPaid,
                             status: types.STREAM_PAYMENT_PAUSED,
                         })
-                        .where("id = :id", { id: payment.streamId })
+                        .where("id = :id", { id: payment.id })
                         .execute();
                 } catch (e) {
                     /* istanbul ignore next */
@@ -220,7 +221,7 @@ function pauseAllStreams(pauseInDb = true) {
             .streams
             .forEach((item, key) => {
                 if (item.status === types.STREAM_PAYMENT_STREAMING) {
-                    dispatch(pauseStreamPayment(item.streamId, pauseInDb));
+                    dispatch(pauseStreamPayment(item.id, pauseInDb));
                 }
             });
     };
@@ -228,21 +229,21 @@ function pauseAllStreams(pauseInDb = true) {
 
 function finishStreamPayment(streamId) {
     return (dispatch, getState) => {
-        const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
         if (!payment) {
             return;
         }
         if (payment.paymentIntervalId !== null) {
             clearInterval(payment.paymentIntervalId);
-            dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
+            dispatch(actions.clearStreamPaymentIntervalId(payment.id));
         }
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
-            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
+            dispatch(actions.setStreamPaymentStatus(payment.id, types.STREAM_PAYMENT_FINISHED));
             try {
                 db.streamBuilder()
                     .update()
                     .set({ partsPaid: payment.partsPaid, status: types.STREAM_PAYMENT_FINISHED })
-                    .where("id = :id", { id: payment.streamId })
+                    .where("id = :id", { id: payment.id })
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
@@ -269,7 +270,7 @@ function startStreamPayment(streamId, forceStart = false) {
             }
         };
         const makeStreamIteration = async (shouldStartAt) => {
-            let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+            let payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
             /* istanbul ignore next */
             if (!payment) {
                 handleStreamError(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE);
@@ -327,24 +328,24 @@ function startStreamPayment(streamId, forceStart = false) {
             dispatch(actions.changeStreamPartsPaid(streamId, 1));
             dispatch(accountOperations.checkBalance());
             dispatch(channelsOperations.getChannels());
-            payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; //eslint-disable-line
+            payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; //eslint-disable-line
             const updateData = startTime > payment.lastPayment
                 ? { lastPayment: startTime, partsPaid: payment.partsPaid }
                 : { partsPaid: payment.partsPaid };
             if (startTime > payment.lastPayment) {
-                dispatch(actions.setStreamLastPayment(payment.streamId, startTime));
+                dispatch(actions.setStreamLastPayment(payment.id, startTime));
             }
             try {
                 db.streamBuilder()
                     .update()
                     .set(updateData)
-                    .where("id = :id", { id: payment.streamId })
+                    .where("id = :id", { id: payment.id })
                     .execute();
                 db.streamPartBuilder()
                     .insert()
                     .values({
                         payment_hash: response.payment_hash,
-                        stream: payment.streamId,
+                        stream: payment.id,
                     })
                     .execute();
             } catch (e) {
@@ -361,7 +362,7 @@ function startStreamPayment(streamId, forceStart = false) {
             }
         };
 
-        let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        let payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
         if (
             !payment
             || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)
@@ -372,12 +373,12 @@ function startStreamPayment(streamId, forceStart = false) {
             return;
         }
         if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
-            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
+            dispatch(actions.setStreamPaymentStatus(payment.id, types.STREAM_PAYMENT_STREAMING));
             try {
                 db.streamBuilder()
                     .update()
                     .set({ partsPaid: payment.partsPaid, status: types.STREAM_PAYMENT_STREAMING })
-                    .where("id = :id", { id: payment.streamId })
+                    .where("id = :id", { id: payment.id })
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
@@ -403,7 +404,7 @@ function startStreamPayment(streamId, forceStart = false) {
             await Timeout(borrowTime);
         }
         makeStreamIteration();
-        payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; // eslint-disable-line
+        payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; // eslint-disable-line
         if (payment
             && (payment.totalParts === STREAM_INFINITE_TIME_VALUE
                 || payment.partsPaid + payment.partsPending < payment.totalParts)
@@ -411,7 +412,7 @@ function startStreamPayment(streamId, forceStart = false) {
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
             const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
-            dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
+            dispatch(actions.setStreamPaymentIntervalId(payment.id, paymentIntervalId));
         }
     };
 }
@@ -431,15 +432,13 @@ function loadStreams() {
                     partsPending: 0,
                     paymentIntervalId: null,
                     status: item.status,
-                    streamId: item.id,
-                    uuid: item.id,
                 });
                 return reducedStreams;
             }, []);
         await dispatch(actions.setStreamPayments(streams));
         streams.forEach((stream) => {
             if (stream.status === types.STREAM_PAYMENT_STREAMING) {
-                dispatch(startStreamPayment(stream.streamId, true));
+                dispatch(startStreamPayment(stream.id, true));
             }
         });
         return successPromise();
