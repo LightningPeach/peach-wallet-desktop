@@ -136,8 +136,10 @@ async function checkAccess(dirPath, errorOnNotExist = true) {
     return new Promise((resolve) => {
         fs.access(dirPath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
             let ret = { ok: true };
-            if (errorOnNotExist && err) {
-                logger.error({ func: checkAccess }, err);
+            if (err) {
+                if (errorOnNotExist) {
+                    logger.error({ func: checkAccess }, err);
+                }
                 ret = Object.assign({}, err, { ok: false, error: err.message });
             }
             resolve(ret);
