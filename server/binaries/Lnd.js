@@ -176,7 +176,7 @@ class Lnd extends Exec {
             if (!this.name) {
                 return { ok: false, error: "No name for LND given" };
             }
-            const dataDir = path.join("data", "chain", "bitcoin", "testnet", "neutrino");
+            const dataDir = path.join("data", "chain", "bitcoin", "testnet");
             const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
             const preloadDataDir = path.join(settings.get.preloadBasePath, dataDir);
             let exists = await helpers.checkAccess(preloadDataDir);
