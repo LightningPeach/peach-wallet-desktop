@@ -250,13 +250,13 @@ class RecurringHistory extends Component {
                 const amount = item.currency === "BTC"
                     ? (
                         <span>
-                            <BalanceWithMeasure satoshi={item.price * item.partsPaid} />
+                            <BalanceWithMeasure satoshi={item.totalAmount} />
                             <br />
                             (<BalanceWithMeasure satoshi={item.price} />)
                         </span>)
                     : (
                         <span>
-                            {helpers.noExponents(parseFloat((item.price * item.partsPaid).toFixed(8)))} USD
+                            {item.totalAmount} USD
                             <br />
                             ({item.price} USD)
                         </span>);

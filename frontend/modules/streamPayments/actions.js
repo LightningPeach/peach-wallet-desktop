@@ -18,22 +18,6 @@ const updateStreamPayment = (streamId, details) => ({
     type: types.UPDATE_STREAM_PAYMENT,
 });
 
-const setStreamPaymentStatus = (streamId, status) => ({
-    payload: {
-        status,
-        streamId,
-    },
-    type: types.SET_STREAM_PAYMENT_STATUS,
-});
-
-const setStreamLastPayment = (streamId, lastPayment) => ({
-    payload: {
-        lastPayment,
-        streamId,
-    },
-    type: types.SET_STREAM_LAST_PAYMENT,
-});
-
 const changeStreamPartsPaid = (streamId, change) => ({
     payload: {
         change,
@@ -59,29 +43,18 @@ const setStreamPayments = payload => ({
     type: types.SET_STREAM_PAYMENTS,
 });
 
-const setStreamPaymentIntervalId = (streamId, paymentIntervalId) => ({
-    payload: {
-        paymentIntervalId,
-        streamId,
-    },
-    type: types.SET_STREAM_PAYMENT_INTERVAL_ID,
-});
-
-const clearStreamPaymentIntervalId = payload => ({
+const finishStreamPayment = payload => ({
     payload,
-    type: types.CLEAR_STREAM_PAYMENT_INTERVAL_ID,
+    type: types.FINISH_STREAM_PAYMENT,
 });
 
 export {
     setCurrentStream,
     prepareStreamPayment,
     updateStreamPayment,
-    setStreamPaymentStatus,
     changeStreamPartsPaid,
     changeStreamPartsPending,
     addStreamPaymentToList,
     setStreamPayments,
-    setStreamPaymentIntervalId,
-    clearStreamPaymentIntervalId,
-    setStreamLastPayment,
+    finishStreamPayment,
 };
