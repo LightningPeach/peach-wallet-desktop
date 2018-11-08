@@ -53,7 +53,6 @@ class Folder extends Component {
         }
         this.setState({ passwordError });
         await window.ipcClient("setLndPath", { defaultPath: false, lndPath: lnPath });
-        await window.ipcClient("saveLndPath", { username });
         const init = await dispatch(operations.login(username, password));
         this.setState({ processing: false });
         if (!init.ok) {

@@ -146,6 +146,21 @@ async function checkDir(dirPath) {
 }
 
 /**
+ * Check is dir exists
+ * @param {string} dirPath
+ * @returns {{ok: boolean}}
+ */
+function checkDirSync(dirPath) {
+    try {
+        fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK);
+        return { ok: true };
+    } catch (error) {
+        logger.error({ func: checkDirSync }, error);
+        return Object.assign({}, error, { ok: false, error: error.message });
+    }
+}
+
+/**
  * Recursive creating dirs
  * @param {string} dirPath
  */
@@ -276,6 +291,7 @@ function readFolderWithinFolder(folder) {
 
 module.exports.delay = delay;
 module.exports.checkDir = checkDir;
+module.exports.checkDirSync = checkDirSync;
 module.exports.readFile = readFile;
 module.exports.writeFile = writeFile;
 module.exports.readFilePart = readFilePart;

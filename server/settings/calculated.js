@@ -97,17 +97,26 @@ module.exports = ({
         await helpers.writeFile(peersFile, JSON.stringify(peers));
     };
 
-    const getCustomPathLndUsernames = async () => {
+    const getCustomPathLndUsernames = () => {
         const basePath = config.get("dataPath");
-        const data = {};
-        helpers.readFolderWithinFolder(basePath).forEach((item, key) => {
-            data[item] = join(basePath, item);
+        const baseFolders = {};
+        let allData;
+        helpers.readFolderWithinFolder(basePath).forEach((item) => {
+            baseFolders[item] = basePath;
         });
-        const fileExists = fs.existsSync(userPathsFile);
-        if (!fileExists) {
-            return data;
+        if (fs.existsSync(userPathsFile)) {
+            allData = Object.assign({}, baseFolders, JSON.parse(fs.readFileSync(userPathsFile).toString()));
+        } else {
+            allData = baseFolders;
         }
-        return Object.assign({}, data, JSON.parse(fs.readFileSync(userPathsFile).toString()));
+        return Object.entries(allData).reduce((data, [username, userPath]) => {
+            const returnData = data;
+            const { ok } = helpers.checkDirSync(join(userPath, username, "data"));
+            if (ok) {
+                returnData[username] = userPath;
+            }
+            return returnData;
+        }, {});
     };
 
     const loadLndPath = async (username) => {
