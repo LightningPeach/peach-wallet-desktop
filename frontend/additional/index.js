@@ -1,12 +1,12 @@
 import React from "react";
 import { NODE_ENV } from "config/node-settings";
-import { SUCCESS_RESPONSE, UNSUCCESS_RESPONSE, PENDING_RESPONSE } from "config/consts";
+import { SUCCESS_RESPONSE, UNSUCCESS_RESPONSE, PENDING_RESPONSE, TIMEOUT_PART } from "config/consts";
 import * as validators from "./validators";
 import * as helpers from "./helpers";
 import * as analytics from "./analytics";
 import * as db from "./db";
 
-export const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const timeoutID = {};
 
 export const logger = {
     error: (...args) => {
@@ -19,6 +19,67 @@ export const logger = {
             console.log(...args);
         }
     },
+};
+
+export const setTimeoutLong = (id = "*", func, interval, initialCall = true) => {
+    if (initialCall && id !== "*" && timeoutID[id]) {
+        logger.error(`Timeout with id ${id} is already set`);
+        return;
+    }
+    const diff = Math.max((interval - TIMEOUT_PART), 0);
+    if (diff > TIMEOUT_PART) {
+        timeoutID[id] = setTimeout(() => { setTimeoutLong(id, func, diff, false) }, TIMEOUT_PART);
+    } else {
+        timeoutID[id] = setTimeout(func, interval);
+    }
+};
+
+export const delay = (interval, id) =>
+    new Promise((resolve, reject) => {
+        if (id && timeoutID[id]) {
+            logger.error(`Timeout with id ${id} is already set`);
+            reject();
+        }
+        setTimeoutLong(id, resolve, interval);
+    });
+
+export const setIntervalLong = (id, func, interval, initialCall = true) => {
+    if (initialCall && timeoutID[id]) {
+        logger.error(`Timeout with id ${id} is already set`);
+        return;
+    }
+    const intervalTick = () => {
+        setTimeoutLong(id, intervalTick, interval, false);
+        func();
+    };
+    intervalTick();
+};
+
+export const setAsyncIntervalLong = (id, func, interval, initialCall = true) => {
+    if (initialCall && timeoutID[id]) {
+        logger.error(`Timeout with id ${id} is already set`);
+        return;
+    }
+    const intervalTick = async () => {
+        await func();
+        setTimeoutLong(id, intervalTick, interval, false);
+    };
+    intervalTick();
+};
+
+export const clearTimeoutLong = (id) => {
+    clearTimeout(timeoutID[id]);
+    timeoutID[id] = null;
+};
+
+export const clearIntervalLong = (id) => {
+    clearTimeout(timeoutID[id]);
+    timeoutID[id] = null;
+};
+
+export const clearDelay = (id) => {
+    clearTimeout(timeoutID[id]);
+    timeoutID[id] = null;
 };
 
 export const getCookie = (name) => {
