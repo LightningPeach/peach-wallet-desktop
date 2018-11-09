@@ -11,6 +11,7 @@ import * as actions from "./actions";
 import * as types from "./types";
 import * as selectors from "./selectors";
 
+// TODO: move this to store
 let creatingChannelPoint;
 
 function openStreamWarningModal() {

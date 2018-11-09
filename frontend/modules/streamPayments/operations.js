@@ -6,7 +6,10 @@ import { appActions, appOperations } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
-import { db, helpers, successPromise, errorPromise, logger, delay as Timeout } from "additional";
+import {
+    db, helpers, successPromise, errorPromise,
+    logger, delay as Timeout, setIntervalLong, clearIntervalLong,
+} from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
 import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
@@ -190,7 +193,7 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
             return;
         }
         if (payment.intervalId !== null) {
-            clearInterval(payment.intervalId);
+            clearIntervalLong(streamId);
             dispatch(actions.updateStreamPayment(payment.id, { intervalId: null }));
         }
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
@@ -234,7 +237,7 @@ function finishStreamPayment(streamId) {
             return;
         }
         if (payment.intervalId !== null) {
-            clearInterval(payment.intervalId);
+            clearIntervalLong(streamId);
             dispatch(actions.updateStreamPayment(payment.id, { intervalId: null }));
         }
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
@@ -413,7 +416,7 @@ function startStreamPayment(streamId, forceStart = false) {
             && payment.intervalId === null
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
-            const intervalId = setInterval(makeStreamIteration, payment.delay);
+            const intervalId = setIntervalLong(streamId, makeStreamIteration, payment.delay);
             dispatch(actions.updateStreamPayment(payment.id, { intervalId }));
         }
     };
