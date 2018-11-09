@@ -46,11 +46,6 @@ const streamPaymentReducer = (state = defaultState, action) => {
             };
         case types.SET_STREAM_PAYMENTS:
             return { ...state, streams: action.payload };
-        case types.FINISH_STREAM_PAYMENT:
-            return {
-                ...state,
-                streams: state.streams.filter(item => item.id !== action.payload),
-            };
         default:
             return state;
     }

@@ -66,8 +66,8 @@ export const ALL_MEASURES = [MBTC_MEASURE, BTC_MEASURE, SATOSHI_MEASURE];
 
 export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnectInterval: 3000 };
 
-// Value for proper handling of some depending JS functions:
-// setInterval, setTimeout
+// Value for proper handling of some native JS functions (setInterval and setTimeout)
+// by separating them into smaller subtasks with TIMEOUT_DELAY delay value of execution
 export const TIMEOUT_PART = 0x7FFFFFF;
 export const MAX_INTERVAL_FREUENCY = 100000000000;
 export const STREAM_INFINITE_TIME_VALUE = "Infinite";
