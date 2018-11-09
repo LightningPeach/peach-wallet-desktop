@@ -21,6 +21,7 @@ export const logger = {
     },
 };
 
+// Wrappers around native JS functions for proper handling big passed numbers by separation into smaller parts
 export const setTimeoutLong = (id = "*", func, interval, initialCall = true) => {
     if (initialCall && id !== "*" && timeoutID[id]) {
         logger.error(`Timeout with id ${id} is already set`);
@@ -52,7 +53,7 @@ export const setIntervalLong = (id, func, interval, initialCall = true) => {
         setTimeoutLong(id, intervalTick, interval, false);
         func();
     };
-    intervalTick();
+    setTimeoutLong(id, intervalTick, interval, false);
 };
 
 export const setAsyncIntervalLong = (id, func, interval, initialCall = true) => {
@@ -64,7 +65,7 @@ export const setAsyncIntervalLong = (id, func, interval, initialCall = true) => 
         await func();
         setTimeoutLong(id, intervalTick, interval, false);
     };
-    intervalTick();
+    setTimeoutLong(id, intervalTick, interval, false);
 };
 
 export const clearTimeoutLong = (id) => {

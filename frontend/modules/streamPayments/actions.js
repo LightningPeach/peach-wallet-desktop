@@ -43,11 +43,6 @@ const setStreamPayments = payload => ({
     type: types.SET_STREAM_PAYMENTS,
 });
 
-const finishStreamPayment = payload => ({
-    payload,
-    type: types.FINISH_STREAM_PAYMENT,
-});
-
 export {
     setCurrentStream,
     prepareStreamPayment,
@@ -56,5 +51,4 @@ export {
     changeStreamPartsPending,
     addStreamPaymentToList,
     setStreamPayments,
-    finishStreamPayment,
 };

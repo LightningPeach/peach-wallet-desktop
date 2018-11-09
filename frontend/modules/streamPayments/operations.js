@@ -61,7 +61,7 @@ function prepareStreamPayment(
             return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareStreamPayment);
         }
         const name = paymentName || "Recurring payment";
-        const id = btoa(unescape(encodeURIComponent(`${name}_${new Date().getTime()}`)));
+        const id = btoa(unescape(encodeURIComponent(`${name}_${Date.now()}`)));
         const memo = `recurring_payment_${id}`;
         let amount;
         switch (currency) {
@@ -83,7 +83,6 @@ function prepareStreamPayment(
             delay,
             fee: fees.response.fee,
             id,
-            intervalId: null,
             lastPayment: 0,
             lightningID,
             memo,
@@ -192,10 +191,7 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
         if (!payment) {
             return;
         }
-        if (payment.intervalId !== null) {
-            clearIntervalLong(streamId);
-            dispatch(actions.updateStreamPayment(payment.id, { intervalId: null }));
-        }
+        clearIntervalLong(streamId);
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
             dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_PAUSED }));
             if (pauseInDb) {
@@ -236,12 +232,9 @@ function finishStreamPayment(streamId) {
         if (!payment) {
             return;
         }
-        if (payment.intervalId !== null) {
-            clearIntervalLong(streamId);
-            dispatch(actions.updateStreamPayment(payment.id, { intervalId: null }));
-        }
+        clearIntervalLong(streamId);
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
-            dispatch(actions.finishStreamPayment(payment.id));
+            dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_FINISHED }));
             try {
                 db.streamBuilder()
                     .update()
@@ -357,7 +350,8 @@ function startStreamPayment(streamId, forceStart = false) {
                 /* istanbul ignore next */
                 logger.error(statusCodes.EXCEPTION_EXTRA, e);
             }
-            if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+            if (payment.status !== types.STREAM_PAYMENT_FINISHED
+                && payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts) {
                 dispatch(finishStreamPayment(streamId));
                 dispatch(info({
@@ -373,7 +367,6 @@ function startStreamPayment(streamId, forceStart = false) {
             || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)
             || (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts)
-            || payment.intervalId !== null
         ) {
             return;
         }
@@ -413,11 +406,9 @@ function startStreamPayment(streamId, forceStart = false) {
         if (payment
             && (payment.totalParts === STREAM_INFINITE_TIME_VALUE
                 || payment.partsPaid + payment.partsPending < payment.totalParts)
-            && payment.intervalId === null
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
-            const intervalId = setIntervalLong(streamId, makeStreamIteration, payment.delay);
-            dispatch(actions.updateStreamPayment(payment.id, { intervalId }));
+            setIntervalLong(streamId, makeStreamIteration, payment.delay);
         }
     };
 }
@@ -434,7 +425,6 @@ function loadStreams() {
                 reducedStreams.push({
                     ...item,
                     contact_name: "",
-                    intervalId: null,
                     partsPending: 0,
                     status: item.status,
                 });
