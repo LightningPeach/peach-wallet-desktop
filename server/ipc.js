@@ -1,5 +1,5 @@
 const {
-    app, ipcMain,
+    app, ipcMain, dialog,
 } = require("electron");
 const helpers = require("./utils/helpers");
 const Lnd = require("./binaries/Lnd");
@@ -8,6 +8,7 @@ const baseLogger = require("./utils/logger");
 const path = require("path");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const settings = require("./settings");
+const main = require("../main");
 
 const logger = baseLogger.child("ipc");
 const grpcStatus = require("grpc").status;
@@ -15,6 +16,11 @@ const grpcStatus = require("grpc").status;
 const lnd = new Lnd();
 
 registerIpc("validateBinaries", async () => ({ ok: true }));
+
+registerIpc("selectFolder", () => {
+    const folder = dialog.showOpenDialog(main.getMainWindow(), { properties: ["openDirectory"] });
+    return { ok: true, response: { folder: folder ? folder[0] : null } };
+});
 
 /**
  * User agreed the eula.txt

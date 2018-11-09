@@ -97,16 +97,12 @@ class Folder extends Component {
                     <div className="col-xs-12">
                         <File
                             id="wallet_folder"
-                            disabled={this.state.defaultPath}
+                            disabled={disabled}
                             value={this.state.lndPath}
                             placeholder="Select folder"
                             className={this.state.lndPathError ? "form-text__error" : ""}
-                            onChange={(e) => {
-                                if (e.target.files[0]) {
-                                    this.setState({ lndPath: e.target.files[0].path, lndPathError: null });
-                                } else {
-                                    this.setState({ lndPath: "", lndPathError: null });
-                                }
+                            onChange={(lndPath) => {
+                                this.setState({ lndPath, lndPathError: null });
                             }}
                         />
                         <ErrorFieldTooltip text={this.state.lndPathError} />
