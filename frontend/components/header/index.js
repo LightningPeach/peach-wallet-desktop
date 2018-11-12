@@ -21,8 +21,6 @@ import {
 class Header extends Component {
     constructor(props) {
         super(props);
-        this.toggleClass = this.toggleClass.bind(this);
-        this.hideBurger = this.hideBurger.bind(this);
         this.state = {
             burgerState: "close",
             pageAddressList: [
@@ -51,14 +49,14 @@ class Header extends Component {
         }
     }
 
-    toggleClass(e) {
+    toggleClass = (e) => {
         const state = e.currentTarget.classList.contains("burger__open") ? "close" : "open";
         this.setState({ burgerState: state });
-    }
+    };
 
-    hideBurger() {
+    hideBurger = () => {
         this.setState({ burgerState: "close" });
-    }
+    };
 
     render() {
         const { lndSyncedToChain } = this.props;

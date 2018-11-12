@@ -21,6 +21,10 @@ module.exports = {
         price: {
             type: "integer",
         },
+        totalAmount: {
+            type: "integer",
+            default: 0,
+        },
         memo: {
             type: "varchar",
         },
@@ -29,9 +33,11 @@ module.exports = {
         },
         date: {
             type: "integer",
+            default: 0,
         },
         lastPayment: {
             type: "integer",
+            default: 0,
         },
         status: {
             type: "varchar",

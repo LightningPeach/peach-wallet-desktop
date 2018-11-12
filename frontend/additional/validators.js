@@ -1,5 +1,5 @@
 import bitcoin from "bitcoinjs-lib";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     MIN_PASS_LENGTH, USERNAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
     ONLY_LETTERS_AND_NUMBERS, LIGHTNING_ID_LENGTH, SEED_COUNT,

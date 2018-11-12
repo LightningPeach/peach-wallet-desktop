@@ -1,7 +1,7 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     channelsActions as actions,
     channelsTypes as types,

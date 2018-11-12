@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
 import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     lightningActions as actions,
     lightningTypes as types,
@@ -12,6 +12,7 @@ import {
 import lightningReducer, { initStateLightning } from "modules/lightning/reducers";
 import { accountOperations, accountTypes } from "modules/account";
 import { appTypes } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
 import { store as defaultStore } from "store/configure-store";
 import { db, errorPromise, successPromise } from "additional";
 
@@ -248,9 +249,14 @@ describe("Lightning Unit Tests", () => {
                     execute: sinon.stub(),
                 },
                 streamBuilder: {
+                    update: sinon.stub(),
+                    set: sinon.stub(),
+                    where: sinon.stub(),
+                    execute: sinon.stub(),
                     leftJoinAndSelect: sinon.stub(),
                     getMany: sinon.stub(),
                     leftJoinAndSelectAttr: ["stream.parts", "stream_part"],
+
                 },
             };
             initState = {
@@ -1158,31 +1164,37 @@ describe("Lightning Unit Tests", () => {
                 ];
                 dbStreams = [
                     {
+                        id: 103,
                         parts: [{ payment_hash: "no-bar" }],
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        partsPaid: 0,
                     },
                     {
                         id: 101,
-                        status: "on",
+                        status: streamPaymentTypes.STREAM_PAYMENT_PAUSED,
                         parts: [{ payment_hash: "1" }],
                         name: "name-foo",
+                        partsPaid: 0,
                     },
                     {
                         id: 102,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "2" }],
                         name: "name-bar",
                         price: 502,
                         date: 602,
                         lightningID: "qux",
+                        partsPaid: 0,
                     },
                     {
                         id: 104,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "4" }],
                         name: "name-quux",
                         price: 504,
                         date: 604,
                         lightningID: "quux",
+                        partsPaid: 0,
                     },
                 ];
                 window.ipcClient
@@ -1199,6 +1211,13 @@ describe("Lightning Unit Tests", () => {
                 fakeDB.streamBuilder.returns({
                     leftJoinAndSelect: data.streamBuilder.leftJoinAndSelect.returns({
                         getMany: data.streamBuilder.getMany.returns(dbStreams),
+                    }),
+                    update: data.streamBuilder.update.returns({
+                        set: data.streamBuilder.set.returns({
+                            where: data.streamBuilder.where.returns({
+                                execute: data.streamBuilder.execute,
+                            }),
+                        }),
                     }),
                 });
             });
@@ -1224,32 +1243,50 @@ describe("Lightning Unit Tests", () => {
                         date: 203000,
                         lightningID: "baz",
                         name: "Outgoing payment",
-                        path: ["baz"],
                         payment_hash: "baz",
                         type: "payment",
                     },
                     {
-                        amount: 302,
-                        date: 202000,
-                        lightningID: "bar",
+                        price: 502,
+                        date: 602,
+                        lightningID: "qux",
                         name: "name-bar",
-                        path: ["bar"],
-                        parts: 1,
+                        type: "stream",
+                        id: 102,
+                        partsPaid: 1,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                    },
+                    {
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        partsPaid: 0,
+                        id: 103,
                         type: "stream",
                     },
                     {
-                        amount: 504,
+                        id: 104,
+                        price: 504,
                         date: 604,
                         lightningID: "quux",
                         name: "name-quux",
-                        path: [],
-                        parts: 0,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        partsPaid: 0,
                         type: "stream",
                     },
                 ];
                 expect(await operations.getPayments()).to.deep.equal(expectedData);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("listPayments");
+                expect(data.streamBuilder.update).to.be.calledOnce;
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.calledOnce;
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set)
+                    .to.be.calledWithExactly({ partsPaid: 1 });
+                expect(data.streamBuilder.where).to.be.calledOnce;
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: 102 });
+                expect(data.streamBuilder.execute).to.be.calledOnce;
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
             });
         });
 
@@ -1335,7 +1372,6 @@ describe("Lightning Unit Tests", () => {
                                 date: 203000,
                                 lightningID: "baz",
                                 name: "Outgoing payment",
-                                path: ["baz"],
                                 payment_hash: "baz",
                                 type: "payment",
                             },
