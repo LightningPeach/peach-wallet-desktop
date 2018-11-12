@@ -10,6 +10,7 @@ import {
     ELEMENT_NAME_MAX_LENGTH,
     LIGHTNING_ID_LENGTH,
     SIMNET_NETWORK,
+    ONCHAIN_SEND_COINS_CONFIRMATION,
 } from "config/consts";
 import { BITCOIN_SETTINGS } from "config/node-settings";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
@@ -33,6 +34,7 @@ class Onchain extends Component {
         this.state = {
             amount: null,
             amountError: null,
+            confTargetError: null,
             nameError: null,
             toError: null,
         };
@@ -55,19 +57,22 @@ class Onchain extends Component {
         const { dispatch } = this.props;
         const name = this.name.value.trim();
         const to = this.to.value.trim();
+        let confTarget = parseInt(this.confTarget.value.trim(), 10);
+        confTarget = Number.isNaN(confTarget) || confTarget < 0 ? ONCHAIN_SEND_COINS_CONFIRMATION : confTarget;
         let amount = parseFloat(this.amount.value.trim());
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = this.validateTo(to);
+        const confTargetError = validators.validateConfTarget(confTarget);
         const amountError = dispatch(accountOperations.checkAmount(amount, "bitcoin"));
 
-        if (nameError || toError || amountError) {
-            this.setState({ amountError, nameError, toError });
+        this.setState({
+            amountError, confTargetError, nameError, toError,
+        });
+        if (nameError || toError || amountError || confTargetError) {
             return;
         }
-
-        this.setState({ amountError, nameError, toError });
         amount = dispatch(appOperations.convertToSatoshi(amount));
-        const response = await dispatch(operations.prepareSendCoins(to, amount, name));
+        const response = await dispatch(operations.prepareSendCoins(to, amount, name, confTarget));
         if (!response.ok) {
             this.setState({ amountError: response.error });
             return;
@@ -102,6 +107,7 @@ class Onchain extends Component {
         this.setState({ amount: null });
         this.form.reset();
         this.amountComponent.reset();
+        this.confTargetComponent.reset();
     };
 
     renderOnchain = () => {
@@ -194,6 +200,29 @@ class Onchain extends Component {
                         <ErrorFieldTooltip text={this.state.amountError} />
                     </div>
                     <div className="col-xs-12" />
+                </div>
+                <div className="row mt-14">
+                    <div className="col-xs-12">
+                        <div className="form-label">
+                            <label htmlFor="channel__conf_target">Amount of block confirmations</label>
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <DigitsField
+                            id="channel__conf_target"
+                            className={`form-text ${this.state.confTargetError ? "form-text__error" : ""}`}
+                            name="conf_target"
+                            placeholder={`${ONCHAIN_SEND_COINS_CONFIRMATION} blocks`}
+                            ref={(ref) => {
+                                this.confTargetComponent = ref;
+                            }}
+                            setRef={(ref) => {
+                                this.confTarget = ref;
+                            }}
+                            setOnChange={() => { this.setState({ confTargetError: null }) }}
+                        />
+                        <ErrorFieldTooltip text={this.state.confTargetError} />
+                    </div>
                 </div>
                 <div className="row mt-30">
                     <div className="col-xs-12 text-right">

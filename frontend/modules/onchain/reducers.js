@@ -2,7 +2,6 @@ import * as accountTypes from "modules/account/types";
 import * as types from "./types";
 
 export const initStateOnchain = {
-    fee: 11468,
     history: [],
     sendCoinsDetails: null,
     sendCoinsPaymentDetails: "",

@@ -2,7 +2,11 @@ import { statusCodes } from "config";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
-import { MAX_DB_NUM_CONFIRMATIONS, TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY } from "config/consts";
+import {
+    MAX_DB_NUM_CONFIRMATIONS,
+    TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY,
+    ONCHAIN_SEND_COINS_CONFIRMATION,
+} from "config/consts";
 import { store } from "store/configure-store";
 import orderBy from "lodash/orderBy";
 import keyBy from "lodash/keyBy";
@@ -10,6 +14,23 @@ import uniq from "lodash/uniq";
 import has from "lodash/has";
 import * as actions from "./actions";
 import * as types from "./types";
+
+/**
+ * @param {String} addr
+ * @param {Integer} amount
+ * @param {Integer} target_conf
+ * @returns {Object}
+ */
+async function calculateFee(addr, amount, target_conf = 0) {
+    const { ok, response } = await window.ipcClient("estimateFee", { AddrToAmount: { [addr]: amount }, target_conf });
+    if (!ok) {
+        return { fee_sat: 0, feerate_sat_per_kw: 0 };
+    }
+    return {
+        fee_sat: parseInt(response.fee_sat, 10),
+        feerate_sat_per_kw: parseInt(response.feerate_sat_per_kw, 10),
+    };
+}
 
 function openSendCoinsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SEND_COINS));
@@ -160,12 +181,13 @@ function getOnchainHistory() {
     };
 }
 
-function prepareSendCoins(recepient, amount, name) {
+function prepareSendCoins(recepient, amount, name, confTarget = ONCHAIN_SEND_COINS_CONFIRMATION) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
             return unsuccessPromise(prepareSendCoins);
         }
-        dispatch(actions.sendCoinsPreparing(recepient, amount, name));
+        const fee = await calculateFee(recepient, amount, confTarget);
+        dispatch(actions.sendCoinsPreparing(recepient, amount, name, confTarget, fee.fee_sat));
         return successPromise();
     };
 }
@@ -181,10 +203,17 @@ function sendCoins() {
         if (!getState().onchain.sendCoinsDetails) {
             return errorPromise(statusCodes.EXCEPTION_SEND_COINS_DETAILS_REQUIRED, sendCoins);
         }
-        const { name, recepient, amount } = getState().onchain.sendCoinsDetails;
+        const {
+            name,
+            recepient,
+            amount,
+            confTarget,
+            fee,
+        } = getState().onchain.sendCoinsDetails;
         const response = await window.ipcClient("sendCoins", {
             addr: recepient,
             amount,
+            target_conf: confTarget,
         });
         if (response.ok) {
             dispatch(accountOperations.checkBalance());
@@ -194,7 +223,7 @@ function sendCoins() {
                     .insert()
                     .values({
                         address: recepient,
-                        amount: -amount - getState().onchain.fee,
+                        amount: -amount - fee,
                         blockHash: "",
                         blockHeight: 0,
                         name: name || "Regular payment",
@@ -238,6 +267,7 @@ window.ipcRenderer.on("transactions-update", (event) => {
 });
 
 export {
+    calculateFee,
     getOnchainHistory,
     openSendCoinsModal,
     prepareSendCoins,

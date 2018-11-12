@@ -87,7 +87,17 @@ class OnChainDetails extends Component {
                                 Transaction fee
                             </div>
                             <div className="send-form__value">
-                                ~ <BalanceWithMeasure satoshi={this.props.fee} />
+                                ~ <BalanceWithMeasure satoshi={sendCoinsDetails.fee} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row send-form__row">
+                        <div className="col-xs-12">
+                            <div className="send-form__label">
+                                Blocks confirmation
+                            </div>
+                            <div className="send-form__value">
+                                {this.props.sendCoinsDetails.confTarget}
                             </div>
                         </div>
                     </div>
@@ -108,7 +118,7 @@ class OnChainDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd amount={(sendCoinsDetails.amount + this.props.fee)} />
+                                <BtcToUsd amount={(sendCoinsDetails.amount + sendCoinsDetails.fee)} />
                             </div>
                         </div>
                     </div>
@@ -145,16 +155,16 @@ class OnChainDetails extends Component {
 
 OnChainDetails.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    fee: PropTypes.number.isRequired,
     sendCoinsDetails: PropTypes.shape({
         amount: PropTypes.number.isRequired,
+        confTarget: PropTypes.number.isRequired,
+        fee: PropTypes.number.isRequired,
         name: PropTypes.string,
         recepient: PropTypes.string.isRequired,
     }).isRequired,
 };
 
 const mapStateToProps = state => ({
-    fee: state.onchain.fee,
     sendCoinsDetails: state.onchain.sendCoinsDetails,
 });
 

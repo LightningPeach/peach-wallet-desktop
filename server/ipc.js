@@ -224,6 +224,8 @@ registerIpc("getTransactions", async () => lnd.call("getTransactions"));
 
 registerIpc("sendCoins", async (event, arg) => lnd.call("sendCoins", arg));
 
+registerIpc("estimateFee", async (event, arg) => lnd.call("estimateFee", arg));
+
 ipcMain.on("subscribeTransactions", (event) => {
     if (subscribeTransactionsCall) {
         return;

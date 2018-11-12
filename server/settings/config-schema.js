@@ -107,6 +107,30 @@ module.exports = {
             format: String,
         },
     },
+    bitcoind: {
+        rpcuser: {
+            doc: "Username for RPC connections",
+            format: String,
+        },
+        rpcpass: {
+            doc: "Password for RPC connections",
+            format: String,
+        },
+        rpchost: {
+            doc: "The daemon's rpc listening address. If a port is omitted, then the default port for the selected " +
+                "chain parameters will be used.",
+            format: String,
+            default: null,
+        },
+        zmqpubrawblock: {
+            doc: "The address listening for ZMQ connections to deliver raw block notifications",
+            format: String,
+        },
+        zmqpubrawtx: {
+            doc: "The address listening for ZMQ connections to deliver raw transaction notifications",
+            format: String,
+        },
+    },
     autopilot: {
         active: {
             format: Boolean,
