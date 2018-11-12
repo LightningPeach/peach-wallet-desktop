@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
 import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { onChainActions as actions, onChainTypes as types, onChainOperations as operations } from "modules/onchain";
 import onChainReducer, { initStateOnchain } from "modules/onchain/reducers";
 import { accountTypes, accountOperations } from "modules/account";

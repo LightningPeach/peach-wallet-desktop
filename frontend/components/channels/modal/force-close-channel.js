@@ -11,8 +11,6 @@ import Modal from "components/modal";
 class ForceCloseChannel extends Component {
     constructor(props) {
         super(props);
-        this.closeModal = this.closeModal.bind(this);
-        this.closeChannel = this.closeChannel.bind(this);
         this.state = {
             processing: false,
         };
@@ -20,16 +18,16 @@ class ForceCloseChannel extends Component {
         analytics.pageview(`${ChannelsFullPath}/force-close-channel`, "Force Close Channel");
     }
 
-    closeModal() {
+    closeModal = () => {
         const { dispatch } = this.props;
         if (this.state.processing) {
             return;
         }
         analytics.event({ action: "Force Close Channel Modal", category: "Channels", label: "Cancel" });
         dispatch(appOperations.closeModal());
-    }
+    };
 
-    async closeChannel() {
+    closeChannel = async () => {
         const { dispatch, currentChannel } = this.props;
         analytics.event({ action: "Force Close Channel Modal", category: "Channels", label: "Close" });
         dispatch(appOperations.closeModal());
@@ -44,7 +42,7 @@ class ForceCloseChannel extends Component {
         dispatch(info({
             message: helpers.formatNotificationMessage(<span>Channel <strong>{tempName}</strong> deleted</span>),
         }));
-    }
+    };
 
     render() {
         const { currentChannel } = this.props;

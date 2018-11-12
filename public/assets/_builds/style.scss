@@ -3,6 +3,7 @@
 @import "libs/scrollbar";
 @import "libs/slick.1.6.0/slick.min";
 @import "libs/slick.1.6.0/slick-theme.min";
+@import "libs/react-datepicker";
 
 @import "core/vars";
 @import "core/fonts";
@@ -23,6 +24,7 @@
 @import "modules/tabs";
 @import "modules/react-table";
 @import "modules/media-queries";
+@import "components/popper";
 @import "components/header";
 @import "components/subheader";
 @import "components/footer";
@@ -32,7 +34,6 @@
 @import "components/home";
 @import "components/payments";
 @import "components/purchases";
-@import "components/stream_payment";
 @import "components/lightning";
 @import "components/onchain";
 @import "components/channels";
@@ -41,3 +42,6 @@
 @import "components/informer";
 @import "components/tourgide";
 @import "components/license";
+@import "components/filter";
+@import "components/picker";
+@import "components/datepicker";

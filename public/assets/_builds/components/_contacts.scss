@@ -8,11 +8,6 @@
         margin-top: 150px;
     }
 
-    .placeholder_text {
-        text-transform: uppercase;
-        letter-spacing: -0.6px;
-    }
-
     .container {
         margin-top: 30px;
     }
@@ -22,95 +17,12 @@
         max-width: 100%;
     }
 
-    .table {
-        margin-top: 30px;
-        &__header {
-            padding-bottom: 10px;
-
-            &--item {
-                font-size: 16px;
-                font-weight: 500;
-                line-height: 1.13;
-            }
-
-            &--sort {
-                cursor: pointer;
-                position: relative;
-
-                &:after {
-                    content: "";
-                    position: absolute;
-                    width: 0;
-                    height: 0;
-                    border-style: solid;
-                    left: calc(100% + 10px);
-                    top: 50%;
-                    border-width: 0 3px 4px 3px;
-                    border-color: transparent transparent #071017 transparent;
-                    transition: transform .2s;
-                }
-            }
-
-            &--asc:after {
-                transform: translateY(-10%);
-            }
-
-            &--desc:after {
-                transform: rotate(180deg);
-            }
-        }
-
-        &__item {
-            margin: 0 -20px;
-            padding: 10px 5px;
-            font-size: 14px;
-            line-height: 1;
-            color: $black;
-            transition: background-color .3s ease-in-out, padding .3s ease-in-out, margin .3s ease-in-out;
-
-            &:hover {
-                padding-top: 13px;
-                padding-bottom: 13px;
-                background-color: transparentize($orange, 0.9);
-                margin-top: -3px;
-                margin-bottom: -3px;
-
-                .table__button {
-                    opacity: 1;
-                    pointer-events: all;
-                }
-            }
-        }
-
-        &__button {
-            opacity: 0;
-            pointer-events: none;
-            border: 0;
-            background: transparent;
-            cursor: pointer;
-            font-size: 0;
-            line-height: 1;
-            color: $orange;
-            padding: 0 5px;
-            margin-top: 2px;
-            transition: opacity .3s ease-in-out, font-size .3s ease-in-out;
-
-            &:hover {
-                color: #d0021b;
-                text-decoration: underline;
-            }
-        }
-    }
-
     .form-search {
         background: url(./../images/search.svg) no-repeat 10px center;
         padding-left: 36px;
     }
 
     .ReactTable {
-        margin-left: -20px;
-        margin-right: -20px;
-
         .rt-thead .rt-th {
             font-size: 16px;
             line-height: 1.13;
@@ -123,27 +35,6 @@
                     text-overflow: ellipsis;
                 }
             }
-
-            .rt-tr:not(.-padRow):hover {
-                padding-top: 3px;
-                padding-bottom: 3px;
-                background-color: transparentize($orange, 0.9);
-                margin-top: -3px;
-                margin-bottom: -3px;
-                box-shadow: 1px 1px 10px 0 rgba(225, 225, 225, 0.5);
-
-                .table__button {
-                    opacity: 1;
-                    pointer-events: all;
-                    font-size: 12px;
-                }
-            }
-        }
-
-        .rt-tr {
-            padding-left: 20px;
-            padding-right: 20px;
-            transition: background-color .3s ease-in-out, padding .3s ease-in-out, margin .3s ease-in-out, box-shadow .3s ease-in-out;
         }
     }
 

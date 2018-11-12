@@ -1,5 +1,5 @@
 import { DB } from "config/node-settings";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { errorPromise, successPromise } from "./index";
 
 const {

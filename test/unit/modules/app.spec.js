@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import nock from "nock";
 import omit from "lodash/omit";
 
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { USD_PER_BTC_HOST, USD_PER_BTC_QUERY, MBTC_MEASURE } from "config/consts";
 import { appActions as actions, appTypes as types, appOperations as operations } from "modules/app";
 import appReducer, { initStateApp } from "modules/app/reducers";
@@ -234,13 +234,6 @@ describe("App Unit Tests", () => {
                 expectedData.payload = types.CLOSE_MODAL_STATE;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.closeModal())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("openChangePasswordModal()", async () => {
-                expectedData.payload = types.PROFILE_CHANGE_PASS_MODAL_STATE;
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.openChangePasswordModal())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 

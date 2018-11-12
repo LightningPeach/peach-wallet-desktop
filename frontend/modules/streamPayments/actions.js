@@ -1,24 +1,21 @@
 import * as types from "./types";
 
+const setCurrentStream = payload => ({
+    payload,
+    type: types.SET_CURRENT_STREAM,
+});
+
 const prepareStreamPayment = payload => ({
     payload,
     type: types.PREPARE_STREAM_PAYMENT,
 });
 
-const setStreamPaymentStatus = (streamId, status) => ({
+const updateStreamPayment = (streamId, details) => ({
     payload: {
-        status,
+        details,
         streamId,
     },
-    type: types.SET_STREAM_PAYMENT_STATUS,
-});
-
-const setStreamLastPayment = (streamId, lastPayment) => ({
-    payload: {
-        lastPayment,
-        streamId,
-    },
-    type: types.SET_STREAM_LAST_PAYMENT,
+    type: types.UPDATE_STREAM_PAYMENT,
 });
 
 const changeStreamPartsPaid = (streamId, change) => ({
@@ -46,27 +43,12 @@ const setStreamPayments = payload => ({
     type: types.SET_STREAM_PAYMENTS,
 });
 
-const setStreamPaymentIntervalId = (streamId, paymentIntervalId) => ({
-    payload: {
-        paymentIntervalId,
-        streamId,
-    },
-    type: types.SET_STREAM_PAYMENT_INTERVAL_ID,
-});
-
-const clearStreamPaymentIntervalId = payload => ({
-    payload,
-    type: types.CLEAR_STREAM_PAYMENT_INTERVAL_ID,
-});
-
 export {
+    setCurrentStream,
     prepareStreamPayment,
-    setStreamPaymentStatus,
+    updateStreamPayment,
     changeStreamPartsPaid,
     changeStreamPartsPending,
     addStreamPaymentToList,
     setStreamPayments,
-    setStreamPaymentIntervalId,
-    clearStreamPaymentIntervalId,
-    setStreamLastPayment,
 };

@@ -1,4 +1,4 @@
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import fetch from "isomorphic-fetch";
 import { delay, successPromise, errorPromise, logger } from "additional";
 import { store } from "store/configure-store";
