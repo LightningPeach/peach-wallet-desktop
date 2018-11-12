@@ -163,7 +163,7 @@
     "redux-thunk": "^2.1.0",
     "request": "^2.83.0",
     "rimraf": "^2.6.2",
-    "typeorm": "^0.1.9",
+    "typeorm": "^0.2.6",
     "url-parse": "^1.4.3",
     "ws": "^5.2.0",
     "xregexp": "^4.1.1",
