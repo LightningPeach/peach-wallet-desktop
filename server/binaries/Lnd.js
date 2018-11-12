@@ -313,6 +313,16 @@ class Lnd extends Exec {
                 "--btcd.rpchost", settings.get.btcd.rpchost,
                 "--btcd.rpccert", settings.get.btcd.rpccert,
             );
+        } else if (settings.get.bitcoin.node === "bitcoind") {
+            options.push(
+                "--bitcoind.rpcuser", settings.get.bitcoind.rpcuser,
+                "--bitcoind.rpcpass", settings.get.bitcoind.rpcpass,
+                "--bitcoind.zmqpubrawblock", settings.get.bitcoind.zmqpubrawblock,
+                "--bitcoind.zmqpubrawtx", settings.get.bitcoind.zmqpubrawtx,
+            );
+            if (settings.get.bitcoind.rpchost) {
+                options.push("--bitcoind.rpchost", settings.get.bitcoind.rpchost);
+            }
         }
         if (settings.get.autopilot.active) {
             options.push("--autopilot.active");
