@@ -2,57 +2,77 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ReactTable from "react-table";
+import { filterTypes } from "modules/filter";
+import { HISTORY_ROWS_PER_PAGE } from "config/consts";
+import Filter from "components/filter";
 import Pagination from "./pagination";
 
 class History extends Component {
     constructor(props) {
         super(props);
-        this.onPageChange = this.onPageChange.bind(this);
-        this.renderEmptyList = this.renderEmptyList.bind(this);
         this.state = {
             page: 0,
         };
     }
 
-    onPageChange(i) {
-        this.setState({ page: i });
-    }
+    onPageChange = (page) => {
+        this.setState({ page });
+    };
 
-    renderEmptyList() {
-        const { emptyPlaceholder } = this.props;
-        return (
+    handleFilterChange = () => {
+        this.onPageChange(0);
+    };
+
+    render() {
+        const {
+            withoutTitle, title, emptyPlaceholder, searchPlaceholder, source, filters, ...table
+        } = this.props;
+        const renderEmptyList = () => (
             <div className="placeholder_text">
                 {emptyPlaceholder || "Here all your transactions will be displayed"}
             </div>
         );
-    }
 
-    render() {
+        const renderFilter = () => {
+            if (!filters) {
+                return null;
+            }
+            return (
+                <Filter
+                    onChange={this.handleFilterChange}
+                    source={source}
+                    filterKinds={filters}
+                    searchPlaceholder={searchPlaceholder}
+                />
+            );
+        };
         const renderData = () => (
             <ReactTable
-                {...this.props}
+                {...table}
                 page={this.state.page}
                 resizable={false}
                 showPageSizeOptions={false}
-                defaultPageSize={5}
+                defaultPageSize={HISTORY_ROWS_PER_PAGE}
                 PaginationComponent={Pagination}
                 customPagination={this.onPageChange}
             />
         );
         const renderTitle = () => {
-            if (this.props.withoutTitle) {
+            if (withoutTitle) {
                 return null;
             }
             return [
-                <div className="history__title" key={0}>History</div>,
-                <div className="separator" key={1} />,
+                <div className="history__title" key={0}>
+                    {title || "History"}
+                </div>,
             ];
         };
 
         return (
             <div className="history">
                 {renderTitle()}
-                {!this.props.data.length ? this.renderEmptyList() : renderData()}
+                {renderFilter()}
+                {!this.props.data.length ? renderEmptyList() : renderData()}
             </div>
         );
     }
@@ -66,6 +86,10 @@ History.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape().isRequired).isRequired,
     dispatch: PropTypes.func.isRequired,
     emptyPlaceholder: PropTypes.string,
+    filters: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
+    searchPlaceholder: PropTypes.string,
+    source: PropTypes.oneOf(filterTypes.FILTER_SOURCES),
+    title: PropTypes.string,
     withoutTitle: PropTypes.bool,
 };
 

@@ -1,5 +1,5 @@
 import bitcoin from "bitcoinjs-lib";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { validators } from "additional";
 import { MIN_PASS_LENGTH, SIMNET_NETWORK, USERNAME_MAX_LENGTH } from "config/consts";
 

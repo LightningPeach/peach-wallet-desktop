@@ -22,7 +22,7 @@ import {
     ALL_MEASURES,
     LOGOUT_ACCOUNT_TIMEOUT,
 } from "config/consts";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
@@ -266,11 +266,8 @@ function initAccount(login, newAccount = false) {
             dispatch(createNewBitcoinAccount()),
             dispatch(loadAccountSettings()),
         ]);
-        console.log("SOME");
         await dispatch(checkBalance());
-        console.log("SOME");
         await dispatch(streamPaymentOperations.loadStreams());
-        console.log("SOME");
         return successPromise();
     };
 }

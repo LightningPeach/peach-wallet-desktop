@@ -4,18 +4,12 @@ import PropTypes from "prop-types";
 const PAGES_NEAR = 2;
 
 class Pagination extends Component {
-    constructor(props) {
-        super(props);
-        this.handleChange = this.handleChange.bind(this);
-        this.renderPages = this.renderPages.bind(this);
-    }
-
-    handleChange(index) {
+    handleChange = (index) => {
         this.props.customPagination(index);
-    }
+    };
 
-    renderPages() {
-        const { page, pages, pageSize } = this.props;
+    renderPages = () => {
+        const { page, pages } = this.props;
         const content = [];
         let spreadBeforeUsed = false;
         let spreadAfterUsed = false;
@@ -41,11 +35,11 @@ class Pagination extends Component {
         }
 
         return content;
-    }
+    };
 
     render() {
         const {
-            canNext, canPrevious, page, pages, pageSize,
+            canNext, canPrevious, page, pages,
         } = this.props;
         if (pages <= 1) {
             return null;
@@ -85,7 +79,6 @@ Pagination.propTypes = {
     canPrevious: PropTypes.bool.isRequired,
     customPagination: PropTypes.func.isRequired,
     page: PropTypes.number.isRequired,
-    pageSize: PropTypes.number.isRequired,
     pages: PropTypes.number.isRequired,
 };
 

@@ -4,15 +4,15 @@ import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import Checkbox from "components/ui/checkbox";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
 import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { PEACH } from "config/node-settings";
 import { ChannelsFullPath } from "routes";
 import Modal from "components/modal";
-import DigitsField from "components/ui/digitsField";
+import DigitsField from "components/ui/digits-field";
 
 const spinner = <div className="spinner" />;
 

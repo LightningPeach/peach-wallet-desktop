@@ -15,8 +15,6 @@ const grpcStatus = require("grpc").status;
 
 const lnd = new Lnd();
 
-registerIpc("validateBinaries", async () => ({ ok: true }));
-
 registerIpc("selectFolder", () => {
     const folder = dialog.showOpenDialog(main.getMainWindow(), { properties: ["openDirectory"] });
     return { ok: true, response: { folder: folder ? folder[0] : null } };
@@ -76,32 +74,6 @@ registerIpc("startLis", async (event, arg) => {
     return { ok: true };
 });
 
-/**
- * Create user lnd folder
- */
-registerIpc("createLndFolder", async (event, arg) => {
-    try {
-        logger.info(
-            { func: "createLndFolder" },
-            `Will check folder ${path.join(settings.get.lndPath, arg.username, "data")}`,
-        );
-        const userData = path.join(settings.get.lndPath, arg.username, "data");
-        const userLog = path.join(settings.get.lndPath, arg.username, "log");
-        const exists = await helpers.checkDir(path.join(settings.get.lndPath, arg.username, "data"));
-        if (exists.ok) {
-            return { ok: false, error: "User already exists" };
-        }
-        helpers.mkDirRecursive(userData);
-        helpers.mkDirRecursive(userLog);
-        return {
-            ok: true,
-        };
-    } catch (error) {
-        console.log(error);
-        return Object.assign({ ok: false }, error, { error: error.message });
-    }
-});
-
 registerIpc("logout", this.shutdown);
 
 registerIpc("checkUsername", async (event, arg) => {
@@ -115,7 +87,7 @@ registerIpc("checkUsername", async (event, arg) => {
 });
 
 registerIpc("checkUser", async (event, arg) => {
-    const exists = await helpers.checkDir(path.join(settings.get.lndPath, arg.username, "data"));
+    const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.username, "data"));
     if (!exists.ok) {
         exists.error = "User doesn't exist.";
     }
@@ -132,7 +104,7 @@ registerIpc("loadLndPath", async (event, arg) => {
     settings.set("lndPath", loadedPath);
 });
 
-registerIpc("validateLndPath", async (event, arg) => helpers.checkDir(path.join(arg.lndPath)));
+registerIpc("validateLndPath", async (event, arg) => helpers.checkAccess(path.join(arg.lndPath)));
 
 registerIpc("newAddress", async (event, arg) => lnd.call("newAddress", arg));
 

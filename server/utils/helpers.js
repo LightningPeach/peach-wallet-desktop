@@ -132,12 +132,14 @@ async function writeFile(filePath, content) {
  * @param {string} dirPath
  * @return {Promise<Object>}
  */
-async function checkDir(dirPath) {
+async function checkAccess(dirPath, errorOnNotExist = true) {
     return new Promise((resolve) => {
         fs.access(dirPath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
             let ret = { ok: true };
             if (err) {
-                logger.error({ func: checkDir }, err);
+                if (errorOnNotExist) {
+                    logger.error({ func: checkAccess }, err);
+                }
                 ret = Object.assign({}, err, { ok: false, error: err.message });
             }
             resolve(ret);
@@ -169,11 +171,13 @@ function mkDirRecursive(dirPath) {
     const initDir = path.isAbsolute(dirPath) ? sep : "";
     dirPath.split(sep)
         .reduce((parentDir, childDir) => {
-            const curDir = path.resolve(parentDir, childDir);
+            if (!childDir) {
+                return parentDir;
+            }
+            const curDir = path.join(parentDir, childDir);
             if (!fs.existsSync(curDir)) {
                 fs.mkdirSync(curDir);
             }
-
             return curDir;
         }, initDir);
 }
@@ -290,7 +294,7 @@ function readFolderWithinFolder(folder) {
 }
 
 module.exports.delay = delay;
-module.exports.checkDir = checkDir;
+module.exports.checkAccess = checkAccess;
 module.exports.checkDirSync = checkDirSync;
 module.exports.readFile = readFile;
 module.exports.writeFile = writeFile;

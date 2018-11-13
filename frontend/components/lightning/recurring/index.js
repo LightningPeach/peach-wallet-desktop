@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { accountOperations, accountTypes } from "modules/account";
 import {
     streamPaymentOperations as streamOperations,
@@ -12,23 +12,28 @@ import Select from "react-select";
 import { lightningOperations } from "modules/lightning";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations } from "modules/app";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,
-    USERNAME_MAX_LENGTH,
+    ELEMENT_NAME_MAX_LENGTH,
     STREAM_INFINITE_TIME_VALUE,
     BTC_MEASURE,
     MBTC_MEASURE,
     SATOSHI_MEASURE,
+    TIME_RANGE_MEASURE,
+    MAX_INTERVAL_FREUENCY,
 } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { channelsSelectors } from "modules/channels";
 import { error } from "modules/notifications";
-import DigitsField from "components/ui/digitsField";
+import DigitsField from "components/ui/digits-field";
 import Checkbox from "components/ui/checkbox";
-import ToField from "./ui/to";
-import StreamDetails from "./modal/stream-details";
+import RecurringHistory from "./history";
+import ToField from "../ui/to";
+import StreamDetails from "../modal/stream-details";
+import EditStream from "../modal/edit-stream";
+import ActiveRecurringWarning from "../modal/active-recurring-warning";
 
 const getInitialState = (params = {}) => {
     const initState = {
@@ -37,8 +42,7 @@ const getInitialState = (params = {}) => {
         frequencyError: null,
         isInfinite: false,
         nameError: null,
-        textError: null,
-        timeCurrency: "seconds",
+        timeCurrency: TIME_RANGE_MEASURE[0].measure,
         timeError: null,
         toError: null,
         toValue: null,
@@ -55,6 +59,12 @@ class RecurringPayment extends Component {
 
         this.state = getInitialState({ valueCurrency: props.bitcoinMeasureType });
     }
+
+    setName = () => {
+        this.setState({
+            nameError: null,
+        });
+    };
 
     setAmount = () => {
         this.setState({
@@ -130,9 +140,11 @@ class RecurringPayment extends Component {
         return { contactName, lightningId };
     };
 
-    _validateFrequency = (frequency) => {
+    _validateFrequency = (frequency, measuredMax, measure) => {
         if (!frequency) {
             return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        } else if (frequency > MAX_INTERVAL_FREUENCY) {
+            return statusCodes.EXCEPTION_RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
         }
         return null;
     };
@@ -185,6 +197,13 @@ class RecurringPayment extends Component {
                 currency = "BTC";
                 break;
         }
+        let delayRange = 1000;
+        TIME_RANGE_MEASURE.forEach((item) => {
+            if (this.state.timeCurrency === item.measure) {
+                delayRange = item.range;
+            }
+        });
+        const delay = frequency * delayRange;
 
         const nameError = validators.validateName(name, false, true, true, undefined, true);
         const toError = validators.validateLightning(to);
@@ -192,7 +211,11 @@ class RecurringPayment extends Component {
             ? dispatch(appOperations.convertUsdToCurrentMeasure(amount))
             : amount));
         const timeError = this._validateTime(time);
-        const frequencyError = this._validateFrequency(frequency);
+        const frequencyError = this._validateFrequency(
+            delay,
+            Math.floor(MAX_INTERVAL_FREUENCY / delayRange),
+            this.state.timeCurrency,
+        );
 
         if (nameError || toError || amountError || timeError || frequencyError) {
             this.setState({
@@ -207,30 +230,6 @@ class RecurringPayment extends Component {
         if (currency === "BTC") {
             amount = dispatch(appOperations.convertToSatoshi(amount));
         }
-        let delay = 1000;
-        switch (this.state.timeCurrency) {
-            case "seconds":
-                delay *= 1;
-                break;
-            case "minutes":
-                delay *= 60;
-                break;
-            case "hours":
-                delay *= 60 * 60;
-                break;
-            case "days":
-                delay *= 60 * 60 * 24;
-                break;
-            case "weeks":
-                delay *= 60 * 60 * 24 * 7;
-                break;
-            case "months":
-                delay *= 60 * 60 * 24 * 7 * 30;
-                break;
-            default:
-                break;
-        }
-        delay *= frequency;
 
         const response = await dispatch(streamOperations.prepareStreamPayment(
             to,
@@ -267,11 +266,9 @@ class RecurringPayment extends Component {
                 </span>
             );
         }
-        const formClass =
-            `send form ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`;
         return (
             <form
-                className={formClass}
+                className={`send form ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`}
                 onSubmit={this.streamPay}
                 key={0}
                 ref={(ref) => {
@@ -295,10 +292,10 @@ class RecurringPayment extends Component {
                                     ref={(ref) => {
                                         this.name = ref;
                                     }}
-                                    onChange={() => this.setState({ nameError: null })}
+                                    onChange={this.setName}
                                     disabled={this.state.processing}
-                                    max={USERNAME_MAX_LENGTH}
-                                    maxLength={USERNAME_MAX_LENGTH}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
                                 />
                             </div>
                         </div>
@@ -380,14 +377,10 @@ class RecurringPayment extends Component {
                                             id="stream__frequency--currency"
                                             value={this.state.timeCurrency}
                                             searchable={false}
-                                            options={[
-                                                { label: "seconds", value: "seconds" },
-                                                { label: "minutes", value: "minutes" },
-                                                { label: "hours", value: "hours" },
-                                                { label: "days", value: "days" },
-                                                { label: "weeks", value: "weeks" },
-                                                { label: "months", value: "months" },
-                                            ]}
+                                            options={TIME_RANGE_MEASURE.map(item => ({
+                                                label: item.measure,
+                                                value: item.measure,
+                                            }))}
                                             onChange={(newOption) => {
                                                 this.setState({
                                                     timeCurrency: newOption.value,
@@ -564,19 +557,31 @@ class RecurringPayment extends Component {
 
     render() {
         const { modalState } = this.props;
+        let modal;
+        switch (modalState) {
+            case streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS:
+                modal = <StreamDetails onClose={this.clean} />;
+                break;
+            case streamPaymentTypes.MODAL_STATE_ACTIVE_RECURRING_WARNING:
+                modal = <ActiveRecurringWarning />;
+                break;
+            case streamPaymentTypes.MODAL_STATE_EDIT_STREAM_PAYMENT:
+                modal = <EditStream />;
+                break;
+            default:
+                modal = null;
+        }
         return [
             this.renderForm(),
-            modalState === streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS &&
-            (
-                <ReactCSSTransitionGroup
-                    transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                    key="streamsModals"
-                >
-                    <StreamDetails onClose={this.clean} />
-                </ReactCSSTransitionGroup>
-            ),
+            <RecurringHistory key={1} />,
+            <ReactCSSTransitionGroup
+                transitionName="modal-transition"
+                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                key="streamsModals"
+            >
+                {modal}
+            </ReactCSSTransitionGroup>,
         ];
     }
 }
