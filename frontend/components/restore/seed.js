@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { analytics, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { push } from "react-router-redux";

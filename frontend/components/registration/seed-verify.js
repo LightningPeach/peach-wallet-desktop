@@ -2,7 +2,7 @@ import React, { PureComponent } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 import { analytics, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { error } from "modules/notifications";
 import { connect } from "react-redux";
 import { GuidePath } from "routes";

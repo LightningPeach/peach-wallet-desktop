@@ -1,0 +1,16 @@
+.popper {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  z-index: 1;
+
+  &--oBottom {
+    bottom: 42px;
+    top: initial;
+  }
+
+  &--oRight {
+    right: 0;
+    left: initial;
+  }
+}

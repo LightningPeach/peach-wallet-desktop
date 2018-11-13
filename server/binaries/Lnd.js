@@ -348,6 +348,7 @@ class Lnd extends Exec {
             if (settings.get.lnd.restlisten) {
                 options.push("--restlisten", `127.0.0.1:${settings.get.lnd.restlisten}`);
             }
+            options.push("--maxpendingchannels", settings.get.lnd.maxpendingchannels || 1);
         }
         if (!settings.get.lnd.no_macaroons) {
             options.push(

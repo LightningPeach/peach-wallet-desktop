@@ -1,5 +1,7 @@
 .ReactTable {
     border: 0;
+    margin-left: -20px;
+    margin-right: -20px;
 
     .rt-table {
         overflow: inherit;
@@ -10,17 +12,36 @@
         overflow: visible;
     }
 
+    .rt-tr {
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        padding-left: 20px;
+        padding-right: 20px;
+        transition:
+                background-color .3s ease-in-out,
+                padding .3s ease-in-out,
+                margin .3s ease-in-out,
+                box-shadow .3s ease-in-out;
+    }
+
     .rt-thead {
         &.-header {
             box-shadow: none;
+
+            .rt-tr {
+                border-bottom: 1px solid $black;
+                padding-top: 15px;
+                padding-bottom: 12px;
+                text-transform: uppercase;
+            }
         }
 
         .rt-th,
         .rt-td {
             border: 0;
             box-shadow: none;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 500;
             line-height: 1.3;
             padding: 0;
             text-align: left;
@@ -56,10 +77,13 @@
                 transform: rotate(180deg);
             }
         }
+
+        .tooltip-wp {
+            position: relative;
+        }
     }
 
     .rt-tbody {
-        padding-top: 10px;
         padding-bottom: 5px;
         overflow: visible;
 
@@ -71,7 +95,7 @@
             border: 0;
             font-size: 14px;
             line-height: 1;
-            padding: 11px 10px 9px 0;
+            padding: 15px 10px 12px 0;
             letter-spacing: -0.5px;
 
             &:first-child {
@@ -126,6 +150,21 @@
         .-padRow {
             display: none;
         }
+
+        .rt-tr:not(.-padRow):hover {
+            background-color: transparentize($orange, 0.9);
+            box-shadow: 1px 1px 10px 0 rgba(225, 225, 225, 0.5);
+
+            .table__button {
+                opacity: 1;
+                pointer-events: all;
+                font-size: 12px;
+            }
+        }
+
+        .green {
+            color: $apple-green;
+        }
     }
 
     .-pagination {
@@ -175,6 +214,27 @@
 
         .pagination__not-item {
             cursor: default;
+        }
+    }
+}
+
+.table {
+    &__button {
+        opacity: 0;
+        pointer-events: none;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0;
+        line-height: 1;
+        color: $orange;
+        padding: 0 5px;
+        margin-top: 2px;
+        transition: opacity .3s ease-in-out, font-size .3s ease-in-out;
+
+        &:hover {
+            color: #d0021b;
+            text-decoration: underline;
         }
     }
 }

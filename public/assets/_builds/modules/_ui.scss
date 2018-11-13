@@ -51,8 +51,7 @@
             }
 
             &:disabled + .form-checkbox__label {
-                border-color: #333;
-                opacity: 0.1;
+                opacity: 0.3;
             }
         }
 
@@ -60,6 +59,7 @@
             font-size: 14px;
             line-height: 1;
             color: #000;
+            white-space: nowrap;
             display: inline-block;
             padding-left: 19px;
             position: relative;
@@ -265,6 +265,7 @@
         letter-spacing: -0.6px;
         position: relative;
         display: inline-block;
+        white-space: nowrap;
 
         &__icon {
             position: absolute;
@@ -939,6 +940,10 @@
 
     &-14 {
         margin-top: 14px;
+    }
+
+    &-16 {
+        margin-top: 16px;
     }
 
     &-m14 {

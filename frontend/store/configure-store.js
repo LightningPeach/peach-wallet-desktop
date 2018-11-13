@@ -15,6 +15,7 @@ import { initStateStreamPayment } from "modules/streamPayments/reducers";
 import { initStateContacts } from "modules/contacts/reducers";
 import { initStateChannels } from "modules/channels/reducers";
 import { initStateOnchain } from "modules/onchain/reducers";
+import { initStateFilter } from "modules/filter/reducers";
 
 const testStore = NODE_ENV === "test"
     ? { lastAction: null }
@@ -27,6 +28,7 @@ export const persistedState = {
     auth: JSON.parse(JSON.stringify(initStateAuth)),
     channels: JSON.parse(JSON.stringify(initStateChannels)),
     contacts: JSON.parse(JSON.stringify(initStateContacts)),
+    filter: JSON.parse(JSON.stringify(initStateFilter)),
     lightning: JSON.parse(JSON.stringify(initStateLightning)),
     lnd: JSON.parse(JSON.stringify(initStateLnd)),
     notifications: [],
