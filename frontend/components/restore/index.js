@@ -5,6 +5,8 @@ import { connect } from "react-redux";
 import { authTypes as types } from "modules/auth";
 import Seed from "./seed";
 import UserForm from "./user-form";
+import Method from "./method";
+import Folder from "./folder";
 
 class Restore extends Component {
     constructor(props) {
@@ -27,8 +29,14 @@ class Restore extends Component {
                 content = <Seed username={this.username} password={this.password} />;
                 break;
             case types.RESTORE_STEP_USER_PASS:
-            default:
                 content = <UserForm username={this.username} onValidUser={this.setUser} />;
+                break;
+            case types.RESTORE_STEP_USE_WALLET_DATA:
+                content = <Folder />;
+                break;
+            case types.RESTORE_STEP_SELECT_METHOD:
+            default:
+                content = <Method />;
                 break;
         }
 

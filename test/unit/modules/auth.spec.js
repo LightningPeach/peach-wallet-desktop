@@ -143,35 +143,10 @@ describe("Auth Unit Tests", () => {
         describe("regStartLnd()", () => {
             beforeEach(() => {
                 window.ipcClient
-                    .withArgs("validateBinaries")
-                    .returns({ ok: true })
                     .withArgs("checkUser")
                     .returns({ ok: false });
                 fakeLnd.setClearLndData.returns(data.setClearLndData.success);
                 fakeLnd.startLnd.returns(data.startLnd.success);
-            });
-
-            it("error validateBinaries()", async () => {
-                window.ipcClient
-                    .withArgs("validateBinaries")
-                    .returns({ ok: false });
-                fakeLnd.setClearLndData.returns(data.setClearLndData.error);
-                expectedData = { ...errorResp, f: "regStartLnd", error: data.error };
-                expectedActions = [
-                    {
-                        type: accountTypes.CREATE_ACCOUNT,
-                    },
-                    {
-                        type: accountTypes.FINISH_INIT_ACCOUNT,
-                    },
-                ];
-                expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
-                expect(fakeLnd.setClearLndData).to.be.calledOnce;
-                expect(fakeLnd.setClearLndData).to.be.calledWith(true);
-                expect(fakeLnd.startLnd).not.to.be.called;
             });
 
             it("error checkUser()", async () => {
@@ -194,8 +169,7 @@ describe("Auth Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
@@ -218,8 +192,7 @@ describe("Auth Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
@@ -241,8 +214,7 @@ describe("Auth Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
@@ -374,8 +346,6 @@ describe("Auth Unit Tests", () => {
                 fakeLnd.clearLndData.returns(data.startLnd.success);
                 fakeAccount.initAccount.returns(data.initAccount.success);
                 window.ipcClient
-                    .withArgs("validateBinaries")
-                    .returns({ ok: true })
                     .withArgs("createLndWallet")
                     .returns({ ok: true })
                     .withArgs("checkUser")
@@ -403,8 +373,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
@@ -431,8 +400,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
@@ -465,8 +433,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(window.ipcClient)
                     .to
@@ -502,8 +469,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(window.ipcClient)
                     .to
@@ -537,8 +503,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(window.ipcClient)
                     .to
@@ -573,8 +538,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
                 expect(window.ipcClient)
                     .to
@@ -603,31 +567,8 @@ describe("Auth Unit Tests", () => {
                 fakeLnd.startLnd.returns(data.startLnd.success);
                 fakeAccount.initAccount.returns(data.initAccount.success);
                 window.ipcClient
-                    .withArgs("validateBinaries")
-                    .returns({ ok: true })
                     .withArgs("unlockLnd")
                     .returns({ ok: true });
-            });
-
-            it("error validateBinaries()", async () => {
-                window.ipcClient
-                    .withArgs("validateBinaries")
-                    .returns({ ok: false });
-                expectedData = { ...errorResp, f: "login" };
-                expectedActions = [
-                    {
-                        type: accountTypes.START_INIT_ACCOUNT,
-                    },
-                    {
-                        type: accountTypes.FINISH_INIT_ACCOUNT,
-                    },
-                ];
-                expect(await store.dispatch(operations.login(data.username, data.password)))
-                    .to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(fakeLnd.startLnd).not.to.be.called;
-                expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
             });
 
             it("error startInitAccount()", async () => {
@@ -646,8 +587,7 @@ describe("Auth Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
                 expect(fakeLnd.startLnd).to.be.calledWith(data.username);
-                expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).not.to.be.called;
             });
 
             it("error unlockLnd()", async () => {
@@ -672,10 +612,8 @@ describe("Auth Unit Tests", () => {
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
                 expect(fakeLnd.startLnd).to.be.calledWith(data.username);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
             });
@@ -699,10 +637,8 @@ describe("Auth Unit Tests", () => {
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
                 expect(fakeLnd.startLnd).to.be.calledWith(data.username);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
                 expect(fakeApp.openDb).to.be.calledOnce;
@@ -726,8 +662,7 @@ describe("Auth Unit Tests", () => {
                 expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
                 expect(fakeAccount.initAccount).to.be.calledOnce;
                 expect(fakeAccount.initAccount).to.be.calledWith(data.username);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
             });
@@ -742,8 +677,7 @@ describe("Auth Unit Tests", () => {
                 expect(await store.dispatch(operations.login(data.username, data.password)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("validateBinaries");
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
                 expect(fakeLnd.startLnd).to.be.calledOnce;

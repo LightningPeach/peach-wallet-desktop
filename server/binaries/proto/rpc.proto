@@ -7,19 +7,19 @@ package lnrpc;
  * Comments in this file will be directly parsed into the API
  * Documentation as descriptions of the associated method, message, or field.
  * These descriptions should go right above the definition of the object, and
- * can be in either block or /// comment format. 
- * 
+ * can be in either block or /// comment format.
+ *
  * One edge case exists where a // comment followed by a /// comment in the
  * next line will cause the description not to show up in the documentation. In
  * that instance, simply separate the two comments with a blank line.
- * 
+ *
  * An RPC method can be matched to an lncli command by placing a line in the
  * beginning of the description in exactly the following format:
  * lncli: `methodname`
- * 
+ *
  * Failure to specify the exact name of the command will cause documentation
  * generation to fail.
- * 
+ *
  * More information on how exactly the gRPC documentation is generated from
  * this proto file can be found here:
  * https://github.com/lightninglabs/lightning-api
@@ -44,7 +44,7 @@ service WalletUnlocker {
         };
     }
 
-    /** 
+    /**
     InitWallet is used when lnd is starting up for the first time to fully
     initialize the daemon and its internal wallet. At the very least a wallet
     password must be provided. This will be used to encrypt sensitive material
@@ -189,7 +189,7 @@ service Lightning {
     /** lncli: `walletbalance`
     WalletBalance returns total unspent outputs(confirmed and unconfirmed), all
     confirmed unspent outputs and all unconfirmed unspent outputs under control
-    of the wallet. 
+    of the wallet.
     */
     rpc WalletBalance (WalletBalanceRequest) returns (WalletBalanceResponse) {
         option (google.api.http) = {
@@ -363,7 +363,7 @@ service Lightning {
     }
 
     /** lncli: `closedchannels`
-    ClosedChannels returns a description of all the closed channels that 
+    ClosedChannels returns a description of all the closed channels that
     this node was a participant in.
     */
     rpc ClosedChannels (ClosedChannelsRequest) returns (ClosedChannelsResponse) {
@@ -676,7 +676,7 @@ message Transaction {
     /// The height of the block this transaction was included in
     int32 block_height = 5 [ json_name = "block_height" ];
 
-    /// Timestamp of this transaction 
+    /// Timestamp of this transaction
     int64 time_stamp = 6 [ json_name = "time_stamp" ];
 
     /// Fees paid for this transaction
@@ -809,7 +809,7 @@ message SendManyResponse {
 }
 
 message SendCoinsRequest {
-    /// The address to send coins to 
+    /// The address to send coins to
     string addr = 1;
 
     /// The amount in satoshis to send
@@ -826,7 +826,7 @@ message SendCoinsResponse {
     string txid = 1 [json_name = "txid"];
 }
 
-/** 
+/**
 `AddressType` has to be one of:
 
 - `p2wkh`: Pay to witness key hash (`WITNESS_PUBKEY_HASH` = 0)
@@ -995,10 +995,10 @@ message ListChannelsResponse {
 }
 
 message ChannelCloseSummary {
-    /// The outpoint (txid:index) of the funding transaction. 
+    /// The outpoint (txid:index) of the funding transaction.
     string channel_point = 1 [json_name = "channel_point"];
 
-    ///  The unique channel ID for the channel. 
+    ///  The unique channel ID for the channel.
     uint64 chan_id = 2 [json_name = "chan_id"];
 
     /// The hash of the genesis block that this channel resides within.
@@ -1042,7 +1042,7 @@ message ClosedChannelsRequest {
     bool funding_canceled = 5;
 }
 
-message ClosedChannelsResponse { 
+message ClosedChannelsResponse {
     repeated ChannelCloseSummary channels = 1 [json_name = "channels"];
 }
 
@@ -1433,12 +1433,12 @@ message Route {
     Contains details concerning the specific forwarding details at each hop.
     */
     repeated Hop hops = 4 [json_name = "hops"];
-    
+
     /**
     The total fees in millisatoshis.
     */
     int64 total_fees_msat = 5 [json_name = "total_fees_msat"];
-    
+
     /**
     The total amount in millisatoshis.
     */
@@ -1446,7 +1446,7 @@ message Route {
 }
 
 message NodeInfoRequest {
-    /// The 33-byte hex-encoded compressed public of the target node 
+    /// The 33-byte hex-encoded compressed public of the target node
     string pub_key = 1;
 }
 
@@ -1968,9 +1968,9 @@ message ForwardingEvent {
     //  * also list failures?
 }
 message ForwardingHistoryResponse {
-   /// A list of forwarding events from the time slice of the time series specified in the request.
-   repeated ForwardingEvent forwarding_events = 1 [json_name = "forwarding_events"];
+    /// A list of forwarding events from the time slice of the time series specified in the request.
+    repeated ForwardingEvent forwarding_events = 1 [json_name = "forwarding_events"];
 
-   /// The index of the last time in the set of returned forwarding events. Can be used to seek further, pagination style.
-   uint32 last_offset_index = 2 [json_name = "last_offset_index"];
+    /// The index of the last time in the set of returned forwarding events. Can be used to seek further, pagination style.
+    uint32 last_offset_index = 2 [json_name = "last_offset_index"];
 }

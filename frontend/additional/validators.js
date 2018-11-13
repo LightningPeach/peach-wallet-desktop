@@ -173,6 +173,17 @@ const validateSeed = (seed) => {
     return null;
 };
 
+const validateLndPath = async (lndPath) => {
+    if (!lndPath) {
+        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+    }
+    const response = await window.ipcClient("validateLndPath", { lndPath });
+    if (!response.ok) {
+        return statusCodes.EXCEPTION_FOLDER_UNAVAILABLE;
+    }
+    return null;
+};
+
 export {
     validateBitcoinAddr,
     validateChannelHost,
@@ -184,4 +195,5 @@ export {
     validatePassSeed,
     validateSeed,
     validateUserExistence,
+    validateLndPath,
 };
