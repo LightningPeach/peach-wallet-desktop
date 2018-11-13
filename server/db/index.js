@@ -1,46 +1,11 @@
+const { join } = require("path");
+
 const { createConnection } = require("typeorm");
 const { SqliteDriver } = require("typeorm/driver/sqlite/SqliteDriver");
 const PlatformTools = require("typeorm/platform/PlatformTools");
-const StreamPartSchema = require("./entity/StreamPartSchema");
-const StreamSchema = require("./entity/StreamSchema");
-const ContactsSchema = require("./entity/ContactsSchema");
-const ChannelsSchema = require("./entity/ChannelsSchema");
-const OnchainSchema = require("./entity/OnchainSchema");
-const LightningTxnsSchema = require("./entity/LightningTxnsSchema");
-const ConfigSchema = require("./entity/ConfigSchema");
 
 SqliteDriver.prototype.loadDependencies = function loadDependencies() {
     this.sqlite = PlatformTools.PlatformTools.load("@journeyapps/sqlcipher").verbose();
-};
-SqliteDriver.prototype.createDatabaseConnection = function createDatabaseConnection() {
-    return new Promise(async (ok, fail) => {
-        await this.createDatabaseDirectory(this.options.database);
-        const databaseConnection = new this.sqlite.Database(this.options.database, (err) => {
-            if (err) {
-                fail(err);
-                return;
-            }
-            // we need to enable foreign keys in sqlite to make sure all foreign key related features
-            // working properly. this also makes onDelete to work with sqlite.
-            databaseConnection.run("PRAGMA foreign_keys = ON;", (err1, result1) => {
-                if (err) {
-                    fail(err);
-                    return;
-                }
-                if (!this.options.password) {
-                    ok(databaseConnection);
-                    return;
-                }
-                databaseConnection.run(`PRAGMA KEY = '${this.options.password}';`, (err2, result2) => {
-                    if (err) {
-                        fail(err);
-                        return;
-                    }
-                    ok(databaseConnection);
-                });
-            });
-        });
-    });
 };
 
 const CONNECTION_NAME = "wallet_db";
@@ -53,19 +18,16 @@ module.exports = {
             name: CONNECTION_NAME,
             type: dbType,
             database: dbPath,
-            password: dbPass,
-            synchronize: true,
+            key: `'${dbPass}'`,
+            synchronize: false,
             logging: isDev,
-            entitySchemas: [
-                StreamPartSchema,
-                StreamSchema,
-                ContactsSchema,
-                ChannelsSchema,
-                OnchainSchema,
-                LightningTxnsSchema,
-                ConfigSchema,
+            entities: [
+                join(__dirname, "entity", "*.js"),
             ],
         });
+        await connection.query("PRAGMA foreign_keys = OFF;");
+        await connection.synchronize();
+        await connection.query("PRAGMA foreign_keys = ON;");
         return connection;
     },
     close: async () => {

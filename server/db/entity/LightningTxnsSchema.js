@@ -1,6 +1,9 @@
+const { EntitySchema } = require("typeorm");
+
 const { LightningTxns } = require("../model/LightningTxns");
 
-module.exports = {
+module.exports = new EntitySchema({
+    name: "LightningTxns",
     target: LightningTxns,
     columns: {
         paymentHash: {
@@ -13,4 +16,4 @@ module.exports = {
             default: "payment",
         },
     },
-};
+});

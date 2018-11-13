@@ -1,7 +1,9 @@
+const { EntitySchema } = require("typeorm");
+
 const { StreamPart } = require("../model/StreamPart");
 const { Stream } = require("../model/Stream");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: StreamPart,
     columns: {
         payment_hash: {
@@ -16,4 +18,4 @@ module.exports = {
             inverseSide: "parts",
         },
     },
-};
+});

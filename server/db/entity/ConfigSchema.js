@@ -1,6 +1,8 @@
+const { EntitySchema } = require("typeorm");
+
 const { Config } = require("../model/Config");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Config,
     columns: {
         lightningId: {
@@ -20,4 +22,4 @@ module.exports = {
             default: "0",
         },
     },
-};
+});
