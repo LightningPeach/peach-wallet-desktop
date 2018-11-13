@@ -35,10 +35,12 @@ const appPath = app.getAppPath();
 const config = convict(configSchema);
 
 config.set("userDataPath", app.getPath("userData"));
+config.set("preloadBasePath", join(appPath, "node_modules", "preload").replace("app.asar", "app.asar.unpacked"));
 config.set("binariesBasePath", join(appPath, "node_modules", "executable").replace("app.asar", "app.asar.unpacked"));
 config.set("binariesLndPath", join(config.get("binariesBasePath"), lndName));
 const dataPath = join(config.get("userDataPath"), ".lnd");
 config.set("dataPath", dataPath);
+config.set("lndPath", dataPath);
 config.set("logFolder", join(config.get("dataPath"), "logs"));
 
 const baseSettings = readSettings({ appPath, dataPath, config });
@@ -72,18 +74,23 @@ module.exports = Object.freeze({
     }),
     /**
      * @param {String} prop
-     * @param {Array} values
+     * @param {Array|String} values
      * @returns {Promise<*>}
      */
     set: async (prop, values) => {
         logger.info("[SETTINGS] - requested set prop", prop);
         if (prop === "agreement") {
             return calculatedBase.setAgreement(...values);
-        } else if (prop === "lndPeer") {
+        }
+        if (prop === "lndPeer") {
             return calculatedBase.setListenPort(...values);
+        }
+        if (prop === "lndPath") {
+            return config.set("lndPath", values);
         }
         throw new Error(`Set method not available for ${prop} property`);
     },
+    saveLndPath: (username, lndPath) => calculatedBase.saveLndPath(username, lndPath),
     preload: {
         getAnalytics: config.get("analytics"),
         getAgreement: config.get("agreement"),

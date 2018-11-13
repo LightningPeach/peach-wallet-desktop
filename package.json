@@ -41,13 +41,16 @@
       "!settings.peach.local.json",
       "!agreement.ini"
     ],
-    "extraFiles": {
-      "from": "node_modules/executable",
-      "to": "resources/app.asar.unpacked/node_modules/executable",
-      "filter": [
-        "**/*"
-      ]
-    },
+    "extraFiles": [
+      {
+        "from": "node_modules/executable",
+        "to": "resources/app.asar.unpacked/node_modules/executable"
+      },
+      {
+        "from": "node_modules/preload",
+        "to": "resources/app.asar.unpacked/node_modules/preload"
+      }
+    ],
     "extraResources": [
       "settings.ini"
     ],
@@ -100,9 +103,8 @@
     "babel-runtime": "^6.23.0",
     "chai": "^3.5.0",
     "cross-env": "^3.2.4",
-    "electron": "^1.8.4",
+    "electron": "^3.0.8",
     "electron-builder": "^20.28.3",
-    "electron-rebuild": "^1.5.11",
     "eslint": "^4.9.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.7.0",
@@ -155,7 +157,7 @@
     "react-router": "^3.2.0",
     "react-router-redux": "^4.0.5",
     "react-select": "^1.1.0",
-    "react-slick": "^0.23.1",
+    "react-slick": "^0.23.2",
     "react-table": "^6.7.4",
     "react-tabs-redux": "^2.0.1",
     "reconnecting-websocket": "^4.0.0-rc3",
@@ -167,6 +169,7 @@
     "url-parse": "^1.4.3",
     "ws": "^5.2.0",
     "xregexp": "^4.1.1",
-    "yargs": "^11.0.0"
+    "yargs": "^11.0.0",
+    "yarn": "^1.12.1"
   }
 }

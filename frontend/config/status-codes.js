@@ -76,6 +76,10 @@ export const EXCEPTION_LIGHTNING_HOST_WRONG_FORMAT = "Incorrect format. Correct 
 // VALIDATION
 // Incorrect username or password upon attempt
 export const EXCEPTION_USERNAME_PASSWORD_WRONG = "Incorrect username or password.";
+
+// Folder unavailable
+export const EXCEPTION_FOLDER_UNAVAILABLE = "Folder unavailable.";
+
 // User already exists
 export const EXCEPTION_USERNAME_EXISTS = "User already exist.";
 

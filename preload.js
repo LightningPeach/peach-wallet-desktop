@@ -46,5 +46,6 @@ window.ipcClient = async (action, params = {}) => {
         };
     }
 };
+window.pathSep = path.sep;
 window.ipcRenderer = require("electron").ipcRenderer;
 /* eslint-enable no-undef */
