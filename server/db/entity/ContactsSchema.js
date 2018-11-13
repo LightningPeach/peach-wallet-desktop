@@ -1,6 +1,8 @@
+const { EntitySchema } = require("typeorm");
+
 const { Contacts } = require("../model/Contacts");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Contacts,
     columns: {
         lightningID: {
@@ -12,4 +14,4 @@ module.exports = {
             type: "varchar",
         },
     },
-};
+});

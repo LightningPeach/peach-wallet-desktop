@@ -1,6 +1,8 @@
+const { EntitySchema } = require("typeorm");
+
 const { Onchain } = require("../model/Onchain");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Onchain,
     columns: {
         txHash: {
@@ -42,4 +44,4 @@ module.exports = {
             default: 0,
         },
     },
-};
+});

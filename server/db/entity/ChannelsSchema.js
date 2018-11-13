@@ -1,6 +1,8 @@
+const { EntitySchema } = require("typeorm");
+
 const { Channels } = require("../model/Channels");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Channels,
     columns: {
         fundingTxid: {
@@ -28,4 +30,4 @@ module.exports = {
             default: 0,
         },
     },
-};
+});

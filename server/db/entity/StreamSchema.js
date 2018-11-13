@@ -1,7 +1,9 @@
+const { EntitySchema } = require("typeorm");
+
 const { Stream } = require("../model/Stream");
 const { StreamPart } = require("../model/StreamPart");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Stream,
     columns: {
         id: {
@@ -58,4 +60,4 @@ module.exports = {
             JoinColumn: true,
         },
     },
-};
+});
