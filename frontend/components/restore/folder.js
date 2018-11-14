@@ -43,7 +43,7 @@ class Folder extends Component {
         const paths = lndPath.split(window.pathSep);
         const username = paths.pop();
         const lnPath = paths.join(window.pathSep);
-        const lndPathError = await validators.validateLndPath(lnPath);
+        const lndPathError = await validators.validateLndPath(lnPath) || await this._validateUsername(username);
         const password = this.password.value.trim();
         const passwordError = !password ? statusCodes.EXCEPTION_FIELD_IS_REQUIRED : null;
 
@@ -53,7 +53,6 @@ class Folder extends Component {
         }
         this.setState({ passwordError });
         await window.ipcClient("setLndPath", { defaultPath: false, lndPath: lnPath });
-        await window.ipcClient("saveLndPath", { username });
         const init = await dispatch(operations.login(username, password));
         this.setState({ processing: false });
         if (!init.ok) {
@@ -61,6 +60,14 @@ class Folder extends Component {
             return;
         }
         dispatch(push(WalletPath));
+    };
+
+    _validateUsername = async (username) => {
+        const response = await validators.validateUserExistence(username);
+        if (response) {
+            return statusCodes.EXCEPTION_FOLDER_USERNAME_EXISTS;
+        }
+        return null;
     };
 
     render() {
@@ -90,16 +97,12 @@ class Folder extends Component {
                     <div className="col-xs-12">
                         <File
                             id="wallet_folder"
-                            disabled={this.state.defaultPath}
+                            disabled={disabled}
                             value={this.state.lndPath}
                             placeholder="Select folder"
                             className={this.state.lndPathError ? "form-text__error" : ""}
-                            onChange={(e) => {
-                                if (e.target.files[0]) {
-                                    this.setState({ lndPath: e.target.files[0].path, lndPathError: null });
-                                } else {
-                                    this.setState({ lndPath: "", lndPathError: null });
-                                }
+                            onChange={(lndPath) => {
+                                this.setState({ lndPath, lndPathError: null });
                             }}
                         />
                         <ErrorFieldTooltip text={this.state.lndPathError} />

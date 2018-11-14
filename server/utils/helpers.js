@@ -148,6 +148,21 @@ async function checkAccess(dirPath, errorOnNotExist = true) {
 }
 
 /**
+ * Check is dir exists
+ * @param {string} dirPath
+ * @returns {{ok: boolean}}
+ */
+function checkDirSync(dirPath) {
+    try {
+        fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK);
+        return { ok: true };
+    } catch (error) {
+        logger.error({ func: checkDirSync }, error);
+        return Object.assign({}, error, { ok: false, error: error.message });
+    }
+}
+
+/**
  * Recursive creating dirs
  * @param {string} dirPath
  */
@@ -274,8 +289,13 @@ function isPortTaken(port, extreaIp) {
     });
 }
 
+function readFolderWithinFolder(folder) {
+    return fs.readdirSync(folder).filter(f => fs.statSync(path.join(folder, f)).isDirectory()) || [];
+}
+
 module.exports.delay = delay;
 module.exports.checkAccess = checkAccess;
+module.exports.checkDirSync = checkDirSync;
 module.exports.readFile = readFile;
 module.exports.writeFile = writeFile;
 module.exports.readFilePart = readFilePart;
@@ -287,3 +307,4 @@ module.exports.hasProperty = hasProperty;
 module.exports.ipcSend = ipcSend;
 module.exports.isPortTaken = isPortTaken;
 module.exports.noExponents = noExponents;
+module.exports.readFolderWithinFolder = readFolderWithinFolder;

@@ -349,9 +349,9 @@ describe("Validators Unit Tests", () => {
     describe("validateUserExistence", () => {
         beforeEach(() => {
             window.ipcClient
-                .withArgs("checkUser")
+                .withArgs("checkUsername")
                 .returns({
-                    ok: false,
+                    ok: true,
                 });
         });
 
@@ -363,22 +363,22 @@ describe("Validators Unit Tests", () => {
         });
         it("should return error if user exists", async () => {
             window.ipcClient
-                .withArgs("checkUser")
+                .withArgs("checkUsername")
                 .returns({
-                    ok: true,
+                    ok: false,
                 });
             const username = "username";
             const valid = await validators.validateUserExistence(username);
             expect(valid).to.equal(statusCodes.EXCEPTION_USERNAME_EXISTS);
             expect(window.ipcClient).to.be.calledOnce;
-            expect(window.ipcClient).to.be.calledWith("checkUser", { username });
+            expect(window.ipcClient).to.be.calledWith("checkUsername", { username });
         });
         it("should return null for not existing user", async () => {
             const username = "username";
             const valid = await validators.validateUserExistence(username);
             expect(valid).to.equal(null);
             expect(window.ipcClient).to.be.calledOnce;
-            expect(window.ipcClient).to.be.calledWith("checkUser", { username });
+            expect(window.ipcClient).to.be.calledWith("checkUsername", { username });
         });
     });
 

@@ -83,6 +83,9 @@ export const EXCEPTION_FOLDER_UNAVAILABLE = "Folder unavailable.";
 // User already exists
 export const EXCEPTION_USERNAME_EXISTS = "User already exist.";
 
+// username exists before restore through folder
+export const EXCEPTION_FOLDER_USERNAME_EXISTS = "Username already exists. Please rename selected folder.";
+
 // ACCOUNT
 // Account not connected to kernel
 export const EXCEPTION_ACCOUNT_NO_KERNEL = "Lost connection to LND.";

@@ -62,7 +62,7 @@ class RegistrationForm extends PureComponent {
         const username = this.username.value.trim();
         const password = this.password.value.trim();
         const confPassword = this.confPassword.value.trim();
-        const usernameError = validators.validateName(username, true, false, false);
+        const usernameError = await validators.validateUserExistence(username);
         const passwordError = validators.validatePass(password);
         const confPasswordError = validators.validatePassMismatch(password, confPassword);
         const lndPathError = defaultPath ? null : await validators.validateLndPath(lndPath);
@@ -214,6 +214,7 @@ class RegistrationForm extends PureComponent {
                                 text="Use default path"
                                 onChange={() => this.setState({ defaultPath: !this.state.defaultPath })}
                                 checked={this.state.defaultPath}
+                                disabled={disabled}
                             />
                             <Tooltip
                                 placement="right"
@@ -231,16 +232,12 @@ class RegistrationForm extends PureComponent {
                     </div>
                     <div className="col-xs-12">
                         <File
-                            disabled={this.state.defaultPath}
+                            disabled={this.state.defaultPath || disabled}
                             value={this.state.lndPath}
                             placeholder="Select folder"
                             className={this.state.lndPathError ? "form-text__error" : ""}
-                            onChange={(e) => {
-                                if (e.target.files[0]) {
-                                    this.setState({ lndPath: e.target.files[0].path, lndPathError: null });
-                                } else {
-                                    this.setState({ lndPath: "", lndPathError: null });
-                                }
+                            onChange={(lndPath) => {
+                                this.setState({ lndPath, lndPathError: null });
                             }}
                         />
                         <ErrorFieldTooltip text={this.state.lndPathError} />

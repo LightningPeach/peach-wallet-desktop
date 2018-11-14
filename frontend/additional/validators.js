@@ -151,8 +151,8 @@ const validateUserExistence = async (username) => {
     if (invalidName) {
         return invalidName;
     }
-    const response = await window.ipcClient("checkUser", { username });
-    if (response.ok) {
+    const { ok } = await window.ipcClient("checkUsername", { username });
+    if (!ok) {
         return statusCodes.EXCEPTION_USERNAME_EXISTS;
     }
     return null;

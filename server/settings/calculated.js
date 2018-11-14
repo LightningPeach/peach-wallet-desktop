@@ -97,14 +97,32 @@ module.exports = ({
         await helpers.writeFile(peersFile, JSON.stringify(peers));
     };
 
+    const getCustomPathLndUsernames = () => {
+        const basePath = config.get("dataPath");
+        const baseFolders = {};
+        let allData;
+        helpers.readFolderWithinFolder(basePath).forEach((item) => {
+            baseFolders[item] = basePath;
+        });
+        if (fs.existsSync(userPathsFile)) {
+            allData = Object.assign({}, baseFolders, JSON.parse(fs.readFileSync(userPathsFile).toString()));
+        } else {
+            allData = baseFolders;
+        }
+        return Object.entries(allData).reduce((data, [username, userPath]) => {
+            const returnData = data;
+            const { ok } = helpers.checkDirSync(join(userPath, username, "data"));
+            if (ok) {
+                returnData[username] = userPath;
+            }
+            return returnData;
+        }, {});
+    };
+
     const loadLndPath = async (username) => {
         const defaultPath = config.get("dataPath");
-        const fileExists = fs.existsSync(userPathsFile);
-        if (!fileExists) {
-            return defaultPath;
-        }
-        const paths = JSON.parse(fs.readFileSync(userPathsFile).toString());
-        logger.info("[SETTINGS] - getLndPath", { fileExists, username, paths });
+        const paths = getCustomPathLndUsernames();
+        logger.info("[SETTINGS] - getLndPath", { username, paths });
         if (username in paths) {
             return paths[username];
         }
@@ -112,12 +130,7 @@ module.exports = ({
     };
 
     const saveLndPath = async (username, lndPath) => {
-        const fileExists = fs.existsSync(userPathsFile);
-        if (!fileExists) {
-            await helpers.writeFile(userPathsFile, JSON.stringify({ [username]: lndPath }));
-            return;
-        }
-        const paths = JSON.parse(fs.readFileSync(userPathsFile).toString());
+        const paths = getCustomPathLndUsernames();
         logger.info("[SETTINGS] - saveLndPath", { paths });
         if (username in paths && paths[username] === lndPath) {
             return;
@@ -127,6 +140,7 @@ module.exports = ({
     };
 
     return {
+        getCustomPathLndUsernames,
         databasePath,
         listenPort,
         setAgreement,

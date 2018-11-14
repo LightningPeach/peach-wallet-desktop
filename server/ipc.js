@@ -1,5 +1,5 @@
 const {
-    app, ipcMain,
+    app, ipcMain, dialog,
 } = require("electron");
 const helpers = require("./utils/helpers");
 const Lnd = require("./binaries/Lnd");
@@ -8,11 +8,17 @@ const baseLogger = require("./utils/logger");
 const path = require("path");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const settings = require("./settings");
+const main = require("../main");
 
 const logger = baseLogger.child("ipc");
 const grpcStatus = require("grpc").status;
 
 const lnd = new Lnd();
+
+registerIpc("selectFolder", () => {
+    const folder = dialog.showOpenDialog(main.getMainWindow(), { properties: ["openDirectory"] });
+    return { ok: true, response: { folder: folder ? folder[0] : null } };
+});
 
 /**
  * User agreed the eula.txt
@@ -70,6 +76,16 @@ registerIpc("startLis", async (event, arg) => {
 
 registerIpc("logout", this.shutdown);
 
+registerIpc("checkUsername", async (event, arg) => {
+    const usernames = await settings.get.getCustomPathLndUsernames();
+    const response = { ok: true };
+    if (arg.username in usernames) {
+        response.ok = false;
+        response.error = "User exist.";
+    }
+    return response;
+});
+
 registerIpc("checkUser", async (event, arg) => {
     const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.username, "data"));
     if (!exists.ok) {
@@ -90,7 +106,7 @@ registerIpc("loadLndPath", async (event, arg) => {
 
 registerIpc("validateLndPath", async (event, arg) => helpers.checkAccess(path.join(arg.lndPath)));
 
-registerIpc("newAddress", async () => lnd.call("newWitnessAddress"));
+registerIpc("newAddress", async (event, arg) => lnd.call("newAddress", arg));
 
 registerIpc("walletBalance", async () => lnd.call("walletBalance"));
 
