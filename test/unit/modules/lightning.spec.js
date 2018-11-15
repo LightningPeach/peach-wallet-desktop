@@ -1119,7 +1119,7 @@ describe("Lightning Unit Tests", () => {
                         memo: "stream_payment_baz",
                         name: "Incoming stream payment",
                         payment_hash: "uier",
-                        type: "invoice",
+                        type: "stream",
                     },
                 ];
                 expect(await operations.getInvoices()).to.deep.equal(expectedData);
