@@ -99,6 +99,7 @@ async function getInvoices() {
         };
         if (memo.includes("stream_payment_")) {
             tempInvoice.name = "Incoming stream payment";
+            tempInvoice.type = "stream";
             tempInvoice.amount = parseInt(invoice.value, 10) + (streamInvoices[memo] ?
                 streamInvoices[memo].amount :
                 0);
