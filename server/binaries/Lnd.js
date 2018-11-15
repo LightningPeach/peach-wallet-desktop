@@ -486,8 +486,6 @@ class Lnd extends Exec {
         try {
             logger.debug("[LND] Init grpc WalletUnlock");
             this._client = await getRpcService(this.name, "WalletUnlocker");
-            settings.set("lndPeer", [this.name, this._peerPort]);
-            settings.saveLndPath(this.name, settings.get.lndPath);
             return { ok: true };
         } catch (err) {
             logger.error({ func: this._startLnd }, "Error while unlock/create LND: ", err);
@@ -547,6 +545,8 @@ class Lnd extends Exec {
         // Sometimes rpc client start before lnd ready to accept rpc calls, let's wait
         const getInfo = await this._waitRpcAvailability();
         this.starting = false;
+        settings.set("lndPeer", [this.name, this._peerPort]);
+        settings.saveLndPath(this.name, settings.get.lndPath);
         return getInfo;
     }
 
