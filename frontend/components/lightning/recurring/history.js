@@ -152,7 +152,7 @@ class RecurringHistory extends Component {
         } = this.props;
         return [
             ...streams.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0),
-            ...history.filter(item => item.type === "stream"),
+            ...history.filter(item => item.type === "stream" && !streams.some(i => i.id === item.id)),
         ]
             .map((item) => {
                 let tempAddress = null;
