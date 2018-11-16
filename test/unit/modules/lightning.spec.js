@@ -1120,6 +1120,13 @@ describe("Lightning Unit Tests", () => {
                         name: "Incoming stream payment",
                         payment_hash: "uier",
                         type: "stream",
+                        currency: "BTC",
+                        delay: -1,
+                        partsPaid: 1,
+                        price: 101,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        totalAmount: 101,
+                        totalParts: 1,
                     },
                 ];
                 expect(await operations.getInvoices()).to.deep.equal(expectedData);
