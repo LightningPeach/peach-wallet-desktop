@@ -2,7 +2,7 @@ import { statusCodes } from "config";
 import { appOperations, appActions } from "modules/app";
 import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
-import { db, successPromise, errorPromise, logger } from "additional";
+import { db, successPromise, errorPromise, logger, helpers } from "additional";
 import orderBy from "lodash/orderBy";
 import omit from "lodash/omit";
 import { store } from "store/configure-store";
@@ -97,12 +97,19 @@ async function getInvoices() {
             payment_hash: payReq.response.payment_hash,
             type: "invoice",
         };
-        if (memo.includes("stream_payment_")) {
+        if (helpers.isStreamOrRecurring(invoice)) {
+            tempInvoice.currency = "BTC";
             tempInvoice.name = "Incoming stream payment";
             tempInvoice.type = "stream";
-            tempInvoice.amount = parseInt(invoice.value, 10) + (streamInvoices[memo] ?
-                streamInvoices[memo].amount :
+            // default 1 sec? attach stream delay to invoice.
+            tempInvoice.delay = -1;
+            tempInvoice.price = tempInvoice.amount;
+            tempInvoice.totalAmount = tempInvoice.amount + (streamInvoices[memo] ?
+                streamInvoices[memo].totalAmount :
                 0);
+            tempInvoice.totalParts = (streamInvoices[memo] ? streamInvoices[memo].totalParts : 0) + 1;
+            tempInvoice.partsPaid = tempInvoice.totalParts;
+            tempInvoice.status = streamPaymentTypes.STREAM_PAYMENT_FINISHED;
             streamInvoices[memo] = tempInvoice;
         } else {
             newInvoices.push(tempInvoice);

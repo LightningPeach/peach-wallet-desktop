@@ -104,6 +104,8 @@ export const CHANNEL_LEFT_AMOUNT_TO_NOTIFY = 0.1;
 export const WALLET_GITHUB_URL = "https://github.com/LightningPeach/lightning-peach-wallet";
 export const USERGUIDE_QUERY = "/blob/master/docs/LightningPeach_wallet_user_guide.pdf";
 export const GITHUB_USERGUIDE_LINK = `${WALLET_GITHUB_URL}${USERGUIDE_QUERY}`;
+export const RECURRING_MEMO_PREFIX = "recurring_payment_";
+export const STREAM_MEMO_PREFIX = "stream_payment_";
 
 /**
  * See {@link https://github.com/lightningnetwork/lnd/blob/master/rpcserver.go#L1761|Github LND}

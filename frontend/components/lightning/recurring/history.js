@@ -52,8 +52,8 @@ class RecurringHistory extends Component {
             Header: <span className="sortable">Name of payment</span>,
             accessor: "name",
             sortMethod: (a, b, desc) => compare(
-                a.props.children.toLowerCase(),
-                b.props.children.toLowerCase(),
+                a.props.children[0].props.children.toLowerCase(),
+                b.props.children[0].props.children.toLowerCase(),
                 a.props["data-pinned"],
                 b.props["data-pinned"],
                 desc,
@@ -155,7 +155,7 @@ class RecurringHistory extends Component {
             ...history.filter(item => item.type === "stream"),
         ]
             .map((item) => {
-                let tempAddress = item.lightningID;
+                let tempAddress = null;
                 const isActive = item.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED;
                 contacts.forEach((contact) => {
                     if (contact.lightningID === item.lightningID) {
@@ -287,12 +287,12 @@ class RecurringHistory extends Component {
                             frequency={item.delay}
                             data-pinned={item.isActive}
                         >
-                            {helpers.formatTimeRange(item.delay)}
+                            {helpers.formatTimeRange(item.delay) || "unknown"}
                         </Ellipsis>
                     ),
                     name: (
-                        <div>
-                            <Ellipsis data-pinned={item.isActive}>{item.name}</Ellipsis>
+                        <div data-pinned={item.isActive}>
+                            <Ellipsis>{item.name}</Ellipsis>
                             <div className="stream__actions">
                                 <button
                                     className="table__button"
@@ -312,7 +312,7 @@ class RecurringHistory extends Component {
                         </div>
                     ),
                     status: <span data-pinned={item.isActive}>{status}</span>,
-                    to: <Ellipsis>{address}</Ellipsis>,
+                    to: <Ellipsis data-pinned={item.isActive}>{address}</Ellipsis>,
                 };
             });
     };
