@@ -1,4 +1,4 @@
-import { statusCodes } from "config";
+import { statusCodes, consts } from "config";
 import { appOperations, appActions } from "modules/app";
 import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
@@ -75,15 +75,25 @@ export function preparePayment(
     };
 }
 
-async function getInvoices() {
-    const response = await window.ipcClient("listInvoices");
-    if (!response.ok) {
+async function getPaginatedInvoices(offset = 0) {
+    const { ok, response } = await window.ipcClient("listInvoices", { index_offset: offset });
+    if (!ok) {
         logger.error("ERROR ON GET INVOICES");
         logger.error(response);
         return [];
     }
+    if (response.last_index_offset > 0 && response.last_index_offset % consts.DEFAULT_MAX_INVOICES !== 0) {
+        return response.invoices;
+    }
+    return [...response.invoices, ...(await getPaginatedInvoices(response.last_index_offset))];
+}
+
+async function getInvoices() {
+    // use maximum `num_max_invoices` or collect all invoices recursively? That is the question.
+    // const response = await window.ipcClient("listInvoices", { num_max_invoices: consts.MAX_INVOICES });
+    const allInvoices = await getPaginatedInvoices();
     const streamInvoices = {};
-    const settledInvoices = response.response.invoices.filter(invoice => invoice.settled);
+    const settledInvoices = allInvoices.filter(invoice => invoice.settled);
     const invoices = await settledInvoices.reduce(async (invoicePromise, invoice) => {
         const newInvoices = await invoicePromise;
         const payReq = await window.ipcClient("decodePayReq", { pay_req: invoice.payment_request });
@@ -336,6 +346,7 @@ window.ipcRenderer.on("invoices-update", (event) => {
 export {
     addInvoiceRemote,
     channelWarningModal,
+    getPaginatedInvoices,
     getInvoices,
     getHistory,
     getLightningFee,
