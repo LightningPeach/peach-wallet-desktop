@@ -82,10 +82,11 @@ async function getPaginatedInvoices(offset = 0) {
         logger.error(response);
         return [];
     }
-    if (response.last_index_offset > 0 && response.last_index_offset % consts.DEFAULT_MAX_INVOICES !== 0) {
+    const lastOffset = parseInt(response.last_index_offset, 10);
+    if (lastOffset === 0 || lastOffset % consts.DEFAULT_MAX_INVOICES !== 0) {
         return response.invoices;
     }
-    return [...response.invoices, ...(await getPaginatedInvoices(response.last_index_offset))];
+    return [...response.invoices, ...(await getPaginatedInvoices(lastOffset))];
 }
 
 async function getInvoices() {
