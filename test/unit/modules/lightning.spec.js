@@ -1121,7 +1121,7 @@ describe("Lightning Unit Tests", () => {
                         date: 201000,
                         lightningID: "corge",
                         memo: "stream_payment_baz",
-                        name: "Incoming stream payment",
+                        name: "Incoming recurring payment",
                         payment_hash: "uier",
                         type: "stream",
                         currency: "BTC",
