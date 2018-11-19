@@ -287,7 +287,7 @@ class RecurringHistory extends Component {
                             frequency={item.delay}
                             data-pinned={item.isActive}
                         >
-                            {helpers.formatTimeRange(item.delay) || "unknown"}
+                            {helpers.formatTimeRange(item.delay) || "-"}
                         </Ellipsis>
                     ),
                     name: (

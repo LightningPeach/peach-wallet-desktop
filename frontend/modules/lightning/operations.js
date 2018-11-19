@@ -109,7 +109,7 @@ async function getInvoices() {
         };
         if (helpers.isStreamOrRecurring(invoice)) {
             tempInvoice.currency = "BTC";
-            tempInvoice.name = "Incoming stream payment";
+            tempInvoice.name = "Incoming recurring payment";
             tempInvoice.type = "stream";
             // default 1 sec? attach stream delay to invoice.
             tempInvoice.delay = -1;
