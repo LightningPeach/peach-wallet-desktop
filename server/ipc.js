@@ -112,7 +112,7 @@ registerIpc("walletBalance", async () => lnd.call("walletBalance"));
 
 registerIpc("getInfo", async () => lnd.call("getInfo"));
 
-registerIpc("listInvoices", async () => lnd.call("listInvoices"));
+registerIpc("listInvoices", async (event, arg) => lnd.call("listInvoices", arg));
 
 registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(
     arg.value,

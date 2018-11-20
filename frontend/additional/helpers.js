@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { TIME_RANGE_MEASURE } from "config/consts";
+import { TIME_RANGE_MEASURE, STREAM_MEMO_PREFIX, RECURRING_MEMO_PREFIX } from "config/consts";
 import moment from "moment";
 import { statusCodes } from "config";
 
@@ -113,6 +113,10 @@ const formatTimeRange = (time, removeQuantity = true) => {
     return response;
 };
 
+const isStreamOrRecurring = ({ memo = "" }) => (
+    memo.includes(STREAM_MEMO_PREFIX) || memo.includes(RECURRING_MEMO_PREFIX)
+);
+
 export {
     formatDate,
     formatTimeRange,
@@ -120,4 +124,5 @@ export {
     hasSelection,
     noExponents,
     formatNotificationMessage,
+    isStreamOrRecurring,
 };

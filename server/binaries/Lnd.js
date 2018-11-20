@@ -10,7 +10,18 @@ const { ipcSend, isPortTaken, noExponents } = require("../utils/helpers");
 const settings = require("../settings");
 const helpers = require("../utils/helpers");
 
-const LND_ERRORS = ["2 UNKNOWN:", "102 undefined:", "103 undefined:", "101 undefined:", "14 UNAVAILABLE:"];
+const LND_ERRORS = [
+    {
+        match: /(unknown|undefined|unavailable)/gi,
+        pattern: /[0-9]+ (unknown|undefined|unavailable):/gi,
+        replace: "",
+    },
+    {
+        match: "unable to route payment to destination",
+        pattern: /.*(unable to route payment to destination).*/gi,
+        replace: "$1",
+    },
+];
 const logger = baseLogger.child("binaries");
 const LND_DEFAULT_RPC_PORT = 10009;
 const LND_DEFAULT_REST_PORT = 8080;
@@ -486,8 +497,6 @@ class Lnd extends Exec {
         try {
             logger.debug("[LND] Init grpc WalletUnlock");
             this._client = await getRpcService(this.name, "WalletUnlocker");
-            settings.set("lndPeer", [this.name, this._peerPort]);
-            settings.saveLndPath(this.name, settings.get.lndPath);
             return { ok: true };
         } catch (err) {
             logger.error({ func: this._startLnd }, "Error while unlock/create LND: ", err);
@@ -547,6 +556,8 @@ class Lnd extends Exec {
         // Sometimes rpc client start before lnd ready to accept rpc calls, let's wait
         const getInfo = await this._waitRpcAvailability();
         this.starting = false;
+        settings.set("lndPeer", [this.name, this._peerPort]);
+        settings.saveLndPath(this.name, settings.get.lndPath);
         return getInfo;
     }
 
@@ -602,11 +613,12 @@ class Lnd extends Exec {
             const num = (amount * this._bitcoinMeasure.multiplier);
             return noExponents(parseFloat(num.toFixed(this._bitcoinMeasure.toFixed)));
         };
-        let newMsg = `[LND_ERROR]: ${msg}`;
-        LND_ERRORS.forEach((item) => {
-            newMsg = newMsg.replace(item, "");
+        let newMsg = msg;
+        LND_ERRORS.forEach(({ match, pattern, replace }) => {
+            newMsg = newMsg.match(match) ? newMsg.replace(pattern, replace) : newMsg;
         });
         newMsg = newMsg.trim();
+        newMsg = `[LND_ERROR]: ${newMsg}`;
         newMsg = newMsg.replace(/[0-9.]+\s*(BTC|mSAT)/igm, (item) => {
             const [a, m] = item.split(" ");
             if (m === this._bitcoinMeasure.type) {

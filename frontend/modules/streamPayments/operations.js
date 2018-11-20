@@ -12,7 +12,7 @@ import {
 } from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
-import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
+import { RECURRING_MEMO_PREFIX, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { streamPaymentActions as actions, streamPaymentTypes as types } from "modules/streamPayments";
 
 function pauseDbStreams() {
@@ -62,7 +62,7 @@ function prepareStreamPayment(
         }
         const name = paymentName || "Recurring payment";
         const id = btoa(unescape(encodeURIComponent(`${name}_${Date.now()}`)));
-        const memo = `recurring_payment_${id}`;
+        const memo = `${RECURRING_MEMO_PREFIX}${id}`;
         let amount;
         switch (currency) {
             case "USD":
