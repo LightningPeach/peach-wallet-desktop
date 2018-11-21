@@ -174,6 +174,9 @@ function mkDirRecursive(dirPath) {
             if (!childDir) {
                 return parentDir;
             }
+            if (childDir.slice(-1) === ":") {
+                return `${childDir}${sep}`;
+            }
             const curDir = path.join(parentDir, childDir);
             if (!fs.existsSync(curDir)) {
                 fs.mkdirSync(curDir);
