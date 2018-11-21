@@ -101,8 +101,12 @@ class Datepicker extends Component {
                         ? (
                             <div className="picker__target--fill">
                                 <span>{date.from.format("DD.MM.YYYY")}</span>
-                                <br />
-                                <span>{date.to.format("DD.MM.YYYY")}</span>
+                                {!date.from.isSame(date.to, "day") &&
+                                    <Fragment>
+                                        <br />
+                                        <span>{date.to.format("DD.MM.YYYY")}</span>
+                                    </Fragment>
+                                }
                             </div>
                         )
                         : "Date range"
@@ -113,6 +117,8 @@ class Datepicker extends Component {
                         className="picker__collapse"
                         onClose={this.hideInput}
                         closeWithEsc
+                        verticalDiff={46}
+                        horizontalDiff={130}
                     >
                         <DatePicker
                             startDate={this.state.from}

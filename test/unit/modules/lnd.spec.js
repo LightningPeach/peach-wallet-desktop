@@ -1,7 +1,7 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { lndActions as actions, lndTypes as types, lndOperations as operations } from "modules/lnd";
 import lndReducer, { initStateLnd } from "modules/lnd/reducers";
 import { accountTypes } from "modules/account";

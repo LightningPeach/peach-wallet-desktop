@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
 import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { statusCodes, consts } from "config";
 import {
     lightningActions as actions,
     lightningTypes as types,
@@ -12,6 +12,7 @@ import {
 import lightningReducer, { initStateLightning } from "modules/lightning/reducers";
 import { accountOperations, accountTypes } from "modules/account";
 import { appTypes } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
 import { store as defaultStore } from "store/configure-store";
 import { db, errorPromise, successPromise } from "additional";
 
@@ -316,7 +317,9 @@ describe("Lightning Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            first_index_offset: 1,
                             invoices,
+                            last_index_offset: 2,
                         },
                     })
                     .withArgs("decodePayReq")
@@ -1075,7 +1078,9 @@ describe("Lightning Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            first_index_offset: 1,
                             invoices,
+                            last_index_offset: 3,
                         },
                     })
                     .withArgs("decodePayReq")
@@ -1116,9 +1121,16 @@ describe("Lightning Unit Tests", () => {
                         date: 201000,
                         lightningID: "corge",
                         memo: "stream_payment_baz",
-                        name: "Incoming stream payment",
+                        name: "Incoming recurring payment",
                         payment_hash: "uier",
-                        type: "invoice",
+                        type: "stream",
+                        currency: "BTC",
+                        delay: -1,
+                        partsPaid: 1,
+                        price: 101,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        totalAmount: 101,
+                        totalParts: 1,
                     },
                 ];
                 expect(await operations.getInvoices()).to.deep.equal(expectedData);
@@ -1163,20 +1175,21 @@ describe("Lightning Unit Tests", () => {
                 ];
                 dbStreams = [
                     {
+                        id: 103,
                         parts: [{ payment_hash: "no-bar" }],
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
                     },
                     {
                         id: 101,
-                        status: "pause",
+                        status: streamPaymentTypes.STREAM_PAYMENT_PAUSED,
                         parts: [{ payment_hash: "1" }],
                         name: "name-foo",
                         partsPaid: 0,
                     },
                     {
                         id: 102,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "2" }],
                         name: "name-bar",
                         price: 502,
@@ -1186,7 +1199,7 @@ describe("Lightning Unit Tests", () => {
                     },
                     {
                         id: 104,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "4" }],
                         name: "name-quux",
                         price: 504,
@@ -1252,11 +1265,12 @@ describe("Lightning Unit Tests", () => {
                         type: "stream",
                         id: 102,
                         partsPaid: 1,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                     },
                     {
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
+                        id: 103,
                         type: "stream",
                     },
                     {
@@ -1265,7 +1279,7 @@ describe("Lightning Unit Tests", () => {
                         date: 604,
                         lightningID: "quux",
                         name: "name-quux",
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         partsPaid: 0,
                         type: "stream",
                     },
@@ -1326,7 +1340,9 @@ describe("Lightning Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            first_index_offset: 1,
                             invoices,
+                            last_index_offset: 2,
                         },
                     })
                     .withArgs("decodePayReq")
@@ -1387,6 +1403,67 @@ describe("Lightning Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.getHistory())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+        });
+
+        describe("getPaginatedInvoices()", () => {
+            beforeEach(() => {
+                window.ipcClient
+                    .withArgs("listInvoices")
+                    .returns({
+                        ok: true,
+                        response: {
+                            first_index_offset: 1,
+                            invoices: [{ foo: "bar" }],
+                            last_index_offset: 3,
+                        },
+                    });
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("listInvoices")
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = [];
+                expect(await operations.getPaginatedInvoices()).to.deep.equal(expectedData);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("listInvoices");
+            });
+
+            it("success", async () => {
+                expectedData = [{ foo: "bar" }];
+                expect(await operations.getPaginatedInvoices()).to.deep.equal(expectedData);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("listInvoices");
+            });
+
+            it("success 2 page", async () => {
+                window.ipcClient
+                    .withArgs("listInvoices")
+                    .onCall(0)
+                    .returns({
+                        ok: true,
+                        response: {
+                            first_index_offset: 1,
+                            invoices: [{ foo: "bar" }],
+                            last_index_offset: consts.DEFAULT_MAX_INVOICES,
+                        },
+                    })
+                    .onCall(1)
+                    .returns({
+                        ok: true,
+                        response: {
+                            first_index_offset: consts.DEFAULT_MAX_INVOICES + 1,
+                            invoices: [{ foo: "bar" }],
+                            last_index_offset: consts.DEFAULT_MAX_INVOICES + 2,
+                        },
+                    });
+                expectedData = [{ foo: "bar" }, { foo: "bar" }];
+                expect(await operations.getPaginatedInvoices()).to.deep.equal(expectedData);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("listInvoices");
             });
         });
     });

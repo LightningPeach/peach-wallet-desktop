@@ -22,6 +22,9 @@ function getBlocksHeight() {
 
 function getMerchants() {
     return async (dispatch) => {
+        console.log("MERCHANTS");
+        console.log("MERCHANTS");
+        console.log("MERCHANTS");
         dispatch(actions.merchantsRequest());
         const url = PEACH_API_HOST + types.ENDPOINT_MERCHANTS;
         let response = await fetch(url);

@@ -18,6 +18,10 @@ class RecordsTable extends Component {
         this.setState({ page });
     };
 
+    handleFilterChange = () => {
+        this.onPageChange(0);
+    };
+
     renderEmptyList = () => {
         const { emptyPlaceholder } = this.props;
         return (
@@ -45,7 +49,9 @@ class RecordsTable extends Component {
     };
 
     render() {
-        const { title, source, filters } = this.props;
+        const {
+            title, source, filters, searchPlaceholder,
+        } = this.props;
 
         return (
             <div className="records">
@@ -56,8 +62,10 @@ class RecordsTable extends Component {
                 }
                 {filters &&
                     <Filter
+                        onChange={this.handleFilterChange}
                         source={source}
                         filterKinds={filters}
+                        searchPlaceholder={searchPlaceholder}
                     />
                 }
                 {!this.props.data.length
@@ -78,6 +86,7 @@ RecordsTable.propTypes = {
     emptyPlaceholder: PropTypes.string,
     filters: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
     recordsPerPage: PropTypes.number,
+    searchPlaceholder: PropTypes.string,
     source: PropTypes.oneOf(filterTypes.FILTER_SOURCES),
     title: PropTypes.string,
 };

@@ -2,7 +2,7 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
 import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     accountActions as actions,
     accountTypes as types,

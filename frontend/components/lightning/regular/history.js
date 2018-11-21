@@ -37,7 +37,7 @@ class RegularHistory extends Component {
                 a.props.children.props.children.toLowerCase(),
                 b.props.children.props.children.toLowerCase(),
             ),
-            width: 400,
+            width: 380,
         },
         {
             Header: <span className="sortable">Date</span>,
@@ -46,7 +46,7 @@ class RegularHistory extends Component {
                 a.props.dateTime,
                 b.props.dateTime,
             ),
-            width: 115,
+            width: 135,
         },
     ]);
 
@@ -65,13 +65,10 @@ class RegularHistory extends Component {
                 });
                 tempAddress = tempAddress || (item.lightningID !== lightningID ? item.lightningID : "me");
                 const date = new Date(parseInt(item.date, 10));
-                const [ymd, hms] = helpers.formatDate(date).split(" ");
                 return {
                     ...item,
                     date,
-                    hms,
                     tempAddress,
-                    ymd,
                 };
             })
             .filter(item => dispatch(filterOperations.filter(
@@ -82,6 +79,7 @@ class RegularHistory extends Component {
                     search: [
                         item.name,
                         item.tempAddress,
+                        item.lightningID,
                     ],
                     type: item.amount,
                 },
@@ -93,7 +91,7 @@ class RegularHistory extends Component {
                             if (item.lightningID !== "-") {
                                 if (helpers.hasSelection()) return;
                                 analytics.event({
-                                    action: "History address",
+                                    action: "History address / Regular payment",
                                     category: "Lightning",
                                     label: "Copy",
                                 });
@@ -109,8 +107,7 @@ class RegularHistory extends Component {
                     amount: <BalanceWithMeasure satoshi={item.amount} />,
                     date: (
                         <div dateTime={item.date}>
-                            <span className="date__ymd">{item.ymd}</span>
-                            <span className="date__hms">{item.hms}</span>
+                            {helpers.formatDate(item.date)}
                         </div>
                     ),
                     name: <Ellipsis classList="history">{item.name}</Ellipsis>,
@@ -134,6 +131,7 @@ class RegularHistory extends Component {
                 title="Regular payments history"
                 filters={filterTypes.FILTER_KIND_LIST}
                 emptyPlaceholder="No payments found"
+                searchPlaceholder="Name, To, Lightning ID"
             />
         );
     }

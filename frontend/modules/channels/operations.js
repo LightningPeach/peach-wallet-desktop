@@ -1,7 +1,7 @@
 import keyBy from "lodash/keyBy";
 import has from "lodash/has";
 import isEqual from "lodash/isEqual";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
@@ -11,6 +11,7 @@ import * as actions from "./actions";
 import * as types from "./types";
 import * as selectors from "./selectors";
 
+// TODO: move this to store
 let creatingChannelPoint;
 
 function openStreamWarningModal() {

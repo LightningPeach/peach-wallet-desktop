@@ -8,8 +8,20 @@ const rmrf = require("rimraf");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const { ipcSend, isPortTaken, noExponents } = require("../utils/helpers");
 const settings = require("../settings");
+const helpers = require("../utils/helpers");
 
-const LND_ERRORS = ["2 UNKNOWN:", "102 undefined:", "103 undefined:", "101 undefined:", "14 UNAVAILABLE:"];
+const LND_ERRORS = [
+    {
+        match: /(unknown|undefined|unavailable)/gi,
+        pattern: /[0-9]+ (unknown|undefined|unavailable):/gi,
+        replace: "",
+    },
+    {
+        match: "unable to route payment to destination",
+        pattern: /.*(unable to route payment to destination).*/gi,
+        replace: "$1",
+    },
+];
 const logger = baseLogger.child("binaries");
 const LND_DEFAULT_RPC_PORT = 10009;
 const LND_DEFAULT_REST_PORT = 8080;
@@ -24,6 +36,9 @@ const LND_CERT_FILE = "tls.cert";
 const LND_KEY_FILE = "tls.key";
 const MACAROON_FILE = "admin.macaroon";
 const READONLY_MACAROON_FILE = "readonly.macaroon";
+const BLOCK_HEADERS_FILE = "block_headers.bin";
+const NEUTRINO_FILE = "neutrino.db";
+const REG_FILTER_HEADERS_FILE = "reg_filter_headers.bin";
 
 process.env.GRPC_SSL_CIPHER_SUITES = "HIGH+ECDSA";
 
@@ -41,7 +56,7 @@ const getDeadLine = (deadline = GRPC_DEADLINE) => {
 };
 
 const getMacaroonMeta = (name) => {
-    const macaroonFile = path.join(settings.get.dataPath, name, MACAROON_FILE);
+    const macaroonFile = path.join(settings.get.lndPath, name, MACAROON_FILE);
     const metadata = new grpc.Metadata();
     const macaroonHex = fs.readFileSync(macaroonFile).toString("hex");
     metadata.add("macaroon", macaroonHex);
@@ -55,7 +70,7 @@ const getMacaroonMeta = (name) => {
  * @return {Promise<void>}
  */
 const getRpcService = async (name, service) => new Promise((resolve, reject) => {
-    const certPath = path.join(settings.get.dataPath, name, LND_CERT_FILE);
+    const certPath = path.join(settings.get.lndPath, name, LND_CERT_FILE);
     const sslCreds = grpc.credentials.createSsl(fs.readFileSync(certPath));
     const client = new lnRpcDescriptor.lnrpc[service](localLndRpcIp, sslCreds);
     logger.info({ func: getRpcService }, `Will start waiting for grpc connection with params: ${name}, ${service}`);
@@ -81,7 +96,7 @@ let lastError;
  */
 const awaitTlsGen = async name => new Promise((resolve) => {
     const intervalId = setInterval(() => {
-        if (fs.existsSync(path.join(settings.get.dataPath, name, LND_CERT_FILE))) {
+        if (fs.existsSync(path.join(settings.get.lndPath, name, LND_CERT_FILE))) {
             clearInterval(intervalId);
             resolve();
         }
@@ -159,6 +174,67 @@ class Lnd extends Exec {
                 this.starting = false;
                 return isFreePorts;
             }
+            return { ok: true };
+        } catch (e) {
+            return { ok: false, error: e.message, type: "internal" };
+        }
+    }
+
+    // Function checks if preload not injected yet, and inserts data from "node_modules/preload/"
+    // Data has following directories structure: "lnd/data/chain/bitcoin/testnet/neutrino";
+    async injectPreload() {
+        try {
+            if (!this.name) {
+                return { ok: false, error: "No name for LND given" };
+            }
+            const dataDir = path.join("data", "chain", "bitcoin", "testnet");
+            const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
+            const preloadDataDir = path.join(settings.get.preloadBasePath, dataDir);
+            let exists = await helpers.checkAccess(preloadDataDir);
+            if (!exists.ok) {
+                return { ok: false, error: "Preload files not found" };
+            }
+            logger.info({ func: "injectPreload" }, `Will check preload files in ${userDataDir}`);
+            exists = await helpers.checkAccess(userDataDir, false);
+            if (!exists.ok) {
+                await helpers.mkDirRecursive(userDataDir, ".lnd");
+            }
+            await fs.copyFile(
+                path.join(preloadDataDir, BLOCK_HEADERS_FILE),
+                path.join(userDataDir, BLOCK_HEADERS_FILE),
+                fs.constants.COPYFILE_EXCL,
+                (err) => {
+                    if (err) {
+                        logger.error({ func: "injectPreload" }, err);
+                    } else {
+                        logger.info({ func: "injectPreload" }, `${BLOCK_HEADERS_FILE} copied`);
+                    }
+                },
+            );
+            await fs.copyFile(
+                path.join(preloadDataDir, NEUTRINO_FILE),
+                path.join(userDataDir, NEUTRINO_FILE),
+                fs.constants.COPYFILE_EXCL,
+                (err) => {
+                    if (err) {
+                        logger.error({ func: "injectPreload" }, err);
+                    } else {
+                        logger.info({ func: "injectPreload" }, `${NEUTRINO_FILE} copied`);
+                    }
+                },
+            );
+            await fs.copyFile(
+                path.join(preloadDataDir, REG_FILTER_HEADERS_FILE),
+                path.join(userDataDir, REG_FILTER_HEADERS_FILE),
+                fs.constants.COPYFILE_EXCL,
+                (err) => {
+                    if (err) {
+                        logger.error({ func: "injectPreload" }, err);
+                    } else {
+                        logger.info({ func: "injectPreload" }, `${REG_FILTER_HEADERS_FILE} copied`);
+                    }
+                },
+            );
             return { ok: true };
         } catch (e) {
             return { ok: false, error: e.message, type: "internal" };
@@ -266,12 +342,12 @@ class Lnd extends Exec {
      */
     getOptions() {
         const options = [
-            "--lnddir", path.join(settings.get.dataPath, this.name),
-            "--configfile", path.join(settings.get.dataPath, this.name, LND_CONF_FILE),
-            "--datadir", path.join(settings.get.dataPath, this.name, "data"),
-            "--tlscertpath", path.join(settings.get.dataPath, this.name, LND_CERT_FILE),
-            "--tlskeypath", path.join(settings.get.dataPath, this.name, LND_KEY_FILE),
-            "--logdir", path.join(settings.get.dataPath, this.name, "log"),
+            "--lnddir", path.join(settings.get.lndPath, this.name),
+            "--configfile", path.join(settings.get.lndPath, this.name, LND_CONF_FILE),
+            "--datadir", path.join(settings.get.lndPath, this.name, "data"),
+            "--tlscertpath", path.join(settings.get.lndPath, this.name, LND_CERT_FILE),
+            "--tlskeypath", path.join(settings.get.lndPath, this.name, LND_KEY_FILE),
+            "--logdir", path.join(settings.get.lndPath, this.name, "log"),
             "--debuglevel", getLogLevel(),
             "--bitcoin.node", settings.get.bitcoin.node,
             "--listen", `0.0.0.0:${this._peerPort}`,
@@ -283,11 +359,12 @@ class Lnd extends Exec {
             if (settings.get.lnd.restlisten) {
                 options.push("--restlisten", `127.0.0.1:${settings.get.lnd.restlisten}`);
             }
+            options.push("--maxpendingchannels", settings.get.lnd.maxpendingchannels || 1);
         }
         if (!settings.get.lnd.no_macaroons) {
             options.push(
-                "--adminmacaroonpath", path.join(settings.get.dataPath, this.name, MACAROON_FILE),
-                "--readonlymacaroonpath", path.join(settings.get.dataPath, this.name, READONLY_MACAROON_FILE),
+                "--adminmacaroonpath", path.join(settings.get.lndPath, this.name, MACAROON_FILE),
+                "--readonlymacaroonpath", path.join(settings.get.lndPath, this.name, READONLY_MACAROON_FILE),
             );
         } else {
             options.push("--no-macaroons");
@@ -360,7 +437,7 @@ class Lnd extends Exec {
                 return;
             }
 
-            rmrf(path.join(settings.get.dataPath, this.name), (err) => {
+            rmrf(path.join(settings.get.lndPath, this.name), (err) => {
                 if (err) {
                     logger.error({ func: this.clearData }, err);
                     resolve({ ok: false, error: err.message });
@@ -381,6 +458,10 @@ class Lnd extends Exec {
         if (!validStartup.ok) {
             this.starting = false;
             return validStartup;
+        }
+        const injectPreload = await this.injectPreload();
+        if (!injectPreload.ok) {
+            logger.error("Preload injection failed:", injectPreload);
         }
         logger.info("Will start lnd with params: \n", this.getOptions().join(" "));
         ipcSend("setLndInitStatus", "Lnd prepare to start");
@@ -416,7 +497,6 @@ class Lnd extends Exec {
         try {
             logger.debug("[LND] Init grpc WalletUnlock");
             this._client = await getRpcService(this.name, "WalletUnlocker");
-            settings.set("lndPeer", [this.name, this._peerPort]);
             return { ok: true };
         } catch (err) {
             logger.error({ func: this._startLnd }, "Error while unlock/create LND: ", err);
@@ -476,6 +556,8 @@ class Lnd extends Exec {
         // Sometimes rpc client start before lnd ready to accept rpc calls, let's wait
         const getInfo = await this._waitRpcAvailability();
         this.starting = false;
+        settings.set("lndPeer", [this.name, this._peerPort]);
+        settings.saveLndPath(this.name, settings.get.lndPath);
         return getInfo;
     }
 
@@ -531,11 +613,12 @@ class Lnd extends Exec {
             const num = (amount * this._bitcoinMeasure.multiplier);
             return noExponents(parseFloat(num.toFixed(this._bitcoinMeasure.toFixed)));
         };
-        let newMsg = `[LND_ERROR]: ${msg}`;
-        LND_ERRORS.forEach((item) => {
-            newMsg = newMsg.replace(item, "");
+        let newMsg = msg;
+        LND_ERRORS.forEach(({ match, pattern, replace }) => {
+            newMsg = newMsg.match(match) ? newMsg.replace(pattern, replace) : newMsg;
         });
         newMsg = newMsg.trim();
+        newMsg = `[LND_ERROR]: ${newMsg}`;
         newMsg = newMsg.replace(/[0-9.]+\s*(BTC|mSAT)/igm, (item) => {
             const [a, m] = item.split(" ");
             if (m === this._bitcoinMeasure.type) {

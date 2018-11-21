@@ -94,6 +94,7 @@ class Seed extends Component {
                                 this.seed = ref;
                             }}
                             disabled={disabled}
+                            onChange={() => { this.setState({ seedError: null }) }}
                         />
                         <ErrorFieldTooltip text={this.state.seedError} />
                     </div>

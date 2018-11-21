@@ -13,16 +13,8 @@ export const initStatePartial = {
     },
     search: "",
     time: {
-        from: {
-            hours: null,
-            meridiem: types.ANTE_MERIDIEM,
-            minutes: null,
-        },
-        to: {
-            hours: null,
-            meridiem: types.ANTE_MERIDIEM,
-            minutes: null,
-        },
+        from: null,
+        to: null,
     },
     type: types.TYPE_PAYMENT_ALL,
 };

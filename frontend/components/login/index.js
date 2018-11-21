@@ -8,7 +8,7 @@ import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { USERNAME_MAX_LENGTH } from "config/consts";
 
 const spinner = <div className="spinner" />;
@@ -69,6 +69,8 @@ class Login extends Component {
             return;
         }
         this.setState({ passwordError, usernameError });
+
+        await window.ipcClient("loadLndPath", { username });
         const init = await dispatch(operations.login(username, password));
         this.setState({ processing: false });
         if (!init.ok) {

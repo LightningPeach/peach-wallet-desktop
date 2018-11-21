@@ -1,5 +1,5 @@
 const {
-    app, ipcMain,
+    app, ipcMain, dialog,
 } = require("electron");
 const helpers = require("./utils/helpers");
 const Lnd = require("./binaries/Lnd");
@@ -8,13 +8,17 @@ const baseLogger = require("./utils/logger");
 const path = require("path");
 const registerIpc = require("electron-ipc-tunnel/server").default;
 const settings = require("./settings");
+const main = require("../main");
 
 const logger = baseLogger.child("ipc");
 const grpcStatus = require("grpc").status;
 
 const lnd = new Lnd();
 
-registerIpc("validateBinaries", async () => ({ ok: true }));
+registerIpc("selectFolder", () => {
+    const folder = dialog.showOpenDialog(main.getMainWindow(), { properties: ["openDirectory"] });
+    return { ok: true, response: { folder: folder ? folder[0] : null } };
+});
 
 /**
  * User agreed the eula.txt
@@ -70,53 +74,45 @@ registerIpc("startLis", async (event, arg) => {
     return { ok: true };
 });
 
-/**
- * Create user lnd folder
- */
-registerIpc("createLndFolder", async (event, arg) => {
-    try {
-        logger.info(
-            { func: "createLndFolder" },
-            `Will check folder ${path.join(settings.get.dataPath, arg.username, "data")}`,
-        );
-        const userData = path.join(settings.get.dataPath, arg.username, "data");
-        const userLog = path.join(settings.get.dataPath, arg.username, "log");
-        const exists = await helpers.checkDir(path.join(settings.get.dataPath, arg.username, "data"));
-        if (exists.ok) {
-            return { ok: false, error: "User already exists" };
-        }
-        helpers.mkDirRecursive(userData);
-        helpers.mkDirRecursive(userLog);
-        return {
-            ok: true,
-        };
-    } catch (error) {
-        console.log(error);
-        return Object.assign({ ok: false }, error, { error: error.message });
+registerIpc("logout", this.shutdown);
+
+registerIpc("checkUsername", async (event, arg) => {
+    const usernames = await settings.get.getCustomPathLndUsernames();
+    const response = { ok: true };
+    if (arg.username in usernames) {
+        response.ok = false;
+        response.error = "User exist.";
     }
+    return response;
 });
 
-registerIpc("logout", async () => this.shutdown());
-
 registerIpc("checkUser", async (event, arg) => {
-    const exists = await helpers.checkDir(path.join(settings.get.dataPath, arg.username, "data"));
+    const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.username, "data"));
     if (!exists.ok) {
         exists.error = "User doesn't exist.";
     }
     return exists;
 });
 
-registerIpc("newAddress", async () => lnd.call("newWitnessAddress"));
+registerIpc("setLndPath", async (event, arg) => {
+    const defPath = arg.defaultPath ? settings.get.dataPath : arg.lndPath;
+    settings.set("lndPath", defPath);
+});
+
+registerIpc("loadLndPath", async (event, arg) => {
+    const loadedPath = await settings.get.loadLndPath(arg.username);
+    settings.set("lndPath", loadedPath);
+});
+
+registerIpc("validateLndPath", async (event, arg) => helpers.checkAccess(path.join(arg.lndPath)));
+
+registerIpc("newAddress", async (event, arg) => lnd.call("newAddress", arg));
 
 registerIpc("walletBalance", async () => lnd.call("walletBalance"));
 
 registerIpc("getInfo", async () => lnd.call("getInfo"));
 
-registerIpc("describeGraph", async () => lnd.call("describeGraph"));
-
-registerIpc("listInvoices", async () => lnd.call("listInvoices"));
-
-registerIpc("listFailedPayments", async () => lnd.call("listFailedPayments"));
+registerIpc("listInvoices", async (event, arg) => lnd.call("listInvoices", arg));
 
 registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(
     arg.value,

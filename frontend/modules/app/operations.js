@@ -1,7 +1,7 @@
 import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     USD_PER_BTC_URL,
     LIGHTNING_ID_LENGTH,

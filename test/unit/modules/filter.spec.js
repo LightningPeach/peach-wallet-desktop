@@ -172,16 +172,8 @@ describe("Filter Unit Tests", () => {
                     },
                     search: "a",
                     time: {
-                        from: {
-                            hours: "1",
-                            meridiem: types.ANTE_MERIDIEM,
-                            minutes: "1",
-                        },
-                        to: {
-                            hours: "2",
-                            meridiem: types.ANTE_MERIDIEM,
-                            minutes: "2",
-                        },
+                        from: moment("1:1 AM", "h:m a"),
+                        to: moment("2:2 AM", "h:m a"),
                     },
                     type: types.TYPE_PAYMENT_ALL,
                 };
@@ -217,7 +209,7 @@ describe("Filter Unit Tests", () => {
             });
 
             it("time lower than filter, time.to filter disabled", () => {
-                data.sourceFilter.time.to.minutes = null;
+                data.sourceFilter.time.to = null;
                 data.itemFiltered = {
                     date: moment(moment("2011-11-11 1:00")),
                 };
@@ -230,7 +222,7 @@ describe("Filter Unit Tests", () => {
             });
 
             it("time bigger than filter, time.from filter disabled", () => {
-                data.sourceFilter.time.from.minutes = null;
+                data.sourceFilter.time.from = null;
                 data.itemFiltered = {
                     date: moment(moment("2011-11-11 2:03")),
                 };
@@ -243,7 +235,7 @@ describe("Filter Unit Tests", () => {
             });
 
             it("time bigger than filter", () => {
-                data.sourceFilter.time.from.minutes = null;
+                data.sourceFilter.time.from = null;
                 data.itemFiltered = {
                     date: moment(moment("2011-11-11 2:03")),
                 };
@@ -256,8 +248,8 @@ describe("Filter Unit Tests", () => {
             });
 
             it("pass with time filter disabled", () => {
-                data.sourceFilter.time.to.minutes = null;
-                data.sourceFilter.time.from.minutes = null;
+                data.sourceFilter.time.to = null;
+                data.sourceFilter.time.from = null;
                 data.itemFiltered = {
                     date: moment(moment("2011-11-11 1:00")),
                 };

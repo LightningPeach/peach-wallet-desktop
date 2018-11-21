@@ -1,48 +1,19 @@
 import React, { Fragment } from "react";
-import { TIME_RANGE_MEASURE } from "config/consts";
-import * as statusCodes from "config/status-codes";
+import { TIME_RANGE_MEASURE, STREAM_MEMO_PREFIX, RECURRING_MEMO_PREFIX } from "config/consts";
+import moment from "moment";
+import { statusCodes } from "config";
 
 /**
  * @param {Date} date - date
  * @param {string} [format="%d.%m.%y %h:%i:%s"] - format for return string
- * @param {boolean} withLeadZero - Add lead zero to 1-9num
  * @returns {string}
  */
-const formatDate = (date, format, withLeadZero = true) => {
-    let formattedDate = format;
+const formatDate = (date, format) => {
+    const formattedDate = format || "DD.MM.YY hh:mm:ss A";
     if (!(date instanceof Date)) {
         throw new Error(statusCodes.EXCEPTION_DATE_INSTANCE);
     }
-    if (!formattedDate) {
-        formattedDate = "%d.%m.%y %h:%i:%s";
-    }
-    const leadZero = item => item < 10 ? `0${item}` : item;
-    const day = withLeadZero ? leadZero(date.getDate()) : date.getDate();
-    const month = withLeadZero ? leadZero(date.getMonth() + 1) : date.getMonth() + 1;
-    const hours = withLeadZero ?
-        leadZero(date.getHours()
-            .toString()) :
-        date.getHours()
-            .toString();
-    const minutes = withLeadZero ?
-        leadZero(date.getMinutes()
-            .toString()) :
-        date.getMinutes()
-            .toString();
-    const seconds = withLeadZero ?
-        leadZero(date.getSeconds()
-            .toString()) :
-        date.getSeconds()
-            .toString();
-    const year = date.getYear() % 100;
-
-    return formattedDate
-        .replace("%d", day)
-        .replace("%m", month)
-        .replace("%y", year)
-        .replace("%h", hours)
-        .replace("%i", minutes)
-        .replace("%s", seconds);
+    return moment(date).format(formattedDate);
 };
 
 /**
@@ -124,7 +95,7 @@ const formatNotificationMessage = (error, helper = false) => (
  * @param {number} time
  * @returns {*}
  */
-const formatTimeRange = (time) => {
+const formatTimeRange = (time, removeQuantity = true) => {
     let index = -1;
     TIME_RANGE_MEASURE.forEach((item, key) => {
         if (time % item.range === 0) {
@@ -136,11 +107,15 @@ const formatTimeRange = (time) => {
     }
     const count = Math.round(time / TIME_RANGE_MEASURE[index].range);
     let response = `${count} ${TIME_RANGE_MEASURE[index].measure}`;
-    if (count === 1) {
+    if (removeQuantity && count === 1) {
         response = response.slice(0, -1);
     }
     return response;
 };
+
+const isStreamOrRecurring = ({ memo = "" }) => (
+    memo.includes(STREAM_MEMO_PREFIX) || memo.includes(RECURRING_MEMO_PREFIX)
+);
 
 export {
     formatDate,
@@ -149,4 +124,5 @@ export {
     hasSelection,
     noExponents,
     formatNotificationMessage,
+    isStreamOrRecurring,
 };

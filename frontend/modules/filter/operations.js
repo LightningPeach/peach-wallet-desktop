@@ -67,15 +67,13 @@ export function filter(sourceFilter, itemFiltered) { // eslint-disable-line
             timeCheck = target.date.filter((item) => {
                 const mDate = moment(item);
                 const hms = (mDate.hours() * 60) + mDate.minutes();
-                if (time.from.minutes && time.from.hours) {
-                    const from = moment(`${time.from.hours}:${time.from.minutes} ${time.from.meridiem}`, "HH:mm a");
-                    if ((from.hours() * 60) + from.minutes() > hms) {
+                if (time.from) {
+                    if ((time.from.hours() * 60) + time.from.minutes() > hms) {
                         return false;
                     }
                 }
-                if (time.to.minutes && time.to.hours) {
-                    const to = moment(`${time.to.hours}:${time.to.minutes} ${time.to.meridiem}`, "HH:mm a");
-                    if ((to.hours() * 60) + to.minutes() < hms) {
+                if (time.to) {
+                    if ((time.to.hours() * 60) + time.to.minutes() < hms) {
                         return false;
                     }
                 }

@@ -48,6 +48,7 @@ class MerchantsPage extends Component {
                     filterTypes.FILTER_KIND_SEARCH,
                 ]}
                 emptyPlaceholder="No merchants found"
+                searchPlaceholder="Name, Website, Description, Channel info"
             />
         </div>
     );

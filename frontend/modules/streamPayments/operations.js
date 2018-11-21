@@ -1,22 +1,26 @@
 import React from "react";
 import orderBy from "lodash/orderBy";
-import * as statusCodes from "config/status-codes";
+import pick from "lodash/pick";
+import { statusCodes } from "config";
 import { appActions, appOperations } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
-import { db, helpers, successPromise, errorPromise, logger, delay as Timeout } from "additional";
+import {
+    db, helpers, successPromise, errorPromise,
+    logger, delay as Timeout, setIntervalLong, clearIntervalLong,
+} from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
-import { STREAM_ERROR_TIMEOUT, STREAM_INFINITE_TIME_VALUE } from "config/consts";
+import { RECURRING_MEMO_PREFIX, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { streamPaymentActions as actions, streamPaymentTypes as types } from "modules/streamPayments";
 
 function pauseDbStreams() {
     try {
         db.streamBuilder()
             .update()
-            .set({ status: "pause" })
-            .where("status = :status", { status: "run" })
+            .set({ status: types.STREAM_PAYMENT_PAUSED })
+            .where("status = :status", { status: types.STREAM_PAYMENT_STREAMING })
             .execute();
     } catch (e) {
         logger.error(e);
@@ -25,6 +29,14 @@ function pauseDbStreams() {
 
 function openStreamPaymentDetailsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_STREAM_PAYMENT_DETAILS));
+}
+
+function openActiveRecurringWarningModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_ACTIVE_RECURRING_WARNING));
+}
+
+function openEditStreamModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_EDIT_STREAM_PAYMENT));
 }
 
 function clearPrepareStreamPayment() {
@@ -49,8 +61,8 @@ function prepareStreamPayment(
             return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareStreamPayment);
         }
         const name = paymentName || "Recurring payment";
-        const id = btoa(unescape(encodeURIComponent(`${name}_${new Date().getTime()}`)));
-        const memo = `recurring_payment_${new Date().getTime()}`;
+        const id = btoa(unescape(encodeURIComponent(`${name}_${Date.now()}`)));
+        const memo = `${RECURRING_MEMO_PREFIX}${id}`;
         let amount;
         switch (currency) {
             case "USD":
@@ -77,14 +89,64 @@ function prepareStreamPayment(
             name,
             partsPaid,
             partsPending: 0,
-            paymentIntervalId: null,
             price,
             status: types.STREAM_PAYMENT_PAUSED,
-            streamId: id,
+            totalAmount: 0,
             totalParts,
-            uuid: id,
         };
         dispatch(actions.prepareStreamPayment(details));
+        return successPromise();
+    };
+}
+
+function updateStreamPayment(
+    streamId,
+    lightningID,
+    status,
+    price,
+    delay,
+    totalParts,
+    paymentName,
+    currency,
+) {
+    return async (dispatch, getState) => {
+        if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
+            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, updateStreamPayment);
+        }
+        if (status !== types.STREAM_PAYMENT_FINISHED) {
+            const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
+            if (!payment) {
+                return errorPromise(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE, updateStreamPayment);
+            }
+        }
+        const name = paymentName || "Recurring payment";
+        let amount;
+        switch (currency) {
+            case "USD":
+                amount = dispatch(appOperations.convertUsdToSatoshi(price));
+                break;
+            default:
+                amount = price;
+                break;
+        }
+        const fees = await dispatch(lightningOperations.getLightningFee(lightningID, amount));
+        if (!fees.ok) {
+            return errorPromise(fees.error, updateStreamPayment);
+        }
+        const details = {
+            currency, delay, name, price, totalParts,
+        };
+        dispatch(actions.updateStreamPayment(streamId, details));
+        try {
+            db.streamBuilder()
+                .update()
+                .set(details)
+                .where("id = :id", { id: streamId })
+                .execute();
+        } catch (err) {
+            /* istanbul ignore next */
+            logger.error(statusCodes.EXCEPTION_EXTRA, err);
+        }
         return successPromise();
     };
 }
@@ -99,20 +161,21 @@ function addStreamPaymentToList() {
         try {
             await db.streamBuilder()
                 .insert()
-                .values({
-                    currency: details.currency,
-                    date: details.date,
-                    delay: details.delay,
-                    id: details.uuid,
-                    lastPayment: details.lastPayment,
-                    lightningID: details.lightningID,
-                    memo: `recurring_payment_${details.uuid}`,
-                    name: details.name,
-                    partsPaid: details.partsPaid,
-                    price: details.price,
-                    status: "pause",
-                    totalParts: details.totalParts,
-                })
+                .values(pick(details, [
+                    "currency",
+                    "date",
+                    "delay",
+                    "id",
+                    "lastPayment",
+                    "lightningID",
+                    "memo",
+                    "name",
+                    "partsPaid",
+                    "price",
+                    "totalAmount",
+                    "status",
+                    "totalParts",
+                ]))
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
@@ -124,25 +187,22 @@ function addStreamPaymentToList() {
 
 function pauseStreamPayment(streamId, pauseInDb = true) {
     return (dispatch, getState) => {
-        const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
         if (!payment) {
             return;
         }
-        if (payment.paymentIntervalId !== null) {
-            clearInterval(payment.paymentIntervalId);
-            dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
-        }
+        clearIntervalLong(streamId);
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
-            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_PAUSED));
+            dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_PAUSED }));
             if (pauseInDb) {
                 try {
                     db.streamBuilder()
                         .update()
                         .set({
                             partsPaid: payment.partsPaid,
-                            status: "pause",
+                            status: types.STREAM_PAYMENT_PAUSED,
                         })
-                        .where("id = :id", { id: payment.streamId })
+                        .where("id = :id", { id: payment.id })
                         .execute();
                 } catch (e) {
                     /* istanbul ignore next */
@@ -160,7 +220,7 @@ function pauseAllStreams(pauseInDb = true) {
             .streams
             .forEach((item, key) => {
                 if (item.status === types.STREAM_PAYMENT_STREAMING) {
-                    dispatch(pauseStreamPayment(item.streamId, pauseInDb));
+                    dispatch(pauseStreamPayment(item.id, pauseInDb));
                 }
             });
     };
@@ -168,21 +228,18 @@ function pauseAllStreams(pauseInDb = true) {
 
 function finishStreamPayment(streamId) {
     return (dispatch, getState) => {
-        const payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
         if (!payment) {
             return;
         }
-        if (payment.paymentIntervalId !== null) {
-            clearInterval(payment.paymentIntervalId);
-            dispatch(actions.clearStreamPaymentIntervalId(payment.streamId));
-        }
+        clearIntervalLong(streamId);
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
-            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_FINISHED));
+            dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_FINISHED }));
             try {
                 db.streamBuilder()
                     .update()
-                    .set({ partsPaid: payment.partsPaid, status: "end" })
-                    .where("id = :id", { id: payment.streamId })
+                    .set({ partsPaid: payment.partsPaid, status: types.STREAM_PAYMENT_FINISHED })
+                    .where("id = :id", { id: payment.id })
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
@@ -209,13 +266,13 @@ function startStreamPayment(streamId, forceStart = false) {
             }
         };
         const makeStreamIteration = async (shouldStartAt) => {
-            let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+            let payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
             /* istanbul ignore next */
             if (!payment) {
-                handleStreamError(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE);
                 return;
             }
             const startTime = shouldStartAt || Date.now();
+            /* istanbul ignore next */
             if ((payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid >= payment.totalParts)
                 || payment.status === types.STREAM_PAYMENT_FINISHED) {
@@ -267,31 +324,34 @@ function startStreamPayment(streamId, forceStart = false) {
             dispatch(actions.changeStreamPartsPaid(streamId, 1));
             dispatch(accountOperations.checkBalance());
             dispatch(channelsOperations.getChannels());
-            payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; //eslint-disable-line
-            const updateData = startTime > payment.lastPayment
-                ? { lastPayment: startTime, partsPaid: payment.partsPaid }
-                : { partsPaid: payment.partsPaid };
+            payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; //eslint-disable-line
+            const updateData = {
+                partsPaid: payment.partsPaid,
+                totalAmount: payment.totalAmount + payment.price,
+            };
             if (startTime > payment.lastPayment) {
-                dispatch(actions.setStreamLastPayment(payment.streamId, startTime));
+                updateData.lastPayment = startTime;
             }
+            dispatch(actions.updateStreamPayment(payment.id, updateData));
             try {
                 db.streamBuilder()
                     .update()
                     .set(updateData)
-                    .where("id = :id", { id: payment.streamId })
+                    .where("id = :id", { id: payment.id })
                     .execute();
                 db.streamPartBuilder()
                     .insert()
                     .values({
                         payment_hash: response.payment_hash,
-                        stream: payment.streamId,
+                        stream: payment.id,
                     })
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
                 logger.error(statusCodes.EXCEPTION_EXTRA, e);
             }
-            if (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
+            if (payment.status !== types.STREAM_PAYMENT_FINISHED
+                && payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts) {
                 dispatch(finishStreamPayment(streamId));
                 dispatch(info({
@@ -301,23 +361,22 @@ function startStreamPayment(streamId, forceStart = false) {
             }
         };
 
-        let payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0];
+        let payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
         if (
             !payment
             || (!forceStart && payment.status === types.STREAM_PAYMENT_STREAMING)
             || (payment.totalParts !== STREAM_INFINITE_TIME_VALUE
                 && payment.partsPaid + payment.partsPending >= payment.totalParts)
-            || payment.paymentIntervalId !== null
         ) {
             return;
         }
         if (payment.status !== types.STREAM_PAYMENT_STREAMING) {
-            dispatch(actions.setStreamPaymentStatus(payment.streamId, types.STREAM_PAYMENT_STREAMING));
+            dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_STREAMING }));
             try {
                 db.streamBuilder()
                     .update()
-                    .set({ partsPaid: payment.partsPaid, status: "run" })
-                    .where("id = :id", { id: payment.streamId })
+                    .set({ partsPaid: payment.partsPaid, status: types.STREAM_PAYMENT_STREAMING })
+                    .where("id = :id", { id: payment.id })
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
@@ -343,15 +402,13 @@ function startStreamPayment(streamId, forceStart = false) {
             await Timeout(borrowTime);
         }
         makeStreamIteration();
-        payment = getState().streamPayment.streams.filter(item => item.streamId === streamId)[0]; // eslint-disable-line
+        payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; // eslint-disable-line
         if (payment
             && (payment.totalParts === STREAM_INFINITE_TIME_VALUE
                 || payment.partsPaid + payment.partsPending < payment.totalParts)
-            && payment.paymentIntervalId === null
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
-            const paymentIntervalId = setInterval(makeStreamIteration, payment.delay);
-            dispatch(actions.setStreamPaymentIntervalId(payment.streamId, paymentIntervalId));
+            setIntervalLong(streamId, makeStreamIteration, payment.delay);
         }
     };
 }
@@ -362,24 +419,21 @@ function loadStreams() {
             .getMany();
         const streams = orderBy(response, "date", "desc")
             .reduce((reducedStreams, item) => {
-                if (item.status === "end") {
+                if (item.status === types.STREAM_PAYMENT_FINISHED) {
                     return reducedStreams;
                 }
                 reducedStreams.push({
                     ...item,
                     contact_name: "",
                     partsPending: 0,
-                    paymentIntervalId: null,
-                    status: item.status === "run" ? types.STREAM_PAYMENT_STREAMING : types.STREAM_PAYMENT_PAUSED,
-                    streamId: item.id,
-                    uuid: item.id,
+                    status: item.status,
                 });
                 return reducedStreams;
             }, []);
         await dispatch(actions.setStreamPayments(streams));
         streams.forEach((stream) => {
             if (stream.status === types.STREAM_PAYMENT_STREAMING) {
-                dispatch(startStreamPayment(stream.streamId, true));
+                dispatch(startStreamPayment(stream.id, true));
             }
         });
         return successPromise();
@@ -389,10 +443,13 @@ function loadStreams() {
 export {
     pauseDbStreams,
     prepareStreamPayment,
+    updateStreamPayment,
     startStreamPayment,
     finishStreamPayment,
     pauseStreamPayment,
     openStreamPaymentDetailsModal,
+    openActiveRecurringWarningModal,
+    openEditStreamModal,
     addStreamPaymentToList,
     loadStreams,
     clearPrepareStreamPayment,

@@ -8,8 +8,9 @@ import { channelsOperations, channelsSelectors } from "modules/channels";
 import RecordsTable from "components/records/table";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import {
-    streamPaymentOperations as streamOperations,
+    streamPaymentOperations,
     streamPaymentTypes,
+    streamPaymentActions,
 } from "modules/streamPayments";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
@@ -130,7 +131,7 @@ class RecurringHistory extends Component {
                 b.props["data-pinned"],
                 desc,
             ),
-            width: 265,
+            width: 245,
         },
         {
             Header: <span className="sortable">Date & Time</span>,
@@ -142,7 +143,7 @@ class RecurringHistory extends Component {
                 b.props["data-pinned"],
                 desc,
             ),
-            width: 115,
+            width: 135,
         },
     ]);
 
@@ -152,12 +153,11 @@ class RecurringHistory extends Component {
         } = this.props;
         return [
             ...streams.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0),
-            ...history.filter(item => item.type === "stream"),
+            ...history.filter(item => item.type === "stream" && !streams.some(i => i.id === item.id)),
         ]
             .map((item) => {
-                let tempAddress = item.lightningID;
-                const isActive = item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED
-                    || item.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING;
+                let tempAddress = null;
+                const isActive = item.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED;
                 contacts.forEach((contact) => {
                     if (contact.lightningID === item.lightningID) {
                         tempAddress = contact.name;
@@ -165,14 +165,11 @@ class RecurringHistory extends Component {
                 });
                 tempAddress = tempAddress || (item.lightningID !== lightningID ? item.lightningID : "me");
                 const date = new Date(parseInt(item.date, 10));
-                const [ymd, hms] = helpers.formatDate(date).split(" ");
                 return {
                     ...item,
                     date,
-                    hms,
                     isActive,
                     tempAddress,
-                    ymd,
                 };
             })
             .filter(item => dispatch(filterOperations.filter(
@@ -181,6 +178,7 @@ class RecurringHistory extends Component {
                     search: [
                         item.name,
                         item.tempAddress,
+                        item.lightningID,
                     ],
                 },
             )))
@@ -191,7 +189,7 @@ class RecurringHistory extends Component {
                             if (item.lightningID !== "-") {
                                 if (helpers.hasSelection()) return;
                                 analytics.event({
-                                    action: "History address",
+                                    action: "History address / Recurring payment",
                                     category: "Lightning",
                                     label: "Copy",
                                 });
@@ -211,26 +209,26 @@ class RecurringHistory extends Component {
                                 className="start"
                                 onClick={() => {
                                     analytics.event({
-                                        action: "Stream",
+                                        action: "Recurring",
                                         category: "Lightning",
-                                        label: "Play",
+                                        label: "Start",
                                     });
                                     if (!isThereActiveChannel) {
                                         dispatch(operations.channelWarningModal());
                                         return;
                                     }
-                                    dispatch(streamOperations.startStreamPayment(item.streamId));
+                                    dispatch(streamPaymentOperations.startStreamPayment(item.id));
                                 }}
                             />
                             <span
                                 className="stop"
                                 onClick={() => {
                                     analytics.event({
-                                        action: "Stream",
+                                        action: "Recurring",
                                         category: "Lightning",
                                         label: "Stop",
                                     });
-                                    dispatch(streamOperations.finishStreamPayment(item.streamId));
+                                    dispatch(streamPaymentOperations.finishStreamPayment(item.id));
                                 }}
                             />
                         </Fragment>
@@ -241,11 +239,11 @@ class RecurringHistory extends Component {
                             className="pause"
                             onClick={() => {
                                 analytics.event({
-                                    action: "Stream",
+                                    action: "Recurring",
                                     category: "Lightning",
                                     label: "Pause",
                                 });
-                                dispatch(streamOperations.pauseStreamPayment(item.streamId));
+                                dispatch(streamPaymentOperations.pauseStreamPayment(item.id));
                             }}
                         />
                     );
@@ -253,18 +251,17 @@ class RecurringHistory extends Component {
                 const amount = item.currency === "BTC"
                     ? (
                         <span>
-                            <BalanceWithMeasure satoshi={item.price * item.partsPaid} />
+                            <BalanceWithMeasure satoshi={item.totalAmount} />
                             <br />
                             (<BalanceWithMeasure satoshi={item.price} />)
                         </span>)
                     : (
                         <span>
-                            {helpers.noExponents(parseFloat((item.price * item.partsPaid).toFixed(8)))} USD
+                            {item.totalAmount} USD
                             <br />
                             ({item.price} USD)
                         </span>);
                 const count = item.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED
-                    && item.status !== "end"
                     ? (
                         <span>
                             <span
@@ -283,23 +280,59 @@ class RecurringHistory extends Component {
                     count,
                     date: (
                         <span dateTime={item.date} data-pinned={item.isActive}>
-                            <span className="date__ymd">{item.ymd}</span>
-                            <span className="date__hms">{item.hms}</span>
+                            {helpers.formatDate(item.date)}
                         </span>
                     ),
                     frequency: (
-                        <span
+                        <Ellipsis
                             frequency={item.delay}
                             data-pinned={item.isActive}
                         >
-                            {helpers.formatTimeRange(item.delay)}
-                        </span>
+                            {helpers.formatTimeRange(item.delay) || "-"}
+                        </Ellipsis>
                     ),
-                    name: <Ellipsis data-pinned={item.isActive}>{item.name}</Ellipsis>,
+                    name: (
+                        <div data-pinned={item.isActive}>
+                            <Ellipsis>{item.name}</Ellipsis>
+                            <div className="stream__actions">
+                                <button
+                                    className="table__button"
+                                    type="button"
+                                    onClick={() => { this.handleEdit(item) }}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    className="table__button"
+                                    type="button"
+                                    onClick={() => { this.handleCopy(item.lightningID) }}
+                                >
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    ),
                     status: <span data-pinned={item.isActive}>{status}</span>,
-                    to: <Ellipsis>{address}</Ellipsis>,
+                    to: <Ellipsis data-pinned={item.isActive}>{address}</Ellipsis>,
                 };
             });
+    };
+
+    handleCopy = (address) => {
+        analytics.event({ action: "Recurring", category: "Lightning", label: "Copy lightning ID" });
+        const { dispatch } = this.props;
+        dispatch(appOperations.copyToClipboard(address, "Lightning ID copied"));
+    };
+
+    handleEdit = (payment) => {
+        analytics.event({ action: "Recurring", category: "Lightning", label: "Edit payment" });
+        const { dispatch } = this.props;
+        dispatch(streamPaymentActions.setCurrentStream(payment));
+        if (payment.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING) {
+            dispatch(streamPaymentOperations.openActiveRecurringWarningModal());
+        } else {
+            dispatch(streamPaymentOperations.openEditStreamModal());
+        }
     };
 
     render() {
@@ -319,6 +352,7 @@ class RecurringHistory extends Component {
                     filterTypes.FILTER_KIND_SEARCH,
                 ]}
                 emptyPlaceholder="No payments found"
+                searchPlaceholder="Name, To, Lightning ID"
             />
         );
     }

@@ -2,26 +2,35 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import isEqual from "lodash/isEqual";
+import { filterTypes } from "modules/filter";
 import DigitsField from "components/ui/digits-field";
 import Popper from "components/ui/popper";
+import moment from "moment/moment";
+
+const formatTime = (time, defaultMeridiem = filterTypes.ANTE_MERIDIEM) => {
+    if (!time || !(time instanceof moment)) {
+        return {
+            hours: null,
+            meridiem: defaultMeridiem,
+            minutes: null,
+        };
+    }
+    const [hours, minutes, meridiem] = time.format("h:mm:A").split(":");
+    return {
+        hours,
+        meridiem: meridiem.toUpperCase(),
+        minutes,
+    };
+};
 
 class Timepicker extends Component {
     constructor(props) {
         super(props);
-
         const { from, to } = this.props.time;
         this.state = {
-            from: {
-                hours: from.hours,
-                meridiem: from.meridiem,
-                minutes: from.minutes,
-            },
+            from: formatTime(from),
             showInput: false,
-            to: {
-                hours: to.hours,
-                meridiem: to.meridiem,
-                minutes: to.minutes,
-            },
+            to: formatTime(to, filterTypes.POST_MERIDIEM),
         };
     }
 
@@ -29,8 +38,8 @@ class Timepicker extends Component {
         const { from, to } = nextProps.time;
         if (!isEqual(nextProps.time, this.props.time)) {
             this.setState({
-                from,
-                to,
+                from: formatTime(from),
+                to: formatTime(to, filterTypes.POST_MERIDIEM),
             });
         }
     }
@@ -90,9 +99,14 @@ class Timepicker extends Component {
     };
 
     setData = () => {
+        const { from, to } = this.state;
         this.props.setData({
-            from: this.state.from,
-            to: this.state.to,
+            from: from.minutes && from.hours
+                ? moment(`${from.hours}:${from.minutes} ${from.meridiem}`, "hh:mm a")
+                : null,
+            to: to.minutes && to.hours
+                ? moment(`${to.hours}:${to.minutes} ${to.meridiem}`, "hh:mm a")
+                : null,
         });
         this.hideInput();
     };
@@ -112,16 +126,8 @@ class Timepicker extends Component {
     handleCancel = () => {
         const { from, to } = this.props.time;
         this.setState({
-            from: {
-                hours: from.hours,
-                meridiem: from.meridiem,
-                minutes: from.minutes,
-            },
-            to: {
-                hours: to.hours,
-                meridiem: to.meridiem,
-                minutes: to.minutes,
-            },
+            from: formatTime(from),
+            to: formatTime(to, filterTypes.POST_MERIDIEM),
         });
         this.hideInput();
     };
@@ -137,7 +143,7 @@ class Timepicker extends Component {
 
     render() {
         const { className, time } = this.props;
-        const filled = time.from.minutes && time.from.hours && time.to.minutes && time.to.hours;
+        const filled = time.from || time.to;
         return (
             <div className="picker">
                 <button
@@ -150,9 +156,9 @@ class Timepicker extends Component {
                     {filled
                         ? (
                             <div className="picker__target--fill">
-                                <span>{`${time.from.hours}:${time.from.minutes} ${time.from.meridiem}`}</span>
+                                <span>{time.from ? time.from.format("hh:mm A") : "12:00 AM"}</span>
                                 <br />
-                                <span>{`${time.to.hours}:${time.to.minutes} ${time.to.meridiem}`}</span>
+                                <span>{time.to ? time.to.format("hh:mm A") : "11:59 PM"}</span>
                             </div>
                         )
                         : "Time range"
@@ -163,6 +169,8 @@ class Timepicker extends Component {
                         className="picker__collapse"
                         onClose={this.hideInput}
                         closeWithEsc
+                        verticalDiff={46}
+                        horizontalDiff={130}
                     >
                         <div className="picker__row mt-14">
                             <div className="picker__label">
@@ -173,8 +181,9 @@ class Timepicker extends Component {
                                     id="date__from-hours"
                                     className="form-text form-text--right"
                                     value={this.state.from.hours}
-                                    pattern={/^(0?[0-9]|1[0-1])$/}
+                                    pattern={/^([1-9]|1[0-2])$/}
                                     name="date__from-hours"
+                                    placeholder="12"
                                     ref={(ref) => {
                                         this.dateFromHoursComponent = ref;
                                     }}
@@ -190,6 +199,7 @@ class Timepicker extends Component {
                                     value={this.state.from.minutes}
                                     pattern={/^([0-5]?[0-9])$/}
                                     name="date__from-minutes"
+                                    placeholder="00"
                                     ref={(ref) => {
                                         this.dateFromMinutesComponent = ref;
                                     }}
@@ -227,8 +237,9 @@ class Timepicker extends Component {
                                     id="date__to-hours"
                                     className="form-text form-text--right"
                                     value={this.state.to.hours}
-                                    pattern={/^(0?[0-9]|1[0-1])$/}
+                                    pattern={/^([1-9]|1[0-2])$/}
                                     name="date__to-hours"
+                                    placeholder="11"
                                     ref={(ref) => {
                                         this.dateToHoursComponent = ref;
                                     }}
@@ -244,6 +255,7 @@ class Timepicker extends Component {
                                     value={this.state.to.minutes}
                                     pattern={/^([0-5]?[0-9])$/}
                                     name="date__to-minutes"
+                                    placeholder="59"
                                     ref={(ref) => {
                                         this.dateToMinutesComponent = ref;
                                     }}
@@ -290,10 +302,10 @@ class Timepicker extends Component {
                                     className="button button__link"
                                     onClick={this.setData}
                                     disabled={!(
-                                        this.state.from.minutes
-                                        && this.state.from.hours
-                                        && this.state.to.minutes
-                                        && this.state.to.hours
+                                        (this.state.from.minutes
+                                        && this.state.from.hours)
+                                        || (this.state.to.minutes
+                                        && this.state.to.hours)
                                     )}
                                 >
                                     Apply
@@ -312,16 +324,8 @@ Timepicker.propTypes = {
     reset: PropTypes.func.isRequired,
     setData: PropTypes.func.isRequired,
     time: PropTypes.shape({
-        from: PropTypes.shape({
-            hours: PropTypes.string,
-            meridiem: PropTypes.oneOf(["AM", "PM"]).isRequired,
-            minutes: PropTypes.string,
-        }).isRequired,
-        to: PropTypes.shape({
-            hours: PropTypes.string,
-            meridiem: PropTypes.oneOf(["AM", "PM"]).isRequired,
-            minutes: PropTypes.string,
-        }).isRequired,
+        from: PropTypes.instanceOf(moment),
+        to: PropTypes.instanceOf(moment),
     }).isRequired,
 };
 

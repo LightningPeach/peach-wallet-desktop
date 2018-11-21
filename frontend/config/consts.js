@@ -66,6 +66,10 @@ export const ALL_MEASURES = [MBTC_MEASURE, BTC_MEASURE, SATOSHI_MEASURE];
 
 export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnectInterval: 3000 };
 
+// Value for proper handling of some native JS functions (setInterval and setTimeout)
+// by separating them into smaller subtasks with TIMEOUT_DELAY delay value of execution
+export const TIMEOUT_PART = 0x7FFFFFF;
+export const MAX_INTERVAL_FREUENCY = 100000000000;
 export const STREAM_INFINITE_TIME_VALUE = "Infinite";
 export const LOGOUT_ACCOUNT_TIMEOUT = NODE_ENV === "test" ? 1 : 5000;
 export const LND_SYNC_TIMEOUT = NODE_ENV === "test" ? 1 : 15000;
@@ -102,6 +106,10 @@ export const CHANNEL_LEFT_AMOUNT_TO_NOTIFY = 0.1;
 export const WALLET_GITHUB_URL = "https://github.com/LightningPeach/lightning-peach-wallet";
 export const USERGUIDE_QUERY = "/blob/master/docs/LightningPeach_wallet_user_guide.pdf";
 export const GITHUB_USERGUIDE_LINK = `${WALLET_GITHUB_URL}${USERGUIDE_QUERY}`;
+export const RECURRING_MEMO_PREFIX = "recurring_payment_";
+export const STREAM_MEMO_PREFIX = "stream_payment_";
+export const MAX_INVOICES = 18446744073709551615; // Uint64 in GO
+export const DEFAULT_MAX_INVOICES = 100;
 
 /**
  * See {@link https://github.com/lightningnetwork/lnd/blob/master/rpcserver.go#L1761|Github LND}

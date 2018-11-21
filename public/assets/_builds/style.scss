@@ -14,6 +14,7 @@
 @import "ui/buttons";
 @import "ui/progress";
 @import "ui/blocks";
+@import "ui/file";
 @import "modules/react-select";
 @import "modules/rem";
 @import "modules/mixins";
@@ -33,7 +34,6 @@
 @import "components/home";
 @import "components/payments";
 @import "components/purchases";
-@import "components/stream_payment";
 @import "components/lightning";
 @import "components/onchain";
 @import "components/channels";

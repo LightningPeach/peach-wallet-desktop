@@ -80,7 +80,7 @@ class ContactsPage extends Component {
                             {contact.lightningID}
                         </div>
                         <div className="contacts__actions">
-                            <button className="table__button" type="button" onClick={() => this.handleEdit(key)}>
+                            <button className="table__button" type="button" onClick={() => this.handleEdit(contact)}>
                                 Edit
                             </button>
                             <button
@@ -90,7 +90,7 @@ class ContactsPage extends Component {
                             >
                                 Copy
                             </button>
-                            <button className="table__button" type="button" onClick={() => this.handlePay(key)}>
+                            <button className="table__button" type="button" onClick={() => this.handlePay(contact)}>
                                 Pay
                             </button>
                         </div>
@@ -100,19 +100,17 @@ class ContactsPage extends Component {
             }));
     };
 
-    handleEdit = (index) => {
+    handleEdit = (contact) => {
         analytics.event({ action: "Edit contact", category: "Address Book", label: "Edit" });
         const { dispatch } = this.props;
-        const updateContact = this.contacts[index];
-        dispatch(actions.setCurrentContact(updateContact));
+        dispatch(actions.setCurrentContact(contact));
         dispatch(operations.openEditContactModal());
     };
 
-    handlePay = (index) => {
+    handlePay = (contact) => {
         analytics.event({ action: "Pay contact", category: "Address Book", label: "Pay" });
         const { dispatch } = this.props;
-        const payContact = this.contacts[index];
-        dispatch(operations.setContactsSearch(payContact.name));
+        dispatch(operations.setContactsSearch(contact.name));
         dispatch(push(WalletPath));
     };
 
@@ -148,6 +146,7 @@ class ContactsPage extends Component {
                             filterTypes.FILTER_KIND_SEARCH,
                         ]}
                         emptyPlaceholder="No contacts found"
+                        searchPlaceholder="Name, Lightning ID"
                     />
                 </div>
             </div>
@@ -155,7 +154,6 @@ class ContactsPage extends Component {
     );
 
     render() {
-        logger.log("RENDERED CONTACTS");
         const { contacts, modalState } = this.props;
         let modal;
         switch (modalState) {

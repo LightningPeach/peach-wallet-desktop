@@ -1,7 +1,8 @@
-import * as statusCodes from "config/status-codes";
+import { statusCodes, consts } from "config";
 import { appOperations, appActions } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
-import { db, successPromise, errorPromise, logger } from "additional";
+import { db, successPromise, errorPromise, logger, helpers } from "additional";
 import orderBy from "lodash/orderBy";
 import omit from "lodash/omit";
 import { store } from "store/configure-store";
@@ -74,15 +75,26 @@ export function preparePayment(
     };
 }
 
-async function getInvoices() {
-    const response = await window.ipcClient("listInvoices");
-    if (!response.ok) {
+async function getPaginatedInvoices(offset = 0) {
+    const { ok, response } = await window.ipcClient("listInvoices", { index_offset: offset });
+    if (!ok) {
         logger.error("ERROR ON GET INVOICES");
         logger.error(response);
         return [];
     }
+    const lastOffset = parseInt(response.last_index_offset, 10);
+    if (lastOffset === 0 || lastOffset % consts.DEFAULT_MAX_INVOICES !== 0) {
+        return response.invoices;
+    }
+    return [...response.invoices, ...(await getPaginatedInvoices(lastOffset))];
+}
+
+async function getInvoices() {
+    // use maximum `num_max_invoices` or collect all invoices recursively? That is the question.
+    // const response = await window.ipcClient("listInvoices", { num_max_invoices: consts.MAX_INVOICES });
+    const allInvoices = await getPaginatedInvoices();
     const streamInvoices = {};
-    const settledInvoices = response.response.invoices.filter(invoice => invoice.settled);
+    const settledInvoices = allInvoices.filter(invoice => invoice.settled);
     const invoices = await settledInvoices.reduce(async (invoicePromise, invoice) => {
         const newInvoices = await invoicePromise;
         const payReq = await window.ipcClient("decodePayReq", { pay_req: invoice.payment_request });
@@ -96,11 +108,19 @@ async function getInvoices() {
             payment_hash: payReq.response.payment_hash,
             type: "invoice",
         };
-        if (memo.includes("stream_payment_")) {
-            tempInvoice.name = "Incoming stream payment";
-            tempInvoice.amount = parseInt(invoice.value, 10) + (streamInvoices[memo] ?
-                streamInvoices[memo].amount :
+        if (helpers.isStreamOrRecurring(invoice)) {
+            tempInvoice.currency = "BTC";
+            tempInvoice.name = "Incoming recurring payment";
+            tempInvoice.type = "stream";
+            // default 1 sec? attach stream delay to invoice.
+            tempInvoice.delay = -1;
+            tempInvoice.price = tempInvoice.amount;
+            tempInvoice.totalAmount = tempInvoice.amount + (streamInvoices[memo] ?
+                streamInvoices[memo].totalAmount :
                 0);
+            tempInvoice.totalParts = (streamInvoices[memo] ? streamInvoices[memo].totalParts : 0) + 1;
+            tempInvoice.partsPaid = tempInvoice.totalParts;
+            tempInvoice.status = streamPaymentTypes.STREAM_PAYMENT_FINISHED;
             streamInvoices[memo] = tempInvoice;
         } else {
             newInvoices.push(tempInvoice);
@@ -132,7 +152,7 @@ async function getPayments() {
         const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false))[0];
         if (dbStream) {
             foundedInDb.push(dbStream.id);
-            if (dbStream.status !== "end") {
+            if (dbStream.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED) {
                 return reducedPayments;
             }
             const partsPaid = streamPayments[dbStream.id] ? streamPayments[dbStream.id].partsPaid + 1 : 1;
@@ -154,17 +174,19 @@ async function getPayments() {
         });
         return reducedPayments;
     }, []);
-    const orphansStreams = dbStreams.filter(dbStream => !foundedInDb.includes(dbStream.id) && dbStream.status === "end")
+    const orphansStreams = dbStreams.filter(dbStream =>
+        !foundedInDb.includes(dbStream.id)
+        && dbStream.status === streamPaymentTypes.STREAM_PAYMENT_FINISHED)
         .map(dbStream => ({
             ...omit(dbStream, "parts"),
             partsPaid: 0,
             type: "stream",
         }));
     dbStreams.forEach((dbStream) => {
-        if (dbStream.status === "pause") {
+        if (dbStream.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED) {
             return;
         }
-        const partsPaid = dbStream.status === "end" && !foundedInDb.includes(dbStream.id)
+        const partsPaid = !foundedInDb.includes(dbStream.id)
             ? 0
             : streamPayments[dbStream.id].partsPaid;
         if (dbStream.partsPaid !== partsPaid) {
@@ -325,6 +347,7 @@ window.ipcRenderer.on("invoices-update", (event) => {
 export {
     addInvoiceRemote,
     channelWarningModal,
+    getPaginatedInvoices,
     getInvoices,
     getHistory,
     getLightningFee,
