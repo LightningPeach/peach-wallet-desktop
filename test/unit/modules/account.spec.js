@@ -787,6 +787,7 @@ describe("Account Unit Tests", () => {
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeServer = sandbox.stub(serverOperations);
                 fakeServer.getBlocksHeight.returns(fakeDispatchReturnSuccess);
+                fakeServer.getMerchants.returns(fakeDispatchReturnSuccess);
                 window.ipcClient
                     .withArgs("listChannels")
                     .returns({
