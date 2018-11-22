@@ -77,6 +77,7 @@ class Login extends Component {
             handleError(init.error);
             return;
         }
+        dispatch(operations.setHashedPassword(password));
         dispatch(push(WalletPath));
     };
 

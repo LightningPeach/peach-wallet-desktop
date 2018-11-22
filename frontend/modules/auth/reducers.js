@@ -4,6 +4,7 @@ import * as types from "./types";
 export const initStateAuth = {
     authStep: types.REGISTRATION_STEP_INIT,
     currentForm: types.LOGIN_FORM,
+    password: null,
     tempUsername: null,
 };
 
@@ -19,6 +20,8 @@ const authReducer = (state = defaultState, action) => {
             return { ...state, authStep: action.payload };
         case types.SET_TEMP_USERNAME:
             return { ...state, tempUsername: action.payload };
+        case types.SET_PASSWORD:
+            return { ...state, password: action.payload };
         default:
             return state;
     }

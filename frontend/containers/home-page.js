@@ -21,7 +21,7 @@ const HomePage = (props) => {
             form = <Registration />;
             break;
         case authTypes.RESTORE_SESSION_FORM:
-            form = <RestoreSession />
+            form = <RestoreSession />;
             break;
         case authTypes.LOGIN_FORM:
         default:

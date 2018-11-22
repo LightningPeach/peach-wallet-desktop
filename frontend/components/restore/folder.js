@@ -59,6 +59,7 @@ class Folder extends Component {
             dispatch(error({ message: helpers.formatNotificationMessage(init.error) }));
             return;
         }
+        dispatch(operations.setHashedPassword(password));
         dispatch(push(WalletPath));
     };
 

@@ -10,6 +10,11 @@ const setTempUsername = payload => ({
     type: types.SET_TEMP_USERNAME,
 });
 
+const setPassword = payload => ({
+    payload,
+    type: types.SET_PASSWORD,
+});
+
 const setAuthStep = payload => ({
     payload,
     type: types.SET_REGISTRATION_STEP,
@@ -18,5 +23,6 @@ const setAuthStep = payload => ({
 export {
     setCurrentForm,
     setAuthStep,
+    setPassword,
     setTempUsername,
 };

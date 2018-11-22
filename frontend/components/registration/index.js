@@ -23,7 +23,9 @@ class Registration extends Component {
     };
 
     onValidRegForm = ({ password, seed }) => {
+        const { dispatch } = this.props;
         this.setState({ password, seed });
+        dispatch(operations.setHashedPassword(password));
     };
 
     render() {

@@ -2,7 +2,7 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { analytics } from "additional";
 import { connect } from "react-redux";
-import { authTypes as types } from "modules/auth";
+import { authTypes as types, authOperations as operations } from "modules/auth";
 import Seed from "./seed";
 import UserForm from "./user-form";
 import Method from "./method";
@@ -18,8 +18,10 @@ class Restore extends Component {
     }
 
     setUser = ({ username, password }) => {
+        const { dispatch } = this.props;
         this.username = username;
         this.password = password;
+        dispatch(operations.setHashedPassword(password));
     };
 
     render() {
@@ -53,6 +55,7 @@ class Restore extends Component {
 
 Restore.propTypes = {
     authStep: PropTypes.string.isRequired,
+    dispatch: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
