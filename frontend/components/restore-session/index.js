@@ -1,13 +1,11 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import Tooltip from "rc-tooltip";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";
-import { authOperations as operations, authTypes as types } from "modules/auth";
 import { statusCodes } from "config";
 import { USERNAME_MAX_LENGTH } from "config/consts";
 
@@ -23,8 +21,30 @@ class RestoreSession extends Component {
         analytics.pageview("/restore-session", "Restore session");
     }
 
+    _validatePassword = (restorePass) => {
+        const { password } = this.props;
+        if (!restorePass) {
+            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        } else if (helpers.hash(restorePass) !== password) {
+            return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
+        }
+        return null;
+    };
+
     handleLogin = async (e) => {
         e.preventDefault();
+        analytics.event({ action: "Session", category: "Auth", label: "Restore" });
+        this.setState({ processing: true });
+        const { dispatch } = this.props;
+        const password = this.password.value.trim();
+        const passwordError = this._validatePassword(password);
+
+        if (passwordError) {
+            this.setState({ passwordError, processing: false });
+            return;
+        }
+        this.setState({ passwordError });
+        dispatch(push(WalletPath));
     };
 
     render() {
@@ -35,7 +55,7 @@ class RestoreSession extends Component {
                     The session has been expired!
                 </div>
                 <div className="home__subtitle text-center">
-                    You didn&apos;t make any actions for 15 minutes.<br />
+                    You haven&apos;t performed any action for 15 minutes.<br />
                     Due to security reasons, you need to enter your password again.
                 </div>
                 <div className="row mt-14">
@@ -100,21 +120,11 @@ class RestoreSession extends Component {
 
 RestoreSession.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    initStatus: PropTypes.string,
-    isIniting: PropTypes.bool,
-    lndBlocks: PropTypes.number.isRequired,
-    lndBlocksOnLogin: PropTypes.number.isRequired,
-    lndSyncedToChain: PropTypes.bool,
-    networkBlocks: PropTypes.number.isRequired,
+    password: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
-    initStatus: state.lnd.initStatus,
-    isIniting: state.account.isIniting,
-    lndBlocks: state.lnd.lndBlocks,
-    lndBlocksOnLogin: state.lnd.lndBlocksOnLogin,
-    lndSyncedToChain: state.lnd.lndSyncedToChain,
-    networkBlocks: state.lnd.networkBlocks,
+    password: state.auth.password,
 });
 
 export default connect(mapStateToProps)(RestoreSession);
