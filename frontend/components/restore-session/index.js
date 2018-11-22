@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
+import { analytics, togglePasswordVisibility, validators, helpers, logger } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
@@ -24,6 +24,10 @@ class RestoreSession extends Component {
 
     _validatePassword = (restorePass) => {
         const { password } = this.props;
+        if (!password) {
+            logger.error("User password not found in store");
+            return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
+        }
         if (!restorePass) {
             return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
         } else if (helpers.hash(restorePass) !== password) {
@@ -128,7 +132,7 @@ class RestoreSession extends Component {
 
 RestoreSession.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    password: PropTypes.string.isRequired,
+    password: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
