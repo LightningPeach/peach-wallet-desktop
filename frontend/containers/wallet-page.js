@@ -1,12 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
+import debounce from "lodash/debounce";
 import { logger, setAsyncIntervalLong, clearIntervalLong } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
 import { lndOperations } from "modules/lnd";
+import { authActions, authTypes } from "modules/auth";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -31,12 +34,12 @@ import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
 import SystemNotifications from "components/modal/system-notifications";
-
 import {
     BALANCE_INTERVAL_TIMEOUT,
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+    SESSION_EXPIRE_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -79,7 +82,9 @@ class WalletPage extends Component {
     }
 
     componentDidMount() {
-        document.addEventListener("keydown", this.onKeyClick, false);
+        this.continueSession();
+        document.addEventListener("keydown", this.onKeyDown, false);
+        document.addEventListener("mousemove", this.onMouseMove, false);
         setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
@@ -120,14 +125,20 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener("keydown", this.onKeyClick, false);
+        document.removeEventListener("keydown", this.onKeyDown, false);
+        document.removeEventListener("mousemove", this.onMouseMove, false);
         clearIntervalLong("balanceIntervalId");
         clearIntervalLong("channelsIntervalId");
         clearIntervalLong("usdPerBtcIntervalId");
         clearIntervalLong("lndSyncStatusIntervalId");
     }
 
-    onKeyClick = (e) => {
+    onMouseMove = () => {
+        this.continueSession();
+    };
+
+    onKeyDown = (e) => {
+        this.continueSession();
         if (e.ctrlKey && e.key === "Tab") {
             const { pageAddressIndex, pageAddressList } = this.state;
             const index = e.shiftKey
@@ -139,6 +150,12 @@ class WalletPage extends Component {
             hashHistory.push(pageAddressList[index].fullPath);
         }
     };
+
+    continueSession = debounce(() => {
+        const { dispatch } = this.props;
+        dispatch(authActions.setCurrentForm(authTypes.RESTORE_SESSION_FORM));
+        dispatch(push(HomeFullPath));
+    }, SESSION_EXPIRE_TIMEOUT);
 
     checkUsdBtcRate = async () => {
         const { dispatch, isLogined } = this.props;

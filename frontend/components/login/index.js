@@ -47,7 +47,7 @@ class Login extends Component {
     showRestore = (e) => {
         const { dispatch } = this.props;
         analytics.event({ action: "Login", category: "Auth", label: e.target.innerText });
-        dispatch(operations.setForm(types.RESTORE_FORM));
+        dispatch(operations.setForm(types.RESTORE_WALLET_FORM));
     };
 
     handleLogin = async (e) => {

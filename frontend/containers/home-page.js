@@ -6,6 +6,7 @@ import Notifications from "components/notifications";
 import Login from "components/login";
 import Restore from "components/restore";
 import Registration from "components/registration";
+import RestoreSession from "components/restore-session";
 import DeepLinkLightning from "components/modal/deep-link-lightning";
 import { appTypes } from "modules/app";
 
@@ -13,11 +14,14 @@ const HomePage = (props) => {
     const { currentForm, modalState, notifications } = props;
     let form;
     switch (currentForm) {
-        case authTypes.RESTORE_FORM:
+        case authTypes.RESTORE_WALLET_FORM:
             form = <Restore />;
             break;
         case authTypes.REGISTRATION_FORM:
             form = <Registration />;
+            break;
+        case authTypes.RESTORE_SESSION_FORM:
+            form = <RestoreSession />
             break;
         case authTypes.LOGIN_FORM:
         default:
