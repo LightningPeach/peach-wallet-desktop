@@ -131,6 +131,7 @@
     "bitcoinjs-lib": "^3.3.2",
     "body-parser": "^1.17.2",
     "convict": "^4.3.1",
+    "crypto-js": "^3.1.9-1",
     "electron-ipc-tunnel": "^3.1.0",
     "electron-is-dev": "^0.3.0",
     "electron-updater": "3.0.4",
