@@ -1,3 +1,4 @@
+import sha512 from "crypto-js/sha512";
 import { statusCodes } from "config";
 import { helpers } from "additional";
 import moment from "moment";
@@ -21,7 +22,7 @@ describe("Helpers Unit Tests", () => {
         });
     });
 
-    describe("noExponents", () => {
+    describe("noExponents()", () => {
         it("should return 1e-7 without exponent", () => {
             const valid = helpers.noExponents(1e-7);
             expect(valid).to.equal("0.0000001");
@@ -76,7 +77,7 @@ describe("Helpers Unit Tests", () => {
         });
     });
 
-    describe("formatTimeRange", () => {
+    describe("formatTimeRange()", () => {
         it("should return null for incorrect number (1000 is not divider)", () => {
             expect(helpers.formatTimeRange(999)).to.equal(null);
         });
@@ -88,5 +89,11 @@ describe("Helpers Unit Tests", () => {
         it("should return correct for multiple count of measure", () => {
             expect(helpers.formatTimeRange(1000 * 2600 * 24)).to.equal("1040 minutes");
         });
+    });
+
+    describe("hash()", () => {
+        const data = "Qwer1234";
+        const valid = sha512(data).words.join("");
+        expect(helpers.hash(data)).to.equal(valid);
     });
 });
