@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
+import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
 import { WalletPath } from "routes";
@@ -31,7 +32,13 @@ class RestoreSession extends Component {
         return null;
     };
 
-    handleLogin = async (e) => {
+    handleLogout = () => {
+        const { dispatch } = this.props;
+        analytics.event({ action: "Session", category: "Auth", label: "Logout" });
+        dispatch(appOperations.openLogoutModal());
+    };
+
+    handleRestore = (e) => {
         e.preventDefault();
         analytics.event({ action: "Session", category: "Auth", label: "Restore" });
         this.setState({ processing: true });
@@ -50,7 +57,7 @@ class RestoreSession extends Component {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.handleLogin}>
+            <form onSubmit={this.handleRestore}>
                 <div className="home__title">
                     The session has been expired!
                 </div>
@@ -100,12 +107,13 @@ class RestoreSession extends Component {
                         {disabled ? spinner : null}
                     </div>
                 </div>
-                <div className="row signup">
-                    <div className="col-xs-12 home__restore">
-                        <div className="home__logout-block text-right">
+                <div className="row logout">
+                    <div className="col-xs-12 home__logout">
+                        <div className="text-right">
                             <button
                                 type="button"
-                                className="button button__link signup__link"
+                                className="button button__link button__link--logout home__logout-button"
+                                onClick={this.handleLogout}
                                 disabled={disabled}
                             >
                                 Logout
