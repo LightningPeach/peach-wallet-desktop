@@ -44,6 +44,11 @@ describe("Auth Unit Tests", () => {
             expectedData.type = types.SET_PASSWORD;
             expect(actions.setPassword(data)).to.deep.equal(expectedData);
         });
+
+        it("should create an action to set session status", () => {
+            expectedData.type = types.SET_SESSION_STATUS;
+            expect(actions.setSessionStatus(data)).to.deep.equal(expectedData);
+        });
     });
 
     describe("Operations tests", () => {
@@ -754,6 +759,12 @@ describe("Auth Unit Tests", () => {
         it("should handle SET_PASSWORD action", () => {
             action.type = types.SET_PASSWORD;
             expectedData.password = data;
+            expect(authReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_SESSION_STATUS action", () => {
+            action.type = types.SET_SESSION_STATUS;
+            expectedData.sessionStatus = data;
             expect(authReducer(state, action)).to.deep.equal(expectedData);
         });
     });
