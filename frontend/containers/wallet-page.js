@@ -88,9 +88,14 @@ class WalletPage extends Component {
             return;
         }
         this.continueSession();
-        document.addEventListener("keydown", this.onKeyDown, false);
-        document.addEventListener("mousemove", this.onMouseMove, false);
-        document.addEventListener("scroll", this.onScroll, false);
+        document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener("keydown", this.continueSession);
+        document.addEventListener("mousemove", this.continueSession);
+        document.addEventListener("click", this.continueSession);
+        document.addEventListener("touchmove", this.continueSession);
+        document.addEventListener("touchstart", this.continueSession);
+        document.addEventListener("scroll", this.continueSession);
+        document.addEventListener("resize", this.continueSession);
         setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
@@ -131,25 +136,21 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener("scroll", this.onScroll, false);
-        document.removeEventListener("keydown", this.onKeyDown, false);
-        document.removeEventListener("mousemove", this.onMouseMove, false);
+        document.removeEventListener("keydown", this.onKeyDown);
+        document.removeEventListener("keydown", this.continueSession);
+        document.removeEventListener("mousemove", this.continueSession);
+        document.removeEventListener("click", this.continueSession);
+        document.removeEventListener("touchmove", this.continueSession);
+        document.removeEventListener("touchstart", this.continueSession);
+        document.removeEventListener("scroll", this.continueSession);
+        document.removeEventListener("resize", this.continueSession);
         clearIntervalLong("balanceIntervalId");
         clearIntervalLong("channelsIntervalId");
         clearIntervalLong("usdPerBtcIntervalId");
         clearIntervalLong("lndSyncStatusIntervalId");
     }
 
-    onMouseMove = () => {
-        this.continueSession();
-    };
-
-    onScroll = () => {
-        this.continueSession();
-    };
-
     onKeyDown = (e) => {
-        this.continueSession();
         if (e.ctrlKey && e.key === "Tab") {
             const { pageAddressIndex, pageAddressList } = this.state;
             const index = e.shiftKey
