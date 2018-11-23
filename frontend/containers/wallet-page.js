@@ -82,9 +82,15 @@ class WalletPage extends Component {
     }
 
     componentDidMount() {
+        const { dispatch, sessionStatus } = this.props;
+        if (sessionStatus === authTypes.SESSION_EXPIRED) {
+            dispatch(push(HomeFullPath));
+            return;
+        }
         this.continueSession();
         document.addEventListener("keydown", this.onKeyDown, false);
         document.addEventListener("mousemove", this.onMouseMove, false);
+        document.addEventListener("scroll", this.onScroll, false);
         setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
         setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
         setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
@@ -125,6 +131,7 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
+        document.removeEventListener("scroll", this.onScroll, false);
         document.removeEventListener("keydown", this.onKeyDown, false);
         document.removeEventListener("mousemove", this.onMouseMove, false);
         clearIntervalLong("balanceIntervalId");
@@ -134,6 +141,10 @@ class WalletPage extends Component {
     }
 
     onMouseMove = () => {
+        this.continueSession();
+    };
+
+    onScroll = () => {
         this.continueSession();
     };
 
@@ -154,6 +165,7 @@ class WalletPage extends Component {
     continueSession = debounce(() => {
         const { dispatch } = this.props;
         dispatch(authActions.setCurrentForm(authTypes.RESTORE_SESSION_FORM));
+        dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
         dispatch(push(HomeFullPath));
     }, SESSION_EXPIRE_TIMEOUT);
 
@@ -264,6 +276,7 @@ WalletPage.propTypes = {
         position: PropTypes.string.isRequired,
         uid: PropTypes.any.isRequired,
     })),
+    sessionStatus: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -273,6 +286,7 @@ const mapStateToProps = state => ({
     kernelConnectIndicator: state.account.kernelConnectIndicator,
     modalState: state.app.modalState,
     notifications: state.notifications,
+    sessionStatus: state.auth.sessionStatus,
 });
 
 export default connect(mapStateToProps)(WalletPage);

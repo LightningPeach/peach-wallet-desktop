@@ -5,6 +5,7 @@ export const initStateAuth = {
     authStep: types.REGISTRATION_STEP_INIT,
     currentForm: types.LOGIN_FORM,
     password: null,
+    sessionStatus: types.SESSION_ACTIVE,
     tempUsername: null,
 };
 
@@ -22,6 +23,8 @@ const authReducer = (state = defaultState, action) => {
             return { ...state, tempUsername: action.payload };
         case types.SET_PASSWORD:
             return { ...state, password: action.payload };
+        case types.SET_SESSION_STATUS:
+            return { ...state, sessionStatus: action.payload };
         default:
             return state;
     }

@@ -20,9 +20,15 @@ const setAuthStep = payload => ({
     type: types.SET_REGISTRATION_STEP,
 });
 
+const setSessionStatus = payload => ({
+    payload,
+    type: types.SET_SESSION_STATUS,
+});
+
 export {
     setCurrentForm,
     setAuthStep,
     setPassword,
     setTempUsername,
+    setSessionStatus,
 };

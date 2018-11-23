@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, togglePasswordVisibility, validators, helpers, logger } from "additional";
 import { appOperations } from "modules/app";
+import { authActions, authTypes } from "modules/auth";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
 import { WalletPath } from "routes";
@@ -55,6 +56,7 @@ class RestoreSession extends Component {
             return;
         }
         this.setState({ passwordError });
+        dispatch(authActions.setSessionStatus(authTypes.SESSION_ACTIVE));
         dispatch(push(WalletPath));
     };
 
