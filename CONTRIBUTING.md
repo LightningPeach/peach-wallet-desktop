@@ -61,17 +61,33 @@ As such, the prefix is: `[BUGFIX]`.
 If a bug fix is a serious regression that requires a new patch release,
 `[BUGFIX release]` can be used instead.
 
+### Build
+
+Build commits are chenges that affect the build system, CI or external dependencies and should be tagged as `[BUILD]`.
+
 ### Cleanup
 
 Cleanup commits are for removing deprecated functionality and should be tagged as `[CLEANUP]`.
+
+### Documentation
+
+Documentation commits are tagged as `[DOC]`.
 
 ### Features
 
 All additions and fixes for features should be tagged as `[FEATURE]`
 
-### Documentation
+### Performance
 
-Documentation commits are tagged as `[DOC]`.
+Performance commits are those responsible for execution speed, memory usage, etc and should be tagged as `[PERFORM]`.
+
+### Refactor
+
+Code changes that are neither bug fixes nor features or improvements should be commited and tagged as `[REFACTOR]`.
+
+### Test
+
+Commits responsible for correcting existing tests or adding new ones should be tagged as `[TEST]`.
 
 ### Other
 
