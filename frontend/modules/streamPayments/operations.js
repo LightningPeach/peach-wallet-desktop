@@ -386,7 +386,7 @@ function startStreamPayment(streamId, forceStart = false) {
         // If last payment was less time ago than the delay then wait for that time difference
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
         if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {
-            await Timeout(payment.delay - timeSinceLastPayment);
+            await Timeout(payment.delay - timeSinceLastPayment, streamId);
         }
         // If last payment was in range from 1x to 2x delay then:
         // We count previos payment as "borrowed" and make that payment as it was on 1x delay mark,
@@ -399,7 +399,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 ? (payment.delay * 2) - timeSinceLastPayment : null;
         if (borrowTime) {
             makeStreamIteration(payment.lastPayment + payment.delay);
-            await Timeout(borrowTime);
+            await Timeout(borrowTime, streamId);
         }
         makeStreamIteration();
         payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; // eslint-disable-line
