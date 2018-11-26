@@ -22,14 +22,14 @@ export const logger = {
 };
 
 // Wrappers around native JS functions for proper handling big passed numbers by separation into smaller parts
-export const setTimeoutLong = (id = "*", func, interval, initialCall = true) => {
+export const setTimeoutLong = (func, interval, id = "*", initialCall = true) => {
     if (initialCall && id !== "*" && timeoutID[id]) {
         logger.error(`Timeout with id ${id} is already set`);
         return;
     }
     const diff = Math.max((interval - TIMEOUT_PART), 0);
     if (diff > TIMEOUT_PART) {
-        timeoutID[id] = setTimeout(() => { setTimeoutLong(id, func, diff, false) }, TIMEOUT_PART);
+        timeoutID[id] = setTimeout(() => { setTimeoutLong(func, diff, id, false) }, TIMEOUT_PART);
     } else {
         timeoutID[id] = setTimeout(func, interval);
     }
@@ -41,31 +41,31 @@ export const delay = (interval, id) =>
             logger.error(`Timeout with id ${id} is already set`);
             reject();
         }
-        setTimeoutLong(id, resolve, interval);
+        setTimeoutLong(resolve, interval, id);
     });
 
-export const setIntervalLong = (id, func, interval, initialCall = true) => {
+export const setIntervalLong = (func, interval, id, initialCall = true) => {
     if (initialCall && timeoutID[id]) {
         logger.error(`Timeout with id ${id} is already set`);
         return;
     }
     const intervalTick = () => {
-        setTimeoutLong(id, intervalTick, interval, false);
+        setTimeoutLong(intervalTick, interval, id, false);
         func();
     };
-    setTimeoutLong(id, intervalTick, interval, false);
+    setTimeoutLong(intervalTick, interval, id, false);
 };
 
-export const setAsyncIntervalLong = (id, func, interval, initialCall = true) => {
+export const setAsyncIntervalLong = (func, interval, id, initialCall = true) => {
     if (initialCall && timeoutID[id]) {
         logger.error(`Timeout with id ${id} is already set`);
         return;
     }
     const intervalTick = async () => {
         await func();
-        setTimeoutLong(id, intervalTick, interval, false);
+        setTimeoutLong(intervalTick, interval, id, false);
     };
-    setTimeoutLong(id, intervalTick, interval, false);
+    setTimeoutLong(intervalTick, interval, id, false);
 };
 
 export const clearTimeoutLong = (id) => {
