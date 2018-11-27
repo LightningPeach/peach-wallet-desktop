@@ -56,8 +56,7 @@ Then write detailed commit message describing what changes you made in the commi
 
 ### Bug Fixes
 
-In general bug fixes are pulled into the branch.
-As such, the prefix is: `[BUGFIX]`.
+In general bug fixes are pulled into the branch with the `[BUGFIX]` prefix.
 If a bug fix is a serious regression that requires a new patch release,
 `[BUGFIX release]` can be used instead.
 
@@ -83,7 +82,7 @@ Performance commits are those responsible for execution speed, memory usage, etc
 
 ### Refactor
 
-Code changes that are neither bug fixes nor features or improvements should be commited and tagged as `[REFACTOR]`.
+Code changes that are neither bug fixes nor features or improvements should be committed and tagged as `[REFACTOR]`.
 
 ### Test
 
@@ -91,7 +90,7 @@ Commits responsible for correcting existing tests or adding new ones should be t
 
 ### Other
 
-In general, almost all commits should fall into one of these categories and have corresponding tag.
+In general, almost all commits should fall into one of these categories and have the corresponding tag.
 In cases when commits can't match any category, please submit your PR untagged.
 
 ## Contribution Checklist
