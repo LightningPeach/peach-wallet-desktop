@@ -1,4 +1,4 @@
-import sha512 from "crypto-js/sha512";
+import crypto from "crypto";
 import { statusCodes } from "config";
 import { helpers } from "additional";
 import moment from "moment";
@@ -93,7 +93,7 @@ describe("Helpers Unit Tests", () => {
 
     describe("hash()", () => {
         const data = "Qwer1234";
-        const valid = sha512(data).words.join("");
+        const valid = crypto.createHash("sha256").update(data).digest("hex");
         expect(helpers.hash(data)).to.equal(valid);
     });
 });

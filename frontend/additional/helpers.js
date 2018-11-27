@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import sha512 from "crypto-js/sha512";
+import crypto from "crypto";
 import { TIME_RANGE_MEASURE, STREAM_MEMO_PREFIX, RECURRING_MEMO_PREFIX } from "config/consts";
 import moment from "moment";
 import { statusCodes } from "config";
@@ -119,7 +119,8 @@ const isStreamOrRecurring = ({ memo = "" }) => (
 );
 
 const hash = data =>
-    sha512(data).words.join("");
+    crypto.createHash("sha256").update(data).digest("hex");
+
 
 export {
     formatDate,
