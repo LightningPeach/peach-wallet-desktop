@@ -8,12 +8,17 @@ import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
 import {
     db, helpers, successPromise, errorPromise,
-    logger, delay as Timeout, setIntervalLong, clearIntervalLong,
+    logger, delay as Timeout, clearDelay, setIntervalLong,
+    clearIntervalLong,
 } from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
 import { RECURRING_MEMO_PREFIX, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { streamPaymentActions as actions, streamPaymentTypes as types } from "modules/streamPayments";
+
+const streamIdBorrowed = streamId => `${streamId}_borrowed`;
+
+const streamIdLend = streamId => `${streamId}_lend`;
 
 function pauseDbStreams() {
     try {
@@ -192,6 +197,8 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
             return;
         }
         clearIntervalLong(streamId);
+        clearDelay(streamIdBorrowed(streamId));
+        clearDelay(streamIdLend(streamId));
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
             dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_PAUSED }));
             if (pauseInDb) {
@@ -233,6 +240,8 @@ function finishStreamPayment(streamId) {
             return;
         }
         clearIntervalLong(streamId);
+        clearDelay(streamIdBorrowed(streamId));
+        clearDelay(streamIdLend(streamId));
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
             dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_FINISHED }));
             try {
@@ -386,7 +395,7 @@ function startStreamPayment(streamId, forceStart = false) {
         // If last payment was less time ago than the delay then wait for that time difference
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
         if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {
-            await Timeout(payment.delay - timeSinceLastPayment, streamId);
+            await Timeout(payment.delay - timeSinceLastPayment, streamIdLend(streamId));
         }
         // If last payment was in range from 1x to 2x delay then:
         // We count previos payment as "borrowed" and make that payment as it was on 1x delay mark,
@@ -399,7 +408,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 ? (payment.delay * 2) - timeSinceLastPayment : null;
         if (borrowTime) {
             makeStreamIteration(payment.lastPayment + payment.delay);
-            await Timeout(borrowTime, streamId);
+            await Timeout(borrowTime, streamIdBorrowed(streamId));
         }
         makeStreamIteration();
         payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; // eslint-disable-line
@@ -408,7 +417,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 || payment.partsPaid + payment.partsPending < payment.totalParts)
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
-            setIntervalLong(streamId, makeStreamIteration, payment.delay);
+            setIntervalLong(makeStreamIteration, payment.delay, streamId);
         }
     };
 }
