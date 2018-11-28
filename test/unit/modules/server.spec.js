@@ -10,7 +10,7 @@ import {
 import { errorPromise, successPromise } from "additional";
 import serverReducer, { initStateServer } from "modules/server/reducers";
 import { notificationsTypes } from "modules/notifications";
-import { PEACH_API_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
+import { PEACH_API_HOST } from "config/node-settings";
 import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
 import { accountTypes } from "modules/account";
 import { store as defaultStore } from "store/configure-store";
@@ -115,9 +115,9 @@ describe("Server Unit Tests", () => {
                     },
                 ];
                 await store.dispatch(operations.getMerchants());
-                data = store.getActions();
-                data[2].payload = omit(data[2].payload, "uid");
-                expect(data).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[2].payload = omit(storeActions[2].payload, "uid");
+                expect(storeActions).to.deep.equal(expectedActions);
             });
 
             it("404 error response", async () => {
@@ -141,9 +141,9 @@ describe("Server Unit Tests", () => {
                     },
                 ];
                 await store.dispatch(operations.getMerchants());
-                data = store.getActions();
-                data[2].payload = omit(data[2].payload, "uid");
-                expect(data).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[2].payload = omit(storeActions[2].payload, "uid");
+                expect(storeActions).to.deep.equal(expectedActions);
             });
 
             it("success", async () => {
@@ -174,18 +174,31 @@ describe("Server Unit Tests", () => {
 
         describe("getBlocksHeight()", () => {
             it("error response", async () => {
-                nock(PEACH_API_HOST).get(BLOCK_HEIGHT_QUERY).reply(404);
+                nock(PEACH_API_HOST).get(types.ENDPOINT_BLOCK_HEIGHT).reply(404);
                 expectedData = {
                     payload: 0,
                     type: types.SET_NETWORK_BLOCKS,
                 };
-                expectedActions = [expectedData];
+                expectedActions = [
+                    {
+                        payload: {
+                            autoDismiss: 0,
+                            level: "error",
+                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            position: "bc",
+                        },
+                        type: notificationsTypes.SHOW_NOTIFICATION,
+                    },
+                    expectedData,
+                ];
                 expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "uid");
+                expect(storeActions).to.deep.equal(expectedActions);
             });
 
             it("success", async () => {
-                nock(PEACH_API_HOST).get(BLOCK_HEIGHT_QUERY).reply(200, { height: 1000000 });
+                nock(PEACH_API_HOST).get(types.ENDPOINT_BLOCK_HEIGHT).reply(200, { height: 1000000 });
                 expectedData = { ...successResp };
                 expectedActions = [
                     {

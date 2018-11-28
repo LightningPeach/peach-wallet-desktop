@@ -9,10 +9,13 @@ import * as types from "./types";
 function getBlocksHeight() {
     return async (dispatch) => {
         let response;
+        const url = PEACH_API_HOST + types.ENDPOINT_BLOCK_HEIGHT;
         try {
-            response = await fetch(BLOCK_HEIGHT_URL, { method: "GET" });
+            response = await fetch(url, { method: "GET" });
             response = await response.json();
         } catch (e) {
+            logger.error(e.message);
+            dispatch(error({ message: EXCEPTION_SERVER_UNAVAILABLE }));
             return dispatch(actions.setNetworkBlocksHeight(0));
         }
         dispatch(actions.setNetworkBlocksHeight(response.height));
@@ -22,18 +25,11 @@ function getBlocksHeight() {
 
 function getMerchants() {
     return async (dispatch) => {
-        console.log("MERCHANTS");
-        console.log("MERCHANTS");
-        console.log("MERCHANTS");
+        let response;
         dispatch(actions.merchantsRequest());
         const url = PEACH_API_HOST + types.ENDPOINT_MERCHANTS;
-        let response = await fetch(url);
-        if (response.status !== 200) {
-            dispatch(actions.merchantsFail(EXCEPTION_SERVER_UNAVAILABLE));
-            dispatch(error({ message: EXCEPTION_SERVER_UNAVAILABLE }));
-            return;
-        }
         try {
+            response = await fetch(url);
             response = await response.json();
             dispatch(actions.merchantsSuccess(response));
         } catch (e) {

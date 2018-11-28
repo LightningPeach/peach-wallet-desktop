@@ -1,6 +1,7 @@
 const $prefix = "app/server/";
 
 const ENDPOINT_MERCHANTS = "/merchants/";
+const ENDPOINT_BLOCK_HEIGHT = "/height";
 const MERCHANTS_REQUEST = `${$prefix}MERCHANTS_REQUEST`;
 const MERCHANTS_SUCCESS = `${$prefix}MERCHANTS_SUCCESS`;
 const MERCHANTS_FAIL = `${$prefix}MERCHANTS_FAIL`;
@@ -8,6 +9,7 @@ const SET_NETWORK_BLOCKS = `${$prefix}SET_NETWORK_BLOCKS`;
 
 export {
     ENDPOINT_MERCHANTS,
+    ENDPOINT_BLOCK_HEIGHT,
     MERCHANTS_REQUEST,
     MERCHANTS_SUCCESS,
     MERCHANTS_FAIL,
