@@ -4,11 +4,10 @@ import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
 import debounce from "lodash/debounce";
-import { logger, setAsyncIntervalLong, clearIntervalLong } from "additional";
+import { logger } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
-import { appOperations, appTypes } from "modules/app";
-import { lndOperations } from "modules/lnd";
+import { appTypes } from "modules/app";
 import { authActions, authTypes } from "modules/auth";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
@@ -34,13 +33,7 @@ import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
 import SystemNotifications from "components/modal/system-notifications";
-import {
-    BALANCE_INTERVAL_TIMEOUT,
-    CHANNELS_INTERVAL_TIMEOUT,
-    USD_PER_BTC_INTERVAL_TIMEOUT,
-    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
-    SESSION_EXPIRE_TIMEOUT,
-} from "config/consts";
+import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 
 class WalletPage extends Component {
     constructor(props) {
@@ -96,22 +89,20 @@ class WalletPage extends Component {
         document.addEventListener("touchstart", this.continueSession);
         document.addEventListener("scroll", this.continueSession);
         document.addEventListener("resize", this.continueSession);
-        setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
     componentWillReceiveProps(nextProps) {
-        const { dispatch, isIniting } = this.props;
+        const { dispatch, isIniting, isLogined } = this.props;
         const { location } = nextProps;
         const { pageAddressList } = this.state;
         if (!nextProps.isLogined && !isIniting && !this.props.isLogouting) {
             dispatch(accountOperations.logout());
             return;
         }
-        this.checkYourBalance();
-        this.checkChannels();
+        if (isLogined) {
+            dispatch(accountOperations.checkBalance());
+            dispatch(channelsOperations.getChannels());
+        }
 
         if (location !== this.props.location) {
             const path = location.pathname;
@@ -144,10 +135,6 @@ class WalletPage extends Component {
         document.removeEventListener("touchstart", this.continueSession);
         document.removeEventListener("scroll", this.continueSession);
         document.removeEventListener("resize", this.continueSession);
-        clearIntervalLong("balanceIntervalId");
-        clearIntervalLong("channelsIntervalId");
-        clearIntervalLong("usdPerBtcIntervalId");
-        clearIntervalLong("lndSyncStatusIntervalId");
     }
 
     onKeyDown = (e) => {
@@ -169,34 +156,6 @@ class WalletPage extends Component {
         dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
         dispatch(push(HomeFullPath));
     }, SESSION_EXPIRE_TIMEOUT);
-
-    checkUsdBtcRate = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(appOperations.usdBtcRate());
-        }
-    };
-
-    checkYourBalance = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(accountOperations.checkBalance());
-        }
-    };
-
-    checkChannels = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(channelsOperations.getChannels());
-        }
-    };
-
-    checkLndSyncStatus = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(lndOperations.checkLndSync());
-        }
-    };
 
     render() {
         const {
