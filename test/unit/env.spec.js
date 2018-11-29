@@ -85,7 +85,7 @@ describe("Settings tests", () => {
     });
 
     it("correct analytics trackingID", () => {
-        expect(settings.analytics.trackingID).to.deep.equal("UA-117106160-2");
+        expect(settings.analytics.trackingID).to.deep.equal("UA-117106160-4");
     });
 
     it("correct analytics appUrl", () => {
