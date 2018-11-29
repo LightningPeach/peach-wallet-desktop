@@ -200,13 +200,11 @@ class Lnd extends Exec {
             const dataDir = path.join("data", "chain", "bitcoin", "testnet");
             const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
             const preloadDataDir = path.join(settings.get.preloadBasePath, dataDir);
-            let exists = await helpers.checkAccess(preloadDataDir);
-            if (!exists.ok) {
+            if (!fs.existsSync(preloadDataDir)) {
                 return { ok: false, error: "Preload files not found" };
             }
             logger.info({ func: "injectPreload" }, `Will check preload files in ${userDataDir}`);
-            exists = await helpers.checkAccess(userDataDir, false);
-            if (!exists.ok) {
+            if (!fs.existsSync(userDataDir)) {
                 await helpers.mkDirRecursive(userDataDir);
             }
             await fs.copyFile(

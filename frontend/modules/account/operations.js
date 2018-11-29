@@ -187,40 +187,40 @@ function getLightningID() {
 function startIntervalStatusChecks() {
     return (dispatch, getState) => {
         setAsyncIntervalLong(
-            types.CHANNELS_INTERVAL_ID,
             async () => {
                 if (getState().account.isLogined) {
                     await dispatch(channelsOperations.getChannels());
                 }
             },
             CHANNELS_INTERVAL_TIMEOUT,
+            types.CHANNELS_INTERVAL_ID,
         );
         setAsyncIntervalLong(
-            types.BALANCE_INTERVAL_ID,
             async () => {
                 if (getState().account.isLogined) {
                     await dispatch(checkBalance());
                 }
             },
             BALANCE_INTERVAL_TIMEOUT,
+            types.BALANCE_INTERVAL_ID,
         );
         setAsyncIntervalLong(
-            types.USD_PER_BTC_INTERVAL_ID,
             async () => {
                 if (getState().account.isLogined) {
                     await dispatch(appOperations.usdBtcRate());
                 }
             },
             USD_PER_BTC_INTERVAL_TIMEOUT,
+            types.USD_PER_BTC_INTERVAL_ID,
         );
         setAsyncIntervalLong(
-            types.LND_SYNC_STATUS_INTERVAL_ID,
             async () => {
                 if (getState().account.isLogined) {
                     await dispatch(lndOperations.checkLndSync());
                 }
             },
             LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+            types.LND_SYNC_STATUS_INTERVAL_ID,
         );
     };
 }

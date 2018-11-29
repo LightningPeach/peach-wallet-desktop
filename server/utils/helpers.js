@@ -1,4 +1,3 @@
-const eventStream = require("event-stream");
 const fs = require("fs");
 const request = require("request");
 const path = require("path");
@@ -73,39 +72,6 @@ async function readFile(filePath) {
     });
 }
 
-async function readFilePart(filePath, start, end) { /* eslint-disable */
-    return new Promise((resolve, reject) => {
-        const requiredLines = [];
-        let lineNr = 0;
-        const stream = fs.createReadStream(filePath)
-            .pipe(eventStream.split())
-            .pipe(
-                eventStream.mapSync((line) => {
-                        stream.pause();
-                        lineNr += 1;
-                        if (lineNr >= start && lineNr < end) {
-                            requiredLines.push(line);
-                        } else if (lineNr >= end) {
-                            stream.end();
-                            resolve(requiredLines.join("\n"));
-                            return;
-                        }
-                        stream.resume();
-                    })
-                    .on("error", (err) => {
-                        logger.error({ func: readFilePart }, err);
-                        return reject(err);
-                    })
-                    .on("end", () => {
-                        if (requiredLines.length > 0) {
-                            return resolve(requiredLines.join("\n"));
-                        }
-                        return reject(new Error("File end reached without finding line"));
-                    }),
-            );
-    });
-}
-
 /**
  * Promise based write to file
  * @param {string} filePath
@@ -134,7 +100,7 @@ async function writeFile(filePath, content) {
  */
 async function checkAccess(dirPath, errorOnNotExist = true) {
     return new Promise((resolve) => {
-        fs.access(dirPath, fs.constants.R_OK | fs.constants.W_OK, (err) => {
+        fs.access(dirPath, fs.constants.R_OK | fs.constants.W_OK, (err) => { // eslint-disable-line no-bitwise
             let ret = { ok: true };
             if (err) {
                 if (errorOnNotExist) {
@@ -154,7 +120,7 @@ async function checkAccess(dirPath, errorOnNotExist = true) {
  */
 function checkDirSync(dirPath) {
     try {
-        fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK);
+        fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK); // eslint-disable-line no-bitwise
         return { ok: true };
     } catch (error) {
         logger.error({ func: checkDirSync }, error);
@@ -301,7 +267,6 @@ module.exports.checkAccess = checkAccess;
 module.exports.checkDirSync = checkDirSync;
 module.exports.readFile = readFile;
 module.exports.writeFile = writeFile;
-module.exports.readFilePart = readFilePart;
 module.exports.mkDirRecursive = mkDirRecursive;
 module.exports.toHashMap = toHashMap;
 module.exports.downloadFile = downloadFile;
