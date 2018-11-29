@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { filterActions, filterTypes } from "modules/filter";
 import { initStatePartial as initState } from "modules/filter/reducers";
-import DebounceInput from "react-debounce-input";
+import DebounceInput from "components/ui/debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
 import Pricepicker from "components/ui/pricepicker";
@@ -35,8 +35,8 @@ class Filter extends Component {
         }
     };
 
-    handleSearchChange = (e) => {
-        const search = e.target.value.trim();
+    handleSearchChange = (value) => {
+        const search = value;
         this.setState({
             search,
         });
@@ -107,7 +107,7 @@ class Filter extends Component {
             <div className="row">
                 <div className="col-xs-12">
                     <DebounceInput
-                        debounceTimeout={500}
+                        timeout={500}
                         onChange={this.handleSearchChange}
                         className="form-text filter__search"
                         placeholder={searchPlaceholder || ""}
