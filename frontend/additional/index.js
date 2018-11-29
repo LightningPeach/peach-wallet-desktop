@@ -6,7 +6,8 @@ import * as helpers from "./helpers";
 import * as analytics from "./analytics";
 import * as db from "./db";
 
-const timeoutID = {};
+const timeoutsList = {};
+const resolversList = {};
 
 export const logger = {
     error: (...args) => {
@@ -22,65 +23,78 @@ export const logger = {
 };
 
 // Wrappers around native JS functions for proper handling big passed numbers by separation into smaller parts
-export const setTimeoutLong = (id = "*", func, interval, initialCall = true) => {
-    if (initialCall && id !== "*" && timeoutID[id]) {
+export const clearTimeoutLong = (id) => {
+    clearTimeout(timeoutsList[id]);
+    timeoutsList[id] = null;
+};
+
+export const setTimeoutLong = (func, interval, id = "*", initialCall = true) => {
+    if (initialCall && id !== "*" && timeoutsList[id]) {
         logger.error(`Timeout with id ${id} is already set`);
         return;
     }
     const diff = Math.max((interval - TIMEOUT_PART), 0);
     if (diff > TIMEOUT_PART) {
-        timeoutID[id] = setTimeout(() => { setTimeoutLong(id, func, diff, false) }, TIMEOUT_PART);
+        timeoutsList[id] = setTimeout(() => { setTimeoutLong(func, diff, id, false) }, TIMEOUT_PART);
     } else {
-        timeoutID[id] = setTimeout(func, interval);
+        timeoutsList[id] = setTimeout(func, interval);
+    }
+};
+
+export const clearDelay = (id) => {
+    clearTimeout(timeoutsList[id]);
+    timeoutsList[id] = null;
+    if (resolversList[id]) {
+        resolversList[id]();
+        resolversList[id] = null;
     }
 };
 
 export const delay = (interval, id) =>
     new Promise((resolve, reject) => {
-        if (id && timeoutID[id]) {
+        const response = () => {
+            if (timeoutsList[id]) {
+                timeoutsList[id] = null;
+            }
+            resolve();
+        };
+        if (id && (timeoutsList[id] || resolversList[id])) {
             logger.error(`Timeout with id ${id} is already set`);
             reject();
         }
-        setTimeoutLong(id, resolve, interval);
+        if (id) {
+            resolversList[id] = resolve;
+        }
+        setTimeoutLong(response, interval, id);
     });
 
-export const setIntervalLong = (id, func, interval, initialCall = true) => {
-    if (initialCall && timeoutID[id]) {
+export const clearIntervalLong = (id) => {
+    clearTimeout(timeoutsList[id]);
+    timeoutsList[id] = null;
+};
+
+export const setIntervalLong = (func, interval, id, initialCall = true) => {
+    if (initialCall && timeoutsList[id]) {
         logger.error(`Timeout with id ${id} is already set`);
         return;
     }
     const intervalTick = () => {
-        setTimeoutLong(id, intervalTick, interval, false);
+        setTimeoutLong(intervalTick, interval, id, false);
         func();
     };
-    setTimeoutLong(id, intervalTick, interval, false);
+    setTimeoutLong(intervalTick, interval, id, false);
 };
 
-export const setAsyncIntervalLong = (id, func, interval, initialCall = true) => {
-    if (initialCall && timeoutID[id]) {
+export const setAsyncIntervalLong = (func, interval, id, initialCall = true) => {
+    if (initialCall && timeoutsList[id]) {
         logger.error(`Timeout with id ${id} is already set`);
         return;
     }
     const intervalTick = async () => {
         await func();
-        setTimeoutLong(id, intervalTick, interval, false);
+        setTimeoutLong(intervalTick, interval, id, false);
     };
-    setTimeoutLong(id, intervalTick, interval, false);
-};
-
-export const clearTimeoutLong = (id) => {
-    clearTimeout(timeoutID[id]);
-    timeoutID[id] = null;
-};
-
-export const clearIntervalLong = (id) => {
-    clearTimeout(timeoutID[id]);
-    timeoutID[id] = null;
-};
-
-export const clearDelay = (id) => {
-    clearTimeout(timeoutID[id]);
-    timeoutID[id] = null;
+    setTimeoutLong(intervalTick, interval, id, false);
 };
 
 export const getCookie = (name) => {

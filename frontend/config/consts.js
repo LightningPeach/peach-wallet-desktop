@@ -67,16 +67,16 @@ export const ALL_MEASURES = [MBTC_MEASURE, BTC_MEASURE, SATOSHI_MEASURE];
 export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnectInterval: 3000 };
 
 // Value for proper handling of some native JS functions (setInterval and setTimeout)
-// by separating them into smaller subtasks with TIMEOUT_DELAY delay value of execution
+// by separating them into smaller subtasks with TIMEOUT_PART delay value of execution
 export const TIMEOUT_PART = 0x7FFFFFF;
 export const MAX_INTERVAL_FREUENCY = 100000000000;
 export const STREAM_INFINITE_TIME_VALUE = "Infinite";
 export const LOGOUT_ACCOUNT_TIMEOUT = NODE_ENV === "test" ? 1 : 5000;
-export const LND_SYNC_TIMEOUT = NODE_ENV === "test" ? 1 : 15000;
-export const STREAM_ERROR_TIMEOUT = 10000;
-export const BALANCE_INTERVAL_TIMEOUT = 30000;
-export const CHANNELS_INTERVAL_TIMEOUT = 30000;
-export const LND_SYNC_STATUS_INTERVAL_TIMEOUT = 15000;
+export const LND_SYNC_TIMEOUT = NODE_ENV === "test" ? 1 : 15 * 1000;
+export const STREAM_ERROR_TIMEOUT = 10 * 1000;
+export const BALANCE_INTERVAL_TIMEOUT = 30 * 1000;
+export const CHANNELS_INTERVAL_TIMEOUT = 30 * 1000;
+export const LND_SYNC_STATUS_INTERVAL_TIMEOUT = 15 * 1000;
 export const USD_PER_BTC_INTERVAL_TIMEOUT = 60 * 60 * 1000;
 export const CHANNEL_CLOSE_CONFIRMATION = 6;
 export const MIN_CHANNEL_SIZE = 2e4;

@@ -80,10 +80,10 @@ class WalletPage extends Component {
 
     componentDidMount() {
         document.addEventListener("keydown", this.onKeyClick, false);
-        setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT, "channelsIntervalId");
+        setAsyncIntervalLong(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT, "balanceIntervalId");
+        setAsyncIntervalLong(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT, "usdPerBtcIntervalId");
+        setAsyncIntervalLong(this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT, "lndSyncStatusIntervalId");
     }
 
     componentWillReceiveProps(nextProps) {
