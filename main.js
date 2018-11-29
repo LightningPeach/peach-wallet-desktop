@@ -100,21 +100,9 @@ const devTools = (window) => {
 
 const menu = Menu.buildFromTemplate(template);
 
-const isSecondInstance = app.makeSingleInstance((argv) => {
-    if (process.platform === "win32") {
-        deepLinkUrl = argv.slice(1);
-        helpers.ipcSend("handleUrlReceive", deepLinkUrl);
-    }
+const gotInstanceLock = app.requestSingleInstanceLock();
 
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) {
-            mainWindow.restore();
-        }
-        mainWindow.focus();
-    }
-});
-
-if (isSecondInstance) {
+if (!gotInstanceLock) {
     app.quit();
 }
 
@@ -206,6 +194,20 @@ app.on("open-url", (e, arg) => {
     helpers.ipcSend("handleUrlReceive", deepLinkUrl);
 });
 
+app.on("second-instance", (e, arg) => {
+    if (process.platform === "win32") {
+        deepLinkUrl = arg.slice(1);
+        helpers.ipcSend("handleUrlReceive", deepLinkUrl);
+    }
+
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+        mainWindow.focus();
+    }
+});
+
 ipcMain.on("showNotification", (event, sender) => {
     notification = new Notification({
         title: sender.title || "LightningPeach wallet",
@@ -228,3 +230,5 @@ process.on("unhandledRejection", (error) => {
 process.on("uncaughtException", (error) => {
     logger.error(error);
 });
+
+module.exports.getMainWindow = () => mainWindow;

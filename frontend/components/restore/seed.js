@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { analytics, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { push } from "react-router-redux";
@@ -94,6 +94,7 @@ class Seed extends Component {
                                 this.seed = ref;
                             }}
                             disabled={disabled}
+                            onChange={() => { this.setState({ seedError: null }) }}
                         />
                         <ErrorFieldTooltip text={this.state.seedError} />
                     </div>
@@ -140,7 +141,7 @@ const mapStateToProps = state => ({
     initStatus: state.lnd.initStatus,
     lndBlocks: state.lnd.lndBlocks,
     lndSyncedToChain: state.lnd.lndSyncedToChain,
-    networkBlocks: state.lnd.networkBlocks,
+    networkBlocks: state.server.networkBlocks,
 });
 
 export default connect(mapStateToProps)(Seed);

@@ -12,12 +12,13 @@ module.exports = ({
     config,
 }) => {
     const peersFile = join(config.get("dataPath"), "peers.json");
+    const userPathsFile = join(config.get("dataPath"), "usersPath.json");
     /**
      * Return username based path to database file
      * @param {*} username
      * @returns {*}
      */
-    const databasePath = username => join(config.get("dataPath"), String(username), config.get("backend.dbFile"));
+    const databasePath = username => join(config.get("lndPath"), String(username), config.get("backend.dbFile"));
 
     /**
      * Create agreement file (eula.txt and google analytics agreement)
@@ -96,11 +97,56 @@ module.exports = ({
         await helpers.writeFile(peersFile, JSON.stringify(peers));
     };
 
+    const getCustomPathLndUsernames = () => {
+        const basePath = config.get("dataPath");
+        const baseFolders = {};
+        let allData;
+        helpers.readFolderWithinFolder(basePath).forEach((item) => {
+            baseFolders[item] = basePath;
+        });
+        if (fs.existsSync(userPathsFile)) {
+            allData = Object.assign({}, baseFolders, JSON.parse(fs.readFileSync(userPathsFile).toString()));
+        } else {
+            allData = baseFolders;
+        }
+        return Object.entries(allData).reduce((data, [username, userPath]) => {
+            const returnData = data;
+            const { ok } = helpers.checkDirSync(join(userPath, username, "data"));
+            if (ok) {
+                returnData[username] = userPath;
+            }
+            return returnData;
+        }, {});
+    };
+
+    const loadLndPath = async (username) => {
+        const defaultPath = config.get("dataPath");
+        const paths = getCustomPathLndUsernames();
+        logger.info("[SETTINGS] - getLndPath", { username, paths });
+        if (username in paths) {
+            return paths[username];
+        }
+        return defaultPath;
+    };
+
+    const saveLndPath = async (username, lndPath) => {
+        const paths = getCustomPathLndUsernames();
+        logger.info("[SETTINGS] - saveLndPath", { paths });
+        if (username in paths && paths[username] === lndPath) {
+            return;
+        }
+        paths[username] = lndPath;
+        await helpers.writeFile(userPathsFile, JSON.stringify(paths));
+    };
+
     return {
+        getCustomPathLndUsernames,
         databasePath,
         listenPort,
         setAgreement,
         setListenPort,
         walletLndPath,
+        loadLndPath,
+        saveLndPath,
     };
 };

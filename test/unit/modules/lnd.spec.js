@@ -1,13 +1,11 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
-import nock from "nock";
 
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { lndActions as actions, lndTypes as types, lndOperations as operations } from "modules/lnd";
 import lndReducer, { initStateLnd } from "modules/lnd/reducers";
 import { accountTypes } from "modules/account";
 import { appOperations } from "modules/app";
-import { BLOCK_HEIGHT_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
 import { store as defaultStore } from "store/configure-store";
 
@@ -54,11 +52,6 @@ describe("Lnd Unit Tests", () => {
         it("should create an action to set lnd initialization status", () => {
             expectedData.type = types.SET_LND_INIT_STATUS;
             expect(actions.setLndInitStatus(data)).to.deep.equal(expectedData);
-        });
-
-        it("should create an action to set network blocks height", () => {
-            expectedData.type = types.SET_NETWORK_BLOCKS;
-            expect(actions.setNetworkBlocksHeight(data)).to.deep.equal(expectedData);
         });
 
         it("should create an action to set lnd blocks height", () => {
@@ -188,32 +181,6 @@ describe("Lnd Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("genSeed");
-            });
-        });
-
-        describe("getBlocksHeight()", () => {
-            it("error response", async () => {
-                nock(BLOCK_HEIGHT_HOST).get(BLOCK_HEIGHT_QUERY).reply(404);
-                expectedData = {
-                    payload: 0,
-                    type: types.SET_NETWORK_BLOCKS,
-                };
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("success", async () => {
-                nock(BLOCK_HEIGHT_HOST).get(BLOCK_HEIGHT_QUERY).reply(200, { height: 1000000 });
-                expectedData = { ...successResp };
-                expectedActions = [
-                    {
-                        payload: 1000000,
-                        type: types.SET_NETWORK_BLOCKS,
-                    },
-                ];
-                expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
             });
         });
 
@@ -573,13 +540,6 @@ describe("Lnd Unit Tests", () => {
         it("should handle SET_LND_INIT_STATUS action", () => {
             action.type = types.SET_LND_INIT_STATUS;
             expectedData.initStatus = data;
-            expect(lndReducer(state, action)).to.deep.equal(expectedData);
-        });
-
-        it("should handle SET_NETWORK_BLOCKS action", () => {
-            action.type = types.SET_NETWORK_BLOCKS;
-            action.payload = 10;
-            expectedData.networkBlocks = 10;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
 

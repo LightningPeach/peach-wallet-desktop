@@ -5,6 +5,16 @@ export const SUCCESS_RESPONSE = "SUCCESS";
 export const UNSUCCESS_RESPONSE = "UNSUCCESS";
 export const PENDING_RESPONSE = "PENDING";
 
+export const TIME_RANGE_MEASURE = [
+    { measure: "seconds", range: 1000 },
+    { measure: "minutes", range: 1000 * 60 },
+    { measure: "hours", range: 1000 * 60 * 60 },
+    { measure: "days", range: 1000 * 60 * 60 * 24 },
+    { measure: "weeks", range: 1000 * 60 * 60 * 24 * 7 },
+    { measure: "months", range: 1000 * 60 * 60 * 24 * 30 },
+    { measure: "years", range: 1000 * 60 * 60 * 24 * 365 },
+];
+
 export const SIMNET_NETWORK = {
     bech32: "sb",
     bip32: {
@@ -56,6 +66,10 @@ export const ALL_MEASURES = [MBTC_MEASURE, BTC_MEASURE, SATOSHI_MEASURE];
 
 export const SOCKET_RECONNECT_SETTINGS = { maxReconnectAttempts: null, reconnectInterval: 3000 };
 
+// Value for proper handling of some native JS functions (setInterval and setTimeout)
+// by separating them into smaller subtasks with TIMEOUT_DELAY delay value of execution
+export const TIMEOUT_PART = 0x7FFFFFF;
+export const MAX_INTERVAL_FREUENCY = 100000000000;
 export const STREAM_INFINITE_TIME_VALUE = "Infinite";
 export const LOGOUT_ACCOUNT_TIMEOUT = NODE_ENV === "test" ? 1 : 5000;
 export const LND_SYNC_TIMEOUT = NODE_ENV === "test" ? 1 : 15000;
@@ -64,6 +78,7 @@ export const BALANCE_INTERVAL_TIMEOUT = 30000;
 export const CHANNELS_INTERVAL_TIMEOUT = 30000;
 export const LND_SYNC_STATUS_INTERVAL_TIMEOUT = 15000;
 export const USD_PER_BTC_INTERVAL_TIMEOUT = 60 * 60 * 1000;
+export const GET_MERCHANTS_INTERVAL_TIMEOUT = 60 * 60 * 1000;
 export const CHANNEL_CLOSE_CONFIRMATION = 6;
 export const MIN_CHANNEL_SIZE = 2e4;
 export const USERNAME_MAX_LENGTH = 100;
@@ -71,6 +86,8 @@ export const ELEMENT_NAME_MAX_LENGTH = 100;
 export const LIGHTNING_ID_LENGTH = 66;
 export const PAYMENT_REQUEST_LENGTH = 124;
 export const MODAL_ANIMATION_TIMEOUT = 200;
+export const DEFAULT_TABLE_RECORDS_PER_PAGE = 8;
+export const DEFAULT_PAGINNATION_SPREAD_PAGES = 2;
 export const USD_PER_BTC_HOST = "https://blockchain.info";
 export const USD_PER_BTC_QUERY = "/ru/ticker";
 export const USD_PER_BTC_URL = `${USD_PER_BTC_HOST}${USD_PER_BTC_QUERY}`;
@@ -89,6 +106,10 @@ export const CHANNEL_LEFT_AMOUNT_TO_NOTIFY = 0.1;
 export const WALLET_GITHUB_URL = "https://github.com/LightningPeach/lightning-peach-wallet";
 export const USERGUIDE_QUERY = "/blob/master/docs/LightningPeach_wallet_user_guide.pdf";
 export const GITHUB_USERGUIDE_LINK = `${WALLET_GITHUB_URL}${USERGUIDE_QUERY}`;
+export const RECURRING_MEMO_PREFIX = "recurring_payment_";
+export const STREAM_MEMO_PREFIX = "stream_payment_";
+export const MAX_INVOICES = 18446744073709551615; // Uint64 in GO
+export const DEFAULT_MAX_INVOICES = 100;
 
 /**
  * See {@link https://github.com/lightningnetwork/lnd/blob/master/rpcserver.go#L1761|Github LND}

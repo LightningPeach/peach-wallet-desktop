@@ -1,5 +1,5 @@
 import bitcoin from "bitcoinjs-lib";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     MIN_PASS_LENGTH, USERNAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
     ONLY_LETTERS_AND_NUMBERS, LIGHTNING_ID_LENGTH, SEED_COUNT,
@@ -151,8 +151,8 @@ const validateUserExistence = async (username) => {
     if (invalidName) {
         return invalidName;
     }
-    const response = await window.ipcClient("checkUser", { username });
-    if (response.ok) {
+    const { ok } = await window.ipcClient("checkUsername", { username });
+    if (!ok) {
         return statusCodes.EXCEPTION_USERNAME_EXISTS;
     }
     return null;
@@ -173,6 +173,17 @@ const validateSeed = (seed) => {
     return null;
 };
 
+const validateLndPath = async (lndPath) => {
+    if (!lndPath) {
+        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+    }
+    const response = await window.ipcClient("validateLndPath", { lndPath });
+    if (!response.ok) {
+        return statusCodes.EXCEPTION_FOLDER_UNAVAILABLE;
+    }
+    return null;
+};
+
 export {
     validateBitcoinAddr,
     validateChannelHost,
@@ -184,4 +195,5 @@ export {
     validatePassSeed,
     validateSeed,
     validateUserExistence,
+    validateLndPath,
 };

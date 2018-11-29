@@ -369,7 +369,7 @@ GuidePage.propTypes = {
 const mapStateToProps = state => ({
     lndBlocks: state.lnd.lndBlocks,
     modalState: state.app.modalState,
-    networkBlocks: state.lnd.networkBlocks,
+    networkBlocks: state.server.networkBlocks,
     username: state.auth.tempUsername,
 });
 

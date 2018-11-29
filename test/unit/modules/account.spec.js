@@ -2,7 +2,7 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
 import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import {
     accountActions as actions,
     accountTypes as types,
@@ -12,6 +12,7 @@ import { notificationsTypes } from "modules/notifications";
 import { lndOperations } from "modules/lnd";
 import { streamPaymentOperations } from "modules/streamPayments";
 import { lightningOperations } from "modules/lightning";
+import { serverOperations } from "modules/server";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { onChainOperations } from "modules/onchain";
 import { SATOSHI_MEASURE, MAX_PAYMENT_REQUEST } from "config/consts";
@@ -349,6 +350,7 @@ describe("Account Unit Tests", () => {
         let fakeLightning;
         let fakeChannels;
         let fakeOnchain;
+        let fakeServer;
         let fakeStreamOperations;
         let fakeDispatchReturnError;
         let fakeDispatchReturnSuccess;
@@ -764,7 +766,6 @@ describe("Account Unit Tests", () => {
             beforeEach(() => {
                 data.login = "test_acc";
                 fakeLnd = sandbox.stub(lndOperations);
-                fakeLnd.getBlocksHeight.returns(fakeDispatchReturnSuccess);
                 fakeLnd.waitLndSync.returns(fakeDispatchReturnSuccess);
                 fakeApp = sandbox.stub(appOperations);
                 fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
@@ -784,6 +785,9 @@ describe("Account Unit Tests", () => {
                 fakeOnchain = sandbox.stub(onChainOperations);
                 fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
+                fakeServer = sandbox.stub(serverOperations);
+                fakeServer.getBlocksHeight.returns(fakeDispatchReturnSuccess);
+                fakeServer.getMerchants.returns(fakeDispatchReturnSuccess);
                 window.ipcClient
                     .withArgs("listChannels")
                     .returns({

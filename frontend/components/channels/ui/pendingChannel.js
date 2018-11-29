@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import BlocksLoader from "components/ui/blocks_loader";
+import BlocksLoader from "components/ui/blocks-loader";
 
 const PendingChannel = ({ channel, contacts }) => {
     const contact = contacts.filter(c => c.lightningID === channel.remote_pubkey)[0];

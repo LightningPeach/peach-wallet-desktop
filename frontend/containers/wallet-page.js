@@ -2,10 +2,11 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
-import { logger } from "additional";
+import { logger, setAsyncIntervalLong, clearIntervalLong } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appOperations, appTypes } from "modules/app";
+import { serverOperations } from "modules/server";
 import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
@@ -15,18 +16,20 @@ import {
     ChannelsFullPath,
     AddressBookFullPath,
     ProfileFullPath,
+    MerchantsFullPath,
     LightningPanel,
     OnchainPanel,
     ChannelsPanel,
     AddressBookPanel,
     ProfilePanel,
-    HomeFullPath,
+    MerchantsPanel,
 } from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
 import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
+import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
@@ -37,6 +40,7 @@ import {
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+    GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -63,16 +67,15 @@ class WalletPage extends Component {
                     panel: AddressBookPanel,
                 },
                 {
+                    fullPath: MerchantsFullPath,
+                    panel: MerchantsPanel,
+                },
+                {
                     fullPath: ProfileFullPath,
                     panel: ProfilePanel,
                 },
             ],
         };
-
-        this.balanceIntervalId = 0;
-        this.channelsIntervalId = 0;
-        this.usdPerBtcIntervalId = 0;
-        this.lndSyncStatusIntervalId = 0;
     }
 
     componentWillMount() {
@@ -80,16 +83,16 @@ class WalletPage extends Component {
         if (!isLogined && !isIniting) {
             logger.log("LOGOUT FROM componentWillMount WITH !IS_LOGINED");
             dispatch(accountOperations.logout());
-            return;
         }
-        this.setAsyncInterval("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        this.setAsyncInterval("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        this.setAsyncInterval("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
-        this.setAsyncInterval("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
     componentDidMount() {
         document.addEventListener("keydown", this.onKeyClick, false);
+        setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("getMerchantsIntervalId", this.checkMerchants, GET_MERCHANTS_INTERVAL_TIMEOUT, true);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -101,7 +104,7 @@ class WalletPage extends Component {
             return;
         }
         this.checkYourBalance();
-        this.checkChannels(false);
+        this.checkChannels();
 
         if (location !== this.props.location) {
             const path = location.pathname;
@@ -127,10 +130,11 @@ class WalletPage extends Component {
 
     componentWillUnmount() {
         document.removeEventListener("keydown", this.onKeyClick, false);
-        clearTimeout(this.balanceIntervalId);
-        clearTimeout(this.channelsIntervalId);
-        clearTimeout(this.usdPerBtcIntervalId);
-        clearTimeout(this.lndSyncStatusIntervalId);
+        clearIntervalLong("balanceIntervalId");
+        clearIntervalLong("channelsIntervalId");
+        clearIntervalLong("usdPerBtcIntervalId");
+        clearIntervalLong("lndSyncStatusIntervalId");
+        clearIntervalLong("getMerchantsIntervalId");
     }
 
     onKeyClick = (e) => {
@@ -144,14 +148,6 @@ class WalletPage extends Component {
             });
             hashHistory.push(pageAddressList[index].fullPath);
         }
-    };
-
-    setAsyncInterval = (holder, func, timeout) => {
-        const intervalTick = async () => {
-            await func();
-            this[holder] = setTimeout(intervalTick, timeout);
-        };
-        intervalTick();
     };
 
     checkUsdBtcRate = async () => {
@@ -179,6 +175,13 @@ class WalletPage extends Component {
         const { dispatch, isLogined } = this.props;
         if (isLogined) {
             await dispatch(lndOperations.checkLndSync());
+        }
+    };
+
+    checkMerchants = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(serverOperations.getMerchants());
         }
     };
 
@@ -219,11 +222,15 @@ class WalletPage extends Component {
                 Panel = <ContactsPage />;
                 break;
             case 4:
+                Panel = <MerchantsPage />;
+                break;
+            case 5:
                 Panel = <ProfilePage />;
                 break;
             default:
                 break;
         }
+
         return (
             <div id="wallet-page">
                 <Header />

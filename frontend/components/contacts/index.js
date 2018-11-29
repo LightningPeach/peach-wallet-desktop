@@ -9,14 +9,14 @@ import {
 } from "modules/contacts";
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
-import DebounceInput from "react-debounce-input";
-import History from "components/history";
+import RecordsTable from "components/records/table";
 import Ellipsis from "components/common/ellipsis";
 import { WalletPath, AddressBookFullPath } from "routes";
 import { push } from "react-router-redux";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import { appOperations, appTypes } from "modules/app";
+import { filterTypes, filterOperations } from "modules/filter";
 import DeleteContact from "./modal/delete-contact";
 import NewContact from "./modal/new-contact";
 import EditContact from "./modal/edit-contact";
@@ -24,10 +24,6 @@ import EditContact from "./modal/edit-contact";
 class ContactsPage extends Component {
     constructor(props) {
         super(props);
-        this.contacts = this.props.contacts;
-        this.state = {
-            search_value: "",
-        };
 
         analytics.pageview(AddressBookFullPath, "Address Book");
     }
@@ -36,8 +32,7 @@ class ContactsPage extends Component {
         this.props.dispatch(operations.getContacts());
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        this.filterContacts(nextState.search_value, nextProps.contacts);
+    componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
             analytics.pageview(AddressBookFullPath, "Address Book");
         }
@@ -56,6 +51,7 @@ class ContactsPage extends Component {
                 Header: <span className="sortable">Name of contact</span>,
                 accessor: "name",
                 maxWidth: 201,
+                minWidth: 142,
             },
             {
                 Header: <span className="sortable">Lightning ID</span>,
@@ -66,57 +62,55 @@ class ContactsPage extends Component {
     );
 
     getContactsData = () => {
-        const btnClass = "table__button";
-        return this.contacts.map((contact, key) => ({
-            lightning: (
-                <div className="contacts__lightning-wrapper">
-                    <div className="contacts__lightningId">
-                        {contact.lightningID}
+        const { contacts, filter, dispatch } = this.props;
+        return contacts
+            .filter(contact => dispatch(filterOperations.filter(
+                filter,
+                {
+                    search: [
+                        contact.name,
+                        contact.lightningID,
+                    ],
+                },
+            )))
+            .map((contact, key) => ({
+                lightning: (
+                    <div className="contacts__lightning-wrapper">
+                        <div className="contacts__lightningId">
+                            {contact.lightningID}
+                        </div>
+                        <div className="contacts__actions">
+                            <button className="table__button" type="button" onClick={() => this.handleEdit(contact)}>
+                                Edit
+                            </button>
+                            <button
+                                className="table__button"
+                                type="button"
+                                onClick={() => this.handleCopy(contact.lightningID)}
+                            >
+                                Copy
+                            </button>
+                            <button className="table__button" type="button" onClick={() => this.handlePay(contact)}>
+                                Pay
+                            </button>
+                        </div>
                     </div>
-                    <div className="contacts__actions">
-                        <button className={btnClass} type="button" onClick={() => this.handleEdit(key)}>
-                            Edit
-                        </button>
-                        <button className={btnClass} type="button" onClick={() => this.handleCopy(contact.lightningID)}>
-                            Copy
-                        </button>
-                        <button className={btnClass} type="button" onClick={() => this.handlePay(key)}>
-                            Pay
-                        </button>
-                    </div>
-                </div>
-            ),
-            name: <Ellipsis>{contact.name}</Ellipsis>,
-        }));
+                ),
+                name: <Ellipsis>{contact.name}</Ellipsis>,
+            }));
     };
 
-    filterContacts = (keyword, props = undefined) => {
-        const contacts = !props ? this.props.contacts : props;
-        this.contacts = !keyword ?
-            contacts :
-            contacts.filter(contact => contact.name.toUpperCase()
-                .includes(keyword.toUpperCase()) || contact.lightningID.includes(keyword));
-    };
-
-    handleSearch = (e) => {
-        if (this.props.contacts) {
-            this.setState({ search_value: e.target.value.trim() });
-        }
-    };
-
-    handleEdit = (index) => {
+    handleEdit = (contact) => {
         analytics.event({ action: "Edit contact", category: "Address Book", label: "Edit" });
         const { dispatch } = this.props;
-        const updateContact = this.contacts[index];
-        dispatch(actions.setCurrentContact(updateContact));
+        dispatch(actions.setCurrentContact(contact));
         dispatch(operations.openEditContactModal());
     };
 
-    handlePay = (index) => {
+    handlePay = (contact) => {
         analytics.event({ action: "Pay contact", category: "Address Book", label: "Pay" });
         const { dispatch } = this.props;
-        const payContact = this.contacts[index];
-        dispatch(operations.setContactsSearch(payContact.name));
+        dispatch(operations.setContactsSearch(contact.name));
         dispatch(push(WalletPath));
     };
 
@@ -141,27 +135,18 @@ class ContactsPage extends Component {
     renderContacts = () => (
         <div className="container">
             <div className="row">
-                <div className="col-xs-12 search">
-                    <DebounceInput
-                        debounceTimeout={500}
-                        onChange={this.handleSearch}
-                        className="form-text form-search"
-                        placeholder="&nbsp;"
-                        value={this.state.search_value}
-                    />
-                </div>
-            </div>
-            <div className="row">
                 <div className="col-xs-12 table">
-                    <History
-                        data={this.getContactsData()}
+                    <RecordsTable
                         key={3}
+                        data={this.getContactsData()}
                         columns={this.getHistoryHeader()}
-                        filterable={false}
+                        source={filterTypes.FILTER_CONTACTS}
                         withoutTitle
-                        showPagination
-                        showPageJump={false}
+                        filters={[
+                            filterTypes.FILTER_KIND_SEARCH,
+                        ]}
                         emptyPlaceholder="No contacts found"
+                        searchPlaceholder="Name, Lightning ID"
                     />
                 </div>
             </div>
@@ -169,7 +154,6 @@ class ContactsPage extends Component {
     );
 
     render() {
-        logger.log("RENDERED CONTACTS");
         const { contacts, modalState } = this.props;
         let modal;
         switch (modalState) {
@@ -210,11 +194,13 @@ ContactsPage.propTypes = {
         name: PropTypes.string.isRequired,
     })).isRequired,
     dispatch: PropTypes.func.isRequired,
+    filter: PropTypes.shape().isRequired,
     modalState: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
+    filter: state.filter.contacts,
     modalState: state.app.modalState,
 });
 

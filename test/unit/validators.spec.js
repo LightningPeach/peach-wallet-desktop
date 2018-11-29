@@ -1,5 +1,5 @@
 import bitcoin from "bitcoinjs-lib";
-import * as statusCodes from "config/status-codes";
+import { statusCodes } from "config";
 import { validators } from "additional";
 import { MIN_PASS_LENGTH, SIMNET_NETWORK, USERNAME_MAX_LENGTH } from "config/consts";
 
@@ -349,9 +349,9 @@ describe("Validators Unit Tests", () => {
     describe("validateUserExistence", () => {
         beforeEach(() => {
             window.ipcClient
-                .withArgs("checkUser")
+                .withArgs("checkUsername")
                 .returns({
-                    ok: false,
+                    ok: true,
                 });
         });
 
@@ -363,22 +363,56 @@ describe("Validators Unit Tests", () => {
         });
         it("should return error if user exists", async () => {
             window.ipcClient
-                .withArgs("checkUser")
+                .withArgs("checkUsername")
                 .returns({
-                    ok: true,
+                    ok: false,
                 });
             const username = "username";
             const valid = await validators.validateUserExistence(username);
             expect(valid).to.equal(statusCodes.EXCEPTION_USERNAME_EXISTS);
             expect(window.ipcClient).to.be.calledOnce;
-            expect(window.ipcClient).to.be.calledWith("checkUser", { username });
+            expect(window.ipcClient).to.be.calledWith("checkUsername", { username });
         });
         it("should return null for not existing user", async () => {
             const username = "username";
             const valid = await validators.validateUserExistence(username);
             expect(valid).to.equal(null);
             expect(window.ipcClient).to.be.calledOnce;
-            expect(window.ipcClient).to.be.calledWith("checkUser", { username });
+            expect(window.ipcClient).to.be.calledWith("checkUsername", { username });
+        });
+    });
+
+    describe("validateLndPath", () => {
+        beforeEach(() => {
+            window.ipcClient
+                .withArgs("validateLndPath")
+                .returns({
+                    ok: false,
+                });
+        });
+
+        it("should return error for undefined path", async () => {
+            const valid = await validators.validateLndPath();
+            expect(valid).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+        });
+        it("should return error if some problem with folder", async () => {
+            const dataPath = "/";
+            const valid = await validators.validateLndPath(dataPath);
+            expect(valid).to.equal(statusCodes.EXCEPTION_FOLDER_UNAVAILABLE);
+            expect(window.ipcClient).to.be.calledOnce;
+            expect(window.ipcClient).to.be.calledWith("validateLndPath", { lndPath: dataPath });
+        });
+        it("should return null if all is good", async () => {
+            window.ipcClient
+                .withArgs("validateLndPath")
+                .returns({
+                    ok: true,
+                });
+            const dataPath = "/";
+            const valid = await validators.validateLndPath(dataPath);
+            expect(valid).to.equal(null);
+            expect(window.ipcClient).to.be.calledOnce;
+            expect(window.ipcClient).to.be.calledWith("validateLndPath", { lndPath: dataPath });
         });
     });
 });
