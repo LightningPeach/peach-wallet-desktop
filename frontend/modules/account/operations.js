@@ -184,6 +184,7 @@ function getLightningID() {
     };
 }
 
+/* istanbul ignore next */
 function startIntervalStatusChecks() {
     return (dispatch, getState) => {
         setAsyncIntervalLong(
@@ -225,6 +226,7 @@ function startIntervalStatusChecks() {
     };
 }
 
+/* istanbul ignore next */
 function finishIntervalStatusChecks() {
     clearIntervalLong(types.CHANNELS_INTERVAL_ID);
     clearIntervalLong(types.BALANCE_INTERVAL_ID);
