@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import BlocksLoader from "components/ui/blocks-loader";
 
-const PendingChannel = ({ channel, contacts }) => {
+const PendingChannel = ({ channel, contacts, clickCopy }) => {
     const contact = contacts.filter(c => c.lightningID === channel.remote_pubkey)[0];
     let name;
     let subName;
@@ -14,7 +14,10 @@ const PendingChannel = ({ channel, contacts }) => {
         name = <span className="channel__firstname">{contact ? contact.name : channel.remote_pubkey}</span>;
     }
     return (
-        <div className="channel channel__pending">
+        <div
+            className="channel channel__pending"
+            onClick={clickCopy}
+        >
             <div className="row">
                 <div className="col-xs-10 channel__name">
                     {name}{subName}
@@ -46,6 +49,7 @@ PendingChannel.propTypes = {
         remote_pubkey: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
     }).isRequired,
+    clickCopy: PropTypes.func.isRequired,
     contacts: PropTypes.arrayOf(PropTypes.shape({
         lightningID: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,

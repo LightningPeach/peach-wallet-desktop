@@ -37,7 +37,6 @@ const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose, c
     }
 
     return (
-        // eslint-disable-next-line
         <div
             className={channelClass}
             onClick={clickCopy}
