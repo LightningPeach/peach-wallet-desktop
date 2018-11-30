@@ -302,12 +302,6 @@ function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
     };
 }
 
-function clearNewChannel() {
-    return async (dispatch, getState) => {
-        dispatch(actions.clearNewChannelPreparing());
-    };
-}
-
 function setCurrentChannel(id) {
     return async (dispatch, getState) => {
         if (!getState().channels.channels[id]) {
@@ -522,7 +516,6 @@ export {
     clearCurrentChannel,
     closeChannel,
     createNewChannel,
-    clearNewChannel,
     updateChannelOnServer,
     shouldShowCreateTutorial,
     shouldShowLightningTutorial,

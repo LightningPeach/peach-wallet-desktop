@@ -237,12 +237,6 @@ describe("Channels Unit Tests", () => {
             expect(fakeDB.channelsBuilder).to.be.calledOnce;
         });
 
-        it("clearNewChannel()", async () => {
-            expectedActions = [{ type: types.CLEAR_NEW_CHANNEL_PREPARING }];
-            await store.dispatch(operations.clearNewChannel());
-            expect(store.getActions()).to.deep.equal(expectedActions);
-        });
-
         describe("getChannels()", () => {
             let history;
             let channs;
