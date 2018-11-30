@@ -153,7 +153,9 @@ registerIpc("listChannels", async () => lnd.call("listChannels"));
 registerIpc("pendingChannels", async () => lnd.call("pendingChannels"));
 
 registerIpc("openChannel", async (event, arg) => {
-    const response = await lnd.call("openChannelSync", arg);
+    // Set openChannelSync GRPC deadline to 3 minutes to avoid successful channel opening after DEADLINE_EXCEEDED error
+    const OPEN_CHANNEL_DEADLINE = 3 * 60;
+    const response = await lnd.call("openChannelSync", arg, OPEN_CHANNEL_DEADLINE);
     if (!response.ok) {
         return response;
     }
