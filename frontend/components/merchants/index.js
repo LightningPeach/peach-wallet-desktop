@@ -3,15 +3,25 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { serverOperations } from "modules/server";
 import { filterTypes, filterOperations } from "modules/filter";
-import { channelsTypes } from "modules/channels";
+import { appTypes } from "modules/app";
+import { channelsTypes, channelsOperations } from "modules/channels";
 import SubHeader from "components/subheader";
 import CreateChannel from "components/channels/modal/create-channel";
 import RecordsList from "components/records/list";
 import Merchant from "./ui/merchant-item";
 
 class MerchantsPage extends Component {
+    componentDidUpdate(prevProps) {
+        const { dispatch, modalState } = this.props;
+        if (
+            prevProps.modalState === channelsTypes.MODAL_STATE_NEW_CHANNEL &&
+            modalState === appTypes.CLOSE_MODAL_STATE
+        ) {
+            dispatch(channelsOperations.clearNewChannel());
+        }
+    }
+
     getMerchantsData = () => {
         const { merchants, filter, dispatch } = this.props;
         return merchants

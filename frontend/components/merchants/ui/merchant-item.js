@@ -7,7 +7,7 @@ class Merchant extends Component {
     openCreateChannelModal = () => {
         const { merchant, dispatch } = this.props;
         dispatch(channelsActions.newChannelPreparing({
-            channel_info: merchant.channel_info,
+            channelInfo: merchant.channel_info,
             custom: true,
         }));
         dispatch(channelsOperations.openNewChannelModal());
