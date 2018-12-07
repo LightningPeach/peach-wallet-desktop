@@ -33,7 +33,7 @@ class Merchant extends Component {
                         {merchant.name}
                     </div>
                     {merchant.description &&
-                        <div className="merchants__row">
+                        <div className="merchants__row merchants__row--description">
                             {merchant.description}
                         </div>
                     }
@@ -51,7 +51,7 @@ class Merchant extends Component {
                         </div>
                     }
                     {merchant.website &&
-                        <div className="merchants__row">
+                        <div className="merchants__row merchants__row--website">
                             <div className="merchants__label">
                                 Website:
                             </div>
