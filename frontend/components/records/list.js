@@ -38,13 +38,17 @@ class RecordsList extends Component {
         return (
             <Fragment>
                 {data.filter((item, index) => Math.floor(index / pageRecords) === page)}
-                <Pagination
-                    canNext={page < pages - 1}
-                    canPrevious={page > 0}
-                    customPagination={this.onPageChange}
-                    page={page}
-                    pages={pages}
-                />
+                <div className="ReactTable">
+                    <div className="pagination-bottom">
+                        <Pagination
+                            canNext={page < pages - 1}
+                            canPrevious={page > 0}
+                            customPagination={this.onPageChange}
+                            page={page}
+                            pages={pages}
+                        />
+                    </div>
+                </div>
             </Fragment>
         );
     };
