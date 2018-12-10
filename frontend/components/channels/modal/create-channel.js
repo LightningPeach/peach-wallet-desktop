@@ -130,8 +130,15 @@ class CreateChannel extends Component {
         amount = dispatch(appOperations.convertToSatoshi(amount));
         name = name || `CHANNEL ${firstEmptyChannelDefaultName}`;
         dispatch(appOperations.closeModal());
-        let response = await dispatch(operations.prepareNewChannel(lightningId, amount, peer, name, this.state.custom));
+        let response = await dispatch(operations.prepareNewChannel(
+            lightningId,
+            amount,
+            peer,
+            name,
+            this.state.custom,
+        ));
         if (!response.ok) {
+            dispatch(appOperations.closeModal());
             this.showErrorNotification(response.error);
             return;
         }

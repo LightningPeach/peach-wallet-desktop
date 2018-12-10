@@ -125,7 +125,7 @@ function getChannels(initAccount = false) {
                             }));
                         }
                         if (dbChan.status === "active" && dbChan.localBalance < parseInt(channel.local_balance, 10)) {
-                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line max-len
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
                                 title: chanName,
@@ -414,21 +414,34 @@ function createNewChannel() {
                     status: "pending",
                 })
                 .execute();
-            await db.onchainBuilder()
-                .insert()
-                .values({
-                    address: "-",
-                    amount: -newChannelDetails.capacity,
-                    blockHash: "",
-                    blockHeight: 0,
-                    name: `Opening ${newChannelDetails.name}`,
-                    numConfirmations: 0,
-                    status: "pending",
-                    timeStamp: Math.floor(Date.now() / 1000),
-                    totalFees: 0,
-                    txHash: responseChannels.funding_txid_str,
-                })
-                .execute();
+            const onchainTxnExists = await db.onchainBuilder()
+                .select()
+                .where("txHash = :txHash", { txHash: responseChannels.funding_txid_str })
+                .getOne();
+            if (onchainTxnExists) {
+                await db.onchainBuilder()
+                    .update()
+                    .set({ name: `Opening ${newChannelDetails.name}` })
+                    .where("txHash = :txHash", { txHash: responseChannels.funding_txid_str })
+                    .execute();
+            } else {
+                await db.onchainBuilder()
+                    .insert()
+                    .values({
+                        address: "-",
+                        amount: -newChannelDetails.capacity,
+                        blockHash: "",
+                        blockHeight: 0,
+                        name: `Opening ${newChannelDetails.name}`,
+                        numConfirmations: 0,
+                        status: "pending",
+                        timeStamp: Math.floor(Date.now() / 1000),
+                        totalFees: 0,
+                        txHash: responseChannels.funding_txid_str,
+                    })
+                    .execute();
+            }
+            /* istanbul ignore next */
             creatingChannelPoint = null;
         } catch (e) {
             /* istanbul ignore next */

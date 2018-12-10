@@ -3,7 +3,6 @@
 const settings = require("../settings");
 const fs = require("fs");
 const path = require("path");
-const { webContents } = require("electron");
 const baseLogger = require("../utils/logger");
 
 const logger = baseLogger.child("binaries");
@@ -28,8 +27,6 @@ class Exec {
         if (!this.manualStopped) {
             try {
                 this._savePid(-1);
-                // console.log(await this.start());
-                // webContents.getAllWebContents()[0].send("lnd-up");
             } catch (e) {
                 logger.error({ func: this.handleExit }, `${this.process_name}`, e);
             }
@@ -54,10 +51,10 @@ class Exec {
     }
 
     _savePid(pid) {
+        this.pid = pid;
         logger.info(`Saving pid ${pid} to ${path.join(settings.get.dataPath, this.pid_name)}`);
         const filePath = path.join(settings.get.dataPath, this.pid_name);
         fs.writeFileSync(filePath, JSON.stringify({ pid }));
-        this.pid = pid;
     }
 
     _getPid() {

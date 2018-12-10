@@ -126,6 +126,7 @@
   },
   "dependencies": {
     "@exponent/electron-cookies": "^2.0.0",
+    "@grpc/proto-loader": "^0.3.0",
     "@journeyapps/sqlcipher": "^3.2.1",
     "bitcoinjs-lib": "^3.3.2",
     "convict": "^4.3.1",

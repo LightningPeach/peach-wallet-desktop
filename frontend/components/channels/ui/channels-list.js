@@ -120,7 +120,7 @@ class ChannelsList extends Component {
     render() {
         logger.log("CHANNELS LIST RENDERING");
         const {
-            dispatch, channels, skipCreateTutorial, skipLightningTutorial,
+            dispatch, channels, skipCreateTutorial, skipLightningTutorial, creatingNewChannel,
         } = this.props;
         let overlay;
         if (skipLightningTutorial === types.SHOW) {
@@ -154,7 +154,7 @@ class ChannelsList extends Component {
                     </Informer>
                 }
                 <div className="container">
-                    {!channels.length ? this.renderEmptyList() : this.renderChannels()}
+                    {!channels.length && !creatingNewChannel ? this.renderEmptyList() : this.renderChannels()}
                     {overlay}
                 </div>
             </div>

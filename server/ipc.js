@@ -74,7 +74,7 @@ registerIpc("startLis", async (event, arg) => {
     return { ok: true };
 });
 
-registerIpc("logout", this.shutdown);
+registerIpc("logout", async () => shutdown()); // eslint-disable-line no-use-before-define
 
 registerIpc("checkUsername", async (event, arg) => {
     const usernames = await settings.get.getCustomPathLndUsernames();
@@ -106,13 +106,13 @@ registerIpc("loadLndPath", async (event, arg) => {
 
 registerIpc("validateLndPath", async (event, arg) => helpers.checkAccess(path.join(arg.lndPath)));
 
-registerIpc("newAddress", async (event, arg) => lnd.call("newAddress", arg));
+registerIpc("newAddress", async (event, arg) => lnd.call("NewAddress", arg));
 
-registerIpc("walletBalance", async () => lnd.call("walletBalance"));
+registerIpc("walletBalance", async () => lnd.call("WalletBalance"));
 
-registerIpc("getInfo", async () => lnd.call("getInfo"));
+registerIpc("getInfo", async () => lnd.call("GetInfo"));
 
-registerIpc("listInvoices", async (event, arg) => lnd.call("listInvoices", arg));
+registerIpc("listInvoices", async (event, arg) => lnd.call("ListInvoices", arg));
 
 registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.requestInvoice(
     arg.value,
@@ -120,26 +120,26 @@ registerIpc("addInvoiceRemote", async (event, arg) => localInvoiceServer.request
     arg.memo,
 ));
 
-registerIpc("addInvoice", async (event, arg) => lnd.call("addInvoice", arg));
+registerIpc("addInvoice", async (event, arg) => lnd.call("AddInvoice", arg));
 
-registerIpc("listPayments", async () => lnd.call("listPayments"));
+registerIpc("listPayments", async () => lnd.call("ListPayments"));
 
-registerIpc("queryRoutes", async (event, arg) => lnd.call("queryRoutes", arg));
+registerIpc("queryRoutes", async (event, arg) => lnd.call("QueryRoutes", arg));
 
-registerIpc("decodePayReq", async (event, arg) => lnd.call("decodePayReq", arg));
+registerIpc("decodePayReq", async (event, arg) => lnd.call("DecodePayReq", arg));
 
-registerIpc("signMessage", async (event, arg) => lnd.call("signMessage", {
+registerIpc("signMessage", async (event, arg) => lnd.call("SignMessage", {
     msg: Buffer.from(arg.message, "hex"),
 }));
 
-registerIpc("genSeed", async () => lnd.call("genSeed"));
+registerIpc("genSeed", async () => lnd.call("GenSeed"));
 
 // Peers
-registerIpc("listPeers", async () => lnd.call("listPeers"));
+registerIpc("listPeers", async () => lnd.call("ListPeers"));
 
-registerIpc("connectPeer", async (event, arg) => lnd.call("connectPeer", arg));
+registerIpc("connectPeer", async (event, arg) => lnd.call("ConnectPeer", arg));
 
-registerIpc("connectServerLnd", async () => lnd.call("connectPeer", {
+registerIpc("connectServerLnd", async () => lnd.call("ConnectPeer", {
     addr: {
         pubkey: settings.get.peach.pubKey,
         host: `${settings.get.peach.host}:${settings.get.peach.peerPort}`,
@@ -148,16 +148,45 @@ registerIpc("connectServerLnd", async () => lnd.call("connectPeer", {
 
 
 // Channels
-registerIpc("listChannels", async () => lnd.call("listChannels"));
+registerIpc("listChannels", async () => lnd.call("ListChannels"));
 
-registerIpc("pendingChannels", async () => lnd.call("pendingChannels"));
+registerIpc("pendingChannels", async () => lnd.call("PendingChannels"));
 
+// why lnd, why?
 registerIpc("openChannel", async (event, arg) => {
-    // Set openChannelSync GRPC deadline to 3 minutes to avoid successful channel opening after DEADLINE_EXCEEDED error
-    const OPEN_CHANNEL_DEADLINE = 3 * 60;
-    const response = await lnd.call("openChannelSync", arg, OPEN_CHANNEL_DEADLINE);
-    if (!response.ok) {
+    // Set openChannelSync GRPC deadline to 30 seconds to avoid successful channel opening after DEADLINE_EXCEEDED error
+    // Lnd will hung or return successful response. 30 seconds enough
+    const OPEN_CHANNEL_DEADLINE = 0.5 * 60;
+    const response = await lnd.call("OpenChannelSync", arg, OPEN_CHANNEL_DEADLINE);
+    if (!response.ok && response.code !== grpcStatus.DEADLINE_EXCEEDED) {
         return response;
+    }
+    // looks like Lnd hung, so let's find our channel in pendingChannels
+    if (!response.ok) {
+        const pendingChannels = await lnd.call("pendingChannels");
+        if (!pendingChannels.ok) {
+            return pendingChannels;
+        }
+        const chan = pendingChannels.response.pending_open_channels.reduce((findedChan, channel) => {
+            if (!findedChan &&
+                channel.channel.remote_node_pub === arg.node_pubkey_string &&
+                channel.channel.capacity === arg.local_funding_amount
+            ) {
+                return channel;
+            }
+            return findedChan;
+        }, null);
+        if (!chan) {
+            return response;
+        }
+        const [txid, out] = chan.channel.channel_point.split(":");
+        const info = await lnd.call("GetInfo");
+        return {
+            ok: true,
+            funding_txid_str: txid,
+            output_index: out,
+            block_height: info.response.block_height,
+        };
     }
     let txid;
     if (response.response.funding_txid === "funding_txid_str") {
@@ -166,7 +195,55 @@ registerIpc("openChannel", async (event, arg) => {
         txid = Buffer.from(response.response.funding_txid_bytes.reverse())
             .toString("hex");
     }
-    const info = await lnd.call("getInfo");
+    const info = await lnd.call("GetInfo");
+    return {
+        ok: true,
+        funding_txid_str: txid,
+        output_index: response.response.output_index,
+        block_height: info.response.block_height,
+    };
+});
+
+// wtf lnd? why you create channel but not return response
+registerIpc("openChannelStream", async (event, arg) => {
+    const response = await new Promise((resolve) => {
+        const status = lnd.streamCall("OpenChannel", {
+            node_pubkey: Buffer.from(arg.node_pubkey_string, "hex"),
+            local_funding_amount: arg.local_funding_amount,
+        });
+        if (status.ok) {
+            let updated;
+            status.stream.on("data", (data) => {
+                logger.info({ func: "openChannel" }, "stream data", data);
+                if (data.update !== "chan_pending") {
+                    return;
+                }
+                if (!updated) {
+                    updated = true;
+                    status.stream.cancel();
+                    resolve({
+                        ok: true,
+                        response: {
+                            funding_txid_bytes: data.chan_pending.txid,
+                            output_index: data.chan_pending.output_index,
+                        },
+                    });
+                }
+            });
+            status.stream.on("error", (data) => {
+                if (data.code === grpcStatus.CANCELLED) {
+                    return;
+                }
+                logger.error({ func: "openChannel" }, data);
+                resolve({ ok: false, error: lnd.prettifyMessage(data.toString()) });
+            });
+        }
+    });
+    if (!response.ok) {
+        return response;
+    }
+    const txid = Buffer.from(response.response.funding_txid_bytes.reverse()).toString("hex");
+    const info = await lnd.call("GetInfo");
     return {
         ok: true,
         funding_txid_str: txid,
@@ -177,7 +254,7 @@ registerIpc("openChannel", async (event, arg) => {
 
 registerIpc("closeChannel", async (event, arg) => {
     const response = await new Promise((resolve) => {
-        const deleteStatus = lnd.streamCall("closeChannel", arg);
+        const deleteStatus = lnd.streamCall("CloseChannel", arg);
         if (deleteStatus.ok) {
             let updated;
             deleteStatus.stream.on("data", (data) => {
@@ -187,10 +264,14 @@ registerIpc("closeChannel", async (event, arg) => {
                     const txid = Buffer.from(data[data.update][updateType].reverse())
                         .toString("hex");
                     updated = true;
+                    deleteStatus.stream.cancel();
                     resolve({ ok: true, txid });
                 }
             });
             deleteStatus.stream.on("error", (data) => {
+                if (data.code === grpcStatus.CANCELLED) {
+                    return;
+                }
                 logger.error({ func: "closeChannel" }, data);
                 resolve({ ok: false, error: lnd.prettifyMessage(data.toString()) });
             });
@@ -207,14 +288,14 @@ registerIpc("closeChannel", async (event, arg) => {
 });
 
 registerIpc("sendPayment", async (event, arg) => {
-    const payment = await lnd.call("sendPaymentSync", arg);
+    const payment = await lnd.call("SendPaymentSync", arg);
     if (!payment.ok) {
         return payment;
     }
     if (payment.response.payment_error) {
         return { ok: false, error: lnd.prettifyMessage(payment.response.payment_error) };
     }
-    const payReq = await lnd.call("decodePayReq", { pay_req: arg.payment_request });
+    const payReq = await lnd.call("DecodePayReq", { pay_req: arg.payment_request });
     return { ok: true, payment_hash: payReq.response.payment_hash };
 });
 
@@ -222,17 +303,17 @@ registerIpc("sendPayment", async (event, arg) => {
 // Onchain
 let subscribeTransactionsCall = null;
 
-registerIpc("getTransactions", async () => lnd.call("getTransactions"));
+registerIpc("getTransactions", async () => lnd.call("GetTransactions"));
 
-registerIpc("sendCoins", async (event, arg) => lnd.call("sendCoins", arg));
+registerIpc("sendCoins", async (event, arg) => lnd.call("SendCoins", arg));
 
 ipcMain.on("subscribeTransactions", (event) => {
     if (subscribeTransactionsCall) {
         return;
     }
-    subscribeTransactionsCall = lnd.streamCall("subscribeTransactions");
+    subscribeTransactionsCall = lnd.streamCall("SubscribeTransactions");
     subscribeTransactionsCall.stream.on("data", (data) => {
-        if (!parseInt(data.num_confirmations, 10)) {
+        if (!data.num_confirmations) {
             return;
         }
         event.sender.send("transactions-update", data);
@@ -264,7 +345,7 @@ ipcMain.on("subscribeInvoices", (event) => {
     if (subscribeInvoicesCall) {
         return;
     }
-    subscribeInvoicesCall = lnd.streamCall("subscribeInvoices");
+    subscribeInvoicesCall = lnd.streamCall("SubscribeInvoices");
     subscribeInvoicesCall.stream.on("data", (data) => {
         // Balance on channel not changing immediately
         setTimeout(() => event.sender.send("invoices-update", data), 1000);
@@ -301,7 +382,7 @@ registerIpc("clearLndData", async () => {
  * Clear db connection, stopping lnd && lis
  * @return {Promise<{ok: boolean}>}
  */
-module.exports.shutdown = async () => {
+const shutdown = async () => {
     try {
         if (subscribeTransactionsCall) {
             subscribeTransactionsCall.stream.cancel();
@@ -319,3 +400,4 @@ module.exports.shutdown = async () => {
         return { ok: false };
     }
 };
+module.exports.shutdown = shutdown;
