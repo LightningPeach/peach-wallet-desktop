@@ -821,12 +821,12 @@ describe("Channels Unit Tests", () => {
                     });
                 expect(data.channelsBuilder.where)
                     .to.be.calledWithExactly("fundingTxid = :txID", {
-                    txID: "2",
-                });
+                        txID: "2",
+                    });
                 expect(data.channelsBuilder.where)
                     .to.be.calledWithExactly("fundingTxid = :txID", {
-                    txID: "3",
-                });
+                        txID: "3",
+                    });
                 expect(data.channelsBuilder.execute).to.be.calledThrice;
                 expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
                 expect(data.channelsBuilder.getMany).to.be.calledOnce;
