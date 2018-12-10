@@ -7,6 +7,7 @@ import { statusCodes } from "config";
 import { USD_PER_BTC_HOST, USD_PER_BTC_QUERY, MBTC_MEASURE } from "config/consts";
 import { appActions as actions, appTypes as types, appOperations as operations } from "modules/app";
 import appReducer, { initStateApp } from "modules/app/reducers";
+import { initStateAuth } from "modules/auth/reducers";
 import { notificationsTypes } from "modules/notifications";
 import { lightningTypes } from "modules/lightning";
 import { accountTypes } from "modules/account";
@@ -84,6 +85,7 @@ describe("App Unit Tests", () => {
                     bitcoinMeasureMultiplier: MBTC_MEASURE.multiplier,
                     toFixedMeasure: MBTC_MEASURE.toFixed,
                 },
+                auth: { ...initStateAuth },
                 app: { ...initStateApp },
             };
             expectedData = undefined;
