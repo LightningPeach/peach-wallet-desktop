@@ -25,7 +25,7 @@ class Login extends Component {
                     "1) If you want to use your existing Bitcoin wallet for Lightning payments,",
                     "go through the wallet recovery procedure, during which specify seed words",
                     "from your Bitcoin wallet.",
-                    <Fragment>2) If you have forgotten your LightningPeach wallet password. Enter <b>new</b></Fragment>,
+                    <Fragment>2) If you have forgotten your Peach Wallet password. Enter <b>new</b></Fragment>,
                     <Fragment>username, <b>new</b> password and use seed words associated with it.</Fragment>,
                 ],
                 username: [
@@ -119,7 +119,7 @@ class Login extends Component {
         return (
             <form onSubmit={this.handleLogin}>
                 <div className="home__title">
-                    Sign in and start working with LightningPeach wallet
+                    Sign in and start working with Peach Wallet
                 </div>
                 <div className="row">
                     <div className="col-xs-12">

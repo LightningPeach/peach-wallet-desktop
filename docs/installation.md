@@ -140,7 +140,7 @@ npm run build
 application on Windows may show a warning message requesting additional 
 permissions for the Wallet application. This can happen during execution 
 of different commands, for example, `dep ensure -v`. In such a case you 
-should grant access to the LightningPeach wallet. This is required for 
+should grant access to the Peach Wallet. This is required for 
 correct work of the wallet.**
 
 ```bash

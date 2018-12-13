@@ -26,7 +26,7 @@ let deepLinkUrl;
 
 const template = [
     {
-        label: "LightningPeach wallet",
+        label: "Peach Wallet",
         submenu: [
             { label: "Hide", accelerator: "CmdOrCtrl+H", role: "hide" },
             { label: "Minimize", accelerator: "CmdOrCtrl+M", role: "minimize" },
@@ -210,7 +210,7 @@ app.on("second-instance", (e, arg) => {
 
 ipcMain.on("showNotification", (event, sender) => {
     notification = new Notification({
-        title: sender.title || "LightningPeach wallet",
+        title: sender.title || "Peach Wallet",
         subtitle: sender.subtitle,
         body: sender.body,
         silent: sender.silent,
