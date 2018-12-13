@@ -192,6 +192,12 @@ app.on("open-url", (e, arg) => {
     e.preventDefault();
     deepLinkUrl = arg;
     helpers.ipcSend("handleUrlReceive", deepLinkUrl);
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+        mainWindow.focus();
+    }
 });
 
 app.on("second-instance", (e, arg) => {
