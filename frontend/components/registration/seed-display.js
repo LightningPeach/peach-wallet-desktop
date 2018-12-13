@@ -51,7 +51,7 @@ class SeedDisplay extends PureComponent {
         return (
             <form onSubmit={this.submitSeedView}>
                 <div className="home__title">
-                    Sign up and start working with LightningPeach wallet
+                    Sign up and start working with Peach Wallet
                 </div>
                 <div className="row">
                     <div className="col-xs-12">

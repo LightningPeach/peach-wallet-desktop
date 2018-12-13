@@ -32,7 +32,7 @@ class DeepLinkLightning extends Component {
                 <div className="modal-body modal-body-bottom30 text-left text-16">
                     <div className="row">
                         <div className="col-xs-12">
-                            Would you like to use <b>LightningPeach wallet</b> as a default one for making
+                            Would you like to use <b>Peach Wallet</b> as a default one for making
                             lightning payments?
                         </div>
                     </div>

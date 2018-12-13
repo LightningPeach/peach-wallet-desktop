@@ -4,10 +4,10 @@
   <img src="docs/peach_logo.png" alt="peach logo" />
 </h1>
 
-LightningPeach wallet is a free cross-platform desktop Lightning Network wallet. It simplifies the process of making micro payments, which are processed seamlessly thanks to user-friendly application and own payment server solution.
+Peach Wallet is a free cross-platform desktop Lightning Network wallet. It simplifies the process of making micro payments, which are processed seamlessly thanks to user-friendly application and own payment server solution.
 
 ### Technical details
-The LightningPeach wallet is the Lightning Network wallet that uses **lnd** (Lightning Network Daemon). 
+The Peach Wallet is the Lightning Network wallet that uses **lnd** (Lightning Network Daemon). 
 
 GUI is implemented with [Electron](https://electronjs.org) + [React](https://reactjs.org) + [Redux](https://github.com/reactjs/redux). In future this will allow to implement mobile or web version of the wallet.
 
@@ -15,10 +15,10 @@ GUI is implemented with [Electron](https://electronjs.org) + [React](https://rea
 
 :warning: Currently doesn't work in mainnet. Works in simnet, regtest or testnet. 
 
-:construction: Development of the LightningPeach wallet is still in progress. It means that different issues can occur during wallet usage. Using real coins may be risky.
+:construction: Development of the Peach Wallet is still in progress. It means that different issues can occur during wallet usage. Using real coins may be risky.
 
 ### Common features
-The LightningPeach wallet supports the following features, which have already become common for existing Lightning Network wallets:
+The Peach Wallet supports the following features, which have already become common for existing Lightning Network wallets:
 
 - Sending & receiving payments within the Lightning Network using payment request.
 - Sending & receiving payments on-chain. Regular transactions within Bitcoin blockchain.
@@ -27,8 +27,8 @@ The LightningPeach wallet supports the following features, which have already be
 - Custom channel opening. You can create custom channel by specifying Lightning ID and host IP of a peer.
 
 ### Unique features
-- Sending & receiving payments within the Lightning Network using Lightning ID. Works only between LightningPeach users.
-- Stream payments between LightningPeach users. Stream payments can be useful in cases when per second charges are more appropriate than regular payments (for example, pay-per-view services, voice and video calls with per second charge). Works only between LightningPeach users.
+- Sending & receiving payments within the Lightning Network using Lightning ID. Works only between Peach Wallet users.
+- Stream payments between Peach Wallet users. Stream payments can be useful in cases when per second charges are more appropriate than regular payments (for example, pay-per-view services, voice and video calls with per second charge). Works only between LightningPeach users.
 - Address book. With the help of address book you can specify clear and convenient contact names, which is very useful as later you can select them on the Lightning Payment page, thus no need to copy & paste, remember or keep Lightning ID somewhere on paper or PC.
 
 ### Installation

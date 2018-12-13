@@ -3,7 +3,7 @@
   "version": "0.3.0-testnet",
   "main": "main.js",
   "license": "MIT",
-  "description": "LightningPeach wallet",
+  "description": "Peach Wallet",
   "homepage": "lightningpeach.com",
   "author": {
     "name": "LightningPeach",
@@ -34,7 +34,7 @@
   },
   "build": {
     "appId": "com.bitfury.lightning-peach.wallet.desktop",
-    "productName": "LightningPeach wallet",
+    "productName": "Peach Wallet",
     "files": [
       "**/*",
       "!settings.local.ini",

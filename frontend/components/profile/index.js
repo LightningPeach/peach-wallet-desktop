@@ -452,14 +452,14 @@ class Profile extends Component {
                         {
                             appAsDefaultStatus ?
                                 <span className="profile__app-status">
-                                    <b>LightningPeach</b> is your default lightning wallet
+                                    <b>Peach Wallet</b> is your default lightning wallet
                                 </span> :
                                 <button
                                     type="button"
                                     className="button button__link profile__app-status"
                                     onClick={this.sendSetDefaultStatus}
                                 >
-                                    Set <b>LightningPeach</b> as your default lightning wallet
+                                    Set <b>Peach Wallet</b> as your default lightning wallet
                                 </button>
                         }
                         <button
