@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import moment from "moment";
+// need to import this for attach to moment
+import * as momentDurationFormat from "moment-duration-format";
 import { analytics, togglePasswordVisibility, validators, helpers, logger } from "additional";
 import { appOperations } from "modules/app";
 import { authActions, authTypes } from "modules/auth";
@@ -9,7 +12,7 @@ import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";
 import { statusCodes } from "config";
-import { USERNAME_MAX_LENGTH } from "config/consts";
+import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 
 const spinner = <div className="spinner" />;
 
@@ -68,7 +71,9 @@ class RestoreSession extends Component {
                     The session has been expired!
                 </div>
                 <div className="home__subtitle text-center">
-                    You haven&apos;t performed any action for 15 minutes.<br />
+                    You haven&apos;t performed any action for&nbsp;
+                    {moment.duration(SESSION_EXPIRE_TIMEOUT, "milliseconds")
+                        .format("h [hours] m [minutes] s [seconds]", { trim: "all" })}.<br />
                     Due to security reasons, you need to enter your password again.
                 </div>
                 <div className="row mt-14">
