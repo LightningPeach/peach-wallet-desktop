@@ -9,7 +9,6 @@ import {
 } from "modules/contacts";
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
-import DebounceInput from "react-debounce-input";
 import History from "components/history";
 import Ellipsis from "components/common/ellipsis";
 import { WalletPath, AddressBookFullPath } from "routes";

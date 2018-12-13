@@ -22,6 +22,18 @@ export const logger = {
     },
 };
 
+export const debounce = (func, interval) => {
+    let timeout;
+    return () => {
+        const call = () => {
+            timeout = null;
+            func();
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(call, interval);
+    };
+};
+
 // Wrappers around native JS functions for proper handling big passed numbers by separation into smaller parts
 export const clearTimeoutLong = (id) => {
     clearTimeout(timeoutsList[id]);

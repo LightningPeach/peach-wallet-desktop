@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
-import { logger, setAsyncIntervalLong, clearIntervalLong } from "additional";
+import { logger, debounce } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
-import { appOperations, appTypes } from "modules/app";
-import { lndOperations } from "modules/lnd";
+import { appTypes } from "modules/app";
+import { authActions, authTypes } from "modules/auth";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -31,13 +32,7 @@ import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
 import SystemNotifications from "components/modal/system-notifications";
-
-import {
-    BALANCE_INTERVAL_TIMEOUT,
-    CHANNELS_INTERVAL_TIMEOUT,
-    USD_PER_BTC_INTERVAL_TIMEOUT,
-    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
-} from "config/consts";
+import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 
 class WalletPage extends Component {
     constructor(props) {
@@ -79,23 +74,34 @@ class WalletPage extends Component {
     }
 
     componentDidMount() {
-        document.addEventListener("keydown", this.onKeyClick, false);
-        setAsyncIntervalLong(this.checkChannels, CHANNELS_INTERVAL_TIMEOUT, "channelsIntervalId");
-        setAsyncIntervalLong(this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT, "balanceIntervalId");
-        setAsyncIntervalLong(this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT, "usdPerBtcIntervalId");
-        setAsyncIntervalLong(this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT, "lndSyncStatusIntervalId");
+        const { dispatch, sessionStatus } = this.props;
+        if (sessionStatus === authTypes.SESSION_EXPIRED) {
+            dispatch(push(HomeFullPath));
+            return;
+        }
+        this.continueSession();
+        document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener("keydown", this.continueSession);
+        document.addEventListener("mousemove", this.continueSession);
+        document.addEventListener("click", this.continueSession);
+        document.addEventListener("touchmove", this.continueSession);
+        document.addEventListener("touchstart", this.continueSession);
+        document.addEventListener("scroll", this.continueSession);
+        document.addEventListener("resize", this.continueSession);
     }
 
     componentWillReceiveProps(nextProps) {
-        const { dispatch, isIniting } = this.props;
+        const { dispatch, isIniting, isLogined } = this.props;
         const { location } = nextProps;
         const { pageAddressList } = this.state;
         if (!nextProps.isLogined && !isIniting && !this.props.isLogouting) {
             dispatch(accountOperations.logout());
             return;
         }
-        this.checkYourBalance();
-        this.checkChannels();
+        if (isLogined) {
+            dispatch(accountOperations.checkBalance());
+            dispatch(channelsOperations.getChannels());
+        }
 
         if (location !== this.props.location) {
             const path = location.pathname;
@@ -120,14 +126,17 @@ class WalletPage extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener("keydown", this.onKeyClick, false);
-        clearIntervalLong("balanceIntervalId");
-        clearIntervalLong("channelsIntervalId");
-        clearIntervalLong("usdPerBtcIntervalId");
-        clearIntervalLong("lndSyncStatusIntervalId");
+        document.removeEventListener("keydown", this.onKeyDown);
+        document.removeEventListener("keydown", this.continueSession);
+        document.removeEventListener("mousemove", this.continueSession);
+        document.removeEventListener("click", this.continueSession);
+        document.removeEventListener("touchmove", this.continueSession);
+        document.removeEventListener("touchstart", this.continueSession);
+        document.removeEventListener("scroll", this.continueSession);
+        document.removeEventListener("resize", this.continueSession);
     }
 
-    onKeyClick = (e) => {
+    onKeyDown = (e) => {
         if (e.ctrlKey && e.key === "Tab") {
             const { pageAddressIndex, pageAddressList } = this.state;
             const index = e.shiftKey
@@ -140,33 +149,12 @@ class WalletPage extends Component {
         }
     };
 
-    checkUsdBtcRate = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(appOperations.usdBtcRate());
-        }
-    };
-
-    checkYourBalance = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(accountOperations.checkBalance());
-        }
-    };
-
-    checkChannels = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(channelsOperations.getChannels());
-        }
-    };
-
-    checkLndSyncStatus = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(lndOperations.checkLndSync());
-        }
-    };
+    continueSession = debounce(() => {
+        const { dispatch } = this.props;
+        dispatch(authActions.setCurrentForm(authTypes.RESTORE_SESSION_FORM));
+        dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
+        dispatch(push(HomeFullPath));
+    }, SESSION_EXPIRE_TIMEOUT);
 
     render() {
         const {
@@ -247,6 +235,7 @@ WalletPage.propTypes = {
         position: PropTypes.string.isRequired,
         uid: PropTypes.any.isRequired,
     })),
+    sessionStatus: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -256,6 +245,7 @@ const mapStateToProps = state => ({
     kernelConnectIndicator: state.account.kernelConnectIndicator,
     modalState: state.app.modalState,
     notifications: state.notifications,
+    sessionStatus: state.auth.sessionStatus,
 });
 
 export default connect(mapStateToProps)(WalletPage);

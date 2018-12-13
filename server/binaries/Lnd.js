@@ -180,9 +180,19 @@ class Lnd extends Exec {
         }
     }
 
-    // Function checks if preload not injected yet, and inserts data from "node_modules/preload/"
-    // Data has following directories structure: "lnd/data/chain/bitcoin/testnet/neutrino";
+    /**
+     * Function checks if preload not injected yet, and inserts data from "node_modules/preload/"
+     * Data has following directories structure: "lnd/data/chain/bitcoin/testnet/neutrino";
+     * @returns {Promise<*>}
+     */
     async injectPreload() {
+        const errorHandler = (err, filename) => {
+            if (err) {
+                logger.error({ func: "injectPreload" }, err);
+            } else {
+                logger.info({ func: "injectPreload" }, `${filename} copied`);
+            }
+        };
         try {
             if (!this.name) {
                 return { ok: false, error: "No name for LND given" };
@@ -201,37 +211,19 @@ class Lnd extends Exec {
                 path.join(preloadDataDir, BLOCK_HEADERS_FILE),
                 path.join(userDataDir, BLOCK_HEADERS_FILE),
                 fs.constants.COPYFILE_EXCL,
-                (err) => {
-                    if (err) {
-                        logger.error({ func: "injectPreload" }, err);
-                    } else {
-                        logger.info({ func: "injectPreload" }, `${BLOCK_HEADERS_FILE} copied`);
-                    }
-                },
+                err => errorHandler(err, BLOCK_HEADERS_FILE),
             );
             await fs.copyFile(
                 path.join(preloadDataDir, NEUTRINO_FILE),
                 path.join(userDataDir, NEUTRINO_FILE),
                 fs.constants.COPYFILE_EXCL,
-                (err) => {
-                    if (err) {
-                        logger.error({ func: "injectPreload" }, err);
-                    } else {
-                        logger.info({ func: "injectPreload" }, `${NEUTRINO_FILE} copied`);
-                    }
-                },
+                err => errorHandler(err, NEUTRINO_FILE),
             );
             await fs.copyFile(
                 path.join(preloadDataDir, REG_FILTER_HEADERS_FILE),
                 path.join(userDataDir, REG_FILTER_HEADERS_FILE),
                 fs.constants.COPYFILE_EXCL,
-                (err) => {
-                    if (err) {
-                        logger.error({ func: "injectPreload" }, err);
-                    } else {
-                        logger.info({ func: "injectPreload" }, `${REG_FILTER_HEADERS_FILE} copied`);
-                    }
-                },
+                err => errorHandler(err, REG_FILTER_HEADERS_FILE),
             );
             return { ok: true };
         } catch (e) {

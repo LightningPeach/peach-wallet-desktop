@@ -7,7 +7,7 @@ import authReducer, { initStateAuth } from "modules/auth/reducers";
 import { accountTypes, accountOperations } from "modules/account";
 import { lndOperations } from "modules/lnd";
 import { appOperations } from "modules/app";
-import { errorPromise, successPromise, unsuccessPromise } from "additional";
+import { errorPromise, successPromise, unsuccessPromise, helpers } from "additional";
 
 const middlewares = [thunk];
 const mockStore = configureStore(middlewares);
@@ -38,6 +38,16 @@ describe("Auth Unit Tests", () => {
         it("should create an action to set auth step", () => {
             expectedData.type = types.SET_REGISTRATION_STEP;
             expect(actions.setAuthStep(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set password", () => {
+            expectedData.type = types.SET_PASSWORD;
+            expect(actions.setPassword(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set session status", () => {
+            expectedData.type = types.SET_SESSION_STATUS;
+            expect(actions.setSessionStatus(data)).to.deep.equal(expectedData);
         });
     });
 
@@ -126,6 +136,17 @@ describe("Auth Unit Tests", () => {
             };
             expectedActions = [expectedData];
             expect(await store.dispatch(operations.setAuthStep(data.step))).to.deep.equal(expectedData);
+            expect(store.getActions()).to.deep.equal(expectedActions);
+        });
+
+        it("setHashedPassword()", async () => {
+            data.password = "Password12345";
+            expectedData = {
+                payload: helpers.hash(data.password),
+                type: types.SET_PASSWORD,
+            };
+            expectedActions = [expectedData];
+            expect(await store.dispatch(operations.setHashedPassword(data.password))).to.deep.equal(expectedData);
             expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
@@ -732,6 +753,18 @@ describe("Auth Unit Tests", () => {
         it("should handle SET_TEMP_USERNAME action", () => {
             action.type = types.SET_TEMP_USERNAME;
             expectedData.tempUsername = data;
+            expect(authReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_PASSWORD action", () => {
+            action.type = types.SET_PASSWORD;
+            expectedData.password = data;
+            expect(authReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_SESSION_STATUS action", () => {
+            action.type = types.SET_SESSION_STATUS;
+            expectedData.sessionStatus = data;
             expect(authReducer(state, action)).to.deep.equal(expectedData);
         });
     });

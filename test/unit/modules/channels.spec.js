@@ -1,4 +1,5 @@
 import configureStore from "redux-mock-store";
+import omit from "lodash/omit";
 import thunk from "redux-thunk";
 
 import { statusCodes } from "config";
@@ -1138,7 +1139,10 @@ describe("Channels Unit Tests", () => {
                 expect(await store.dispatch(operations.closeChannel(data.channel, true))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("closeChannel", { ...data.closeChannel, force: true });
+                expect(window.ipcClient).to.be.calledWith(
+                    "closeChannel",
+                    { ...omit(data.closeChannel, "timeStamp"), force: true },
+                );
                 expect(fakeDB.channelsBuilder).to.be.calledOnce;
                 expect(data.channelsBuilder.update).to.be.calledOnce;
                 expect(data.channelsBuilder.update).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);

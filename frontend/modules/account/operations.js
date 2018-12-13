@@ -1,6 +1,6 @@
 import { hashHistory } from "react-router";
 import { appOperations, appActions } from "modules/app";
-import { accountActions, accountTypes } from "modules/account";
+import { accountActions as actions, accountTypes as types } from "modules/account";
 import { lndActions, lndOperations } from "modules/lnd";
 import { notificationsActions } from "modules/notifications";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
@@ -16,45 +16,51 @@ import {
     unsuccessPromise,
     logger,
     delay,
+    clearIntervalLong,
+    setAsyncIntervalLong,
 } from "additional";
 import {
     MAX_PAYMENT_REQUEST,
     ALL_MEASURES,
     LOGOUT_ACCOUNT_TIMEOUT,
+    CHANNELS_INTERVAL_TIMEOUT,
+    BALANCE_INTERVAL_TIMEOUT,
+    USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
 } from "config/consts";
 import { statusCodes } from "config";
 
 window.ipcRenderer.on("lnd-down", () => {
-    store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
+    store.dispatch(actions.setDisconnectedKernelConnectIndicator());
 });
 
 window.ipcRenderer.on("lnd-up", () => {
-    store.dispatch(accountActions.setConnectedKernelConnectIndicator());
+    store.dispatch(actions.setConnectedKernelConnectIndicator());
 });
 
 window.ipcRenderer.on("lis-up", () => {
-    if (store.getState().account.lisStatus === accountTypes.LIS_UP) {
+    if (store.getState().account.lisStatus === types.LIS_UP) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_UP));
+    store.dispatch(actions.setLisStatus(types.LIS_UP));
 });
 
 window.ipcRenderer.on("lis-down", () => {
-    if (store.getState().account.lisStatus === accountTypes.LIS_DOWN) {
+    if (store.getState().account.lisStatus === types.LIS_DOWN) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_DOWN));
+    store.dispatch(actions.setLisStatus(types.LIS_DOWN));
 });
 
 function openSystemNotificationsModal() {
-    return dispatch => dispatch(appActions.setModalState(accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
 }
 
 function checkBalance() {
     return async (dispatch, getState) => {
         const responseChannels = await window.ipcClient("listChannels");
         if (!responseChannels.ok) {
-            dispatch(accountActions.errorCheckBalance(responseChannels.error));
+            dispatch(actions.errorCheckBalance(responseChannels.error));
             return unsuccessPromise(checkBalance);
         }
         let lightningBalance = 0;
@@ -67,7 +73,7 @@ function checkBalance() {
         });
         const responseWallet = await window.ipcClient("walletBalance");
         if (!responseWallet.ok) {
-            dispatch(accountActions.errorCheckBalance(responseWallet.error));
+            dispatch(actions.errorCheckBalance(responseWallet.error));
             return unsuccessPromise(checkBalance);
         }
         const bitcoinBalance = parseInt(responseWallet.response.confirmed_balance, 10);
@@ -76,7 +82,7 @@ function checkBalance() {
         const bBalanceEqual = getState().account.bitcoinBalance === bitcoinBalance;
         const ubBalanceEqual = getState().account.unConfirmedBitcoinBalance === unConfirmedBitcoinBalance;
         if (!lBalanceEqual || !bBalanceEqual || !ubBalanceEqual) {
-            dispatch(accountActions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
+            dispatch(actions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
         }
         return successPromise();
     };
@@ -86,7 +92,7 @@ function createNewBitcoinAccount() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("newAddress", { type: 1 });
         if (response.ok) {
-            dispatch(accountActions.addBitcoinAccount(response.response.address));
+            dispatch(actions.addBitcoinAccount(response.response.address));
             return successPromise();
         }
         return errorPromise(response.error, createNewBitcoinAccount);
@@ -104,8 +110,8 @@ function setInitConfig(lightningId) {
                 systemNotifications: 3,
             })
             .execute();
-        dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
-        dispatch(accountActions.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
+        dispatch(actions.setBitcoinMeasure(ALL_MEASURES[0].btc));
+        dispatch(actions.setSystemNotificationsStatus(types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
         dispatch(openSystemNotificationsModal());
         return successPromise();
     };
@@ -120,11 +126,11 @@ function loadAccountSettings() {
                 .where("lightningId = :lightningID", { lightningID })
                 .getOne();
             if (response) {
-                dispatch(accountActions.setBitcoinMeasure(response.activeMeasure));
+                dispatch(actions.setBitcoinMeasure(response.activeMeasure));
                 if (response.createChannelViewed) {
                     dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));
                 }
-                dispatch(accountActions.setSystemNotificationsStatus(response.systemNotifications));
+                dispatch(actions.setSystemNotificationsStatus(response.systemNotifications));
                 if (response.systemNotifications === 3) {
                     dispatch(openSystemNotificationsModal());
                 }
@@ -142,11 +148,11 @@ function connectKernel() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("getInfo");
         if (!response.ok) {
-            dispatch(accountActions.errorConnectKernel(response.error));
+            dispatch(actions.errorConnectKernel(response.error));
             return errorPromise(response.error, connectKernel);
         }
 
-        dispatch(accountActions.successConnectKernel());
+        dispatch(actions.successConnectKernel());
         return successPromise();
     };
 }
@@ -173,9 +179,59 @@ function getLightningID() {
         if (!response.ok) {
             return errorPromise(response.error, getLightningID);
         }
-        dispatch(accountActions.setLightningID(response.response.identity_pubkey));
+        dispatch(actions.setLightningID(response.response.identity_pubkey));
         return successPromise();
     };
+}
+
+/* istanbul ignore next */
+function startIntervalStatusChecks() {
+    return (dispatch, getState) => {
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(channelsOperations.getChannels());
+                }
+            },
+            CHANNELS_INTERVAL_TIMEOUT,
+            types.CHANNELS_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(checkBalance());
+                }
+            },
+            BALANCE_INTERVAL_TIMEOUT,
+            types.BALANCE_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(appOperations.usdBtcRate());
+                }
+            },
+            USD_PER_BTC_INTERVAL_TIMEOUT,
+            types.USD_PER_BTC_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(lndOperations.checkLndSync());
+                }
+            },
+            LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+            types.LND_SYNC_STATUS_INTERVAL_ID,
+        );
+    };
+}
+
+/* istanbul ignore next */
+function finishIntervalStatusChecks() {
+    clearIntervalLong(types.CHANNELS_INTERVAL_ID);
+    clearIntervalLong(types.BALANCE_INTERVAL_ID);
+    clearIntervalLong(types.USD_PER_BTC_INTERVAL_ID);
+    clearIntervalLong(types.LND_SYNC_STATUS_INTERVAL_ID);
 }
 
 function logout(keepModalState = false) {
@@ -183,8 +239,9 @@ function logout(keepModalState = false) {
         if (getState().account.isLogouting) {
             return unsuccessPromise(logout);
         }
-        dispatch(accountActions.startLogout());
+        dispatch(actions.startLogout());
         await dispatch(streamPaymentOperations.pauseAllStreams(false));
+        finishIntervalStatusChecks();
         if (getState().account.serverSocket) {
             try {
                 getState()
@@ -203,9 +260,9 @@ function logout(keepModalState = false) {
         await delay(LOGOUT_ACCOUNT_TIMEOUT);
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
-        dispatch(accountActions.logoutAcount(keepModalState));
+        dispatch(actions.logoutAcount(keepModalState));
         hashHistory.push("/");
-        dispatch(accountActions.finishLogout());
+        dispatch(actions.finishLogout());
         dispatch(notificationsActions.removeAllNotifications());
         return successPromise();
     };
@@ -215,7 +272,7 @@ function initAccount(login, newAccount = false) {
     let tempNewAcc = newAccount;
     const handleError = async (dispatch, getState, error) => {
         if (!tempNewAcc) {
-            dispatch(accountActions.finishInitAccount());
+            dispatch(actions.finishInitAccount());
             await dispatch(logout(true));
         }
         return errorPromise(error, initAccount);
@@ -250,9 +307,9 @@ function initAccount(login, newAccount = false) {
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
-        dispatch(accountActions.finishInitAccount());
-        dispatch(accountActions.loginAccount(login, ""));
-        dispatch(accountActions.setConnectedKernelConnectIndicator());
+        dispatch(actions.finishInitAccount());
+        dispatch(actions.loginAccount(login, ""));
+        dispatch(actions.setConnectedKernelConnectIndicator());
         dispatch(appOperations.closeModal());
         dispatch(notificationsActions.removeAllNotifications());
         dispatch(onChainOperations.subscribeTransactions());
@@ -268,6 +325,7 @@ function initAccount(login, newAccount = false) {
         ]);
         await dispatch(checkBalance());
         await dispatch(streamPaymentOperations.loadStreams());
+        dispatch(startIntervalStatusChecks());
         return successPromise();
     };
 }
@@ -279,7 +337,7 @@ function signMessage(message) {
             logger.error("Error on signMessage", response.error);
             return errorPromise(response.error, signMessage);
         }
-        dispatch(accountActions.successSignMessage(response.response.signature));
+        dispatch(actions.successSignMessage(response.response.signature));
         return successPromise();
     };
 }
@@ -287,7 +345,7 @@ function signMessage(message) {
 function setBitcoinMeasure(value) {
     return async (dispatch, getState) => {
         const { lightningID } = getState().account;
-        dispatch(accountActions.setBitcoinMeasure(value));
+        dispatch(actions.setBitcoinMeasure(value));
         try {
             db.configBuilder()
                 .update()
@@ -304,7 +362,7 @@ function setBitcoinMeasure(value) {
 function setSystemNotificationsStatus(value) {
     return async (dispatch, getState) => {
         const { lightningID } = getState().account;
-        dispatch(accountActions.setSystemNotificationsStatus(value));
+        dispatch(actions.setSystemNotificationsStatus(value));
         try {
             db.configBuilder()
                 .update()
@@ -322,34 +380,34 @@ function getPeers() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("listPeers");
         if (response.ok) {
-            dispatch(accountActions.setPeers(response.response.peers));
+            dispatch(actions.setPeers(response.response.peers));
             return successPromise();
         }
-        dispatch(accountActions.errorPeers(response.error));
+        dispatch(actions.errorPeers(response.error));
         return errorPromise(response.error, getPeers);
     };
 }
 
 function checkLightningID(lightningID) {
     return (dispatch, getState) => {
-        dispatch(accountActions.startValidatingLightningID());
+        dispatch(actions.startValidatingLightningID());
         if (!lightningID) {
-            dispatch(accountActions.undefinedLightningID());
-            dispatch(accountActions.endValidatingLightningID());
+            dispatch(actions.undefinedLightningID());
+            dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
         if (lightningID === getState().account.lightningID) {
-            dispatch(accountActions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF }));
-            dispatch(accountActions.endValidatingLightningID());
+            dispatch(actions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF }));
+            dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
         if (lightningID.length !== getState().account.lightningID.length) {
-            dispatch(accountActions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH }));
-            dispatch(accountActions.endValidatingLightningID());
+            dispatch(actions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH }));
+            dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
-        dispatch(accountActions.correctLightningID());
-        dispatch(accountActions.endValidatingLightningID());
+        dispatch(actions.correctLightningID());
+        dispatch(actions.endValidatingLightningID());
         return successPromise();
     };
 }
@@ -420,4 +478,6 @@ export {
     setBitcoinMeasure,
     openSystemNotificationsModal,
     setSystemNotificationsStatus,
+    startIntervalStatusChecks,
+    finishIntervalStatusChecks,
 };

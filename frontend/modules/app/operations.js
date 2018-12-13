@@ -12,6 +12,7 @@ import { store } from "store/configure-store";
 import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
 import { lightningActions } from "modules/lightning";
+import { authTypes } from "modules/auth";
 import { WalletPath } from "routes";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -180,7 +181,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
         return;
     }
     store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));
-    if (store.getState().account.isLogined) {
+    if (store.getState().account.isLogined && store.getState().auth.sessionStatus === authTypes.SESSION_ACTIVE) {
         store.dispatch(push(WalletPath));
     }
 });

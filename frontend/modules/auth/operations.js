@@ -1,9 +1,11 @@
 import { statusCodes } from "config";
-import { errorPromise, successPromise, logger } from "additional";
+import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
+import { errorPromise, successPromise, logger, helpers } from "additional";
 import { accountActions, accountOperations } from "modules/account";
 import { lndOperations } from "modules/lnd";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
+import { HomePath } from "routes";
 import * as actions from "./actions";
 
 function setForm(currentForm) {
@@ -16,6 +18,10 @@ function setAuthStep(step) {
 
 function setTempUsername(tempUsername) {
     return dispatch => dispatch(actions.setTempUsername(tempUsername));
+}
+
+function setHashedPassword(password) {
+    return dispatch => dispatch(actions.setPassword(helpers.hash(password)));
 }
 
 function regStartLnd(username) {
@@ -123,6 +129,7 @@ export {
     setForm,
     setAuthStep,
     setTempUsername,
+    setHashedPassword,
     login,
     regStartLnd,
     regFinish,

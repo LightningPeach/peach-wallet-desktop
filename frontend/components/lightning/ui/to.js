@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { contactsActions, contactsOperations } from "modules/contacts";
 import { PAYMENT_REQUEST_LENGTH, LIGHTNING_ID_LENGTH } from "config/consts";
-import debounce from "lodash/debounce";
+import { debounce } from "additional";
 
 class ToField extends Component {
     constructor(props) {
