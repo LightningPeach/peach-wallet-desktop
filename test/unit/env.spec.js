@@ -73,7 +73,7 @@ describe("Settings tests", () => {
     });
 
     it("correct neutrino.connect url", () => {
-        expect(settings.neutrino.connect).to.deep.equal("btcd.lnd.cloud:8333");
+        expect(settings.neutrino.connect).to.deep.equal("proxy.lightningpeach.com:8333");
     });
 
     it("autopilot active mode set to false", () => {
@@ -106,10 +106,10 @@ describe("Settings tests", () => {
     });
 
     it("correct peach replenishUrl", () => {
-        expect(settings.peach.replenishUrl).to.deep.equal("daphne.lnd.cloud:7000");
+        expect(settings.peach.replenishUrl).to.deep.equal("proxy.lightningpeach.com:7000");
     });
 
     it("correct peach replenishTLS", () => {
-        expect(settings.peach.replenishTLS).to.deep.equal(true);
+        expect(settings.peach.replenishTLS).to.deep.equal(false);
     });
 });

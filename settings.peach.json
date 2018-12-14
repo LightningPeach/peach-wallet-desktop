@@ -7,7 +7,7 @@
     "pubKey": "02a0bc43557fae6af7be8e3a29fdebda819e439bea9c0f8eb8ed6a0201f3471ca9",
     "host": "hub.lightningpeach.com",
     "peerPort": "29735",
-    "replenishUrl": "daphne.lnd.cloud:7000",
-    "replenishTLS": true
+    "replenishUrl": "proxy.lightningpeach.com:7000",
+    "replenishTLS": false
   }
 }
