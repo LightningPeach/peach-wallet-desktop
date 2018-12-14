@@ -160,9 +160,9 @@
     }
 
     &__line {
-        padding-top: 15px;
-        padding-bottom: 22px;
-        border-radius: $border-radius;
+        margin: 21px 0 20px;
+        height: 10px;
+        width: 100%;
 
         .block__cell {
             background: transparentize(#000, .7);
@@ -186,12 +186,21 @@
                 }
             }
         }
-        &--send {
-            background-color: $orange;
-        }
 
-        &--receive {
-            background-color: #b3b3b3;
+        &--awaiting {
+            border-radius: $border-radius;
+            background: repeating-linear-gradient(
+                            -60deg,
+                            transparent 0px,
+                            transparent 50px,
+                            $pumpkin-orange 75px,
+                            $pumpkin-orange 85px,
+                            transparent 110px,
+            );
+            background-color: transparentize($pumpkin-orange, .7);
+            background-size: 120% 100%;
+            width: 100%;
+            animation: movingStripe 1.2s linear infinite;
         }
 
         & > div {
@@ -408,5 +417,14 @@
                 }
             }
         }
+    }
+}
+
+@keyframes movingStripe {
+    0% {
+        background-position: -125px 0;
+    }
+    100% {
+        background-position: 0 0;
     }
 }

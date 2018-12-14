@@ -168,7 +168,12 @@ describe("Channels Unit Tests", () => {
                     getMany: sinon.stub(),
                 },
                 onchainBuilder: {
+                    update: sinon.stub(),
+                    select: sinon.stub(),
                     insert: sinon.stub(),
+                    set: sinon.stub(),
+                    where: sinon.stub(),
+                    getOne: sinon.stub(),
                     values: sinon.stub(),
                     execute: sinon.stub(),
                 },
@@ -236,12 +241,6 @@ describe("Channels Unit Tests", () => {
             expect(await operations.getDbChannels()).to.deep.equal(expectedData);
             expect(store.getActions()).to.deep.equal(expectedActions);
             expect(fakeDB.channelsBuilder).to.be.calledOnce;
-        });
-
-        it("clearNewChannel()", async () => {
-            expectedActions = [{ type: types.CLEAR_NEW_CHANNEL_PREPARING }];
-            await store.dispatch(operations.clearNewChannel());
-            expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
         describe("getChannels()", () => {
@@ -1192,6 +1191,11 @@ describe("Channels Unit Tests", () => {
                     }),
                 });
                 fakeDB.onchainBuilder.returns({
+                    select: data.onchainBuilder.select.returns({
+                        where: data.onchainBuilder.where.returns({
+                            getOne: data.onchainBuilder.getOne.returns({}),
+                        }),
+                    }),
                     insert: data.onchainBuilder.insert.returns({
                         values: data.onchainBuilder.values.returns({
                             execute: data.onchainBuilder.execute,
@@ -1282,7 +1286,66 @@ describe("Channels Unit Tests", () => {
                     });
             });
 
-            it("success", async () => {
+            it("success with not exists txn", async () => {
+                data.error = "error";
+                data.txid = "txid";
+                data.blockHeight = 50;
+                fakeDB.onchainBuilder.returns({
+                    select: data.onchainBuilder.select.returns({
+                        where: data.onchainBuilder.where.returns({
+                            getOne: data.onchainBuilder.getOne.returns(null),
+                        }),
+                    }),
+                });
+                window.ipcClient
+                    .withArgs("listPeers")
+                    .returns({ ok: true, response: { peers: [{ address: data.lightningID }] } })
+                    .withArgs("openChannel")
+                    .returns({ ok: true, funding_txid_str: data.txid, block_height: data.blockHeight });
+                expectedData = { ...successResp, response: { trnID: data.txid } };
+                expectedActions = [
+                    {
+                        type: types.START_CREATE_NEW_CHANNEL,
+                    },
+                    {
+                        payload: 100,
+                        type: types.SUCCESS_CREATE_NEW_CHANNEL,
+                    },
+                    {
+                        type: types.END_CREATE_NEW_CHANNEL,
+                    },
+                    {
+                        type: types.CLEAR_NEW_CHANNEL_PREPARING,
+                    },
+                ];
+                expect(await store.dispatch(operations.createNewChannel())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("listPeers");
+                expect(window.ipcClient)
+                    .to.be.calledWith("openChannel", {
+                        local_funding_amount: data.capacity, node_pubkey_string: data.lightningID,
+                    });
+                expect(fakeDB.channelsBuilder).to.be.calledOnce;
+                expect(data.channelsBuilder.insert).to.be.calledOnce;
+                expect(data.channelsBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.channelsBuilder);
+                expect(data.channelsBuilder.values).to.be.calledOnce;
+                expect(data.channelsBuilder.values)
+                    .to.be.calledWith({
+                        activeStatus: false,
+                        fundingTxid: data.txid,
+                        localBalance: 0,
+                        name: data.channelName,
+                        remoteBalance: 0,
+                        status: "pending",
+                    });
+                expect(data.channelsBuilder.values).to.be.calledImmediatelyAfter(data.channelsBuilder.insert);
+                expect(data.channelsBuilder.execute).to.be.calledOnce;
+                expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.values);
+                expect(fakeDB.onchainBuilder).to.be.calledTwice;
+            });
+
+            it("success with exists txn", async () => {
                 data.error = "error";
                 data.txid = "txid";
                 data.blockHeight = 50;
@@ -1331,7 +1394,7 @@ describe("Channels Unit Tests", () => {
                 expect(data.channelsBuilder.values).to.be.calledImmediatelyAfter(data.channelsBuilder.insert);
                 expect(data.channelsBuilder.execute).to.be.calledOnce;
                 expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.values);
-                expect(fakeDB.onchainBuilder).to.be.calledOnce;
+                expect(fakeDB.onchainBuilder).to.be.calledTwice;
             });
         });
 
@@ -1385,7 +1448,6 @@ describe("Channels Unit Tests", () => {
                 expect(data.channelsBuilder.execute).to.be.calledImmediatelyAfter(data.channelsBuilder.where);
             });
         });
-
 
         describe("shouldShowCreateTutorial()", () => {
             beforeEach(() => {

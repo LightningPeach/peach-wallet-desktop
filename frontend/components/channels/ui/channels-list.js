@@ -8,8 +8,9 @@ import { streamPaymentSelectors } from "modules/streamPayments";
 import { appOperations } from "modules/app";
 import { WalletPath } from "routes";
 import Informer from "components/common/informer";
-import PendingChannel from "./pendingChannel";
-import OpenedChannel from "./openedChannel";
+import PendingChannel from "./pending-channel";
+import AwaitingResponseChannel from "./awaiting-response-channel";
+import OpenedChannel from "./opened-channel";
 import OverlayWithHole from "./overlay-with-hole";
 
 class ChannelsList extends Component {
@@ -75,14 +76,17 @@ class ChannelsList extends Component {
     };
 
     renderChannels = () => {
-        const { channels, deleteQueue } = this.props;
+        const {
+            channels, deleteQueue, creatingNewChannel, prepareNewChannel, contacts,
+        } = this.props;
         const channelsList = [];
         channels.forEach((channel, key) => {
             if (channel.status === types.CHANNEL_STATUS_PENDING) {
                 channelsList.push(<PendingChannel
                     key={channel.channel_point}
+                    clickCopy={() => this.copyPubKey(channel.remote_pubkey)}
                     channel={channel}
-                    {...this.props}
+                    contacts={contacts}
                 />);
             } else {
                 channelsList.push(<OpenedChannel
@@ -92,10 +96,18 @@ class ChannelsList extends Component {
                     clickEdit={e => this.editChannel(e, key)}
                     channel={channel}
                     isDeleting={deleteQueue.indexOf(channel.channel_point) !== -1}
-                    {...this.props}
+                    contacts={contacts}
                 />);
             }
         });
+        if (creatingNewChannel) {
+            channelsList.push(<AwaitingResponseChannel
+                key={prepareNewChannel.lightningID}
+                clickCopy={() => this.copyPubKey(prepareNewChannel.lightningID)}
+                channel={prepareNewChannel}
+                contacts={contacts}
+            />);
+        }
         return channelsList;
     };
 
@@ -108,7 +120,7 @@ class ChannelsList extends Component {
     render() {
         logger.log("CHANNELS LIST RENDERING");
         const {
-            dispatch, channels, skipCreateTutorial, skipLightningTutorial,
+            dispatch, channels, skipCreateTutorial, skipLightningTutorial, creatingNewChannel,
         } = this.props;
         let overlay;
         if (skipLightningTutorial === types.SHOW) {
@@ -142,7 +154,7 @@ class ChannelsList extends Component {
                     </Informer>
                 }
                 <div className="container">
-                    {!channels.length ? this.renderEmptyList() : this.renderChannels()}
+                    {!channels.length && !creatingNewChannel ? this.renderEmptyList() : this.renderChannels()}
                     {overlay}
                 </div>
             </div>
@@ -163,9 +175,13 @@ ChannelsList.propTypes = {
         lightningID: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
     })),
+    creatingNewChannel: PropTypes.bool,
     deleteQueue: PropTypes.arrayOf(PropTypes.string).isRequired,
     dispatch: PropTypes.func.isRequired,
     isActiveStreamRunning: PropTypes.bool,
+    prepareNewChannel: PropTypes.shape({
+        lightningID: PropTypes.string.isRequired,
+    }),
     skipCreateTutorial: PropTypes.string,
     skipLightningTutorial: PropTypes.string,
 };
@@ -173,8 +189,10 @@ ChannelsList.propTypes = {
 const mapStateToProps = state => ({
     channels: state.channels.channels,
     contacts: state.contacts.contacts,
+    creatingNewChannel: state.channels.creatingNewChannel,
     deleteQueue: state.channels.deleteQueue,
     isActiveStreamRunning: streamPaymentSelectors.isActiveStreamRunning(state),
+    prepareNewChannel: state.channels.prepareNewChannel,
     skipCreateTutorial: state.channels.skipCreateTutorial,
     skipLightningTutorial: state.channels.skipLightningTutorial,
 });

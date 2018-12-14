@@ -1,4 +1,5 @@
 const fs = require("fs");
+const protoLoader = require("@grpc/proto-loader");
 const grpc = require("grpc");
 const path = require("path");
 const { spawn } = require("child_process");
@@ -25,10 +26,14 @@ const LND_ERRORS = [
 const logger = baseLogger.child("binaries");
 const LND_DEFAULT_RPC_PORT = 10009;
 const LND_DEFAULT_REST_PORT = 8080;
-const lnRpcDescriptor = grpc.load({
-    file: "rpc.proto",
-    root: path.join(__dirname, "proto"),
+const packageDefinition = protoLoader.loadSync("rpc.proto", {
+    keepCase: true,
+    longs: Number,
+    defaults: true,
+    oneofs: true,
+    includeDirs: [path.join(__dirname, "proto")],
 });
+const lnRpcDescriptor = grpc.loadPackageDefinition(packageDefinition);
 
 const localLndRpcIp = `127.0.0.1:${settings.get.lnd.rpclisten}`;
 const LND_CONF_FILE = "lnd.conf";
@@ -254,9 +259,12 @@ class Lnd extends Exec {
      * @param {object} [args={}]
      * @param {null|number} [deadLine=]
      * @param {function} [cb=] Callback
-     * @return {undefined|Promise<any>}
+     * @return {undefined|Object|Promise<any>}
      */
     call(method, args = {}, deadLine = GRPC_DEADLINE, cb = null) {
+        if (this.pid === -1) {
+            return { ok: false, error: "Lnd stopped" };
+        }
         const logArgs = Object.assign({}, args);
         delete logArgs.wallet_password;
         logger.debug("[LND] Call: ", { method, args: logArgs });
@@ -265,7 +273,7 @@ class Lnd extends Exec {
         const dateDeadLine = getDeadLine(timeout < 1 ? GRPC_DEADLINE : timeout);
         if (cb) {
             const response = this._client[method](args, { deadline: dateDeadLine }, cb);
-            logger.debug("[LND] Response (no-callback): ", { Method: method, response });
+            logger.debug("[LND] Response (callback): ", { Method: method, response });
             return undefined;
         }
         return new Promise((resolve) => {

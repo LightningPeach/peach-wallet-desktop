@@ -58,6 +58,10 @@ function openSystemNotificationsModal() {
 
 function checkBalance() {
     return async (dispatch, getState) => {
+        const { isLogouting, isLogined } = getState().account;
+        if (isLogouting || !isLogined) {
+            return successPromise();
+        }
         const responseChannels = await window.ipcClient("listChannels");
         if (!responseChannels.ok) {
             dispatch(actions.errorCheckBalance(responseChannels.error));

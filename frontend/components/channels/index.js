@@ -16,7 +16,7 @@ import CreateChannel from "./modal/create-channel";
 import EditChannel from "./modal/edit-channel";
 import CloseChannel from "./modal/close-channel";
 import StreamWarning from "./modal/stream-warning";
-import ChannelsList from "./ui/ChannelsList";
+import ChannelsList from "./ui/channels-list";
 
 class ChannelsPage extends Component {
     constructor(props) {

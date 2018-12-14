@@ -384,6 +384,7 @@ describe("Account Unit Tests", () => {
             initState = {
                 account: {
                     ...initStateAccount,
+                    isLogined: true,
                     lightningID: lightningId,
                     lisStatus: types.LIS_DOWN,
                 },
@@ -1695,6 +1696,18 @@ describe("Account Unit Tests", () => {
                             unconfirmed_balance: 10,
                         },
                     });
+            });
+            it("not logined", async () => {
+                initState = {
+                    account: {
+                        ...initStateAccount,
+                    },
+                };
+                store = mockStore(initState);
+                expectedData = { ...successResp };
+                expectedActions = [];
+                expect(await store.dispatch(operations.checkBalance())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
             it("listChannels ipc error", async () => {

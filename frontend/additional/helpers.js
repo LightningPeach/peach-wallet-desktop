@@ -77,20 +77,27 @@ const formatMultilineText = (text) => {
  * @returns {*}
  */
 /* istanbul ignore next */
-const formatNotificationMessage = (error, helper = false) => (
-    <Fragment>
-        <span className="notification-message--error">{formatMultilineText(error)}</span>
-        {helper &&
-        <span className="notification-message--helper">
-            <span>Please, try the following actions:</span>
-            <ul>
-                <li>Wait for some time and try again later.</li>
-                <li>Open a direct channel with the recipient.</li>
-                <li>Send the onchain payment to recipient.</li>
-            </ul>
-        </span>}
-    </Fragment>
-);
+const formatNotificationMessage =
+    (
+        error,
+        helper = false,
+        helperActions = [
+            "Wait for some time and try again later.",
+            "Open a direct channel with the recipient.",
+            "Send the onchain payment to recipient.",
+        ],
+    ) => (
+        <Fragment>
+            <span className="notification-message--error">{formatMultilineText(error)}</span>
+            {helper &&
+            <span className="notification-message--helper">
+                <span>Please, try the following actions:</span>
+                <ul>
+                    {helperActions.map(item => <li key={item}>{item}</li>)}
+                </ul>
+            </span>}
+        </Fragment>
+    );
 
 /**
  * @param {number} time

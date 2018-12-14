@@ -43,14 +43,14 @@ class CreateChannel extends Component {
         this.setState({ amountError: null });
     };
 
-    showErrorNotification = (text) => {
+    showErrorNotification = (text, helper = false, helperText = undefined) => {
         const { dispatch } = this.props;
         dispatch(error({
             action: {
                 callback: () => dispatch(operations.openNewChannelModal()),
                 label: "Retry",
             },
-            message: helpers.formatNotificationMessage(text),
+            message: helpers.formatNotificationMessage(text, helper, helperText),
         }));
     };
 
@@ -137,7 +137,7 @@ class CreateChannel extends Component {
         }
         response = await dispatch(operations.createNewChannel());
         if (!response.ok) {
-            this.showErrorNotification(response.error);
+            this.showErrorNotification(response.error, true, ["Try again later.", "Try again after wallet restart."]);
             return;
         }
         dispatch(operations.getChannels());
