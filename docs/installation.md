@@ -105,13 +105,12 @@ sudo apt-get install libssl-dev
 With the preliminary steps completed, install `lnd`, `lncli`, and all
 related dependencies, run the following commands:
 
-**Note: we use fork of lnd until [pull request](https://github.com/lightningnetwork/lnd/pull/1501)
-will not be accepted to improve UX. You can also use [lnd](https://github.com/lightningnetwork/lnd.git)**
+**Note: we use fork of [lnd](https://github.com/lightningnetwork/lnd.git)**
 
 ```
 git clone https://github.com/LightningPeach/lnd.git $GOPATH/src/github.com/lightningnetwork/lnd
 cd $GOPATH/src/github.com/lightningnetwork/lnd
-git checkout wallet
+git checkout wallet-mainnet
 make && make install
 ```
 
@@ -181,13 +180,12 @@ directory and true to install modules one more time.**
 With the preliminary steps completed, install `lnd`, `lncli`, and all
 related dependencies, run the following commands:
 
-**Note: we use form of lnd until [pull request](https://github.com/lightningnetwork/lnd/pull/1501)
-will not be accepted to improve UX. You can also use [lnd](https://github.com/lightningnetwork/lnd.git)**
+**Note: we use fork of [lnd](https://github.com/lightningnetwork/lnd.git)**
 
 ```
 git clone https://github.com/LightningPeach/lnd.git %GOPATH%src\github.com\lightningnetwork\lnd
 cd %GOPATH%src\github.com\lightningnetwork\lnd
-git checkout wallet
+git checkout wallet-mainnet
 dep ensure -v
 go install . .\cmd\...
 ```
