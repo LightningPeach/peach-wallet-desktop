@@ -52,8 +52,14 @@
             padding-bottom: 3px;
         }
 
-        &--channel-info {
+        &--name + .merchants__row--channel-info,
+        &--name + .merchants__row--website,
+        &--description + .merchants__row--channel-info,
+        &--description + .merchants__row--website{
             padding-top: 12px;
+        }
+
+        &--channel-info {
             padding-bottom: 3px;
         }
     }
