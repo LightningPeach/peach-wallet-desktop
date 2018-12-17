@@ -16,7 +16,9 @@ class Filter extends Component {
 
     setFilterPart = (details = {}) => {
         const { source, dispatch, onChange } = this.props;
-        onChange();
+        if (onChange) {
+            onChange();
+        }
         switch (source) {
             case filterTypes.FILTER_REGULAR:
                 dispatch(filterActions.setRegularFilterPart(details));
@@ -29,6 +31,9 @@ class Filter extends Component {
                 break;
             case filterTypes.FILTER_CONTACTS:
                 dispatch(filterActions.setContactsFilterPart(details));
+                break;
+            case filterTypes.FILTER_MERCHANTS:
+                dispatch(filterActions.setMerchantsFilterPart(details));
                 break;
             default:
                 break;
@@ -208,7 +213,7 @@ Filter.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape(),
     filterKinds: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     searchPlaceholder: PropTypes.string,
     source: PropTypes.oneOf(filterTypes.FILTER_SOURCES).isRequired,
 };
@@ -227,6 +232,9 @@ const mapStateToProps = (state, props) => {
             break;
         case filterTypes.FILTER_CONTACTS:
             filter = state.filter.contacts;
+            break;
+        case filterTypes.FILTER_MERCHANTS:
+            filter = state.filter.merchants;
             break;
         default:
             break;

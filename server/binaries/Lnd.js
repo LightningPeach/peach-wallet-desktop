@@ -1,5 +1,4 @@
 const fs = require("fs");
-const protoLoader = require("@grpc/proto-loader");
 const grpc = require("grpc");
 const path = require("path");
 const { spawn } = require("child_process");
@@ -202,7 +201,7 @@ class Lnd extends Exec {
             if (!this.name) {
                 return { ok: false, error: "No name for LND given" };
             }
-            const dataDir = path.join("data", "chain", "bitcoin", "testnet");
+            const dataDir = path.join("data", "chain", "bitcoin", "mainnet");
             const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
             const preloadDataDir = path.join(settings.get.preloadBasePath, dataDir);
             if (!fs.existsSync(preloadDataDir)) {

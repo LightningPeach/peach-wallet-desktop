@@ -5,7 +5,7 @@ import Tooltip from "rc-tooltip";
 import { analytics, helpers } from "additional";
 import { lightningOperations as operations } from "modules/lightning";
 import { channelsOperations, channelsSelectors } from "modules/channels";
-import History from "components/history";
+import RecordsTable from "components/records/table";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import {
     streamPaymentOperations,
@@ -32,6 +32,7 @@ const compare = (a, b, aPinned, bPinned, desc) => {
 class RecurringHistory extends Component {
     constructor(props) {
         super(props);
+
         this.state = {
             tooltips: {
                 amount: [
@@ -52,8 +53,8 @@ class RecurringHistory extends Component {
             Header: <span className="sortable">Name of payment</span>,
             accessor: "name",
             sortMethod: (a, b, desc) => compare(
-                a.props.children[0].props.children.toLowerCase(),
-                b.props.children[0].props.children.toLowerCase(),
+                a.props.children.toLowerCase(),
+                b.props.children.toLowerCase(),
                 a.props["data-pinned"],
                 b.props["data-pinned"],
                 desc,
@@ -336,7 +337,7 @@ class RecurringHistory extends Component {
 
     render() {
         return (
-            <History
+            <RecordsTable
                 columns={this.getHistoryHeader()}
                 data={this.getHistoryData()}
                 defaultSorted={[

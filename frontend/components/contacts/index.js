@@ -9,7 +9,7 @@ import {
 } from "modules/contacts";
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
-import History from "components/history";
+import RecordsTable from "components/records/table";
 import Ellipsis from "components/common/ellipsis";
 import { WalletPath, AddressBookFullPath } from "routes";
 import { push } from "react-router-redux";
@@ -136,7 +136,7 @@ class ContactsPage extends Component {
         <div className="container">
             <div className="row">
                 <div className="col-xs-12 table">
-                    <History
+                    <RecordsTable
                         key={3}
                         data={this.getContactsData()}
                         columns={this.getHistoryHeader()}

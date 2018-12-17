@@ -24,13 +24,12 @@
 @import "modules/lightning-select";
 @import "modules/tabs";
 @import "modules/react-table";
-@import "modules/media-queries";
 @import "components/popper";
 @import "components/header";
 @import "components/subheader";
 @import "components/footer";
 @import "components/modal";
-@import "components/history";
+@import "components/records";
 @import "components/page-blocker";
 @import "components/home";
 @import "components/payments";
@@ -43,6 +42,7 @@
 @import "components/informer";
 @import "components/tourgide";
 @import "components/license";
+@import "components/merchants";
 @import "components/filter";
 @import "components/picker";
 @import "components/datepicker";

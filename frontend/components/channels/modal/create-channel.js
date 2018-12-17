@@ -10,7 +10,7 @@ import { error, info } from "modules/notifications";
 import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
 import { statusCodes } from "config";
 import { PEACH } from "config/node-settings";
-import { ChannelsFullPath } from "routes";
+import { ChannelsFullPath, MerchantsFullPath } from "routes";
 import Modal from "components/modal";
 import DigitsField from "components/ui/digits-field";
 
@@ -36,7 +36,8 @@ class CreateChannel extends Component {
             },
         };
 
-        analytics.pageview(`${ChannelsFullPath}/create-channel`, "Create Channel");
+        const basePath = this.props.page && this.props.page === "merchants" ? MerchantsFullPath : ChannelsFullPath;
+        analytics.pageview(`${basePath}/create-channel`, "Create Channel");
     }
 
     setAmount = () => {
@@ -153,7 +154,9 @@ class CreateChannel extends Component {
         let customLightningHost = null;
         let helpText = "* To create a channel, you need to specify the amount you want to transfer from Onchain";
         if (prepareNewChannel && prepareNewChannel.custom) {
-            customLightningHost = `${prepareNewChannel.lightningID}@${prepareNewChannel.host}`;
+            customLightningHost = prepareNewChannel.channelInfo
+                ? prepareNewChannel.channelInfo
+                : `${prepareNewChannel.lightningID}@${prepareNewChannel.host}`;
         }
         if (this.state.custom) {
             helpText += ", Lightning ID and IP address of counterparty";
@@ -291,12 +294,40 @@ CreateChannel.propTypes = {
     })),
     dispatch: PropTypes.func.isRequired,
     firstEmptyChannelDefaultName: PropTypes.number,
+    page: PropTypes.string,
     prepareNewChannel: PropTypes.shape({
-        capacity: PropTypes.number.isRequired,
+        capacity: PropTypes.number,
+        channelInfo: (props, propName, componentName) => {
+            if (!props.channelInfo && !props.lightningID) {
+                return (
+                    new Error(`One of props \`prepareNewChannel.channelInfo\` or \`prepareNewChannel.lightningID\` was not specified in '${componentName}'.`) // eslint-disable-line max-len
+                );
+            }
+            const channelInfoType = typeof props.channelInfo;
+            if (props.channelInfo && channelInfoType !== "string") {
+                return (
+                    new Error(`Failed prop type: Invalid prop \`prepareNewChannel.channelInfo\` of type \`${channelInfoType}\` supplied to \`${componentName}\`, expected \`string\``) // eslint-disable-line max-len
+                );
+            }
+            return null;
+        },
         custom: PropTypes.bool.isRequired,
         host: PropTypes.string,
-        lightningID: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
+        lightningID: (props, propName, componentName) => {
+            if (!props.channelInfo && !props.lightningID) {
+                return (
+                    new Error(`One of props \`prepareNewChannel.channelInfo\` or \`prepareNewChannel.lightningID\` was not specified in '${componentName}'.`) // eslint-disable-line max-len
+                );
+            }
+            const lightningIDType = typeof props.lightningID;
+            if (props.lightningID && lightningIDType !== "string") {
+                return (
+                    new Error(`Failed prop type: Invalid prop \`prepareNewChannel.lightningID\` of type \`${lightningIDType}\` supplied to \`${componentName}\`, expected \`string\``) // eslint-disable-line max-len
+                );
+            }
+            return null;
+        },
+        name: PropTypes.string,
     }),
     toCurMeasure: PropTypes.func.isRequired,
 };

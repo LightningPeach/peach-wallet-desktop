@@ -8,6 +8,9 @@ import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { appTypes } from "modules/app";
 import { authActions, authTypes } from "modules/auth";
+import { appOperations, appTypes } from "modules/app";
+import { serverOperations } from "modules/server";
+import { lndOperations } from "modules/lnd";
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
 import {
@@ -16,22 +19,32 @@ import {
     ChannelsFullPath,
     AddressBookFullPath,
     ProfileFullPath,
+    MerchantsFullPath,
     LightningPanel,
     OnchainPanel,
     ChannelsPanel,
     AddressBookPanel,
     ProfilePanel,
-    HomeFullPath,
+    MerchantsPanel,
 } from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
 import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
+import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
 import ForceCloseChannel from "components/channels/modal/force-close-channel";
 import ForceLogout from "components/modal/force-logout";
 import SystemNotifications from "components/modal/system-notifications";
+
+import {
+    BALANCE_INTERVAL_TIMEOUT,
+    CHANNELS_INTERVAL_TIMEOUT,
+    USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+    GET_MERCHANTS_INTERVAL_TIMEOUT,
+} from "config/consts";
 import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 
 class WalletPage extends Component {
@@ -56,6 +69,10 @@ class WalletPage extends Component {
                 {
                     fullPath: AddressBookFullPath,
                     panel: AddressBookPanel,
+                },
+                {
+                    fullPath: MerchantsFullPath,
+                    panel: MerchantsPanel,
                 },
                 {
                     fullPath: ProfileFullPath,
@@ -88,6 +105,12 @@ class WalletPage extends Component {
         document.addEventListener("touchstart", this.continueSession);
         document.addEventListener("scroll", this.continueSession);
         document.addEventListener("resize", this.continueSession);
+        document.addEventListener("keydown", this.onKeyClick, false);
+        setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
+        setAsyncIntervalLong("getMerchantsIntervalId", this.checkMerchants, GET_MERCHANTS_INTERVAL_TIMEOUT, true);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -134,6 +157,12 @@ class WalletPage extends Component {
         document.removeEventListener("touchstart", this.continueSession);
         document.removeEventListener("scroll", this.continueSession);
         document.removeEventListener("resize", this.continueSession);
+        document.removeEventListener("keydown", this.onKeyClick, false);
+        clearIntervalLong("balanceIntervalId");
+        clearIntervalLong("channelsIntervalId");
+        clearIntervalLong("usdPerBtcIntervalId");
+        clearIntervalLong("lndSyncStatusIntervalId");
+        clearIntervalLong("getMerchantsIntervalId");
     }
 
     onKeyDown = (e) => {
@@ -155,6 +184,13 @@ class WalletPage extends Component {
         dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
         dispatch(push(HomeFullPath));
     }, SESSION_EXPIRE_TIMEOUT);
+
+    checkMerchants = async () => {
+        const { dispatch, isLogined } = this.props;
+        if (isLogined) {
+            await dispatch(serverOperations.getMerchants());
+        }
+    };
 
     render() {
         const {
@@ -193,11 +229,15 @@ class WalletPage extends Component {
                 Panel = <ContactsPage />;
                 break;
             case 4:
+                Panel = <MerchantsPage />;
+                break;
+            case 5:
                 Panel = <ProfilePage />;
                 break;
             default:
                 break;
         }
+
         return (
             <div id="wallet-page">
                 <Header />

@@ -69,11 +69,11 @@ describe("Settings tests", () => {
     });
 
     it("bitcoin.network is testnet", () => {
-        expect(settings.bitcoin.network).to.deep.equal("testnet");
+        expect(settings.bitcoin.network).to.deep.equal("mainnet");
     });
 
     it("correct neutrino.connect url", () => {
-        expect(settings.neutrino.connect).to.deep.equal("testnetwallet.lightningpeach.com:18333");
+        expect(settings.neutrino.connect).to.deep.equal("proxy.lightningpeach.com:8333");
     });
 
     it("autopilot active mode set to false", () => {
@@ -85,7 +85,7 @@ describe("Settings tests", () => {
     });
 
     it("correct analytics trackingID", () => {
-        expect(settings.analytics.trackingID).to.deep.equal("UA-117106160-2");
+        expect(settings.analytics.trackingID).to.deep.equal("UA-117106160-4");
     });
 
     it("correct analytics appUrl", () => {
@@ -94,22 +94,22 @@ describe("Settings tests", () => {
 
     it("correct peach pubKey", () => {
         expect(settings.peach.pubKey)
-            .to.deep.equal("0389a4d10d30e6176ea7cd0a7060344108061fc9ca88b02fa52dacea4b0114b316");
+            .to.deep.equal("02a0bc43557fae6af7be8e3a29fdebda819e439bea9c0f8eb8ed6a0201f3471ca9");
     });
 
     it("correct peach host", () => {
-        expect(settings.peach.host).to.deep.equal("testnetwallet.lightningpeach.com");
+        expect(settings.peach.host).to.deep.equal("hub.lightningpeach.com");
     });
 
     it("correct peach peerPort", () => {
-        expect(settings.peach.peerPort).to.deep.equal("9735");
+        expect(settings.peach.peerPort).to.deep.equal("29735");
     });
 
     it("correct peach replenishUrl", () => {
-        expect(settings.peach.replenishUrl).to.deep.equal("testnetwallet.lightningpeach.com");
+        expect(settings.peach.replenishUrl).to.deep.equal("proxy.lightningpeach.com:7000");
     });
 
     it("correct peach replenishTLS", () => {
-        expect(settings.peach.replenishTLS).to.deep.equal(true);
+        expect(settings.peach.replenishTLS).to.deep.equal(false);
     });
 });

@@ -39,7 +39,7 @@ header {
         display: none;
     }
 
-    nav {
+    .nav {
         float: right;
         display: flex;
         align-items: center;
@@ -50,7 +50,8 @@ header {
             display: none;
         }
 
-        a {
+        &__link {
+            white-space: nowrap;
             font-size: 18px;
             color: $white;
             line-height: 1;
@@ -68,21 +69,13 @@ header {
                 color: $pumpkin-orange;
             }
 
-            &.onchain {
-                width: 109px;
+            & + .nav__link {
+                margin-left: 20px;
             }
 
-            &.channels {
-                width: 122.6px;
-            }
-
-            &.contacts {
-                width: 170px;
-            }
-
-            &.profile {
+            &--profile {
                 text-transform: capitalize;
-                width: 77px;
+                margin-left: 20px;
                 line-height: 0.89;
                 letter-spacing: -0.3px;
             }
@@ -99,9 +92,9 @@ header {
     }
 }
 
-@media screen and (max-width: 799px) {
+@media screen and (max-width: 909px) {
     header {
-        nav {
+        .nav {
             flex-direction: column;
             width: 60px;
             background: $black;
@@ -112,6 +105,7 @@ header {
             right: 0;
             top: 0;
             padding-top: 30px;
+            margin-right: -8px;
 
             &.--z_index_fix{
                 z-index: 1;
@@ -120,11 +114,12 @@ header {
 
             &.open {
                 box-shadow: 0 2px 4px 0 rgba(45, 45, 45, 0.5);
-                max-height: 330px;
+                max-height: 375px;
                 width: 241px;
+
             }
 
-            a {
+            &__link {
                 line-height: 1;
                 text-align: center;
                 width: 100%;
@@ -133,7 +128,7 @@ header {
 
                 &:after {
                     content: "";
-                    height: 2px;
+                    height: 1px;
                     width: calc(100% - 20px);
                     position: absolute;
                     display: block;
@@ -150,18 +145,15 @@ header {
                     padding-top: 7px;
                 }
 
-                &.onchain,
-                &.channels,
-                &.contacts,
-                &.profile {
-                    line-height: 1;
-                    width: 100%;
-                }
-
-                &.profile {
+                &--profile {
                     border-bottom: 0;
                     padding-bottom: 26px;
                     padding-top: 21px;
+                    margin-left: 0;
+                }
+
+                & + .nav__link {
+                    margin-left: 0;
                 }
             }
 
