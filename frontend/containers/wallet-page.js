@@ -6,7 +6,6 @@ import { hashHistory } from "react-router";
 import { logger, debounce } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
-import { appTypes } from "modules/app";
 import { authActions, authTypes } from "modules/auth";
 import { appOperations, appTypes } from "modules/app";
 import { serverOperations } from "modules/server";
