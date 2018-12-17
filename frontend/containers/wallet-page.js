@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
-import { logger, debounce } from "additional";
+import { logger, debounce, clearIntervalLong, setAsyncIntervalLong } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { authActions, authTypes } from "modules/auth";
