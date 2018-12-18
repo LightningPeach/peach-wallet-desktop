@@ -204,8 +204,9 @@ class Lnd extends Exec {
             }
             // default value is mainnet
             let dataDir = path.join("data", "chain", "bitcoin", "mainnet");
-            if (settings.get.bitcoin.network === "testnet")
+            if (settings.get.bitcoin.network === "testnet") {
                 dataDir = path.join("data", "chain", "bitcoin", "testnet");
+            }
             const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
             const preloadDataDir = path.join(settings.get.preloadBasePath, dataDir);
             if (!fs.existsSync(preloadDataDir)) {

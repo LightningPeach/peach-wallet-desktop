@@ -19,6 +19,7 @@ import {
     AddressBookFullPath,
     ProfileFullPath,
     MerchantsFullPath,
+    HomeFullPath,
     LightningPanel,
     OnchainPanel,
     ChannelsPanel,
@@ -43,8 +44,8 @@ import {
     USD_PER_BTC_INTERVAL_TIMEOUT,
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
     GET_MERCHANTS_INTERVAL_TIMEOUT,
+    SESSION_EXPIRE_TIMEOUT,
 } from "config/consts";
-import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 
 class WalletPage extends Component {
     constructor(props) {
