@@ -56,11 +56,10 @@ sudo apt-get install libssl-dev
   
     On Linux:
     ```
-    sudo apt-get install golang-1.11-go
-    ```
-    > Note that golang-1.11-go puts binaries in /usr/lib/go-1.11/bin. If you want them on your PATH, you need to make that change yourself. Alternatively, you can run:
-    ```
-    sudo ln -s /usr/lib/go-1.11/bin/go /usr/local/bin/go
+    cd /tmp
+    wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
+    sudo tar -xvf go1.11.linux-amd64.tar.gz
+    sudo mv go /usr/local
     ```
   
     On Mac OS X:
@@ -84,8 +83,9 @@ sudo apt-get install libssl-dev
     that your shell will be able to detect the binaries you install.
   
     ```bash
+    export GOROOT=/usr/local/go
     export GOPATH=~/gocode
-    export PATH=$PATH:$GOPATH/bin
+    export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
     ```
   
     We recommend placing the above in your .bashrc or in a setup script so that
