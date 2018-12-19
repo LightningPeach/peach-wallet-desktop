@@ -42,7 +42,7 @@ export const clearTimeoutLong = (id) => {
 
 export const setTimeoutLong = (func, interval, id = "*", initialCall = true) => {
     if (initialCall && id !== "*" && timeoutsList[id]) {
-        logger.error(`Timeout with id ${id} is already set`);
+        logger.error(`setTimeoutLong: id ${id} is already used`);
         return;
     }
     const diff = Math.max((interval - TIMEOUT_PART), 0);
@@ -71,7 +71,7 @@ export const delay = (interval, id) =>
             resolve();
         };
         if (id && (timeoutsList[id] || resolversList[id])) {
-            logger.error(`Timeout with id ${id} is already set`);
+            logger.error(`delay: id ${id} is already used`);
             reject();
         }
         if (id) {
@@ -87,7 +87,7 @@ export const clearIntervalLong = (id) => {
 
 export const setIntervalLong = (func, interval, id, initialCall = true) => {
     if (initialCall && timeoutsList[id]) {
-        logger.error(`Timeout with id ${id} is already set`);
+        logger.error(`setIntervalLong: id ${id} is already used`);
         return;
     }
     const intervalTick = () => {
@@ -99,7 +99,7 @@ export const setIntervalLong = (func, interval, id, initialCall = true) => {
 
 export const setAsyncIntervalLong = (func, interval, id, initialCall = true) => {
     if (initialCall && timeoutsList[id]) {
-        logger.error(`Timeout with id ${id} is already set`);
+        logger.error(`setAsyncIntervalLong: id ${id} is already used`);
         return;
     }
     const intervalTick = async () => {
