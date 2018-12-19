@@ -12,6 +12,7 @@ header {
         margin: 17px 0;
         float: left;
         position: relative;
+        top: 2px;
 
         &:after {
             content: "lnd not synced";
@@ -92,7 +93,7 @@ header {
     }
 }
 
-@media screen and (max-width: 909px) {
+@media screen and (max-width: 990px) {
     header {
         .nav {
             flex-direction: column;
