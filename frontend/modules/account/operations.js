@@ -28,7 +28,7 @@ import {
     BALANCE_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
-    GET_MERCHANTS_INTERVAL_TIMEOUT
+    GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
 import { statusCodes } from "config";
 
