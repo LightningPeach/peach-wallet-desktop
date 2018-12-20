@@ -184,7 +184,7 @@ related dependencies, run the following commands:
 
 ```
 git clone https://github.com/LightningPeach/lnd.git %GOPATH%src\github.com\lightningnetwork\lnd
-cd %GOPATH%src\github.com\lightningnetwork\lnd
+cd %GOPATH%\src\github.com\lightningnetwork\lnd
 git checkout wallet-mainnet
 dep ensure -v
 go install . .\cmd\...
