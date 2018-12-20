@@ -53,7 +53,7 @@ sudo apt-get install libssl-dev
     **Note**: The minimum version of Go supported is Go 1.11. We recommend that
       users use the latest version of Go, which at the time of writing is
       [`1.11`](https://blog.golang.org/go1.11).
-  
+      
     On Linux:
     ```
     cd /tmp
@@ -61,7 +61,7 @@ sudo apt-get install libssl-dev
     sudo tar -xvf go1.11.linux-amd64.tar.gz
     sudo mv go /usr/local
     ```
-  
+    
     On Mac OS X:
     ```
     brew install go
