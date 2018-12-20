@@ -147,6 +147,11 @@ npm install
 mkdir node_modules\executable\
 ```
 
+**Note: if you have sqlitecipher installation problem run**
+```bash
+npm install --global --production windows-build-tools --vs2015
+```
+
 **Note: if you have an openssl error during installation install openssl. You can download 
 pack with opessl [here](https://git-scm.com/download/win). Then uninstall the node_modules 
 directory and true to install modules one more time.**
