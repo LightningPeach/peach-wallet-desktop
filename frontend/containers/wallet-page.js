@@ -106,11 +106,6 @@ class WalletPage extends Component {
         document.addEventListener("scroll", this.continueSession);
         document.addEventListener("resize", this.continueSession);
         document.addEventListener("keydown", this.onKeyClick, false);
-        setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("getMerchantsIntervalId", this.checkMerchants, GET_MERCHANTS_INTERVAL_TIMEOUT, true);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -158,11 +153,6 @@ class WalletPage extends Component {
         document.removeEventListener("scroll", this.continueSession);
         document.removeEventListener("resize", this.continueSession);
         document.removeEventListener("keydown", this.onKeyClick, false);
-        clearIntervalLong("balanceIntervalId");
-        clearIntervalLong("channelsIntervalId");
-        clearIntervalLong("usdPerBtcIntervalId");
-        clearIntervalLong("lndSyncStatusIntervalId");
-        clearIntervalLong("getMerchantsIntervalId");
     }
 
     onKeyDown = (e) => {
@@ -184,13 +174,6 @@ class WalletPage extends Component {
         dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
         dispatch(push(HomeFullPath));
     }, SESSION_EXPIRE_TIMEOUT);
-
-    checkMerchants = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(serverOperations.getMerchants());
-        }
-    };
 
     render() {
         const {
