@@ -8,6 +8,6 @@
     "host": "hub.lightningpeach.com",
     "peerPort": "29735",
     "replenishUrl": "proxy.lightningpeach.com:7000",
-    "replenishTLS": false
+    "replenishTLS": true
   }
 }
