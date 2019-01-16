@@ -53,16 +53,15 @@ sudo apt-get install libssl-dev
     **Note**: The minimum version of Go supported is Go 1.11. We recommend that
       users use the latest version of Go, which at the time of writing is
       [`1.11`](https://blog.golang.org/go1.11).
-  
+      
     On Linux:
     ```
-    sudo apt-get install golang-1.11-go
+    cd /tmp
+    wget https://dl.google.com/go/go1.11.linux-amd64.tar.gz
+    sudo tar -xvf go1.11.linux-amd64.tar.gz
+    sudo mv go /usr/local
     ```
-    > Note that golang-1.11-go puts binaries in /usr/lib/go-1.11/bin. If you want them on your PATH, you need to make that change yourself. Alternatively, you can run:
-    ```
-    sudo ln -s /usr/lib/go-1.11/bin/go /usr/local/bin/go
-    ```
-  
+    
     On Mac OS X:
     ```
     brew install go
@@ -84,8 +83,9 @@ sudo apt-get install libssl-dev
     that your shell will be able to detect the binaries you install.
   
     ```bash
+    export GOROOT=/usr/local/go
     export GOPATH=~/gocode
-    export PATH=$PATH:$GOPATH/bin
+    export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
     ```
   
     We recommend placing the above in your .bashrc or in a setup script so that
@@ -147,6 +147,11 @@ npm install
 mkdir node_modules\executable\
 ```
 
+**Note: if you have sqlitecipher installation problem run**
+```bash
+npm install --global --production windows-build-tools --vs2015
+```
+
 **Note: if you have an openssl error during installation install openssl. You can download 
 pack with opessl [here](https://git-scm.com/download/win). Then uninstall the node_modules 
 directory and true to install modules one more time.**
@@ -179,7 +184,7 @@ related dependencies, run the following commands:
 
 ```
 git clone https://github.com/LightningPeach/lnd.git %GOPATH%src\github.com\lightningnetwork\lnd
-cd %GOPATH%src\github.com\lightningnetwork\lnd
+cd %GOPATH%\src\github.com\lightningnetwork\lnd
 git checkout wallet-mainnet
 dep ensure -v
 go install . .\cmd\...
