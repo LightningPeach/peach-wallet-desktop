@@ -110,6 +110,6 @@ describe("Settings tests", () => {
     });
 
     it("correct peach replenishTLS", () => {
-        expect(settings.peach.replenishTLS).to.deep.equal(false);
+        expect(settings.peach.replenishTLS).to.deep.equal(true);
     });
 });
