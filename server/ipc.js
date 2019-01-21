@@ -132,6 +132,13 @@ registerIpc("signMessage", async (event, arg) => lnd.call("SignMessage", {
     msg: Buffer.from(arg.message, "hex"),
 }));
 
+registerIpc("connectWT", async () => lnd.call("AddWatchtower", {
+    addr: {
+        pubkey: settings.get.peach.pubKey,
+        host: `${settings.get.peach.host}:${settings.get.peach.watchtowerPort}`,
+    },
+}));
+
 registerIpc("genSeed", async () => lnd.call("GenSeed"));
 
 // Peers

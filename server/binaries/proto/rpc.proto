@@ -3,6 +3,9 @@ syntax = "proto3";
 import "google/api/annotations.proto";
 
 package lnrpc;
+
+option go_package = "github.com/lightningnetwork/lnd/lnrpc";
+
 /**
  * Comments in this file will be directly parsed into the API
  * Documentation as descriptions of the associated method, message, or field.
@@ -217,17 +220,6 @@ service Lightning {
         };
     }
 
-    /** lncli: `estimatefee`
-    EstimateFee asks the chain backend to estimate the fee rate and total fees
-    for a transaction that pays to multiple specified outputs.
-    */
-    rpc EstimateFee (EstimateFeeRequest) returns (EstimateFeeResponse) {
-        option (google.api.http) = {
-            post: "/v1/transactions/fee"
-            body: "*"
-        };
-    }
-
     /** lncli: `sendcoins`
     SendCoins executes a request to send coins to a particular address. Unlike
     SendMany, this RPC call only allows creating a single output at a time. If
@@ -239,6 +231,16 @@ service Lightning {
         option (google.api.http) = {
             post: "/v1/transactions"
             body: "*"
+        };
+    }
+
+    /** lncli: `listunspent`
+    ListUnspent returns a list of all utxos spendable by the wallet with a
+	number of confirmations between the specified minimum and maximum.
+    */
+    rpc ListUnspent (ListUnspentRequest) returns (ListUnspentResponse) {
+        option (google.api.http) = {
+            get: "/v1/utxos"
         };
     }
 
@@ -401,7 +403,7 @@ service Lightning {
     */
     rpc CloseChannel (CloseChannelRequest) returns (stream CloseStatusUpdate) {
         option (google.api.http) = {
-            delete: "/v1/channels/{channel_point.funding_txid_str}/{channel_point.output_index}/{force}"
+            delete: "/v1/channels/{channel_point.funding_txid_str}/{channel_point.output_index}"
         };
     }
 
@@ -589,7 +591,7 @@ service Lightning {
     */
     rpc QueryRoutes(QueryRoutesRequest) returns (QueryRoutesResponse) {
         option (google.api.http) = {
-            get: "/v1/graph/routes/{pub_key}/{amt}/{num_routes}"
+            get: "/v1/graph/routes/{pub_key}/{amt}"
         };
     }
 
@@ -666,6 +668,64 @@ service Lightning {
             body: "*"
         };
     };
+
+    /** lncli: `sendrevdatatowt`
+    SendRevDataToWt allows the caller to send any of the previous revocation
+    data to watchtower.
+    */
+    rpc SendRevDataToWt(SendRevDataToWtRequest) returns (SendRevDataToWtResponse);
+
+    /** lncli: `addwatchtower`
+    AddWatchtower allows the caller to connect to a remote lnd watchtower.
+    */
+    rpc AddWatchtower (AddWatchtowerRequest) returns (AddWatchtowerResponse) {
+        option (google.api.http) = {
+            post: "/v1/watchtowers"
+            body: "*"
+        };
+    }
+
+    /** lncli: `listwatchtowers`
+    ListWatchtowers returns a verbose listing of all connected watchtowers
+    active and inactive.
+    */
+    rpc ListWatchtowers (ListWatchtowersRequest) returns (ListWatchtowersResponse) {
+        option (google.api.http) = {
+            get: "/v1/watchtowers"
+        };
+    }
+
+    /** lncli: `disconnect`
+    DisconnectWatchtower allows the caller to close connection to specified
+    remote watchtower and removes related info from the database.
+    */
+    rpc DisconnectWatchtower (DisconnectWatchtowerRequest) returns (DisconnectWatchtowerResponse) {
+        option (google.api.http) = {
+            delete: "/v1/watchtowers/{pub_key}"
+        };
+    }
+}
+
+message Utxo {
+    /// The type of address
+    AddressType type = 1 [json_name = "address_type"];
+
+    /// The address
+    string address = 2 [json_name = "address"];
+
+    /// The value of the unspent coin in satoshis
+    int64 amount_sat = 3 [json_name = "amount_sat"];
+
+    /// The scriptpubkey in hex
+    string script_pubkey = 4 [json_name = "script_pubkey"];
+
+    /// The outpoint in format txid:n
+    /// Note that this reuses the `ChannelPoint` message but
+    /// is not actually a channel related outpoint, of course
+    ChannelPoint outpoint = 5 [json_name = "outpoint"];
+
+    /// The number of confirmations for the Utxo
+    int64 confirmations = 6 [json_name = "confirmations"];
 }
 
 message Transaction {
@@ -751,6 +811,7 @@ message SendResponse {
     string payment_error = 1 [json_name = "payment_error"];
     bytes payment_preimage = 2 [json_name = "payment_preimage"];
     Route payment_route = 3 [json_name = "payment_route"];
+    bytes payment_hash = 4 [json_name = "payment_hash"];
 }
 
 message SendToRouteRequest {
@@ -783,22 +844,6 @@ message LightningAddress {
 
     /// The network location of the lightning node, e.g. `69.69.69.69:1337` or `localhost:10011`
     string host = 2 [json_name = "host"];
-}
-
-message EstimateFeeRequest {
-    /// The map from addresses to amounts for the transaction.
-    map<string, int64> AddrToAmount = 1;
-
-    /// The target number of blocks that this transaction should be confirmed by.
-    int32 target_conf = 2;
-}
-
-message EstimateFeeResponse {
-    /// The total fee in satoshis.
-    int64 fee_sat = 1;
-
-    /// The fee rate in satoshi/byte.
-    int64 feerate_sat_per_kw = 2;
 }
 
 message SendManyRequest {
@@ -834,18 +879,31 @@ message SendCoinsResponse {
     string txid = 1 [json_name = "txid"];
 }
 
+message ListUnspentRequest {
+    /// The minimum number of confirmations to be included.
+    int32 min_confs = 1;
+
+    /// The maximum number of confirmations to be included.
+    int32 max_confs = 2;
+}
+message ListUnspentResponse {
+    /// A list of utxos
+    repeated Utxo utxos = 1 [json_name = "utxos"];
+
+}
+
 /**
 `AddressType` has to be one of:
 
 - `p2wkh`: Pay to witness key hash (`WITNESS_PUBKEY_HASH` = 0)
 - `np2wkh`: Pay to nested witness key hash (`NESTED_PUBKEY_HASH` = 1)
 */
-message NewAddressRequest {
-    enum AddressType {
-        WITNESS_PUBKEY_HASH = 0;
-        NESTED_PUBKEY_HASH = 1;
-    }
+enum AddressType {
+    WITNESS_PUBKEY_HASH = 0;
+    NESTED_PUBKEY_HASH = 1;
+}
 
+message NewAddressRequest {
     /// The address type
     AddressType type = 1;
 }
@@ -1990,14 +2048,17 @@ message ForwardingEvent {
     /// The outgoing channel ID that carried the preimage that completed the circuit.
     uint64 chan_id_out = 4 [json_name = "chan_id_out"];
 
-    /// The total amount of the incoming HTLC that created half the circuit.
+    /// The total amount (in satoshis) of the incoming HTLC that created half the circuit.
     uint64 amt_in = 5 [json_name = "amt_in"];
 
-    /// The total amount of the outgoign HTLC that created the second half of the circuit.
+    /// The total amount (in satoshis) of the outgoing HTLC that created the second half of the circuit.
     uint64 amt_out = 6 [json_name = "amt_out"];
 
-    /// The total fee that this payment circuit carried.
+    /// The total fee (in satoshis) that this payment circuit carried.
     uint64 fee = 7 [json_name = "fee"];
+
+    /// The total fee (in milli-satoshis) that this payment circuit carried.
+    uint64 fee_msat = 8 [json_name = "fee_msat"];
 
     // TODO(roasbeef): add settlement latency?
     //  * use FPE on the chan id?
@@ -2009,4 +2070,59 @@ message ForwardingHistoryResponse {
 
     /// The index of the last time in the set of returned forwarding events. Can be used to seek further, pagination style.
     uint32 last_offset_index = 2 [json_name = "last_offset_index"];
+}
+
+message SendRevDataToWtRequest {
+    /// The channel for which the revocation data will be sent.
+    ChannelPoint channel_point = 1 [json_name = "channel_point"];
+
+    /// start_height is the first state number for which revocation data will be sent.
+    uint64 start_height = 2 [json_name = "start_height"];
+
+    /// end_height is the last state number for which revocation data will be sent.
+    uint64 end_height = 3 [json_name = "end_height"];
+}
+
+message SendRevDataToWtResponse {
+    /// The total number of state numbers for which revocation data could be successfully generated/retrieved and sent.
+    uint64 successfully_sent = 1 [json_name = "successfully_sent"];
+
+    /// The total number of state numbers for which revocation data could not be successfully generated/retrieved and sent.
+    uint64 failed_to_send = 2 [json_name = "failed_to_send"];
+}
+
+message AddWatchtowerRequest {
+    /// Lightning address of the peer, in the format `<pubkey>@host`
+    LightningAddress addr = 1;
+}
+message AddWatchtowerResponse {
+}
+
+message ListWatchtowersRequest {
+    bool active_only = 1;
+    bool inactive_only = 2;
+}
+message ListWatchtowersResponse {
+    /// The list of active channels
+    repeated Watchtower watchtowers = 1 [json_name = "watchtowers"];
+}
+message Watchtower {
+    /// Whether this watchtower is active or not
+    bool active = 1 [json_name = "active"];
+
+    /// The identity pubkey of the watchtower
+    string pub_key = 2 [json_name = "pub_key"];
+
+    string address = 3 [json_name = "address"];
+
+    /// Ping time to this peer
+    int64 ping_time = 4 [json_name = "ping_time"];
+
+    // TODO(ys): add time connected and bytes sent/received
+}
+message DisconnectWatchtowerRequest {
+    /// The pubkey of the watchtower to disconnect from
+    string pub_key = 1 [json_name = "pub_key"];
+}
+message DisconnectWatchtowerResponse {
 }
