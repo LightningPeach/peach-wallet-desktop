@@ -8,7 +8,7 @@
     "host": "10.102.2.114",
     "peerPort": "9735",
     "watchtowerPort": "4127",
-    "replenishUrl": "10.102.2.114:7000",
-    "replenishTLS": false
+    "replenishUrl": "testnetwallet.lightningpeach.com",
+    "replenishTLS": true
   }
 }
