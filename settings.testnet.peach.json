@@ -4,9 +4,10 @@
     "appUrl": "https://peach-wallet.local.com"
   },
   "peach": {
-    "pubKey": "0389a4d10d30e6176ea7cd0a7060344108061fc9ca88b02fa52dacea4b0114b316",
-    "host": "testnetwallet.lightningpeach.com",
+    "pubKey": "028596a962501f39f33f0d6f05f024dbafc0dcbde046e9e3bb55ae63767b85f681",
+    "host": "10.102.2.114",
     "peerPort": "9735",
+    "watchtowerPort": "4127",
     "replenishUrl": "testnetwallet.lightningpeach.com",
     "replenishTLS": true
   }
