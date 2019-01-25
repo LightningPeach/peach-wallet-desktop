@@ -306,6 +306,11 @@ function initAccount(login, newAccount = false) {
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
+        response = await window.ipcClient("connectWT");
+        logger.log("Connect watchtower");
+        if (!response.ok) {
+            return handleError(dispatch, getState, response.error);
+        }
         response = await dispatch(getLightningID());
         logger.log("Have got lightning id");
         logger.log(response);
