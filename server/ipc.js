@@ -288,15 +288,18 @@ registerIpc("closeChannel", async (event, arg) => {
 });
 
 registerIpc("sendPayment", async (event, arg) => {
-    const payment = await lnd.call("SendPaymentSync", arg);
+    const payment = await lnd.call("SendPaymentSync", arg.details);
     if (!payment.ok) {
         return payment;
     }
     if (payment.response.payment_error) {
         return { ok: false, error: lnd.prettifyMessage(payment.response.payment_error) };
     }
-    const payReq = await lnd.call("DecodePayReq", { pay_req: arg.payment_request });
-    return { ok: true, payment_hash: payReq.response.payment_hash };
+    if (arg.isPayReq) {
+        const payReq = await lnd.call("DecodePayReq", { pay_req: arg.payment_request });
+        return { ok: true, payment_hash: payReq.response.payment_hash };
+    }
+    return { ok: true, payment_hash: arg.details.payment_hash_string };
 });
 
 

@@ -30,7 +30,7 @@ const getInitialState = (params) => {
         amountError: null,
         isPayReq: false,
         nameError: null,
-        payReqAmount: "",
+        payReqDecoded: null,
         processing: false,
         refreshed: false,
         regularName: "",
@@ -76,6 +76,9 @@ class RegularPayment extends Component {
             if (payReq.ok) {
                 const tempNumSatoshi = parseInt(payReq.response.num_satoshis, 10);
                 const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(tempNumSatoshi));
+                if (injectExternal) {
+                    this.amountComponent.setValue(amount.toString());
+                }
                 let description;
                 try {
                     const parsedDescription = JSON.parse(payReq.response.description);
@@ -84,19 +87,15 @@ class RegularPayment extends Component {
                     description = payReq.response.description; // eslint-disable-line
                 }
                 this.setState({
+                    amount,
                     isPayReq: true,
                     nameError: null,
-                    payReqAmount: amount,
-                    payReqLightning: payReq.response.destination,
+                    payReqDecoded: payReq.response,
                     regularName: description,
                     toError,
                     toValue: newValue,
                 });
                 if (injectExternal) {
-                    this.setState({
-                        processing: true,
-                    });
-                    this._payReqPay();
                     dispatch(lightningActions.setExternalPaymentRequest(null));
                 }
                 return;
@@ -141,9 +140,9 @@ class RegularPayment extends Component {
         }
         const name = this.state.regularName.trim();
         const nameError = validators.validateName(name, false, true, true, undefined, true);
-        const to = this.state.payReqLightning;
+        const to = this.state.payReqDecoded.destination;
         const toError = null;
-        let amount = parseFloat(this.state.payReqAmount);
+        let amount = parseFloat(this.state.amount);
         const amountError = dispatch(accountOperations.checkAmount(amount));
         const comment = name;
         const paymentReq = this.state.toValue;
@@ -166,6 +165,7 @@ class RegularPayment extends Component {
             amount,
             comment,
             paymentReq,
+            this.state.payReqDecoded,
             name,
             contactName,
         ));
@@ -216,6 +216,7 @@ class RegularPayment extends Component {
             to,
             amount,
             comment,
+            null,
             null,
             name,
             contactName,
@@ -317,14 +318,7 @@ class RegularPayment extends Component {
                         </div>
                     </div>
                     <div className="col-xs-12">
-                        {this.state.isPayReq && <input
-                            className="form-text"
-                            name="regular__name"
-                            value={this.state.payReqAmount}
-                            disabled
-                        />}
                         <DigitsField
-                            hidden={this.state.isPayReq}
                             id="regular__amount"
                             className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
                             name="regular__amount"
@@ -339,8 +333,8 @@ class RegularPayment extends Component {
                                 amount: e.target.value.trim(),
                                 amountError: null,
                             })}
-                            disabled={this.state.processing || this.state.isPayReq}
-                            value={this.state.isPayReq ? this.state.payReqAmount : this.state.amount}
+                            disabled={this.state.processing}
+                            value={this.state.amount}
                         />
                         <ErrorFieldTooltip text={this.state.amountError} />
                     </div>

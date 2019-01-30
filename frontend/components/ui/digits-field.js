@@ -54,6 +54,10 @@ class DigitsField extends Component {
         }
     }
 
+    setValue = (value) => {
+        this.setState({ value });
+    };
+
     reset = () => {
         this.setState({ value: this.state.defaultValue || "" });
     };

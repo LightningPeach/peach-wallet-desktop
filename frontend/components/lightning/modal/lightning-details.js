@@ -148,6 +148,7 @@ LightningDetails.propTypes = {
         lightningID: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         pay_req: PropTypes.string,
+        pay_req_decoded: PropTypes.shape(),
     }).isRequired).isRequired,
 };
 
