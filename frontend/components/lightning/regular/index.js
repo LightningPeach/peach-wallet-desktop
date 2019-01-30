@@ -107,6 +107,7 @@ class RegularPayment extends Component {
         }
         this.setState({
             isPayReq: false,
+            payReqDecoded: null,
             toError,
             toValue: newValue,
         });
@@ -141,7 +142,11 @@ class RegularPayment extends Component {
         const to = this.state.payReqDecoded.destination;
         const toError = null;
         let amount = parseFloat(this.state.amount);
-        const amountError = dispatch(accountOperations.checkAmount(amount));
+        let amountError = dispatch(accountOperations.checkAmount(amount));
+        amount = dispatch(appOperations.convertToSatoshi(amount));
+        if (amount < this.state.payReqDecoded.num_satoshis) {
+            amountError = statusCodes.EXEPTION_REDUCE_PAY_REQ_AMOUNT;
+        }
         const comment = name;
         const paymentReq = this.state.toValue;
         let contactName = null;
@@ -157,7 +162,6 @@ class RegularPayment extends Component {
             }
         });
         this.setState({ amountError, nameError, toError });
-        amount = dispatch(appOperations.convertToSatoshi(amount));
         const response = await dispatch(lightningOperations.preparePayment(
             to,
             amount,
