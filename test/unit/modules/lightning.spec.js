@@ -50,6 +50,7 @@ describe("Lightning Unit Tests", () => {
                 amount: "bar",
                 comment: "baz",
                 pay_req: "qux",
+                pay_req_decoded: "goofy",
                 name: "quux",
                 contact_name: "corge",
                 fee: "uier",
@@ -63,6 +64,7 @@ describe("Lightning Unit Tests", () => {
                 data.amount,
                 data.comment,
                 data.pay_req,
+                data.pay_req_decoded,
                 data.name,
                 data.contact_name,
                 data.fee,
@@ -623,7 +625,7 @@ describe("Lightning Unit Tests", () => {
         });
 
         describe("preparePayment()", () => {
-            it("getLihtningFee() error", async () => {
+            it("ipc error", async () => {
                 window.ipcClient
                     .withArgs("queryRoutes")
                     .returns({
@@ -676,6 +678,7 @@ describe("Lightning Unit Tests", () => {
                             lightningID,
                             name: "Payment",
                             pay_req: null,
+                            pay_req_decoded: null,
                         },
                         type: types.PAYMENT_PREPARING,
                     },
@@ -735,7 +738,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: data.attr.pay_req,
+                        details: {
+                            payment_request: data.attr.pay_req,
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(fakeDB.lightningBuilder).not.to.be.calledOnce;
@@ -761,7 +767,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: data.attr.pay_req,
+                        details: {
+                            payment_request: data.attr.pay_req,
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -932,7 +941,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: "foo",
+                        details: {
+                            payment_request: "foo",
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(fakeDB.lightningBuilder).to.be.calledOnce;
@@ -1033,7 +1045,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: "uier",
+                        details: {
+                            payment_request: "uier",
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(fakeDB.lightningBuilder).to.be.calledOnce;
