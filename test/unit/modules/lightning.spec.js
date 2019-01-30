@@ -890,6 +890,7 @@ describe("Lightning Unit Tests", () => {
                                 comment: "baz",
                                 lightningID: "qux",
                                 name: "quux",
+                                pay_req_decoded: null,
                             },
                         ],
                     },
@@ -945,6 +946,61 @@ describe("Lightning Unit Tests", () => {
                             payment_request: "foo",
                         },
                         isPayReq: true,
+                    },
+                );
+                expect(fakeDB.lightningBuilder).to.be.calledOnce;
+                expect(data.lightningBuilder.insert).to.be.calledOnce;
+                expect(data.lightningBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.lightningBuilder);
+                expect(data.lightningBuilder.values).to.be.calledOnce;
+                expect(data.lightningBuilder.values).to.be.calledImmediatelyAfter(data.lightningBuilder.insert);
+                expect(data.lightningBuilder.values).to.be.calledWith({
+                    name: "quux",
+                    paymentHash: "uier",
+                });
+                expect(data.lightningBuilder.execute).to.be.calledOnce;
+                expect(data.lightningBuilder.execute).to.be.calledImmediatelyAfter(data.lightningBuilder.values);
+            });
+
+            it("payment request with updated amount", async () => {
+                initState.lightning.paymentDetails[0].amount = "fooNew";
+                initState.lightning.paymentDetails[0].pay_req_decoded = {
+                    destination: "goofy",
+                    cltv_expiry: "mickey",
+                    payment_hash: "donald",
+                };
+                store = mockStore(initState);
+                expectedData = {
+                    ...successResp,
+                    response: {
+                        amount: "fooNew",
+                        payment_hash: "uier",
+                    },
+                };
+                expectedActions = [
+                    {
+                        type: types.PENDING_PAYMENT,
+                    },
+                    {
+                        type: types.SUCCESS_PAYMENT,
+                    },
+                    { ...successResp },
+                ];
+                expect(await store.dispatch(operations.makePayment(
+                    lightningID,
+                    amount,
+                ))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith(
+                    "sendPayment",
+                    {
+                        details: {
+                            amt: "fooNew",
+                            dest_string: "goofy",
+                            final_cltv_delta: "mickey",
+                            payment_hash_string: "donald",
+                        },
+                        isPayReq: false,
                     },
                 );
                 expect(fakeDB.lightningBuilder).to.be.calledOnce;
