@@ -76,9 +76,7 @@ class RegularPayment extends Component {
             if (payReq.ok) {
                 const tempNumSatoshi = parseInt(payReq.response.num_satoshis, 10);
                 const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(tempNumSatoshi));
-                if (injectExternal) {
-                    this.amountComponent.setValue(amount.toString());
-                }
+                this.amountComponent.setValue(amount.toString());
                 let description;
                 try {
                     const parsedDescription = JSON.parse(payReq.response.description);
