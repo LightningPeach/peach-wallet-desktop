@@ -140,12 +140,13 @@ function createWindow() {
 }
 
 const checkAgreement = async () => {
-    if (settings.get.agreement.eula) {
+    if (settings.get.agreement.eula && settings.get.agreement.legalVersion === settings.get.version.legal) {
         createWindow();
         return;
     }
     agreementWindow = new BrowserWindow(defaultWindowSettings);
     agreementWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
+    agreementWindow.webContents.isAgreemnt = true; // to check if this window is main in server.utils.helpers.ipcSend
 
     agreementWindow.loadURL(url.format({
         pathname: path.join(__dirname, "agreement.html"),
@@ -153,12 +154,20 @@ const checkAgreement = async () => {
         slashes: true,
     }));
     devTools(agreementWindow);
-    agreementWindow.setMenu(null);
-    agreementWindow.maximize();
-    agreementWindow.show();
+    agreementWindow.webContents.on("did-finish-load", () => {
+        agreementWindow.setMenu(null);
+        agreementWindow.maximize();
+        agreementWindow.show();
+        agreementWindow.focus();
+        if (settings.get.agreement.eula) {
+            helpers.ipcSend("agreement-update-found", {
+                ga: settings.get.agreement.sendStatistics,
+            });
+        }
+    });
 
     agreementWindow.webContents.on("close", () => {
-        if (settings.get.agreement.eula) {
+        if (settings.get.agreement.eula && settings.get.agreement.legalVersion === settings.get.version.legal) {
             createWindow();
         }
     });
