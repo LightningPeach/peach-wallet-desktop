@@ -49,7 +49,7 @@ class Agreement extends Component {
                     <div className="col-xs-12">
                         <div className="agreement__titles center-block">
                             <div className="agreement__title">
-                                Privacy and policy
+                                Privacy policy
                             </div>
                             <div className="agreement__logo">
                                 <img src="public/assets/images/logo-black.svg" alt="Lightning peach" />
