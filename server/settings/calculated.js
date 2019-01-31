@@ -31,6 +31,7 @@ module.exports = ({
             "[agreement]",
             "eula = true",
             `sendStatistics = ${sendStatistics}`,
+            `legalVersion = ${config.get("version.legal")}`,
         ];
         if (gaChecked) {
             agreementContent.push(

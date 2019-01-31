@@ -140,7 +140,7 @@ function createWindow() {
 }
 
 const checkAgreement = async () => {
-    if (settings.get.agreement.eula) {
+    if (settings.get.agreement.eula && settings.get.agreement.legalVersion === settings.get.version.legal) {
         createWindow();
         return;
     }
