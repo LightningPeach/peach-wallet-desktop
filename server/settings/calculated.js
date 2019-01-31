@@ -44,7 +44,7 @@ module.exports = ({
         logger.info("[SETTINGS] - will write ", agreementContent);
         await helpers.writeFile(join(dataPath, "agreement.ini"), agreementContent.join("\n"));
         config.set("analytics", Object.assign({}, baseSettings.peachSettings.analytics));
-        config.set("agreement", { eula: true, sendStatistics });
+        config.set("agreement", { eula: true, sendStatistics, legalVersion: config.get("version.legal") });
     };
 
     const walletLndPath = (name, additionalFile) => {

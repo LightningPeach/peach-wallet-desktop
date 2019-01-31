@@ -9,7 +9,9 @@ class Agreement extends Component {
         this.state = {
             eula: false,
             ga: false,
+            isUpdate: false,
         };
+        window.ipcRenderer.on("agreement-update-found", this.updateAgreement);
     }
 
     componentDidMount() {
@@ -18,12 +20,20 @@ class Agreement extends Component {
     }
 
     componentWillUnmount() {
+        window.ipcRenderer.removeListener("agreement-update-found", this.updateAgreement);
         window.ipcRenderer.removeListener("agreement-wrote", this.ipcSuccess);
         window.ipcRenderer.removeListener("error", this.ipcError);
     }
 
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.checked });
+    };
+
+    updateAgreement = (sender, data) => {
+        this.setState({
+            ga: data.ga,
+            isUpdate: true,
+        });
     };
 
     ipcSuccess = () => {
@@ -49,7 +59,7 @@ class Agreement extends Component {
                     <div className="col-xs-12">
                         <div className="agreement__titles center-block">
                             <div className="agreement__title">
-                                Privacy policy
+                                Privacy policy{this.state.isUpdate && " updated"}
                             </div>
                             <div className="agreement__logo">
                                 <img src="public/assets/images/logo-black.svg" alt="Lightning peach" />
@@ -69,12 +79,14 @@ class Agreement extends Component {
                             <span className="form-checkbox__label">I accept the agreement</span>
                         </label>
                     </div>
-                    <div className="col-xs-12">
-                        <label className="form-checkbox label_line pull-left channels__custom">
-                            <input id="ga-agreement-checkbox" name="ga" type="checkbox" onChange={this.onChange} />
-                            <span className="form-checkbox__label">I agree to the personal data processing</span>
-                        </label>
-                    </div>
+                    {!this.state.isUpdate &&
+                        <div className="col-xs-12">
+                            <label className="form-checkbox label_line pull-left channels__custom">
+                                <input id="ga-agreement-checkbox" name="ga" type="checkbox" onChange={this.onChange} />
+                                <span className="form-checkbox__label">I agree to the personal data processing</span>
+                            </label>
+                        </div>
+                    }
                     <div className="col-xs-12">
                         <button
                             type="submit"
