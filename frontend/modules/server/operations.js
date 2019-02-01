@@ -31,7 +31,6 @@ function getMerchants() {
         try {
             response = await fetch(url);
             response = await response.json();
-            response = response.map(m => ({ ...m, logo: PEACH_API_HOST + m.logo }));
             dispatch(actions.merchantsSuccess(response));
         } catch (e) {
             logger.error(e.message);
