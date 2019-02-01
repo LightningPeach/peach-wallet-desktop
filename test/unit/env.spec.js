@@ -84,6 +84,10 @@ describe("Settings tests", () => {
         expect(settings.logger.level).to.deep.equal("INFO");
     });
 
+    it("correct legal version", () => {
+        expect(settings.version.legal).to.deep.equal("01/30/2019");
+    });
+
     it("correct analytics trackingID", () => {
         expect(settings.analytics.trackingID).to.deep.equal("UA-117106160-4");
     });

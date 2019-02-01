@@ -26,7 +26,7 @@
     "scss": "npm run scss:compile -- ",
     "scss:compile": "node-sass ./public/assets/_builds --output ./public/assets/dist/ --source-map-embed --output-style compressed ",
     "scss:watch": "npm run scss -- --watch",
-    "test": "npm run lint && npm run test:unit -- ",
+    "test": "npm run lint && npm run test:coverage -- ",
     "test:e2e": "cross-env NODE_ENV=spectron mocha --opts ./test/mocha.opts ./test/e2e",
     "test:unit": "cross-env NODE_ENV=test mocha --opts ./test/mocha.opts ./test/unit",
     "test:coverage": "cross-env NODE_ENV=test nyc --reporter=text --reporter=html npm run test:unit",
