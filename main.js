@@ -146,7 +146,6 @@ const checkAgreement = async () => {
     }
     agreementWindow = new BrowserWindow(defaultWindowSettings);
     agreementWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
-    agreementWindow.webContents.isAgreemnt = true; // to check if this window is main in server.utils.helpers.ipcSend
 
     agreementWindow.loadURL(url.format({
         pathname: path.join(__dirname, "agreement.html"),
