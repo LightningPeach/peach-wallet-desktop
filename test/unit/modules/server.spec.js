@@ -151,7 +151,7 @@ describe("Server Unit Tests", () => {
                     {
                         foo: "foo",
                         bar: "bar",
-                        logo: "/logo",
+                        logo: "/logo1",
                     },
                     {
                         foo: "foo",
@@ -164,12 +164,12 @@ describe("Server Unit Tests", () => {
                     {
                         foo: "foo",
                         bar: "bar",
-                        logo: `${PEACH_API_HOST}/logo`,
+                        logo: "/logo1",
                     },
                     {
                         foo: "foo",
                         bar: "bar",
-                        logo: `${PEACH_API_HOST}/logo`,
+                        logo: "/logo",
                     },
                 ];
                 expectedActions = [
