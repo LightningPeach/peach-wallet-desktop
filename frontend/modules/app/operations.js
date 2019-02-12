@@ -21,6 +21,17 @@ function closeModal() {
     return dispatch => dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
 }
 
+function startModalFlow() {
+    return (dispatch, getState) => {
+        const { modalFlow } = getState().app;
+        if (!modalFlow.length) {
+            return;
+        }
+        dispatch(actions.modalFlowPopFirst());
+        dispatch(actions.setModalState(modalFlow[0]));
+    };
+}
+
 function openLogoutModal() {
     return dispatch => dispatch(actions.setModalState(types.LOGOUT_MODAL_STATE));
 }
@@ -188,6 +199,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
 
 export {
     sendSystemNotification,
+    startModalFlow,
     closeModal,
     usdBtcRate,
     copyToClipboard,

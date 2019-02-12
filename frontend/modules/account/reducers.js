@@ -3,6 +3,7 @@ import * as types from "./types";
 
 export const initStateAccount = {
     amountStatus: "undefined",
+    analyticsMode: types.ANALYTICS_MODE.PENDING,
     bitcoinAccount: ["Wallet syncing"],
     bitcoinBalance: 0,
     bitcoinMeasureMultiplier: ALL_MEASURES[0].multiplier,
@@ -33,6 +34,7 @@ export const initStateAccount = {
     toFixedMeasure: ALL_MEASURES[0].toFixed,
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,
+    userMode: types.USER_MODE.PENDING,
     validatingLightningId: false,
 };
 
@@ -97,6 +99,10 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, lisStatus: action.payload };
         case types.SET_SYSTEM_NOTIFICATIONS_STATUS:
             return { ...state, systemNotifications: action.payload };
+        case types.SET_ANALYTICS_MODE:
+            return { ...state, analyticsMode: action.payload };
+        case types.SET_USER_MODE:
+            return { ...state, userMode: action.payload };
         default:
             return state;
     }
