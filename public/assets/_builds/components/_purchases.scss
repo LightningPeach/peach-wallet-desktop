@@ -59,7 +59,7 @@
 
     &__price {
         width: 31.18%;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     &__confirmation {
@@ -117,7 +117,7 @@
         padding: 0;
 
         .pay-header {
-            font-weight: 600;
+            font-weight: bold;
             margin-bottom: rem(30px);
         }
 
@@ -228,7 +228,7 @@
                 content: 'Status';
                 display: block;
                 text-align: center;
-                font-weight: 500;
+                font-weight: 600;
                 color: #474747;
                 padding-bottom: rem(15px);
             }

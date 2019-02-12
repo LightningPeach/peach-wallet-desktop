@@ -60,7 +60,7 @@
 
     &__name {
         font-size: 16px;
-        font-weight: 600;
+        font-weight: bold;
         line-height: 1.125;
         color: $black;
         padding-top: 5px;
@@ -90,7 +90,7 @@
 
     &__button {
         font-size: 12px;
-        font-weight: 600;
+        font-weight: bold;
         line-height: 1.5;
         opacity: 0;
         z-index: -10;
@@ -117,7 +117,7 @@
 
     &__close {
         font-size: 12px;
-        font-weight: 600;
+        font-weight: bold;
         line-height: 1.5;
         opacity: 0;
         z-index: -10;
@@ -267,7 +267,7 @@
 
     &__text {
         &--balance {
-            font-weight: 600;
+            font-weight: bold;
         }
         &--receive {
             margin-left: auto;

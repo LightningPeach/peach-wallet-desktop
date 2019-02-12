@@ -31,7 +31,7 @@
 
     &__orange {
         background: $pumpkin-orange;
-        font-weight: 600;
+        font-weight: bold;
         color: $white;
         border-radius: $border-radius;
         padding: 0 15px;
@@ -58,7 +58,7 @@
     &__scarlett-two {
         padding: 0 49px;
         background: $scarlet-two;
-        font-weight: 600;
+        font-weight: bold;
         color: $white;
         border-radius: $border-radius;
         font-size: 14px;
@@ -139,7 +139,7 @@
         border-radius: 4px;
         border: 1px solid rgba(255, 119, 0, 0.38);
         color: $pumpkin-orange;
-        font-weight: 500;
+        font-weight: 600;
         letter-spacing: normal;
 
         &:active,

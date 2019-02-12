@@ -276,7 +276,7 @@ class RecurringPayment extends Component {
                 }}
             >
                 <div className="row mt-m14">
-                    <div className="col-xs-12 col-sm-6">
+                    <div className="col-xs-12 col-md-6">
                         <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
@@ -301,7 +301,7 @@ class RecurringPayment extends Component {
                         </div>
                         <ErrorFieldTooltip text={this.state.nameError} />
                     </div>
-                    <div className="col-xs-12 col-sm-6">
+                    <div className="col-xs-12 col-md-6">
                         <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">
@@ -323,7 +323,7 @@ class RecurringPayment extends Component {
                         </div>
                         <ErrorFieldTooltip text={this.state.toError} />
                     </div>
-                    <div className="col-xs-12 col-sm-4">
+                    <div className="col-xs-12 col-md-4">
                         <div className={`row mt-14 connected-field ${filledFrequency
                             ? "connected-field--filled"
                             : ""}`}
@@ -406,7 +406,7 @@ class RecurringPayment extends Component {
                         </div>
                         <ErrorFieldTooltip text={this.state.frequencyError} />
                     </div>
-                    <div className="col-xs-12 col-sm-4">
+                    <div className="col-xs-12 col-md-4">
                         <div className={`row mt-14 connected-field ${filledAmount
                             ? "connected-field--filled"
                             : ""}`}
@@ -493,7 +493,7 @@ class RecurringPayment extends Component {
                         </div>
                         <ErrorFieldTooltip text={this.state.amountError} />
                     </div>
-                    <div className="col-xs-12 col-sm-4">
+                    <div className="col-xs-12 col-md-4">
                         <div className="row mt-14">
                             <div className="col-xs-12">
                                 <div className="form-label">

@@ -215,7 +215,7 @@ class EditStream extends Component {
                 >
                     <div className="modal-body">
                         <div className="row mt-m14">
-                            <div className="col-xs-12 col-sm-6">
+                            <div className="col-xs-12 col-md-6">
                                 <div className="row mt-14">
                                     <div className="col-xs-12">
                                         <div className="form-label">
@@ -241,7 +241,7 @@ class EditStream extends Component {
                                 </div>
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
-                            <div className="col-xs-12 col-sm-6">
+                            <div className="col-xs-12 col-md-6">
                                 <div className="row mt-14">
                                     <div className="col-xs-12">
                                         <div className="form-label">
@@ -258,7 +258,7 @@ class EditStream extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-xs-12 col-sm-4">
+                            <div className="col-xs-12 col-md-4">
                                 <div className={`row mt-14 connected-field ${filledFrequency
                                     ? "connected-field--filled"
                                     : ""} ${currentStream.status === types.STREAM_PAYMENT_FINISHED
@@ -349,7 +349,7 @@ class EditStream extends Component {
                                 </div>
                                 <ErrorFieldTooltip text={this.state.frequencyError} />
                             </div>
-                            <div className="col-xs-12 col-sm-4">
+                            <div className="col-xs-12 col-md-4">
                                 <div className={`row mt-14 connected-field ${filledAmount
                                     ? "connected-field--filled"
                                     : ""} ${currentStream.status === types.STREAM_PAYMENT_FINISHED
@@ -422,7 +422,7 @@ class EditStream extends Component {
                                 </div>
                                 <ErrorFieldTooltip text={this.state.amountError} />
                             </div>
-                            <div className="col-xs-12 col-sm-4">
+                            <div className="col-xs-12 col-md-4">
                                 <div className="row mt-14">
                                     <div className="col-xs-12">
                                         <div className="form-label">

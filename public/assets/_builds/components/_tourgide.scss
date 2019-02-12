@@ -154,7 +154,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
     }
 
     &link {
-        font-weight: 500;
+        font-weight: 600;
         text-decoration: none;
         cursor: pointer;
         border-bottom: 1px solid $white;
@@ -197,7 +197,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         position: relative;
 
         &--active {
-            font-weight: 600;
+            font-weight: bold;
             color: $pumpkin-orange;
         }
 
@@ -463,7 +463,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         }
 
         &--active {
-            font-weight: 600;
+            font-weight: bold;
             color: $pumpkin-orange;
             border-bottom: 2px solid $pumpkin-orange;
         }
@@ -617,7 +617,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         margin: 0;
         line-height: .7;
         padding-left: 11px;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     &__row {

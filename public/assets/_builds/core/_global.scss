@@ -1,16 +1,28 @@
 * {
     box-sizing: border-box;
-    font-family: $Geometria;
-    &:focus,
-    &:active {
-        outline: none;
-    }
 }
 
-html {
+html,
+body {
     font-size: 14px;
+    line-height: 24px;
+    font-family: $Biosans;
 }
 
-button, input, optgroup, select, textarea {
-    font-family: $Geometria;
+a, button, input, optgroup, select, textarea {
+    outline: none;
+    text-decoration: none;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &:required {
+        text-decoration: none;
+        outline: none;
+        box-shadow: none;
+    }
+
+    &[disabled] {
+        cursor: default;
+    }
 }
