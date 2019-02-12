@@ -247,6 +247,7 @@ function finishIntervalStatusChecks() {
     clearIntervalLong(types.BALANCE_INTERVAL_ID);
     clearIntervalLong(types.USD_PER_BTC_INTERVAL_ID);
     clearIntervalLong(types.LND_SYNC_STATUS_INTERVAL_ID);
+    clearIntervalLong(types.GET_MERCHANTS_INTERVAL_ID);
 }
 
 function logout(keepModalState = false) {
