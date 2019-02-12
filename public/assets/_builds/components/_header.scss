@@ -5,20 +5,21 @@ header {
 
     .logo {
         background: url(./../images/logo.svg) no-repeat left center;
-        background-size: cover;
+        background-size: contain;
         display: inline-block;
         height: 46px;
-        width: 139px;
+        width: 200px;
         margin: 17px 0;
         float: left;
         position: relative;
+        top: 2px;
 
         &:after {
             content: "lnd not synced";
             display: block;
             position: absolute;
-            left: 52px;
-            bottom: 6px;
+            right: 0;
+            bottom: -6px;
             color: $scarlet;
             text-transform: uppercase;
             font-size: 12px;
@@ -28,7 +29,7 @@ header {
         }
 
         &--unsynced {
-            background-image: url(./../images/logo-error.svg) no-repeat left center;
+            background-image: url(./../images/logo-error.svg);
             &:after {
                 opacity: 1;
             }
@@ -92,7 +93,7 @@ header {
     }
 }
 
-@media screen and (max-width: 909px) {
+@media screen and (max-width: 990px) {
     header {
         .nav {
             flex-direction: column;
