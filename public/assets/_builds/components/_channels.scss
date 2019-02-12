@@ -10,7 +10,6 @@
 
     .placeholder_text {
         text-transform: uppercase;
-        letter-spacing: -0.6px;
     }
 
     .container {
@@ -64,7 +63,6 @@
         line-height: 1.125;
         color: $black;
         padding-top: 5px;
-        letter-spacing: -0.5px;
         display: flex;
         flex-wrap: wrap;
         align-items: center;
@@ -97,7 +95,6 @@
         position: relative;
         transition: opacity .3s ease-in-out;
         padding-top: 5px;
-        letter-spacing: 0.2px;
         border: 0;
         background: transparent;
         cursor: pointer;
@@ -124,7 +121,6 @@
         position: relative;
         transition: opacity .3s ease-in-out;
         padding-top: 5px;
-        letter-spacing: 0.2px;
         border: 0;
         background: transparent;
         cursor: pointer;
@@ -261,7 +257,6 @@
         display: flex;
         font-size: 14px;
         line-height: 1;
-        letter-spacing: -0.4px;
         color: #000;
     }
 

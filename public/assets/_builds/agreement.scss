@@ -146,7 +146,6 @@
         font-style: normal;
         font-stretch: normal;
         line-height: 1.5;
-        letter-spacing: normal;
         text-align: left;
         color: #252525;
         margin-left: 0;
@@ -162,7 +161,6 @@
         &-submit {
             transition: opacity .2s ease-in-out;
             font-size: 20px;
-            letter-spacing: normal;
             text-align: justify;
             color: $pumpkin-orange;
             cursor: pointer;

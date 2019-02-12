@@ -13,7 +13,6 @@
         font-size: 14px;
         line-height: 1;
         color: #000;
-        letter-spacing: -0.5px;
 
         &__row {
             position: relative;
@@ -29,7 +28,6 @@
 
         &__value {
             font-weight: bold;
-            letter-spacing: -0.2px;
             white-space: nowrap;
         }
     }
@@ -41,7 +39,6 @@
         .button {
             vertical-align: middle;
             margin-top: -4px;
-            letter-spacing: 0;
         }
 
         .exchange_rate {
@@ -50,7 +47,6 @@
             color: $black;
             vertical-align: middle;
             display: inline-block;
-            letter-spacing: -0.3px;
 
             &--with_btn {
 

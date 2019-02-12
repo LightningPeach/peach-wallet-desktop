@@ -113,7 +113,6 @@
         padding: 0 9px;
         outline: none;
         width: 100%;
-        letter-spacing: -0.5px;
         height: 40px;
         line-height: 40px;
         text-overflow: ellipsis;
@@ -121,18 +120,17 @@
 
         &[type="password"] {
             padding-top: 0;
-            letter-spacing: -0.3px;
             &:not(:placeholder-shown) {
                 font-size: 27px;
-                letter-spacing: -0.7px;
                 padding-left: 6.3px;
+                letter-spacing: 1.2px;
             }
             &::-webkit-input-placeholder {
                 font-size: 14px;
-                letter-spacing: 2.8px;
                 opacity: 0.1;
                 position: relative;
                 top: -1px;
+                letter-spacing: 1.2px;
             }
         }
 
@@ -262,7 +260,6 @@
         font-size: 14px;
         line-height: 2.15;
         color: #000000;
-        letter-spacing: -0.6px;
         position: relative;
         display: inline-block;
         white-space: nowrap;

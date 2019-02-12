@@ -62,7 +62,6 @@ header {
             transition: font-weight .2s, color .2s;
             text-align: right;
             display: inline-block;
-            letter-spacing: -0.7px;
 
             &.active,
             &:hover,
@@ -78,7 +77,6 @@ header {
                 text-transform: capitalize;
                 margin-left: 20px;
                 line-height: 0.89;
-                letter-spacing: -0.3px;
             }
         }
 
