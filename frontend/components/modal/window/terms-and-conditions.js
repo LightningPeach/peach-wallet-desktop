@@ -33,11 +33,6 @@ class Law extends Component {
         }
     };
 
-    closeModal = () => {
-        const { dispatch } = this.props;
-        dispatch(appOperations.closeModal());
-    };
-
     render() {
         const { terms } = this.props;
         return (
