@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import { appOperations } from "modules/app";
-import { accountTypes, accountActions } from "modules/account";
+import { accountTypes, accountOperations } from "modules/account";
 
 import Modal from "components/modal";
 import Legal from "components/legal";
@@ -27,8 +27,8 @@ class Law extends Component {
         if (this.state.terms) {
             const analytics =
                 this.state.analytics ? accountTypes.ANALYTICS_MODE.ENABLED : accountTypes.ANALYTICS_MODE.DISABLED;
-            dispatch(accountActions.setAnalyticsMode(analytics));
-            dispatch(accountActions.setTermsMode(accountTypes.TERMS_MODE.ACCEPTED));
+            dispatch(accountOperations.setAnalyticsMode(analytics));
+            dispatch(accountOperations.setTermsMode(accountTypes.TERMS_MODE.ACCEPTED));
             dispatch(appOperations.closeModal());
         }
     };

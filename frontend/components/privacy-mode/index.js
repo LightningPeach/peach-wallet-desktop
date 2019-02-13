@@ -1,11 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { accountTypes, accountActions } from "modules/account";
+import { accountTypes, accountOperations } from "modules/account";
 
 const PrivacyMode = ({ dispatch, callback, privacyMode }) => {
     const confirmType = (type) => {
-        dispatch(accountActions.setPrivacyMode(type));
+        dispatch(accountOperations.setPrivacyMode(type));
         callback(type);
     };
     return (

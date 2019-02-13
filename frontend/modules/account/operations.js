@@ -420,6 +420,57 @@ function setSystemNotificationsStatus(value) {
     };
 }
 
+function setAnalyticsMode(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(actions.setAnalyticsMode(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ analytics: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setAnalyticsMode);
+        }
+    };
+}
+
+function setTermsMode(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(actions.setTermsMode(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ terms: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setTermsMode);
+        }
+    };
+}
+
+function setPrivacyMode(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(actions.setPrivacyMode(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ privacyMode: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setPrivacyMode);
+        }
+    };
+}
+
 function getPeers() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("listPeers");
@@ -524,4 +575,7 @@ export {
     setSystemNotificationsStatus,
     startIntervalStatusChecks,
     finishIntervalStatusChecks,
+    setAnalyticsMode,
+    setTermsMode,
+    setPrivacyMode,
 };
