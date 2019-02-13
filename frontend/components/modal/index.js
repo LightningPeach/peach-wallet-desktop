@@ -15,8 +15,8 @@ class Modal extends Component {
     }
 
     onKeyClick = (e) => {
-        const { disabled } = this.props;
-        if (!disabled && e.keyCode === 27) {
+        const { disabled, onClose } = this.props;
+        if (onClose && !disabled && e.keyCode === 27) {
             analytics.event({ action: "Modal", category: "Modal windows", label: "Close with ESC" });
             this.props.dispatch(appOperations.closeModal());
         }
@@ -97,7 +97,7 @@ Modal.propTypes = {
     ]).isRequired,
     disabled: PropTypes.bool,
     dispatch: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired,
+    onClose: PropTypes.func,
     showCloseButton: PropTypes.bool,
     styleSet: PropTypes.string,
     title: PropTypes.string,

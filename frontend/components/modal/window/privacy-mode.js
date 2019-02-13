@@ -26,8 +26,6 @@ class PrivacyMode extends Component {
         return (
             <Modal
                 title="Wallet Privacy Mode"
-                onClose={this.onClose}
-                showCloseButton
             >
                 <div className="modal-body">
                     <PrivacyModeComponent callback={(type) => this.onClose(`Choose mode ${type}`)} />

@@ -17,10 +17,6 @@ import { WalletPath } from "routes";
 import * as actions from "./actions";
 import * as types from "./types";
 
-function closeModal() {
-    return dispatch => dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
-}
-
 function startModalFlow() {
     return (dispatch, getState) => {
         const { modalFlow } = getState().app;
@@ -29,6 +25,17 @@ function startModalFlow() {
         }
         dispatch(actions.modalFlowPopFirst());
         dispatch(actions.setModalState(modalFlow[0]));
+    };
+}
+
+function closeModal() {
+    return (dispatch, getState) => {
+        const { modalFlow } = getState().app;
+        if (!modalFlow.length) {
+            dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
+        } else {
+            dispatch(startModalFlow());
+        }
     };
 }
 

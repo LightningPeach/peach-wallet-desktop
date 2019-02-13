@@ -116,15 +116,16 @@ function setInitConfig(lightningId) {
                 analytics: types.ANALYTICS_MODE.PENDING,
                 createChannelViewed: 0,
                 lightningId,
+                privacyMode: types.PRIVACY_MODE.PENDING,
                 systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
                 terms: types.TERMS_MODE.PENDING,
-                privacyMode: types.PRIVACY_MODE.PENDING,
             })
             .execute();
         dispatch(actions.setBitcoinMeasure(ALL_MEASURES[0].btc));
         dispatch(actions.setSystemNotificationsStatus(types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
         dispatch(actions.setAnalyticsMode(types.ANALYTICS_MODE.PENDING));
         dispatch(actions.setPrivacyMode(types.PRIVACY_MODE.PENDING));
+        dispatch(actions.setTermsMode(types.TERMS_MODE.PENDING));
         dispatch(appActions.addModalToFlow([
             types.MODAL_STATE_TERMS_AND_CONDITIONS,
             types.MODAL_STATE_PRIVACY_MODE,
@@ -146,13 +147,14 @@ function loadAccountSettings() {
             if (response) {
                 const modalFlow = [];
                 dispatch(actions.setBitcoinMeasure(response.activeMeasure));
-                dispatch(actions.setAnalyticsMode(response.analytics));
-                dispatch(actions.setPrivacyMode(response.privacyMode));
+                dispatch(actions.setAnalyticsMode(response.analytics || types.ANALYTICS_MODE.PENDING));
+                dispatch(actions.setPrivacyMode(response.privacyMode || types.PRIVACY_MODE.PENDING));
+                dispatch(actions.setTermsMode(response.terms || types.TERMS_MODE.PENDING));
                 dispatch(actions.setSystemNotificationsStatus(response.systemNotifications));
-                if (response.terms === types.TERMS_MODE.PENDING) {
+                if (!response.terms || response.terms === types.TERMS_MODE.PENDING) {
                     modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
                 }
-                if (response.privacyMode === types.PRIVACY_MODE.PENDING) {
+                if (!response.privacyMode || response.privacyMode === types.PRIVACY_MODE.PENDING) {
                     modalFlow.push(types.MODAL_STATE_PRIVACY_MODE);
                 }
                 if (response.createChannelViewed) {

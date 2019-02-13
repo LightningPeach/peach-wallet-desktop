@@ -214,3 +214,8 @@ export const setPrivacyMode = payload => ({
     payload,
     type: types.SET_PRIVACY_MODE,
 });
+
+export const setTermsMode = payload => ({
+    payload,
+    type: types.SET_TERMS_MODE,
+});

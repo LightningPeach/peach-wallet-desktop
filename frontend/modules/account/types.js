@@ -45,6 +45,7 @@ export const MODAL_STATE_PRIVACY_MODE = `${$prefix}MODAL_STATE_PRIVACY_MODE`;
 export const MODAL_STATE_TERMS_AND_CONDITIONS = `${$prefix}MODAL_STATE_TERMS_AND_CONDITIONS`;
 export const SET_ANALYTICS_MODE = `${$prefix}SET_ANALYTICS_MODE`;
 export const SET_PRIVACY_MODE = `${$prefix}SET_PRIVACY_MODE`;
+export const SET_TERMS_MODE = `${$prefix}SET_TERMS_MODE`;
 
 export const NOTIFICATIONS = {
     DISABLED_LOUD_DONT_SHOW_AGAIN: 2,
@@ -59,12 +60,12 @@ export const NOTIFICATIONS = {
 export const PRIVACY_MODE = {
     EXTENDED: "extended",
     INCOGNITO: "incognito",
-    PENDING: "",
+    PENDING: null,
 };
 export const ANALYTICS_MODE = {
     DISABLED: "disabled",
     ENABLED: "enabled",
-    PENDING: "",
+    PENDING: null,
 };
 export const TERMS_MODE = {
     ACCEPTED: 1,
