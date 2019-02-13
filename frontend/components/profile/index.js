@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
 import SubHeader from "components/subheader";
-import { accountOperations } from "modules/account";
+import { accountOperations, accountTypes } from "modules/account";
 import { appOperations, appTypes, appActions } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { statusCodes } from "config";
@@ -23,6 +23,7 @@ class Profile extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            analytics: props.analytics === accountTypes.ANALYTICS_MODE.ENABLED,
             notifications: (props.systemNotifications >> 2) & 1, // eslint-disable-line
             payReqAmountError: null,
             sound: (props.systemNotifications >> 1) & 1, // eslint-disable-line
@@ -134,6 +135,18 @@ class Profile extends Component {
             });
             dispatch(accountOperations.setSystemNotificationsStatus(systemNotifications ^ 2)); // eslint-disable-line
         }
+    };
+
+    toggleAnalytics = () => {
+        const { dispatch } = this.props;
+        this.setState({
+            analytics: !this.state.analytics,
+        });
+        const analyticsToggled =
+            this.props.analytics === accountTypes.ANALYTICS_MODE.ENABLED ?
+                accountTypes.ANALYTICS_MODE.DISABLED :
+                accountTypes.ANALYTICS_MODE.ENABLED;
+        dispatch(accountOperations.setAnalyticsMode(analyticsToggled));
     };
 
     renderProfile = () => {
@@ -446,6 +459,17 @@ class Profile extends Component {
                             />
                         </div>
                     </div>
+                    <div className="col-xs-12">
+                        <div className="profile__switcher switcher">
+                            <div className="switcher-text">
+                                Anonymous Statistics
+                            </div>
+                            <div
+                                className={`switcher-toggle ${this.state.analytics ? "active" : ""}`}
+                                onClick={this.toggleAnalytics}
+                            />
+                        </div>
+                    </div>
                 </div>
                 <div className="row profile__row profile__row--wrap">
                     <div className="col-xs-12 profile__flex">
@@ -516,6 +540,10 @@ class Profile extends Component {
 }
 
 Profile.propTypes = {
+    analytics: PropTypes.oneOf([
+        accountTypes.ANALYTICS_MODE.DISABLED,
+        accountTypes.ANALYTICS_MODE.ENABLED,
+    ]),
     appAsDefaultStatus: PropTypes.bool.isRequired,
     bitcoinAccount: PropTypes.arrayOf(PropTypes.oneOfType([
         PropTypes.shape({ address: PropTypes.string.isRequired }),
@@ -532,6 +560,7 @@ Profile.propTypes = {
 };
 
 const mapStateToProps = state => ({
+    analytics: state.account.analyticsMode,
     appAsDefaultStatus: state.app.appAsDefaultStatus,
     bitcoinAccount: state.account.bitcoinAccount,
     bitcoinMeasureType: state.account.bitcoinMeasureType,
