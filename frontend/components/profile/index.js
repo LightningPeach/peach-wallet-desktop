@@ -366,6 +366,19 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
+                <div className="row row--no-col align-center-xs">
+                    <div className="profile__label">
+                        Wallet Privacy Mode
+                    </div>
+                    <div className="profile__value">
+                        <button
+                            className="button button__link"
+                            onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                        >
+                            Change Mode
+                        </button>
+                    </div>
+                </div>
                 <div className="row mt-10">
                     <div className="col-xs-12">
                         <div className="form-label">

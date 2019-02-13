@@ -58,6 +58,10 @@ function openSystemNotificationsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
 }
 
+function openPrivacyModeModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_PRIVACY_MODE));
+}
+
 function checkBalance() {
     return async (dispatch, getState) => {
         const { isLogouting, isLogined } = getState().account;
@@ -572,6 +576,7 @@ export {
     checkBalance,
     setBitcoinMeasure,
     openSystemNotificationsModal,
+    openPrivacyModeModal,
     setSystemNotificationsStatus,
     startIntervalStatusChecks,
     finishIntervalStatusChecks,
