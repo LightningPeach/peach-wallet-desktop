@@ -37,6 +37,7 @@ import Notifications from "components/notifications";
 import ForceCloseChannelModal from "components/channels/modal/force-close-channel";
 import ForceLogoutModal from "components/modal/window/force-logout";
 import SystemNotificationsModal from "components/modal/window/system-notifications";
+import PrivacyModeModal from "components/modal/window/privacy-mode";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
@@ -193,6 +194,9 @@ class WalletPage extends Component {
                 break;
             case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
                 modal = <SystemNotificationsModal />;
+                break;
+            case accountTypes.MODAL_STATE_PRIVACY_MODE:
+                modal = <PrivacyModeModal />;
                 break;
             default:
                 modal = null;

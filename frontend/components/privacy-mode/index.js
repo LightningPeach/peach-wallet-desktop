@@ -109,7 +109,11 @@ const PrivacyMode = ({ dispatch, callback, privacyMode }) => {
 PrivacyMode.propTypes = {
     callback: PropTypes.func,
     dispatch: PropTypes.func.isRequired,
-    privacyMode: PropTypes.oneOf(accountTypes.PRIVACY_MODE),
+    privacyMode: PropTypes.oneOf([
+        accountTypes.PRIVACY_MODE.EXTENDED,
+        accountTypes.PRIVACY_MODE.INCOGNITO,
+        accountTypes.PRIVACY_MODE.PENDING,
+    ]),
 };
 
 const mapStateToProps = state => ({
