@@ -2,6 +2,44 @@
     opacity: 0.3;
 }
 
+.label {
+    &--checkmark {
+        position: relative;
+        padding-left: 26px;
+
+        &:before {
+            content: "";
+            position: absolute;
+            display: block;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            background: url(../images/icons/checkmark.svg);
+            background-size: contain;
+        }
+    }
+
+    &--xmark {
+        padding-left: 26px;
+        position: relative;
+
+        &:before {
+            content: "";
+            position: absolute;
+            display: block;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0;
+            background: url(../images/icons/xmark.svg);
+            background-size: contain;
+        }
+    }
+}
+
 .input {
     transition: border-color .2s;
 

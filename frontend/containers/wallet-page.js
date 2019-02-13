@@ -34,9 +34,9 @@ import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
 import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
-import ForceCloseChannel from "components/channels/modal/force-close-channel";
-import ForceLogout from "components/modal/force-logout";
-import SystemNotifications from "components/modal/system-notifications";
+import ForceCloseChannelModal from "components/channels/modal/force-close-channel";
+import ForceLogoutModal from "components/modal/window/force-logout";
+import SystemNotificationsModal from "components/modal/window/system-notifications";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
@@ -186,13 +186,13 @@ class WalletPage extends Component {
         let modal;
         switch (modalState) {
             case channelsTypes.MODAL_STATE_FORCE_DELETE_CHANNEL:
-                modal = <ForceCloseChannel />;
+                modal = <ForceCloseChannelModal />;
                 break;
             case appTypes.MODAL_STATE_FORCE_LOGOUT:
-                modal = <ForceLogout />;
+                modal = <ForceLogoutModal />;
                 break;
             case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
-                modal = <SystemNotifications />;
+                modal = <SystemNotificationsModal />;
                 break;
             default:
                 modal = null;

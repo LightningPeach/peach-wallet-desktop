@@ -29,7 +29,7 @@ module.exports = new EntitySchema({
             type: "integer",
             default: 0,
         },
-        userMode: {
+        privacyMode: {
             type: "varchar",
             default: "",
         },

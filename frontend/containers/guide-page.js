@@ -6,7 +6,7 @@ import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { accountOperations } from "modules/account";
 import { appTypes, appActions, appOperations } from "modules/app";
-import ForceLogout from "components/modal/force-logout";
+import ForceLogout from "components/modal/window/force-logout";
 import { GITHUB_USERGUIDE_LINK } from "config/consts";
 
 const background = <div className="tourgide__background" />;

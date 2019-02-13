@@ -11,6 +11,7 @@ body {
 }
 
 a, button, input, optgroup, select, textarea {
+    font-family: $Biosans;
     outline: none;
     text-decoration: none;
 
@@ -26,4 +27,11 @@ a, button, input, optgroup, select, textarea {
     &[disabled] {
         cursor: default;
     }
+}
+
+ul {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+    -webkit-padding-start: 0;
+    list-style-type: none;
 }

@@ -210,7 +210,7 @@ export const setAnalyticsMode = payload => ({
     type: types.SET_ANALYTICS_MODE,
 });
 
-export const setUserMode = payload => ({
+export const setPrivacyMode = payload => ({
     payload,
-    type: types.SET_USER_MODE,
+    type: types.SET_PRIVACY_MODE,
 });

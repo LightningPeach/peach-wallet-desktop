@@ -118,16 +118,16 @@ function setInitConfig(lightningId) {
                 lightningId,
                 systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
                 terms: types.TERMS_MODE.PENDING,
-                userMode: types.USER_MODE.PENDING,
+                privacyMode: types.PRIVACY_MODE.PENDING,
             })
             .execute();
         dispatch(actions.setBitcoinMeasure(ALL_MEASURES[0].btc));
         dispatch(actions.setSystemNotificationsStatus(types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
         dispatch(actions.setAnalyticsMode(types.ANALYTICS_MODE.PENDING));
-        dispatch(actions.setUserMode(types.USER_MODE.PENDING));
+        dispatch(actions.setPrivacyMode(types.PRIVACY_MODE.PENDING));
         dispatch(appActions.addModalToFlow([
             types.MODAL_STATE_TERMS_AND_CONDITIONS,
-            types.MODAL_STATE_USER_MODE,
+            types.MODAL_STATE_PRIVACY_MODE,
             types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
         ]));
         dispatch(appOperations.startModalFlow());
@@ -147,13 +147,13 @@ function loadAccountSettings() {
                 const modalFlow = [];
                 dispatch(actions.setBitcoinMeasure(response.activeMeasure));
                 dispatch(actions.setAnalyticsMode(response.analytics));
-                dispatch(actions.setUserMode(response.userMode));
+                dispatch(actions.setPrivacyMode(response.privacyMode));
                 dispatch(actions.setSystemNotificationsStatus(response.systemNotifications));
                 if (response.terms === types.TERMS_MODE.PENDING) {
                     modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
                 }
-                if (response.userMode === types.USER_MODE.PENDING) {
-                    modalFlow.push(types.MODAL_STATE_USER_MODE);
+                if (response.privacyMode === types.PRIVACY_MODE.PENDING) {
+                    modalFlow.push(types.MODAL_STATE_PRIVACY_MODE);
                 }
                 if (response.createChannelViewed) {
                     dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));

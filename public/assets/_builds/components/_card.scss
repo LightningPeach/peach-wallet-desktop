@@ -1,0 +1,51 @@
+.card {
+  font-size: 12px;
+  line-height: 16px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  &__footer {
+    padding-top: 30px;
+  }
+
+  &__description {
+    margin-bottom: 20px;
+  }
+
+  &__list {
+    &-item {
+      margin-top: 8px;
+    }
+  }
+
+  &__icon {
+    height: 40px;
+    width: 40px;
+    margin-bottom: 10px;
+
+    &--extended {
+      background: url(../images/icons/mode-extended.svg);
+      background-size: contain;
+    }
+
+    &--incognito {
+      background: url(../images/icons/mode-incognito.svg);
+      background-size: contain;
+    }
+  }
+
+  &--privacy-mode {
+    border: 1px solid $light-grey;
+    border-radius: $border-radius-sm;
+    height: 100%;
+  }
+}

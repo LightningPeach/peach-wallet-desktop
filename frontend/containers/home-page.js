@@ -7,8 +7,8 @@ import Login from "components/login";
 import Restore from "components/restore";
 import Registration from "components/registration";
 import RestoreSession from "components/restore-session";
-import DeepLinkLightning from "components/modal/deep-link-lightning";
-import ConfirmLogout from "components/profile/modal/logout";
+import DeepLinkLightningModal from "components/modal/window/deep-link-lightning";
+import ConfirmLogoutModal from "components/profile/modal/logout";
 import { appTypes } from "modules/app";
 
 const HomePage = (props) => {
@@ -32,10 +32,10 @@ const HomePage = (props) => {
     let modal;
     switch (modalState) {
         case appTypes.DEEP_LINK_LIGHTNING_MODAL_STATE:
-            modal = <DeepLinkLightning />;
+            modal = <DeepLinkLightningModal />;
             break;
         case appTypes.LOGOUT_MODAL_STATE:
-            modal = <ConfirmLogout />;
+            modal = <ConfirmLogoutModal />;
             break;
         default:
             modal = null;

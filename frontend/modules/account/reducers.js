@@ -29,12 +29,12 @@ export const initStateAccount = {
         isCreating: false,
     },
     peers: [],
+    privacyMode: types.PRIVACY_MODE.PENDING,
     signedMessage: null,
     systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
     toFixedMeasure: ALL_MEASURES[0].toFixed,
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,
-    userMode: types.USER_MODE.PENDING,
     validatingLightningId: false,
 };
 
@@ -101,8 +101,8 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, systemNotifications: action.payload };
         case types.SET_ANALYTICS_MODE:
             return { ...state, analyticsMode: action.payload };
-        case types.SET_USER_MODE:
-            return { ...state, userMode: action.payload };
+        case types.SET_PRIVACY_MODE:
+            return { ...state, privacyMode: action.payload };
         default:
             return state;
     }
