@@ -356,34 +356,41 @@ const requestInvoice = async (amount, lightningId, memo) => {
     const value = parseInt(amount, 10);
     const id = `${Date.now()}${crypto.randomBytes(5).toString("hex")}`;
 
-    // const defParams = {
-    //     _key: key,
-    //     action: types.ADD_INVOICE_REMOTE_REQUEST,
-    //     lightning_id: lightningId,
-    //     type: types.SOCKET_TYPE,
-    //     value,
-    // };
-    const defParams = {
-        data: {
-            action: types.SOCKET_PUBKEY_REQUEST,
+    // send without encryption if we send on server because there is no need, ssl encryption is used for mitm
+    if (lightningID === settings.get.peach.pubKey) {
+        const defParams = {
+            _key: id,
+            action: types.ADD_INVOICE_REMOTE_REQUEST,
             lightning_id: lightningId,
-            pubkey: secret.getPublic().encode("hex"),
-            id,
-        },
-    };
-    // save with whom we are communicating
-    invoiceStorage[id] = {
-        lightningId,
-        amount,
-    };
-    if (memo) {
-        invoiceStorage[id].memo = memo;
+            type: types.SOCKET_TYPE,
+            value,
+        };
+
+        invoiceStorage[id] = null
     }
+    else {
+        const defParams = {
+            data: {
+                action: types.SOCKET_PUBKEY_REQUEST,
+                lightning_id: lightningId,
+                pubkey: secret.getPublic().encode("hex"),
+                id,
+            },
+        };
+        // save with whom we are communicating
+        invoiceStorage[id] = {
+            lightningId,
+            amount,
+        };
+        if (memo) {
+            invoiceStorage[id].memo = memo;
+        }
 
-    const responseSign = await lnd.call("signMessage", { msg: Buffer.from(defParams.data.toString()) });
-    defParams.sign = responseSign.response.signature;
+        const responseSign = await lnd.call("signMessage", {msg: Buffer.from(defParams.data.toString())});
+        defParams.sign = responseSign.response.signature;
 
-    logger.debug("Will send request invoice with params:", defParams);
+        logger.debug("Will send request invoice with params:", defParams);
+    }
 
     ws.send(JSON.stringify(defParams));
     try {
