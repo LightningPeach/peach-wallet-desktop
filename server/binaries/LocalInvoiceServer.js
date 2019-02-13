@@ -367,6 +367,8 @@ const requestInvoice = async (amount, lightningId, memo) => {
         };
 
         invoiceStorage[id] = null
+
+        logger.debug("Will send request invoice with params:", defParams);
     }
     else {
         const defParams = {
