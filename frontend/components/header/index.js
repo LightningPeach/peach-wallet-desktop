@@ -119,7 +119,7 @@ class Header extends Component {
                                     className={`nav__link ${AddressBookPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >
-                                    Address Book
+                                    Contacts
                                 </Link>
                                 <Link
                                     to={MerchantsFullPath}
