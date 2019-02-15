@@ -190,54 +190,6 @@ registerIpc("openChannel", async (event, arg) => {
     };
 });
 
-// wtf lnd? why you create channel but not return response
-registerIpc("openChannelStream", async (event, arg) => {
-    const response = await new Promise((resolve) => {
-        const status = lnd.streamCall("OpenChannel", {
-            node_pubkey: Buffer.from(arg.node_pubkey_string, "hex"),
-            local_funding_amount: arg.local_funding_amount,
-        });
-        if (status.ok) {
-            let updated;
-            status.stream.on("data", (data) => {
-                logger.info({ func: "openChannel" }, "stream data", data);
-                if (data.update !== "chan_pending") {
-                    return;
-                }
-                if (!updated) {
-                    updated = true;
-                    status.stream.cancel();
-                    resolve({
-                        ok: true,
-                        response: {
-                            funding_txid_bytes: data.chan_pending.txid,
-                            output_index: data.chan_pending.output_index,
-                        },
-                    });
-                }
-            });
-            status.stream.on("error", (data) => {
-                if (data.code === grpcStatus.CANCELLED) {
-                    return;
-                }
-                logger.error({ func: "openChannel" }, data);
-                resolve({ ok: false, error: lnd.prettifyMessage(data.toString()) });
-            });
-        }
-    });
-    if (!response.ok) {
-        return response;
-    }
-    const txid = Buffer.from(response.response.funding_txid_bytes.reverse()).toString("hex");
-    const info = await lnd.call("GetInfo");
-    return {
-        ok: true,
-        funding_txid_str: txid,
-        output_index: response.response.output_index,
-        block_height: info.response.block_height,
-    };
-});
-
 registerIpc("closeChannel", async (event, arg) => {
     const response = await new Promise((resolve) => {
         const deleteStatus = lnd.streamCall("CloseChannel", arg);

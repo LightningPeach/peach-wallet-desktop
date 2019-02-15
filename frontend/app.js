@@ -5,9 +5,8 @@ import routes from "routes";
 import { syncHistoryWithStore } from "react-router-redux";
 import { Router, hashHistory } from "react-router";
 import { store } from "store/configure-store";
-import { analytics, subscribeToWatchHoverOnEllipsis } from "additional";
+import { subscribeToWatchHoverOnEllipsis } from "additional";
 
-analytics.init();
 subscribeToWatchHoverOnEllipsis();
 
 const history = syncHistoryWithStore(hashHistory, store);

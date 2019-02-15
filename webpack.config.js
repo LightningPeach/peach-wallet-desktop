@@ -8,7 +8,6 @@ module.exports = {
 
     entry: {
         bundle: "./app.js",
-        agreement: "./agreement.js",
     },
 
     output: {

@@ -9,7 +9,6 @@ const channelAmount = 10;
 const channelOpenedAmountString = "9.9095 mBTC";
 const channelHost = "127.0.0.1:20202";
 const timeoutForElementChecks = 40 * 1000;
-const agreementFile = "agreement.ini";
 const localSettings = "settings.local.ini";
 const regularTransactionName = "Test regular transaction";
 const filenamePostfix = ".testBackup";
@@ -30,7 +29,6 @@ module.exports = {
     channelOpenedAmountString,
     channelHost,
     timeoutForElementChecks,
-    agreementFile,
     localSettings,
     regularTransactionName,
     filenamePostfix,

@@ -13,7 +13,6 @@ window.env = {
 };
 window.INIT_LISTEN_PORT = settings.preload.getInitListenPort;
 window.ELECTRON_SHELL = electron.shell;
-window.AGREEMENT = settings.preload.getAgreement;
 window.ANALYTICS = settings.preload.getAnalytics;
 window.PEACH = settings.preload.getPeach;
 window.BITCOIN_SETTINGS = settings.preload.getBitcoin;

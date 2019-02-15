@@ -3,7 +3,6 @@ export const PEACH_API_HOST = `${PEACH_API_PROTOCOL}://${window.PEACH.replenishU
 export const { NODE_ENV } = window.env;
 export const {
     ANALYTICS,
-    AGREEMENT,
     PEACH,
     BITCOIN_SETTINGS,
     DB,

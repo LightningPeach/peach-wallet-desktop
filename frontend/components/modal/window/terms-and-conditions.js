@@ -48,7 +48,7 @@ class Law extends Component {
                     <div className="row">
                         {terms === accountTypes.TERMS_MODE.PENDING &&
                             <div className="col-xs-12">
-                                <label className="form-checkbox label_line pull-left js-agreement">
+                                <label className="form-checkbox label_line pull-left">
                                     <input
                                         id="eula-agreement-checkbox"
                                         name="terms"

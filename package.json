@@ -38,8 +38,7 @@
     "files": [
       "**/*",
       "!settings.local.ini",
-      "!settings.peach.local.json",
-      "!agreement.ini"
+      "!settings.peach.local.json"
     ],
     "extraFiles": [
       {

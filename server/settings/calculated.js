@@ -20,33 +20,6 @@ module.exports = ({
      */
     const databasePath = username => join(config.get("lndPath"), String(username), config.get("backend.dbFile"));
 
-    /**
-     * Create agreement file (eula.txt and google analytics agreement)
-     * @param {bool} gaChecked - if user agreed to send ga analytics
-     */
-    const setAgreement = async (gaChecked) => {
-        logger.info("[SETTINGS] - setAgreement", gaChecked);
-        const sendStatistics = gaChecked || false;
-        const agreementContent = [
-            "[agreement]",
-            "eula = true",
-            `sendStatistics = ${sendStatistics}`,
-            `legalVersion = ${config.get("version.legal")}`,
-        ];
-        if (gaChecked) {
-            agreementContent.push(
-                "",
-                "[analytics]",
-                `trackingID = ${baseSettings.peachSettings.analytics.trackingID}`,
-                `appUrl = ${baseSettings.peachSettings.analytics.appUrl}`,
-            );
-        }
-        logger.info("[SETTINGS] - will write ", agreementContent);
-        await helpers.writeFile(join(dataPath, "agreement.ini"), agreementContent.join("\n"));
-        config.set("analytics", Object.assign({}, baseSettings.peachSettings.analytics));
-        config.set("agreement", { eula: true, sendStatistics, legalVersion: config.get("version.legal") });
-    };
-
     const walletLndPath = (name, additionalFile) => {
         if (!name) {
             throw new Error("Username for wallet not provided");
@@ -144,7 +117,6 @@ module.exports = ({
         getCustomPathLndUsernames,
         databasePath,
         listenPort,
-        setAgreement,
         setListenPort,
         walletLndPath,
         loadLndPath,

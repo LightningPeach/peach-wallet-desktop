@@ -1,16 +1,4 @@
 module.exports = {
-    agreement: {
-        eula: {
-            doc: "Is eula accepted",
-            format: Boolean,
-            default: false,
-        },
-        sendStatistics: {
-            doc: "Sending anonymous statistics is accepted",
-            format: Boolean,
-            default: false,
-        },
-    },
     analytics: {
         trackingID: {
             format: String,
