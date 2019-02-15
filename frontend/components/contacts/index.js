@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, logger } from "additional";
@@ -7,6 +7,7 @@ import {
     contactsOperations as operations,
     contactsTypes as types,
 } from "modules/contacts";
+import { accountOperations, accountTypes } from "modules/account";
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
 import RecordsTable from "components/records/table";
@@ -126,11 +127,35 @@ class ContactsPage extends Component {
         dispatch(operations.openNewContactModal());
     };
 
-    renderEmptyList = () => (
-        <div className="empty-placeholder">
-            <span className="placeholder_text">Here all your contacts will be displayed</span>
-        </div>
-    );
+    renderEmptyList = (isIncognito = false) => {
+        const { dispatch } = this.props;
+        return (
+            <div className="empty-placeholder">
+                {isIncognito
+                    ? (
+                        <Fragment>
+                            <div className="row">
+                                <div className="col-xs-12">
+                                    <span className="placeholder_text">
+                                        Contact list is available only in the Extended Mode.
+                                    </span>
+                                </div>
+                                <div className="col-xs-12 mt-16">
+                                    <button
+                                        className="button button__orange"
+                                        onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                                    >
+                                        Change Mode
+                                    </button>
+                                </div>
+                            </div>
+                        </Fragment>
+                    )
+                    : <span className="placeholder_text">Here all your contacts will be displayed</span>
+                }
+            </div>
+        );
+    };
 
     renderContacts = () => (
         <div className="container">
@@ -154,7 +179,7 @@ class ContactsPage extends Component {
     );
 
     render() {
-        const { contacts, modalState } = this.props;
+        const { contacts, modalState, privacyMode } = this.props;
         let modal;
         switch (modalState) {
             case types.MODAL_STATE_NEW_CONTACT:
@@ -174,7 +199,9 @@ class ContactsPage extends Component {
         return [
             <SubHeader key={1} button={headerBtn} />,
             <div key={2} className="contacts-page">
-                {!contacts.length ? this.renderEmptyList() : this.renderContacts()}
+                {!contacts.length || privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
+                    ? this.renderEmptyList(privacyMode === accountTypes.PRIVACY_MODE.INCOGNITO)
+                    : this.renderContacts()}
             </div>,
             <ReactCSSTransitionGroup
                 transitionName="modal-transition"
@@ -196,12 +223,18 @@ ContactsPage.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape().isRequired,
     modalState: PropTypes.string.isRequired,
+    privacyMode: PropTypes.oneOf([
+        accountTypes.PRIVACY_MODE.EXTENDED,
+        accountTypes.PRIVACY_MODE.INCOGNITO,
+        accountTypes.PRIVACY_MODE.PENDING,
+    ]),
 };
 
 const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
     filter: state.filter.contacts,
     modalState: state.app.modalState,
+    privacyMode: state.account.privacyMode,
 });
 
 export default connect(mapStateToProps)(ContactsPage);
