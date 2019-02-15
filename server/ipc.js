@@ -20,20 +20,6 @@ registerIpc("selectFolder", () => {
     return { ok: true, response: { folder: folder ? folder[0] : null } };
 });
 
-/**
- * User agreed the eula.txt
- */
-ipcMain.on("agreement-checked", async (event, arg) => {
-    console.log("Agreement checked", arg);
-    try {
-        await settings.set("agreement", [arg.gaChecked]);
-        event.sender.send("agreement-wrote");
-    } catch (err) {
-        logger.error({ func: "agreement-checker" }, err);
-        event.sender.send("error", err);
-    }
-});
-
 ipcMain.on("setDefaultLightningApp", () => {
     app.setAsDefaultProtocolClient("lightning");
 });
