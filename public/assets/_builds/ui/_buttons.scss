@@ -127,6 +127,24 @@
                 color: $scarlet-two;
             }
         }
+
+        &--locked {
+            padding-right: calc(1em + 5px);
+            position: relative;
+
+            &:after {
+                content: '';
+                position: absolute;
+                display: block;
+                height: 1em;
+                width: 1em;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+                background-image: url(../images/icons/lock.svg);
+                background-size: contain;
+            }
+        }
     }
 
     &__hollow {

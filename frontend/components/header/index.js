@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router";
-import { accountOperations } from "modules/account";
+import { accountOperations, accountTypes } from "modules/account";
 import { channelsActions, channelsTypes } from "modules/channels";
 import {
     WalletPath,
@@ -62,7 +62,7 @@ class Header extends Component {
     };
 
     render() {
-        const { lndSyncedToChain } = this.props;
+        const { lndSyncedToChain, privacyMode } = this.props;
         const path = this.props.location.pathname;
         let navClass = this.state.burgerState;
         if (this.props.skipCreateTutorial === channelsTypes.SHOW) {
@@ -116,7 +116,9 @@ class Header extends Component {
                                 </Link>
                                 <Link
                                     to={AddressBookFullPath}
-                                    className={`nav__link ${AddressBookPanel.includes(path) ? "active" : ""}`}
+                                    className={`nav__link ${
+                                        privacyMode ? "button__link--locked" : ""
+                                    } ${AddressBookPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >
                                     Contacts
@@ -157,12 +159,18 @@ Header.propTypes = {
         search: PropTypes.string,
         state: PropTypes.string,
     }).isRequired,
+    privacyMode: PropTypes.oneOf([
+        accountTypes.PRIVACY_MODE.EXTENDED,
+        accountTypes.PRIVACY_MODE.INCOGNITO,
+        accountTypes.PRIVACY_MODE.PENDING,
+    ]),
     skipCreateTutorial: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
     lndSyncedToChain: state.lnd.lndSyncedToChain,
     location: state.routing.locationBeforeTransitions,
+    privacyMode: state.account.privacyMode,
     skipCreateTutorial: state.channels.skipCreateTutorial,
 });
 
