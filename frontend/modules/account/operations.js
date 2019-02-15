@@ -109,7 +109,50 @@ function createNewBitcoinAccount() {
     };
 }
 
-// TODO: USER_LOGIN_SHOW_MODALS_FLOW
+function startLis() {
+    return async (dispatch, getState) => {
+        const {
+            privacyMode,
+            termsMode,
+            lisStatus,
+            lightningID,
+        } = getState().account;
+        if (
+            privacyMode !== types.PRIVACY_MODE.EXTENDED
+            || termsMode !== types.TERMS_MODE.ACCEPTED
+            || lisStatus === types.LIS_UP
+        ) {
+            return successPromise();
+        }
+        const response = await window.ipcClient("startLis");
+        if (!response.ok) {
+            if (privacyMode === types.PRIVACY_MODE.EXTENDED) {
+                dispatch(actions.setPrivacyMode(types.PRIVACY_MODE.INCOGNITO));
+                db.configBuilder()
+                    .update()
+                    .set({ privacyMode: types.PRIVACY_MODE.INCOGNITO })
+                    .where("lightningId = :lightningID", { lightningID })
+                    .execute();
+            }
+            return errorPromise(response.error, startLis);
+        }
+        return successPromise();
+    };
+}
+
+function shutDownLis() {
+    return async (dispatch, getState) => {
+        const { lisStatus } = getState().account;
+        if (lisStatus !== types.LIS_UP) {
+            return successPromise();
+        }
+        const response = await window.ipcClient("shutDownLis");
+        if (!response.ok) {
+            return errorPromise(response.error, shutDownLis);
+        }
+        return successPromise();
+    };
+}
 
 function setInitConfig(lightningId) {
     return async (dispatch) => {
@@ -333,11 +376,6 @@ function initAccount(login, newAccount = false) {
         }
         logger.log("LND synced succesfully");
         tempNewAcc = false;
-        response = await window.ipcClient("startLis");
-        logger.log("LIS start");
-        if (!response.ok) {
-            return handleError(dispatch, getState, response.error);
-        }
         response = await dispatch(getLightningID());
         logger.log("Have got lightning id");
         logger.log(response);
@@ -371,6 +409,7 @@ function initAccount(login, newAccount = false) {
             dispatch(loadAccountSettings()),
         ]);
         dispatch(serverOperations.getMerchants());
+        await dispatch(startLis());
         await dispatch(checkBalance());
         await dispatch(streamPaymentOperations.loadStreams());
         dispatch(startIntervalStatusChecks());
@@ -468,6 +507,11 @@ function setPrivacyMode(value) {
                 .set({ privacyMode: value })
                 .where("lightningId = :lightningID", { lightningID })
                 .execute();
+            if (value === types.PRIVACY_MODE.EXTENDED) {
+                await dispatch(startLis());
+            } else if (value === types.PRIVACY_MODE.INCOGNITO) {
+                await dispatch(shutDownLis());
+            }
             return successPromise();
         } catch (e) {
             return errorPromise(e.message, setPrivacyMode);
@@ -565,6 +609,7 @@ export {
     loadAccountSettings,
     connectKernel,
     connectServerLnd,
+    startLis,
     getLightningID,
     initAccount,
     logout,

@@ -52,11 +52,17 @@ registerIpc("unlockLnd", async (event, arg) => {
 registerIpc("createLndWallet", async (event, arg) => lnd.createWallet(arg.password, arg.seed, arg.recovery));
 
 /**
- * Start localInvoiceServer
+ * Manage localInvoiceServer connection
  */
 registerIpc("startLis", async (event, arg) => {
     console.log("Starting local invoice server");
     await localInvoiceServer.openConnection(arg.username);
+    return { ok: true };
+});
+
+registerIpc("shutDownLis", async (event, arg) => {
+    console.log("Shutting down local invoice server");
+    await localInvoiceServer.closeConnection(arg.username);
     return { ok: true };
 });
 
