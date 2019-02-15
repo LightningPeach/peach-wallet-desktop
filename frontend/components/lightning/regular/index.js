@@ -132,6 +132,13 @@ class RegularPayment extends Component {
             label: "Pay",
         });
         const { contacts, isThereActiveChannel, dispatch } = this.props;
+        if (!this.state.isPayReq) {
+            this.setState({
+                processing: false,
+                toError: statusCodes.EXCEPTION_INCORRECT_PAYMENT_REQUEST,
+            });
+            return;
+        }
         if (!isThereActiveChannel) {
             this.setState({ processing: false });
             dispatch(lightningOperations.channelWarningModal());
@@ -188,6 +195,7 @@ class RegularPayment extends Component {
         } = this.props;
         if (privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED) {
             this.setState({
+                processing: false,
                 toError: statusCodes.EXCEPTION_PAY_LIGHTNING_ID_IN_INCOGNITO,
             });
             return;
@@ -257,7 +265,11 @@ class RegularPayment extends Component {
                 />
             </span>
         );
-        const toPlaceholder = `${lisStatus === accountTypes.LIS_UP ? "Lightning ID / " : ""}Payment request`;
+        const toPlaceholder = `${
+            privacyMode === accountTypes.PRIVACY_MODE.EXTENDED && lisStatus === accountTypes.LIS_UP
+                ? "Lightning ID / "
+                : ""
+        }Payment request`;
         const usd = !this.state.isPayReq && !this.state.amount ? null
             : (this.state.isPayReq ? usdRender(this.state.payReqAmount) : usdRender(this.state.amount));
 
@@ -325,7 +337,7 @@ class RegularPayment extends Component {
                             onRef={(ref) => {
                                 this.toField = ref;
                             }}
-                            disableDropdown={privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED}
+                            disableLightningId={privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED}
                         />
                         <ErrorFieldTooltip text={this.state.toError} />
                     </div>

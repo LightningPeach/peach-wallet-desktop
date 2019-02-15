@@ -217,9 +217,9 @@ class ToField extends Component {
     );
 
     render() {
-        const { disableDropdown } = this.props;
+        const { disableLightningId } = this.props;
         return (
-            <div className={`l-select ${disableDropdown ? "l-select--no-dropdown" : ""}`}>
+            <div className={`l-select ${disableLightningId ? "l-select--no-dropdown" : ""}`}>
                 {this.renderArrow()}
                 {/* {this.renderClear()} */}
                 <input
@@ -235,7 +235,7 @@ class ToField extends Component {
                     onChange={this.onInput}
                     disabled={this.props.disabled}
                 />
-                {this.state.isFocused && !disableDropdown ? this.renderDropdown() : null}
+                {this.state.isFocused && !disableLightningId ? this.renderDropdown() : null}
             </div>
         );
     }
@@ -248,8 +248,8 @@ ToField.propTypes = {
         name: PropTypes.string.isRequired,
     })),
     contactsSearch: PropTypes.string,
+    disableLightningId: PropTypes.bool,
     disabled: PropTypes.bool,
-    disableDropdown: PropTypes.bool,
     dispatch: PropTypes.func.isRequired,
     id: PropTypes.string,
     newContactAddedName: PropTypes.string,
