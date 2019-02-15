@@ -172,7 +172,11 @@ export const EXCEPTION_LIS_DOWN_DURING_TX =
 
 // MERCHANTS
 // Merchants api unavailable, exception or 404
-const EXCEPTION_SERVER_UNAVAILABLE = "Server api unavailable.";
+export const EXCEPTION_SERVER_UNAVAILABLE = "Server api unavailable.";
+
+//PRIVACY MODE
+// Attempt to pay via Lightning Id not in extended mode
+export const EXCEPTION_PAY_LIGHTNING_ID_IN_INCOGNITO = "You can not pay via Lightning Id while not in extended mode";
 
 /**
  * STATUS NOTIFICATIONS

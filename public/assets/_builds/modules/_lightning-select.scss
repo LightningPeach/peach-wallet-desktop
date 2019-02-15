@@ -1,6 +1,14 @@
 .l-select {
     position: relative;
 
+    &--no-dropdown {
+        .l-select {
+            &__arrow {
+                display: none;
+            }
+        }
+    }
+
     &__arrow {
         content: "";
         background: url(../images/drop-arrow-icon-black.svg) no-repeat no-repeat 11px 18px;
