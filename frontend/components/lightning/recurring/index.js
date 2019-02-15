@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
@@ -555,8 +555,24 @@ class RecurringPayment extends Component {
         );
     };
 
+    renderIncognitoBody = () => {
+        const { dispatch } = this.props;
+        return (
+            <div>
+                Stream Payments are available only in the Extended Mode.
+                You can&nbsp;
+                <button
+                    className="button button__link"
+                    onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                >
+                    change
+                </button> Wallet Privacy Mode.
+            </div>
+        );
+    };
+
     render() {
-        const { modalState } = this.props;
+        const { modalState, privacyMode } = this.props;
         let modal;
         switch (modalState) {
             case streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS:
@@ -571,18 +587,23 @@ class RecurringPayment extends Component {
             default:
                 modal = null;
         }
-        return [
-            this.renderForm(),
-            <RecurringHistory key={1} />,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key="streamsModals"
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+        return (
+            <Fragment>
+                {privacyMode === accountTypes.PRIVACY_MODE.EXTENDED
+                    ? this.renderForm()
+                    : this.renderIncognitoBody()
+                }
+                <RecurringHistory />
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    key="streamsModals"
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
@@ -596,6 +617,11 @@ RecurringPayment.propTypes = {
     isThereActiveChannel: PropTypes.bool,
     lisStatus: PropTypes.string.isRequired,
     modalState: PropTypes.string.isRequired,
+    privacyMode: PropTypes.oneOf([
+        accountTypes.PRIVACY_MODE.EXTENDED,
+        accountTypes.PRIVACY_MODE.INCOGNITO,
+        accountTypes.PRIVACY_MODE.PENDING,
+    ]),
 };
 
 const mapStateToProps = state => ({
@@ -604,6 +630,7 @@ const mapStateToProps = state => ({
     isThereActiveChannel: channelsSelectors.isThereActiveChannel(state),
     lisStatus: state.account.lisStatus,
     modalState: state.app.modalState,
+    privacyMode: state.account.privacyMode,
 });
 
 export default connect(mapStateToProps)(RecurringPayment);

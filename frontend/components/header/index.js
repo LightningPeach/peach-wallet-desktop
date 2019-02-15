@@ -117,7 +117,9 @@ class Header extends Component {
                                 <Link
                                     to={AddressBookFullPath}
                                     className={`nav__link ${
-                                        privacyMode ? "button__link--locked" : ""
+                                        privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
+                                            ? "button__link--locked"
+                                            : ""
                                     } ${AddressBookPanel.includes(path) ? "active" : ""}`}
                                     onClick={this.hideBurger}
                                 >

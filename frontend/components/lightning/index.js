@@ -12,6 +12,7 @@ import {
     contactsOperations,
     contactsActions,
 } from "modules/contacts";
+import { accountTypes } from "modules/account";
 import { channelsOperations, channelsSelectors } from "modules/channels";
 import NewContact from "components/contacts/modal/new-contact";
 import { appTypes } from "modules/app";
@@ -84,7 +85,7 @@ class Lightning extends Component {
     };
 
     render() {
-        const { modalState } = this.props;
+        const { modalState, privacyMode } = this.props;
         const { activeTab } = this.state;
         let modal;
         switch (modalState) {
@@ -129,7 +130,11 @@ class Lightning extends Component {
                                         Regular payment
                                     </a>
                                     <a
-                                        className={`tab-link ${activeTab === "recurring" ? "tab-link-active" : ""}`}
+                                        className={`tab-link ${
+                                            activeTab === "recurring" ? "tab-link-active" : ""
+                                        } ${privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
+                                            ? "button__link--locked"
+                                            : ""}`}
                                         onClick={() => this.handleTabClick("recurring")}
                                     >
                                         Recurring payment
@@ -157,11 +162,17 @@ Lightning.propTypes = {
     dispatch: PropTypes.func.isRequired,
     externalPaymentRequest: PropTypes.string,
     modalState: PropTypes.string,
+    privacyMode: PropTypes.oneOf([
+        accountTypes.PRIVACY_MODE.EXTENDED,
+        accountTypes.PRIVACY_MODE.INCOGNITO,
+        accountTypes.PRIVACY_MODE.PENDING,
+    ]),
 };
 
 const mapStateToProps = state => ({
     externalPaymentRequest: state.lightning.externalPaymentRequest,
     modalState: state.app.modalState,
+    privacyMode: state.account.privacyMode,
 });
 
 export default connect(mapStateToProps)(Lightning);
