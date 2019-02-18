@@ -136,7 +136,7 @@ const onMessage = async (message) => {
         }
         case types.SOCKET_ADD_INVOICE_REMOTE_RESPONSE: {
             logger.debug("Response from request invoice:", msg);
-            invoiceResponse[msg._key] = msg;
+            invoiceStorage[msg._key] = msg;
             break;
         }
         case types.SOCKET_ADD_INVOICE_REMOTE_REQUEST: {
@@ -356,9 +356,13 @@ const requestInvoice = async (amount, lightningId, memo) => {
     const value = parseInt(amount, 10);
     const id = `${Date.now()}${crypto.randomBytes(5).toString("hex")}`;
 
+    let defParams;
+    logger.debug("Will create an invoice");
     // send without encryption if we send on server because there is no need, ssl encryption is used for mitm
-    if (lightningID === settings.get.peach.pubKey) {
-        const defParams = {
+    logger.debug(lightningId === settings.get.peach.pubKey);
+    if (lightningId === settings.get.peach.pubKey) {
+        logger.debug("Inside if statement");
+        defParams = {
             _key: id,
             action: types.ADD_INVOICE_REMOTE_REQUEST,
             lightning_id: lightningId,
@@ -366,12 +370,11 @@ const requestInvoice = async (amount, lightningId, memo) => {
             value,
         };
 
-        invoiceStorage[id] = null
+        invoiceStorage[id] = null;
 
         logger.debug("Will send request invoice with params:", defParams);
-    }
-    else {
-        const defParams = {
+    } else {
+        defParams = {
             data: {
                 action: types.SOCKET_PUBKEY_REQUEST,
                 lightning_id: lightningId,
@@ -388,7 +391,7 @@ const requestInvoice = async (amount, lightningId, memo) => {
             invoiceStorage[id].memo = memo;
         }
 
-        const responseSign = await lnd.call("signMessage", {msg: Buffer.from(defParams.data.toString())});
+        const responseSign = await lnd.call("signMessage", { msg: Buffer.from(defParams.data.toString()) });
         defParams.sign = responseSign.response.signature;
 
         logger.debug("Will send request invoice with params:", defParams);
@@ -406,6 +409,7 @@ const requestInvoice = async (amount, lightningId, memo) => {
                     reject(new Error(types.ERROR_INVOICE_MAX_RETRIES));
                     return;
                 }
+                logger.debug("Will check invoice:", invoiceStorage[id]);
                 if (invoiceStorage[id] && invoiceStorage[id].invoice) {
                     clearInterval(intervalId);
                     logger.debug("Invoice received:", id, invoiceStorage[id]);
