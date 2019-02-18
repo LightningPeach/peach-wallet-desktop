@@ -155,29 +155,31 @@ function shutDownLis() {
 }
 
 function setInitConfig(lightningId) {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const { analyticsMode, termsMode, privacyMode } = getState().account;
+        const modalFlow = [];
         await db.configBuilder()
             .insert()
             .values({
                 activeMeasure: ALL_MEASURES[0].btc,
-                analytics: types.ANALYTICS_MODE.PENDING,
+                analytics: analyticsMode,
                 createChannelViewed: 0,
                 lightningId,
-                privacyMode: types.PRIVACY_MODE.PENDING,
+                privacyMode,
                 systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
-                terms: types.TERMS_MODE.PENDING,
+                terms: termsMode,
             })
             .execute();
         dispatch(actions.setBitcoinMeasure(ALL_MEASURES[0].btc));
         dispatch(actions.setSystemNotificationsStatus(types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
-        dispatch(actions.setAnalyticsMode(types.ANALYTICS_MODE.PENDING));
-        dispatch(actions.setPrivacyMode(types.PRIVACY_MODE.PENDING));
-        dispatch(actions.setTermsMode(types.TERMS_MODE.PENDING));
-        dispatch(appActions.addModalToFlow([
-            types.MODAL_STATE_TERMS_AND_CONDITIONS,
-            types.MODAL_STATE_PRIVACY_MODE,
-            types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
-        ]));
+        if (termsMode === types.TERMS_MODE.PENDING || analyticsMode === types.ANALYTICS_MODE.PENDING) {
+            modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
+        }
+        if (privacyMode === types.PRIVACY_MODE.PENDING) {
+            modalFlow.push(types.MODAL_STATE_PRIVACY_MODE);
+        }
+        modalFlow.push(types.MODAL_STATE_SYSTEM_NOTIFICATIONS);
+        dispatch(appActions.addModalToFlow(modalFlow));
         dispatch(appOperations.startModalFlow());
         return successPromise();
     };
@@ -198,7 +200,12 @@ function loadAccountSettings() {
                 dispatch(actions.setPrivacyMode(response.privacyMode || types.PRIVACY_MODE.PENDING));
                 dispatch(actions.setTermsMode(response.terms || types.TERMS_MODE.PENDING));
                 dispatch(actions.setSystemNotificationsStatus(response.systemNotifications));
-                if (!response.terms || response.terms === types.TERMS_MODE.PENDING) {
+                if (
+                    !response.terms
+                    || response.terms === types.TERMS_MODE.PENDING
+                    || !response.analytics
+                    || response.analytics === types.ANALYTICS_MODE.PENDING
+                ) {
                     modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
                 }
                 if (!response.privacyMode || response.privacyMode === types.PRIVACY_MODE.PENDING) {
