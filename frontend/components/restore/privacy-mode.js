@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { push } from "react-router-redux";
 
+import { WalletPath } from "routes";
 import { accountActions, accountTypes } from "modules/account";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
@@ -10,13 +12,17 @@ import PrivacyModeComponent from "components/privacy-mode";
 
 class Terms extends Component {
     onChooseMode = () => {
-        const { dispatch } = this.props;
-        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_SEED_DISPLAY));
+        const { dispatch, method } = this.props;
+        if (method === types.RESTORE_TYPE_SEED) {
+            dispatch(operations.setAuthStep(types.RESTORE_STEP_SEED));
+        } else {
+            dispatch(push(WalletPath));
+        }
     };
 
     goBack = () => {
         const { dispatch } = this.props;
-        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_TERMS));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
     render() {
@@ -48,6 +54,10 @@ class Terms extends Component {
 
 Terms.propTypes = {
     dispatch: PropTypes.func.isRequired,
+    method: PropTypes.PropTypes.oneOf([
+        types.RESTORE_TYPE_SEED,
+        types.RESTORE_TYPE_FOLDER,
+    ]).isRequired,
 };
 
 export default connect()(Terms);

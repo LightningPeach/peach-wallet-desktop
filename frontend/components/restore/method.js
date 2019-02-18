@@ -6,20 +6,23 @@ import * as analytics from "additional/analytics";
 
 class Method extends Component {
     useWalletData = () => {
-        const { dispatch } = this.props;
+        const { dispatch, callback } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Use wallet data" });
+        callback(types.RESTORE_TYPE_FOLDER);
         dispatch(operations.setAuthStep(types.RESTORE_STEP_USE_WALLET_DATA));
     };
 
     useSeed = () => {
-        const { dispatch } = this.props;
+        const { dispatch, callback } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Use seed words" });
+        callback(types.RESTORE_TYPE_SEED);
         dispatch(operations.setAuthStep(types.RESTORE_STEP_USER_PASS));
     };
 
     cancelRestore = () => {
-        const { dispatch } = this.props;
+        const { dispatch, callback } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Cancel select method" });
+        callback(null);
         dispatch(operations.setForm(types.LOGIN_FORM));
     };
 
@@ -59,6 +62,7 @@ class Method extends Component {
 }
 
 Method.propTypes = {
+    callback: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
 };
 

@@ -23,10 +23,10 @@ class Terms extends Component {
     };
 
     goBack = () => {
-        const { dispatch } = this.props;
-        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_INIT));
-        dispatch(lndOperations.clearLndData());
-        dispatch(accountActions.finishInitAccount());
+        const { dispatch, method } = this.props;
+        dispatch(operations.setAuthStep(method === types.RESTORE_TYPE_SEED
+            ? types.RESTORE_STEP_USER_PASS
+            : types.RESTORE_STEP_USE_WALLET_DATA));
     };
 
     submitTerms = () => {
@@ -35,7 +35,7 @@ class Terms extends Component {
             this.state.analytics ? accountTypes.ANALYTICS_MODE.ENABLED : accountTypes.ANALYTICS_MODE.DISABLED;
         dispatch(accountActions.setAnalyticsMode(analytics));
         dispatch(accountActions.setTermsMode(accountTypes.TERMS_MODE.ACCEPTED));
-        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_PRIVACY_MODE));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_PRIVACY_MODE));
     };
 
     render() {
@@ -106,6 +106,10 @@ Terms.propTypes = {
         accountTypes.ANALYTICS_MODE.PENDING,
     ]),
     dispatch: PropTypes.func.isRequired,
+    method: PropTypes.PropTypes.oneOf([
+        types.RESTORE_TYPE_SEED,
+        types.RESTORE_TYPE_FOLDER,
+    ]).isRequired,
     terms: PropTypes.PropTypes.oneOf([
         accountTypes.TERMS_MODE.ACCEPTED,
         accountTypes.TERMS_MODE.PENDING,

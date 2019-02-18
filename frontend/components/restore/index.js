@@ -15,9 +15,13 @@ class Restore extends Component {
         super(props);
         this.username = null;
         this.password = null;
+        this.method = null;
 
         analytics.pageview("/restore", "Restore Password");
     }
+    setMethod = (method) => {
+        this.method = method;
+    };
 
     setUser = ({ username, password }) => {
         const { dispatch } = this.props;
@@ -30,9 +34,9 @@ class Restore extends Component {
         let content;
         switch (this.props.authStep) {
             case types.RESTORE_STEP_TERMS:
-                return <Terms />;
+                return <Terms method={this.method} />;
             case types.RESTORE_STEP_PRIVACY_MODE:
-                return <PrivacyMode />;
+                return <PrivacyMode method={this.method} />;
             case types.RESTORE_STEP_SEED:
                 content = <Seed username={this.username} password={this.password} />;
                 break;
@@ -44,7 +48,7 @@ class Restore extends Component {
                 break;
             case types.RESTORE_STEP_SELECT_METHOD:
             default:
-                content = <Method />;
+                content = <Method callback={this.setMethod} />;
                 break;
         }
 

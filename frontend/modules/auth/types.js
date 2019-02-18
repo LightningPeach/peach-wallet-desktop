@@ -21,3 +21,5 @@ export const RESTORE_STEP_TERMS = `${$prefix}RESTORE_STEP_TERMS`;
 export const RESTORE_STEP_PRIVACY_MODE = `${$prefix}RESTORE_STEP_PRIVACY_MODE`;
 export const SESSION_EXPIRED = `${$prefix}SESSION_EXPIRED`;
 export const SESSION_ACTIVE = `${$prefix}SESSION_ACTIVE`;
+export const RESTORE_TYPE_FOLDER = `${$prefix}RESTORE_TYPE_FOLDER`;
+export const RESTORE_TYPE_SEED = `${$prefix}RESTORE_TYPE_SEED`;

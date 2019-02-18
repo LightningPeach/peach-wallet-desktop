@@ -45,7 +45,7 @@ class Seed extends Component {
     cancelRestore = () => {
         const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Cancel enter seed word" });
-        dispatch(operations.setAuthStep(types.RESTORE_STEP_USER_PASS));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_PRIVACY_MODE));
     };
 
     showStatus = () => {

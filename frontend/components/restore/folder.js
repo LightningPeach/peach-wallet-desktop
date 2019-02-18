@@ -8,8 +8,6 @@ import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import File from "components/ui/file";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import * as statusCodes from "config/status-codes";
-import { push } from "react-router-redux";
-import { WalletPath } from "routes";
 
 const spinner = <div className="spinner" />;
 
@@ -60,7 +58,7 @@ class Folder extends Component {
             return;
         }
         dispatch(operations.setHashedPassword(password));
-        dispatch(push(WalletPath));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
     _validateUsername = async (username) => {

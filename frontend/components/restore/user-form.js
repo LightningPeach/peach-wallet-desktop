@@ -66,7 +66,7 @@ class UserForm extends Component {
             return;
         }
         onValidUser({ password, username });
-        dispatch(operations.setAuthStep(types.RESTORE_STEP_SEED));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
     render() {
