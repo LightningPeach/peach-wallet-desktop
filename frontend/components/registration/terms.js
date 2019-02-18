@@ -24,6 +24,8 @@ class Terms extends Component {
 
     goBack = () => {
         const { dispatch } = this.props;
+        dispatch(accountActions.setAnalyticsMode(accountTypes.ANALYTICS_MODE.PENDING));
+        dispatch(accountActions.setTermsMode(accountTypes.TERMS_MODE.PENDING));
         dispatch(operations.setAuthStep(types.REGISTRATION_STEP_INIT));
         dispatch(lndOperations.clearLndData());
         dispatch(accountActions.finishInitAccount());

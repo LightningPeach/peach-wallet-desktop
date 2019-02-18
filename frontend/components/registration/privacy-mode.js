@@ -16,6 +16,7 @@ class Terms extends Component {
 
     goBack = () => {
         const { dispatch } = this.props;
+        dispatch(accountActions.setPrivacyMode(accountTypes.PRIVACY_MODE.PENDING));
         dispatch(operations.setAuthStep(types.REGISTRATION_STEP_TERMS));
     };
 

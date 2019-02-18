@@ -24,6 +24,8 @@ class Terms extends Component {
 
     goBack = () => {
         const { dispatch, method } = this.props;
+        dispatch(accountActions.setAnalyticsMode(accountTypes.ANALYTICS_MODE.PENDING));
+        dispatch(accountActions.setTermsMode(accountTypes.TERMS_MODE.PENDING));
         dispatch(operations.setAuthStep(method === types.RESTORE_TYPE_SEED
             ? types.RESTORE_STEP_USER_PASS
             : types.RESTORE_STEP_USE_WALLET_DATA));
