@@ -13,8 +13,8 @@ class Terms extends Component {
         super(props);
 
         this.state = {
-            analytics: false,
-            terms: false,
+            analytics: props.analytics === accountTypes.ANALYTICS_MODE.ENABLED || false,
+            terms: props.terms === accountTypes.TERMS_MODE.ACCEPTED || false,
         };
     }
 
@@ -27,7 +27,6 @@ class Terms extends Component {
         dispatch(operations.setAuthStep(types.REGISTRATION_STEP_INIT));
         dispatch(lndOperations.clearLndData());
         dispatch(accountActions.finishInitAccount());
-
     };
 
     submitTerms = () => {
@@ -55,7 +54,7 @@ class Terms extends Component {
                                 id="eula-agreement-checkbox"
                                 name="terms"
                                 type="checkbox"
-                                value={this.state.terms}
+                                checked={this.state.terms}
                                 onChange={this.onChange}
                             />
                             <span className="form-checkbox__label">I accept the agreement</span>
@@ -67,7 +66,7 @@ class Terms extends Component {
                                 id="ga-agreement-checkbox"
                                 name="analytics"
                                 type="checkbox"
-                                value={this.state.analytics}
+                                checked={this.state.analytics}
                                 onChange={this.onChange}
                             />
                             <span className="form-checkbox__label">I agree to the personal data processing</span>
@@ -101,7 +100,21 @@ class Terms extends Component {
 }
 
 Terms.propTypes = {
+    analytics: PropTypes.oneOf([
+        accountTypes.ANALYTICS_MODE.DISABLED,
+        accountTypes.ANALYTICS_MODE.ENABLED,
+        accountTypes.ANALYTICS_MODE.PENDING,
+    ]),
     dispatch: PropTypes.func.isRequired,
+    terms: PropTypes.PropTypes.oneOf([
+        accountTypes.TERMS_MODE.ACCEPTED,
+        accountTypes.TERMS_MODE.PENDING,
+    ]),
 };
 
-export default connect()(Terms);
+const mapStateToProps = state => ({
+    analytics: state.account.analyticsMode,
+    terms: state.account.termsMode,
+});
+
+export default connect(mapStateToProps)(Terms);

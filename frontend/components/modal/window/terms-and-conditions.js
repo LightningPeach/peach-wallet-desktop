@@ -53,7 +53,7 @@ class Law extends Component {
                                         id="eula-agreement-checkbox"
                                         name="terms"
                                         type="checkbox"
-                                        value={this.state.terms}
+                                        checked={this.state.terms}
                                         onChange={this.onChange}
                                     />
                                     <span className="form-checkbox__label">I accept the agreement</span>
@@ -66,7 +66,7 @@ class Law extends Component {
                                     id="ga-agreement-checkbox"
                                     name="analytics"
                                     type="checkbox"
-                                    value={this.state.analytics}
+                                    checked={this.state.analytics}
                                     onChange={this.onChange}
                                 />
                                 <span className="form-checkbox__label">I agree to the personal data processing</span>

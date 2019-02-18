@@ -32,7 +32,7 @@ class PrivacyMode extends Component {
                 showCloseButton={privacyMode !== accountTypes.PRIVACY_MODE.PENDING}
             >
                 <div className="modal-body">
-                    <PrivacyModeComponent callback={(type) => this.onClose(`Choose mode ${type}`)} />
+                    <PrivacyModeComponent callback={type => this.onClose(`Choose mode ${type}`)} />
                 </div>
             </Modal>
         );

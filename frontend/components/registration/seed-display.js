@@ -32,9 +32,7 @@ class SeedDisplay extends PureComponent {
     cancelSeedView = () => {
         analytics.event({ action: "Registration", category: "Auth", label: "Cancel Show Seed Words" });
         const { dispatch } = this.props;
-        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_INIT));
-        dispatch(lndOperations.clearLndData());
-        dispatch(accountActions.finishInitAccount());
+        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_PRIVACY_MODE));
     };
 
     reloadSeed = async () => {

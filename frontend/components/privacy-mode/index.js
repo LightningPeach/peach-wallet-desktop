@@ -1,11 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { accountTypes, accountOperations } from "modules/account";
+import { accountTypes, accountOperations, accountActions } from "modules/account";
 
-const PrivacyMode = ({ dispatch, callback, privacyMode }) => {
+const PrivacyMode = ({
+    dispatch,
+    callback,
+    privacyMode,
+    onlyToStore,
+}) => {
     const confirmType = (type) => {
-        dispatch(accountOperations.setPrivacyMode(type));
+        dispatch(onlyToStore ? accountActions.setPrivacyMode(type) : accountOperations.setPrivacyMode(type));
         callback(type);
     };
     return (
@@ -109,6 +114,7 @@ const PrivacyMode = ({ dispatch, callback, privacyMode }) => {
 PrivacyMode.propTypes = {
     callback: PropTypes.func,
     dispatch: PropTypes.func.isRequired,
+    onlyToStore: PropTypes.bool,
     privacyMode: PropTypes.oneOf([
         accountTypes.PRIVACY_MODE.EXTENDED,
         accountTypes.PRIVACY_MODE.INCOGNITO,
