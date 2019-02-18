@@ -17,9 +17,9 @@ class PrivacyMode extends Component {
         analytics.pageview(`${WalletPath}/update-privacy-mode`, "Privacy mode choose window");
     }
 
-    onClose = (action) => {
+    onClose = () => {
         const { dispatch } = this.props;
-        analytics.event({ action: action || "Close modal", category: "Wallet", label: "Privacy Mode" });
+        analytics.event({ action: "Close modal", category: "Wallet", label: "Privacy Mode" });
         dispatch(appOperations.closeModal());
     };
 
