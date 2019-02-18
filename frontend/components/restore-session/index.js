@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import moment from "moment";
-// need to import this for attach to moment
-import * as momentDurationFormat from "moment-duration-format";
 import { analytics, togglePasswordVisibility, validators, helpers, logger } from "additional";
 import { appOperations } from "modules/app";
 import { authActions, authTypes } from "modules/auth";

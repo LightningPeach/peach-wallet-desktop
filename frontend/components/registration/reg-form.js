@@ -95,7 +95,7 @@ class RegistrationForm extends PureComponent {
         onValid({ password, seed: seed.response.seed });
         dispatch(operations.setTempUsername(username));
         dispatch(lndActions.setLndInitStatus(""));
-        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_SEED_DISPLAY));
+        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_TERMS));
     };
 
     render() {
@@ -212,7 +212,10 @@ class RegistrationForm extends PureComponent {
                         <div className="form-label">
                             <Checkbox
                                 text="Use default path"
-                                onChange={() => this.setState({ defaultPath: !this.state.defaultPath })}
+                                onChange={() => this.setState({
+                                    defaultPath: !this.state.defaultPath,
+                                    lndPathError: null,
+                                })}
                                 checked={this.state.defaultPath}
                                 disabled={disabled}
                             />

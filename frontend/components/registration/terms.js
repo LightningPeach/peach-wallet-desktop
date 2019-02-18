@@ -1,0 +1,107 @@
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
+
+import { accountActions, accountTypes } from "modules/account";
+import { authOperations as operations, authTypes as types } from "modules/auth";
+import { lndOperations } from "modules/lnd";
+
+import Legal from "components/legal";
+
+class Terms extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            analytics: false,
+            terms: false,
+        };
+    }
+
+    onChange = (e) => {
+        this.setState({ [e.target.name]: e.target.checked });
+    };
+
+    goBack = () => {
+        const { dispatch } = this.props;
+        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_INIT));
+        dispatch(lndOperations.clearLndData());
+        dispatch(accountActions.finishInitAccount());
+
+    };
+
+    submitTerms = () => {
+        const { dispatch } = this.props;
+        const analytics =
+            this.state.analytics ? accountTypes.ANALYTICS_MODE.ENABLED : accountTypes.ANALYTICS_MODE.DISABLED;
+        dispatch(accountActions.setAnalyticsMode(analytics));
+        dispatch(accountActions.setTermsMode(accountTypes.TERMS_MODE.ACCEPTED));
+        dispatch(operations.setAuthStep(types.REGISTRATION_STEP_PRIVACY_MODE));
+    };
+
+    render() {
+        return (
+            <div>
+                <div className="home__title">
+                    Sign up and start working with Peach Wallet
+                </div>
+                <div className="row">
+                    <div className="col-xs-12">
+                        <Legal />
+                    </div>
+                    <div className="col-xs-12 mt-16">
+                        <label className="form-checkbox label_line pull-left">
+                            <input
+                                id="eula-agreement-checkbox"
+                                name="terms"
+                                type="checkbox"
+                                value={this.state.terms}
+                                onChange={this.onChange}
+                            />
+                            <span className="form-checkbox__label">I accept the agreement</span>
+                        </label>
+                    </div>
+                    <div className="col-xs-12">
+                        <label className="form-checkbox label_line pull-left channels__custom">
+                            <input
+                                id="ga-agreement-checkbox"
+                                name="analytics"
+                                type="checkbox"
+                                value={this.state.analytics}
+                                onChange={this.onChange}
+                            />
+                            <span className="form-checkbox__label">I agree to the personal data processing</span>
+                        </label>
+                    </div>
+                </div>
+                <div className="row mt-30">
+                    <div className="col-xs-12">
+                        <button
+                            type="button"
+                            className="button button__orange button__fullwide"
+                            onClick={this.submitTerms}
+                            disabled={!this.state.terms}
+                        >
+                            Next
+                        </button>
+                    </div>
+                    <div className="col-xs-12 text-center">
+                        <button
+                            type="button"
+                            className="button button__link button__under-button"
+                            onClick={this.goBack}
+                        >
+                            Back
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+}
+
+Terms.propTypes = {
+    dispatch: PropTypes.func.isRequired,
+};
+
+export default connect()(Terms);

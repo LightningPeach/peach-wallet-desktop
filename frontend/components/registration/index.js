@@ -6,6 +6,7 @@ import { authTypes as types, authOperations as operations } from "modules/auth";
 import RegistrationForm from "./reg-form";
 import SeedDisplay from "./seed-display";
 import SeedVerify from "./seed-verify";
+import Terms from "./terms";
 
 class Registration extends Component {
     constructor(props) {
@@ -30,6 +31,8 @@ class Registration extends Component {
 
     render() {
         switch (this.props.authStep) {
+            case types.REGISTRATION_STEP_TERMS:
+                return <Terms />;
             case types.REGISTRATION_STEP_SEED_DISPLAY:
                 return (
                     <SeedDisplay
