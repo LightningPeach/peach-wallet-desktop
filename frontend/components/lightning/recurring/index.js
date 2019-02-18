@@ -535,7 +535,17 @@ class RecurringPayment extends Component {
                     </div>
                 </div>
                 <div className="row mt-30">
-                    <div className="col-xs-12 text-right">
+                    <div className="col-xs-12 col-lg-8">
+                        You use the Extended Mode, so Wallet connects with our server.
+                        You can change&nbsp;
+                        <button
+                            className="button button__link"
+                            onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                        >
+                            Wallet Privacy Mode
+                        </button>.
+                    </div>
+                    <div className="col-xs-12 col-lg-4 text-right">
                         {usd}
                         <button
                             type="submit"
