@@ -11,6 +11,9 @@ $red: #d0021b;
 $red10: transparentize($red, 0.90);
 $red-bright: #e6485c;
 
+$grey: #aaaaaa;
+$grey30: transparentize($grey, 0.7);
+
 $pumpkin-orange: #ff7700;
 $warm-grey: #9b9b9b;
 $warm-grey-5: rgba(111, 111, 111, 0.05);
@@ -27,7 +30,7 @@ $darkish-pink: #e6485c;
 
 $light-grey: #f4f4f4;
 
-$default-transition: .2s ease-in-out;
+$default-transition: .3s ease-in-out;
 
 $border-radius: 4px;
 $border-radius-sm: 2px;

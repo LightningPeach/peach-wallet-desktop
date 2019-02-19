@@ -1,7 +1,3 @@
-.disabled {
-    opacity: 0.3;
-}
-
 .label {
     &--checkmark {
         position: relative;
@@ -37,29 +33,6 @@
             background: url(../images/icons/xmark.svg);
             background-size: contain;
         }
-    }
-}
-
-.input {
-    transition: border-color .2s;
-
-    &:disabled {
-        opacity: 0.3;
-    }
-
-    &__amount {
-        background: #fff url(./../images/icon_bitcoin.png) no-repeat calc(100% - 0.9rem) center;
-        padding-right: rem(50px);
-        background-size: rem(20px);
-    }
-
-    &__small {
-        line-height: 1;
-        padding: rem(3px) rem(5px);
-        font-size: 16px;
-        width: 90%;
-        margin: 0 auto;
-        display: block;
     }
 }
 
@@ -145,46 +118,40 @@
 
     &-text {
         font-size: 14px;
-        color: #000;
-        border: 1px solid rgba(74, 74, 74, 0.3);
-        border-radius: 2px;
-        padding: 0 9px;
+        color: $black;
+        border: 1px solid $grey30;
+        border-radius: $border-radius-sm;
+        padding: 8px 10px;
         outline: none;
         width: 100%;
         height: 40px;
-        line-height: 40px;
+        line-height: 22px;
         text-overflow: ellipsis;
-        transition: border-color 0.2s ease, background-color 0.25s ease;
+        caret-color: $yellow;
+        transition: border $default-transition, background-color $default-transition;
 
         &[type="password"] {
-            padding-top: 0;
             &:not(:placeholder-shown) {
-                font-size: 27px;
-                padding-left: 6.3px;
-                letter-spacing: 1.2px;
+                font-size: 22px;
+                letter-spacing: 0;
             }
+
             &::-webkit-input-placeholder {
                 font-size: 14px;
                 opacity: 0.1;
                 position: relative;
-                top: -1px;
-                letter-spacing: 1.2px;
+                letter-spacing: 2px;
             }
         }
 
         &--icon_eye {
-            padding-right: 35px;
+            padding-right: 40px;
         }
 
         & + .form-text__icon {
-            opacity: 0.5;
-            pointer-events: none;
-            transition: opacity .2s;
-        }
-
-        &:disabled {
             opacity: 0.3;
             pointer-events: none;
+            transition: opacity $default-transition;
         }
 
         &:not(:placeholder-shown) {
@@ -192,7 +159,7 @@
         }
 
         &:focus {
-            border-color: $pumpkin-orange;
+            border-color: $yellow;
         }
 
         &:not(:placeholder-shown) {
@@ -210,20 +177,20 @@
         &__error,
         &__error:focus,
         &__error:not(:placeholder-shown) {
-            border-color: $scarlet;
+            border-color: $red;
         }
 
         &__icon {
             position: absolute;
             top: 15px;
-            right: 30px;
+            right: 22px;
             cursor: pointer;
             border: 0;
 
             &--eye {
                 background: url(../images/close-eye.svg) no-repeat center;
                 background-size: contain;
-                width: 21px;
+                width: 20px;
                 height: 14px;
 
                 &_open {

@@ -35,3 +35,8 @@ ul {
     -webkit-padding-start: 0;
     list-style-type: none;
 }
+
+.disabled,
+[disabled] {
+    opacity: 0.3;
+}
