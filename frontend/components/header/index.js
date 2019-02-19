@@ -24,7 +24,7 @@ class Header extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            burgerState: "close",
+            menuState: "close",
             pageAddressList: [
                 { fullPath: WalletPath, name: "lightning" },
                 { fullPath: OnchainFullPath, name: "onchain" },
@@ -54,11 +54,11 @@ class Header extends Component {
 
     toggleClass = (e) => {
         const state = e.currentTarget.classList.contains("burger__open") ? "close" : "open";
-        this.setState({ burgerState: state });
+        this.setState({ menuState: state });
     };
 
     hideBurger = () => {
-        this.setState({ burgerState: "close" });
+        this.setState({ menuState: "close" });
     };
 
     render() {
@@ -72,18 +72,18 @@ class Header extends Component {
                             to={WalletPath}
                             className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
                         />
+                        <div
+                            className={`burger burger__${this.state.menuState}`}
+                            onClick={this.toggleClass}
+                        >
+                            <span />
+                            <span />
+                            <span />
+                        </div>
                         <nav
-                            className="row align-center-xs nav"
+                            className={`row align-center-xs nav nav--${this.state.menuState}`}
                             ref={(ref) => { this.wrapper = ref }}
                         >
-                            <div
-                                className={`burger burger__${this.state.burgerState}`}
-                                onClick={this.toggleClass}
-                            >
-                                <span />
-                                <span />
-                                <span />
-                            </div>
                             <Link
                                 to={WalletPath}
                                 className={`nav__link ${LightningPanel.includes(path) ? "active" : ""}`}

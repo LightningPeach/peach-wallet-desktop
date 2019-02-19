@@ -21,7 +21,7 @@
             display: block;
             position: absolute;
             right: 0;
-            bottom: -6px;
+            bottom: -10px;
             color: $scarlet;
             text-transform: uppercase;
             font-size: 12px;
@@ -89,7 +89,7 @@
 }
 
 @media screen and (max-width: 990px) {
-    header {
+    .header {
         .nav {
             flex-direction: column;
             width: 60px;
@@ -103,7 +103,7 @@
             padding-top: 30px;
             margin-right: -8px;
 
-            &.open {
+            &--open {
                 box-shadow: 0 2px 4px 0 rgba(45, 45, 45, 0.5);
                 max-height: 375px;
                 width: 241px;
