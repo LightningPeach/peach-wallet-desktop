@@ -932,27 +932,11 @@
 }
 
 .mt {
-    &-10 {
-        margin-top: 10px;
-    }
+    &-10 {margin-top: 10px;}
+    &-12 {margin-top: 12px;}
+    &-14 {margin-top: 14px;}
+    &-16 {margin-top: 16px;}
+    &-30 {margin-top: 30px;}
 
-    &-12 {
-        margin-top: 12px;
-    }
-
-    &-14 {
-        margin-top: 14px;
-    }
-
-    &-16 {
-        margin-top: 16px;
-    }
-
-    &-m14 {
-        margin-top: -14px;
-    }
-
-    &-30 {
-        margin-top: 30px;
-    }
+    &-m14 {margin-top: -14px;}
 }

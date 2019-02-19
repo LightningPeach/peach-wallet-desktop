@@ -64,86 +64,78 @@ class Header extends Component {
     render() {
         const { lndSyncedToChain, privacyMode } = this.props;
         const path = this.props.location.pathname;
-        let navClass = this.state.burgerState;
-        if (this.props.skipCreateTutorial === channelsTypes.SHOW) {
-            navClass += " --z_index_fix";
-        }
         return (
-            <header>
+            <header className="header">
                 <div className="container">
-                    <div className="row">
-                        <div className="col-xs-3">
+                    <div className="header__row row row--no-col align-center-xs justify-between-xs">
+                        <Link
+                            to={WalletPath}
+                            className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
+                        />
+                        <nav
+                            className="row align-center-xs nav"
+                            ref={(ref) => { this.wrapper = ref }}
+                        >
+                            <div
+                                className={`burger burger__${this.state.burgerState}`}
+                                onClick={this.toggleClass}
+                            >
+                                <span />
+                                <span />
+                                <span />
+                            </div>
                             <Link
                                 to={WalletPath}
-                                className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
-                            />
-                        </div>
-                        <div className="col-xs-9">
-                            <nav
-                                className={`nav ${navClass}`}
-                                ref={(ref) => { this.wrapper = ref }}
+                                className={`nav__link ${LightningPanel.includes(path) ? "active" : ""}`}
+                                onClick={() => {
+                                    this.hideBurger();
+                                }}
                             >
-                                <div
-                                    className={`burger burger__${this.state.burgerState}`}
-                                    onClick={this.toggleClass}
-                                >
-                                    <span />
-                                    <span />
-                                    <span />
-                                </div>
-                                <Link
-                                    to={WalletPath}
-                                    className={`nav__link ${LightningPanel.includes(path) ? "active" : ""}`}
-                                    onClick={() => {
-                                        this.hideBurger();
-                                    }}
-                                >
-                                    Lightning
-                                </Link>
-                                <Link
-                                    to={OnchainFullPath}
-                                    className={`nav__link ${OnchainPanel.includes(path) ? "active" : ""}`}
-                                    onClick={this.hideBurger}
-                                >
-                                    Onchain
-                                </Link>
-                                <Link
-                                    to={ChannelsFullPath}
-                                    className={`nav__link ${ChannelsPanel.includes(path) ? "active" : ""}`}
-                                    onClick={this.hideBurger}
-                                >
-                                    Channels
-                                </Link>
-                                <Link
-                                    to={AddressBookFullPath}
-                                    className={`nav__link ${
-                                        privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
-                                            ? "button__link--locked"
-                                            : ""
-                                    } ${AddressBookPanel.includes(path) ? "active" : ""}`}
-                                    onClick={this.hideBurger}
-                                >
-                                    Contacts
-                                </Link>
-                                <Link
-                                    to={MerchantsFullPath}
-                                    className={`nav__link ${MerchantsPanel.includes(path) ? "active" : ""}`}
-                                    onClick={this.hideBurger}
-                                >
-                                    Merchants
-                                </Link>
-                                <span className="separator" />
-                                <Link
-                                    to={ProfileFullPath}
-                                    className={`nav__link nav__link--profile ${
-                                        ProfilePanel.includes(path) ? "active" : ""
-                                    }`}
-                                    onClick={this.hideBurger}
-                                >
-                                    Profile
-                                </Link>
-                            </nav>
-                        </div>
+                                Lightning
+                            </Link>
+                            <Link
+                                to={OnchainFullPath}
+                                className={`nav__link ${OnchainPanel.includes(path) ? "active" : ""}`}
+                                onClick={this.hideBurger}
+                            >
+                                Onchain
+                            </Link>
+                            <Link
+                                to={ChannelsFullPath}
+                                className={`nav__link ${ChannelsPanel.includes(path) ? "active" : ""}`}
+                                onClick={this.hideBurger}
+                            >
+                                Channels
+                            </Link>
+                            <Link
+                                to={AddressBookFullPath}
+                                className={`nav__link ${
+                                    privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
+                                        ? "button__link--locked"
+                                        : ""
+                                } ${AddressBookPanel.includes(path) ? "active" : ""}`}
+                                onClick={this.hideBurger}
+                            >
+                                Contacts
+                            </Link>
+                            <Link
+                                to={MerchantsFullPath}
+                                className={`nav__link ${MerchantsPanel.includes(path) ? "active" : ""}`}
+                                onClick={this.hideBurger}
+                            >
+                                Merchants
+                            </Link>
+                            <span className="separator" />
+                            <Link
+                                to={ProfileFullPath}
+                                className={`nav__link nav__link--profile ${
+                                    ProfilePanel.includes(path) ? "active" : ""
+                                }`}
+                                onClick={this.hideBurger}
+                            >
+                                Profile
+                            </Link>
+                        </nav>
                     </div>
                 </div>
             </header>
