@@ -31,6 +31,7 @@ import {
     GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
 import { statusCodes } from "config";
+import { pauseAllStreams } from "../streamPayments/operations";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(actions.setDisconnectedKernelConnectIndicator());
@@ -517,6 +518,7 @@ function setPrivacyMode(value) {
             if (value === types.PRIVACY_MODE.EXTENDED) {
                 await dispatch(startLis());
             } else if (value === types.PRIVACY_MODE.INCOGNITO) {
+                dispatch(streamPaymentOperations.pauseAllStreams());
                 await dispatch(shutDownLis());
             }
             return successPromise();
