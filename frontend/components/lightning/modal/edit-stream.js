@@ -483,7 +483,7 @@ class EditStream extends Component {
                                     Cancel
                                 </button>
                                 <button
-                                    className="button button__orange button__close"
+                                    className="button button__solid"
                                     type="submit"
                                 >
                                     Edit

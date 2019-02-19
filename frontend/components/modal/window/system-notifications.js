@@ -94,7 +94,7 @@ class SystemNotifications extends Component {
                                 Disable
                             </button>
                             <button
-                                className="button button__orange button__create"
+                                className="button button__solid"
                                 type="button"
                                 onClick={this.resolveNotifications}
                             >

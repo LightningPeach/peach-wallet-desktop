@@ -120,7 +120,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         it("Step 3 should proceed to tourgide", async () => {
             await app.client.setValue("#verify-seed", seed);
             await app.client.click("button=Sign up");
-            const disabled = await app.client.getAttribute(".button__orange", "disabled") === "true";
+            const disabled = await app.client.getAttribute(".button__solid", "disabled") === "true";
             assert.equal(disabled, true, "should have disabled button");
         });
     });

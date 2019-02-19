@@ -49,7 +49,7 @@ const PrivacyMode = ({
                     </div>
                     <div className="card__footer">
                         <button
-                            className="button button__orange"
+                            className="button button__solid"
                             onClick={() => confirmType(accountTypes.PRIVACY_MODE.EXTENDED)}
                             disabled={privacyMode === accountTypes.PRIVACY_MODE.EXTENDED}
                         >
@@ -98,7 +98,7 @@ const PrivacyMode = ({
                     </div>
                     <div className="card__footer">
                         <button
-                            className="button button__orange"
+                            className="button button__solid"
                             onClick={() => confirmType(accountTypes.PRIVACY_MODE.INCOGNITO)}
                             disabled={privacyMode === accountTypes.PRIVACY_MODE.INCOGNITO}
                         >

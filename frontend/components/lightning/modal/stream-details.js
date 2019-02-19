@@ -157,7 +157,7 @@ class StreamDetails extends Component {
                             </button>
                             <button
                                 type="button"
-                                className="button button__orange button__close button__side-padding45"
+                                className="button button__solid"
                                 onClick={this.addToList}
                             >
                                 Create

@@ -192,7 +192,7 @@ class Login extends Component {
                     <div className="col-xs-12">
                         <button
                             type="submit"
-                            className="button button__orange button__fullwide"
+                            className="button button__solid button--fullwide"
                             disabled={disabled}
                         >
                             Sign in

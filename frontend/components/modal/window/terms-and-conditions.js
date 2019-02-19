@@ -77,7 +77,7 @@ class Law extends Component {
                         <div className="col-xs-12">
                             <button
                                 disabled={!this.state.terms}
-                                className="button button__orange"
+                                className="button button__solid"
                                 onClick={this.handleConfirm}
                             >
                                 Confirm

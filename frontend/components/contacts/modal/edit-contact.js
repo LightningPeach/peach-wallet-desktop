@@ -158,7 +158,7 @@ class EditContact extends Component {
                                     Delete
                                 </button>
                                 <button
-                                    className="button button__orange button__close"
+                                    className="button button__solid"
                                     type="submit"
                                 >
                                     Edit

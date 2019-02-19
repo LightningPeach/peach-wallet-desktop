@@ -32,7 +32,7 @@ class Method extends Component {
                 <div className="col-xs-12 text-center">
                     <button
                         type="button"
-                        className="button button__orange button__fullwide"
+                        className="button button__solid button--fullwide"
                         onClick={this.useWalletData}
                     >
                         From wallet folder
@@ -41,7 +41,7 @@ class Method extends Component {
                 <div className="col-xs-12">
                     <button
                         type="button"
-                        className="button button__orange button__fullwide button__under-button"
+                        className="button button__solid button--fullwide"
                         onClick={this.useSeed}
                     >
                         From seed words

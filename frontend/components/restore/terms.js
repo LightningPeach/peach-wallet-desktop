@@ -79,7 +79,7 @@ class Terms extends Component {
                     <div className="col-xs-12">
                         <button
                             type="button"
-                            className="button button__orange button__fullwide"
+                            className="button button__solid button--fullwide"
                             onClick={this.submitTerms}
                             disabled={!this.state.terms}
                         >

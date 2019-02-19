@@ -89,7 +89,7 @@ class GuidePage extends Component {
                     <div className="s-channels__header">
                         {background}
                         <div className="s-channels__btc">1BTC ~ $6,934.98</div>
-                        <div className="s-channels__btn button button__orange">CREATE CHANNEL</div>
+                        <div className="s-channels__btn button button__solid">CREATE CHANNEL</div>
                     </div>
                 </div>
             </div>

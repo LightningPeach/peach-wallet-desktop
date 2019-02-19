@@ -142,7 +142,7 @@ class ContactsPage extends Component {
                                 </div>
                                 <div className="col-xs-12 mt-16">
                                     <button
-                                        className="button button__orange"
+                                        className="button button__solid"
                                         onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
                                     >
                                         Change Mode
@@ -194,7 +194,7 @@ class ContactsPage extends Component {
             default:
                 modal = null;
         }
-        const headerBtn = <Button class="button__orange" onClick={this.headerBtnClick} text="ADD CONTACT" />;
+        const headerBtn = <Button class="button__solid" onClick={this.headerBtnClick} text="ADD CONTACT" />;
 
         return [
             <SubHeader key={1} button={headerBtn} />,

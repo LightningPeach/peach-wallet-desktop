@@ -202,7 +202,7 @@ class UserForm extends Component {
                 </div>
                 <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
-                        <button type="submit" className="button button__orange button__fullwide" disabled={disabled}>
+                        <button type="submit" className="button button__solid button--fullwide" disabled={disabled}>
                             Proceed
                         </button>
                         {disabled ? spinner : null}

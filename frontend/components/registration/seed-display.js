@@ -88,7 +88,7 @@ class SeedDisplay extends PureComponent {
                     <div className="col-xs-12">
                         <button
                             type="submit"
-                            className="button button__orange button__fullwide"
+                            className="button button__solid button--fullwide"
                         >
                             Next
                         </button>

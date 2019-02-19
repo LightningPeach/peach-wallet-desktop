@@ -48,7 +48,7 @@ class DeepLinkLightning extends Component {
                                 Cancel
                             </button>
                             <button
-                                className="button button__orange button__create"
+                                className="button button__solid"
                                 type="button"
                                 onClick={this.sendConfirmation}
                             >

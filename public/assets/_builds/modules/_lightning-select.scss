@@ -86,7 +86,7 @@
         }
 
         &--placeholder {
-            color: transparentize($ultrablack, .7);
+            color: transparentize($black, .7);
             cursor: default;
 
             &:hover {

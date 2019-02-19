@@ -66,7 +66,7 @@ class ConfirmLogout extends Component {
                             </button>
                             <button
                                 type="button"
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 onClick={this.logout}
                                 disabled={this.state.processing}
                             >

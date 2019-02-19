@@ -198,7 +198,7 @@ class Onchain extends Component {
                 <div className="row mt-30">
                     <div className="col-xs-12 text-right">
                         {usd}
-                        <button type="submit" className="button button__orange button__side-padding45">
+                        <button type="submit" className="button button__solid">
                             Pay
                         </button>
                     </div>

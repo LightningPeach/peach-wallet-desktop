@@ -133,7 +133,7 @@ class Lightning extends Component {
                                         className={`tab-link ${
                                             activeTab === "recurring" ? "tab-link-active" : ""
                                         } ${privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
-                                            ? "button__link--locked"
+                                            ? "button--locked"
                                             : ""}`}
                                         onClick={() => this.handleTabClick("recurring")}
                                     >

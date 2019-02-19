@@ -102,7 +102,7 @@ class Seed extends Component {
                 <div className="row spinner__wrapper mt-30">
                     <div className="col-xs-12">
                         <button
-                            className="button button__orange button__fullwide"
+                            className="button button__solid button--fullwide"
                             type="submit"
                             disabled={disabled}
                         >

@@ -74,10 +74,10 @@ class CloseChannel extends Component {
                             >
                                 Cancel
                             </button>
-                            <span className="button_with_spinner">
+                            <span className="button__spinner">
                                 <button
                                     type="button"
-                                    className="button button__orange button__close"
+                                    className="button button__solid"
                                     onClick={this.closeChannel}
                                     disabled={this.state.processing}
                                 >

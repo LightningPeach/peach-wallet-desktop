@@ -124,10 +124,10 @@ class OnChainDetails extends Component {
                             >
                                 Cancel
                             </button>
-                            <span className="button_with_spinner">
+                            <span className="button__spinner">
                                 <button
                                     type="button"
-                                    className="button button__orange button__close button__side-padding45"
+                                    className="button button__solid"
                                     onClick={this.sendCoins}
                                     disabled={this.state.processing}
                                 >

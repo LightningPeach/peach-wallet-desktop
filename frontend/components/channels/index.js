@@ -69,7 +69,7 @@ class ChannelsPage extends Component {
                 key="subHeader"
                 button={
                     <Button
-                        class="button__orange overlay__item"
+                        class="button__solid overlay__item"
                         onClick={this.createChannel}
                         text={this.props.creatingNewChannel ? "Channel creating" : "Create Channel"}
                         disabled={this.props.creatingNewChannel}

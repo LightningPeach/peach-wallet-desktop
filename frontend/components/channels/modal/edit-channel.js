@@ -159,10 +159,10 @@ class EditChannel extends Component {
                                     >
                                         Close channel
                                     </button>
-                                    <span className="button_with_spinner">
+                                    <span className="button__spinner">
                                         <button
                                             type="submit"
-                                            className="button button__orange button__create"
+                                            className="button button__solid"
                                         >
                                             Edit
                                         </button>

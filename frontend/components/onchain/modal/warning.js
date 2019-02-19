@@ -41,7 +41,7 @@ class OnchainWarning extends Component {
                         <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 onClick={this.sendPayment}
                             >
                                 I&rsquo;m sure, take me to details.

@@ -26,7 +26,7 @@ class Law extends Component {
                         <div className="col-xs-12 text-right">
                             <button
                                 type="button"
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 onClick={this.closeModal}
                             >
                                 Close

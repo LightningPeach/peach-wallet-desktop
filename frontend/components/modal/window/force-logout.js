@@ -57,7 +57,7 @@ class ForceLogout extends Component {
                         <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__scarlett-two"
+                                className="button button__solid button__solid--red"
                                 onClick={this.onClose}
                                 disabled={this.state.processing}
                             >

@@ -378,7 +378,7 @@ class RegularPayment extends Component {
                         {usd}
                         <button
                             type="submit"
-                            className="button button__orange button__side-padding45"
+                            className="button button__solid"
                             disabled={this.state.processing}
                         >
                             Pay

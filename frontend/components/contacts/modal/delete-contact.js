@@ -78,7 +78,7 @@ class DeleteContact extends Component {
                                 Back
                             </button>
                             <button
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 type="button"
                                 onClick={this.deleteContact}
                             >

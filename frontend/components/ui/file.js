@@ -13,7 +13,7 @@ const File = ({ value, placeholder, disabled, className, onChange }) => ( // esl
         }}
     >
         <span className="file__value">{value || placeholder}</span>
-        <span className="button button__orange file__button">Select folder</span>
+        <span className="button button__solid file__button">Select folder</span>
     </label>
 );
 

@@ -54,7 +54,7 @@ class UnSuccessPayment extends Component {
                         <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__orange button__close button__side-padding50"
+                                className="button button__solid"
                                 onClick={this.closeModal}
                             >
                                 Ok
