@@ -243,7 +243,9 @@ function addInvoiceRemote(lightningID, amount, memo = "") {
 
 function pay(details) {
     return async (dispatch, getState) => {
+        logger.log("Will try to send payments with details", details);
         const response = await window.ipcClient("sendPayment", { payment_request: details.pay_req });
+        logger.log("Got response", response);
         if (!response.ok) {
             dispatch(actions.errorPayment(response.error));
             return errorPromise(response.error, pay);
