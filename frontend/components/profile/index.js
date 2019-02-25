@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
@@ -150,7 +150,7 @@ class Profile extends Component {
     };
 
     renderProfile = () => {
-        const { dispatch } = this.props;
+        const { dispatch, login } = this.props;
         let BTCAddress = null;
         if (this.props.bitcoinAccount[0]) {
             BTCAddress = this.props.bitcoinAccount[0].address;
@@ -160,8 +160,17 @@ class Profile extends Component {
                 <div className="row">
                     <div className="col-xs-12">
                         <div className="profile__title profile__title--username">
-                            <img src={`${window.STATIC_FILES}public/assets/images/user.svg`} alt="" />
-                            {this.props.login}
+                            Your wallet
+                        </div>
+                    </div>
+                </div>
+                <div className="row profile__row">
+                    <div className="col-xs-12 profile__flex js-lightningId">
+                        <div className="profile__label">
+                             Wallet Name
+                        </div>
+                        <div className="profile__value">
+                            {login}
                         </div>
                     </div>
                 </div>
@@ -530,25 +539,26 @@ class Profile extends Component {
             default:
                 modal = null;
         }
-        return [
-            <SubHeader key={1} />,
-            <div key={2} className="profile js-profileContent">
-                <div className="container">
-                    {this.renderProfile()}
-                    {this.renderPaymentRequest()}
-                    {this.renderSettings()}
+        return (
+            <Fragment>
+                <SubHeader />
+                <div className="profile">
+                    <div className="container">
+                        {this.renderProfile()}
+                        {this.renderPaymentRequest()}
+                        {this.renderSettings()}
+                    </div>
                 </div>
-            </div>,
-            <Footer key={3} />,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={4}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+                <Footer />
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
