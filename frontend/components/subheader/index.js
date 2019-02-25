@@ -55,7 +55,7 @@ class SubHeader extends PureComponent {
                                 </span>
                             </div>
                         </div>
-                        <div className="row row--no-col">
+                        <div className="row row--no-col align-center-xs">
                             <div className="exchange_rate">
                                 1BTC <BtcToUsd amount={100000000} hideBase />
                             </div>

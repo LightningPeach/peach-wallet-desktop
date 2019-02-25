@@ -217,9 +217,10 @@
         font-size: 0;
         line-height: 1;
         color: $yellow;
+        font-weight: 600;
         padding: 0 5px;
         margin-top: 2px;
-        transition: opacity .3s ease-in-out, font-size .3s ease-in-out;
+        transition: opacity $default-transition, font-size $default-transition;
 
         &:hover {
             text-decoration: underline;
