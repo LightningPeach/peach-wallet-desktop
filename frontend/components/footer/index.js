@@ -16,40 +16,33 @@ class Footer extends PureComponent {
         const { peerPort } = this.props;
 
         return (
-            <footer>
+            <footer className="footer">
                 <div className="container">
-                    <div className="row">
-                        <div className="col-xs-12 title main_text_16pt">
+                    <div className="column align-center-xs">
+                        <div className="footer__title main_text_16pt">
                             Contact Us
                         </div>
-                        <div className="col-xs-12 text-center">
-                            <a className="mailto main_text_14pt" href="mailto:contact@lightningpeach.com">
-                                contact@lightningpeach.com
-                            </a>
-                        </div>
+                        <a className="footer__email main_text_14pt" href="mailto:hello@lightningpeach.com">
+                            hello@lightningpeach.com
+                        </a>
                     </div>
                     <div className="footer__extra">
-                        <div className="row footer__extra-row">
-                            <div className="col-xs-6">
+                        <div className="row">
+                            <div className="col-xs-12 col-md-6">
                                 <a
-                                    className="button button__link footer__legal"
+                                    className="button button__link"
                                     onClick={this.openUserGuide}
                                 >
                                     User Guide
                                 </a>
-                            </div>
-                            <div className="col-xs-6 text-right">
-                                LND port: {peerPort}
-                            </div>
-                        </div>
-                        <div className="row footer__extra-row">
-                            <div className="col-xs-6">
-                                <button className="button button__link footer__legal" onClick={this.openLegal}>
+                                <br />
+                                <button className="button button__link" onClick={this.openLegal}>
                                     License agreement & Terms and conditions
                                 </button>
                             </div>
-                            <div className="col-xs-6 text-right">
-                                v {window.VERSION}
+                            <div className="col-xs-12 col-md-6 text-right">
+                                    LND port: {peerPort}<br />
+                                    v {window.VERSION}
                             </div>
                         </div>
                     </div>
