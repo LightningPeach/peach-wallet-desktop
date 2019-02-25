@@ -205,7 +205,7 @@
         font-size: 12px;
         color: $black;
         line-height: 1.67;
-        border: 1px solid rgba(74, 74, 74, 0.3);
+        border: 1px solid $grey30;
         border-radius: 2px;
         padding: 8px 10px;
         outline: none;
@@ -223,13 +223,13 @@
 
         &:focus,
         &:not(:placeholder-shown) {
-            border-color: #4a4a4a;
+            border-color: $grey;
         }
 
         &__error,
         &__error:focus,
         &__error:not(:placeholder-shown) {
-            border-color: #d0021b;
+            border-color: $red;
         }
     }
 
@@ -237,7 +237,7 @@
         font-size: 14px;
         color: $black;
         line-height: 2.75;
-        border: 1px solid rgba(74, 74, 74, 0.3);
+        border: 1px solid $grey30;
         border-radius: 2px;
         padding: 0 10px;
         outline: none;
@@ -248,7 +248,7 @@
     &-error {
         font-size: 12px;
         line-height: 1.33;
-        color: #d0021b;
+        color: $red;
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
@@ -321,8 +321,8 @@
 
     &__checkbox {
         position: absolute;
-        right: 21px;
-        top: 11px;
+        right: 20px;
+        top: 8px;
 
         .form-checkbox {
 
@@ -352,14 +352,14 @@
                 opacity: 1;
                 background-color: $black10;
                 border: 1px solid transparent;
-                color: rgba(0, 0, 0, 0.38);
+                color: $black30;
             }
         }
 
         .form-checkbox {
 
             &__label {
-                color: $pumpkin-orange;
+                color: $yellow;
             }
         }
     }
@@ -392,7 +392,7 @@
 }
 
 .separator {
-    background: rgba(7, 16, 23, 0.2);
+    background: $black30;
     height: 1px;
 }
 
@@ -408,7 +408,7 @@
         border-radius: 4px;
         overflow: hidden;
         position: relative;
-        background-color: rgba(0, 0, 0, 0.3);
+        background-color: $black30;
 
         &:last-child {
             margin-right: 0;
@@ -422,7 +422,7 @@
             height: 100%;
             top: 0;
             left: 0;
-            background-color: #7ed321;
+            background-color: $green;
             animation-duration: 36s;
             animation-timing-function: linear;
             animation-iteration-count: infinite;
@@ -702,7 +702,7 @@
 }
 
 .overlay {
-    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 0 9999px $black30;
     position: absolute;
 
     &__shadow {
@@ -714,7 +714,7 @@
     }
 
     &__hole {
-        box-shadow: inset 1px 1px 7px 0 rgba(131, 131, 131, 0.5);
+        box-shadow: inset 1px 1px 7px 0 $grey50;
         height: 100%;
     }
 
@@ -725,9 +725,9 @@
 
     &__tooltip {
         margin-top: 20px;
-        background: #fff;
+        background: $black;
         padding: 20px 20px 14px;
-        box-shadow: 0 2px 4px 0 rgba(176, 176, 176, 0.5);
+        box-shadow: 0 2px 4px 0 $grey50;
         border-radius: $border-radius;
         position: relative;
         font-size: 14px;
@@ -738,7 +738,7 @@
             display: block;
             top: -20px;
             left: calc(50% - 10px);
-            border: 10px solid #fff;
+            border: 10px solid $white;
             border-top-color: transparent;
             border-left-color: transparent;
             border-right-color: transparent;
@@ -757,7 +757,7 @@
         &:after {
             content: "";
             height: 1px;
-            background: rgba(0, 0, 0, .3);
+            background: $black30;
             display: block;
             top: calc(50% - 1px);
             position: absolute;
@@ -796,12 +796,12 @@
 
 .Select {
     &.form-text__error .Select-control {
-        border-color: #d0021b;
+        border-color: $red;
     }
 
     &-control {
         border-radius: 2px;
-        border: 1px solid rgba(74, 74, 74, 0.3);
+        border: 1px solid $black30;
         box-shadow: none;
 
         > :last-child {
@@ -811,7 +811,7 @@
 
     &.has-value {
         .Select-control {
-            border-color: #4a4a4a;
+            border-color: $grey;
         }
     }
 
@@ -819,7 +819,7 @@
     &.is-pseudo-focused,
     &.is-open {
         .Select-control {
-            border-color: $pumpkin-orange;
+            border-color: $yellow;
         }
     }
 
@@ -827,7 +827,7 @@
         font-size: 14px;
         line-height: 2.65;
         padding: 3px 10px 0;
-        color: rgba(0, 0, 0, 0.3);
+        color: $black30;
         position: absolute;
         height: 38px;
         top: 0;
@@ -839,7 +839,7 @@
 
         & > input {
             font-size: 14px;
-            color: #252525;
+            color: $black;
             line-height: 2.75;
             padding: 3px 10px 0;
             height: 38px;
@@ -850,7 +850,7 @@
         font-size: 14px;
         line-height: 2.75;
         padding: 0 10px;
-        color: #252525;
+        color: $black;
         position: absolute;
     }
 
@@ -875,7 +875,7 @@
         top: 2px;
         font-family: initial;
         font-size: 16px;
-        color: #252525;
+        color: $black;
     }
 
     &.is-open > .Select-control .Select-arrow {
@@ -891,7 +891,7 @@
         border-bottom-right-radius: 2px;
         border-bottom-left-radius: 2px;
         border: 0;
-        box-shadow: 0 2px 4px 0 rgba(176, 176, 176, 0.5);
+        box-shadow: 0 2px 4px 0 $grey50;
         margin-top: 1px;
     }
 
@@ -902,8 +902,8 @@
 
         &.is-focused,
         &.is-selected {
-            background-color: transparentize($pumpkin-orange, 0.9);
-            color: #000000;
+            background-color: $yellow10;
+            color: $black;
         }
         &:last-child {
             border-bottom-right-radius: 2px;
@@ -914,7 +914,7 @@
     &-create-option-placeholder,
     &-create-option-placeholder.is-focused,
     &-create-option-placeholder:hover {
-        color: $pumpkin-orange;
+        color: $yellow;
     }
 }
 
