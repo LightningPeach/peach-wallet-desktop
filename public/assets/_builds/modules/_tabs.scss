@@ -24,14 +24,14 @@
         }
 
         &-active {
-            color: $orange;
-            border-bottom-color: #ff864b;
+            color: $yellow;
+            border-bottom-color: $yellow;
             font-weight: inherit !important;
         }
 
         &:hover:not(.tab-link__no-hover),
         &:focus {
-            color: $orange;
+            color: $yellow;
             font-weight: inherit !important;
         }
     }

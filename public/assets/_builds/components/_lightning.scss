@@ -72,7 +72,7 @@
 
             &--disabled {
                 opacity: 0.3;
-                
+
                 .connected-field__input,
                 .Select-control {
                     &:disabled {
@@ -90,7 +90,7 @@
         }
         &__container {
             transition: right .2s ease-in-out, margin .2s ease-in-out;
-            max-width: 390px;
+            max-width: 350px;
             white-space: nowrap;
             display: flex;
             align-items: center;

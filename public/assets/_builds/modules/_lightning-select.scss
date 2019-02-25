@@ -48,7 +48,7 @@
         width: 100%;
         border-radius: 2px;
         padding-top: 1px;
-        box-shadow: 0 2px 4px 0 rgba(176, 176, 176, 0.5);
+        box-shadow: 0 2px 4px 0 $grey50;
         max-height: 110px;
         overflow-y: auto;
     }
@@ -77,16 +77,16 @@
         }
 
         &:hover {
-            background: rgba(255, 119, 0, .1);
+            background: $yellow10;
         }
 
         &--create {
-            color: $pumpkin-orange;
+            color: $yellow;
             display: flex;
         }
 
         &--placeholder {
-            color: transparentize($black, .7);
+            color: $black30;
             cursor: default;
 
             &:hover {

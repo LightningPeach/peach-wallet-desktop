@@ -1,21 +1,23 @@
 $Biosans: "Biosans";
 
 $yellow: #ffb700;
-$yellow10: transparentize($yellow, 0.90);
+$yellow10: transparentize($yellow, .9);
 $yellow-dim: #f1ad00;
 $yellow-bright: #ffca43;
 
 $black: #000000;
+$black10: transparentize($black, .9);
+$black30: transparentize($black, .7);
 
 $white: #ffffff;
 
 $red: #d0021b;
-$red10: transparentize($red, 0.90);
+$red10: transparentize($red, .9);
 $red-bright: #e6485c;
 
 $grey: #aaaaaa;
-$grey30: transparentize($grey, 0.7);
-$grey50: transparentize($grey, 0.5);
+$grey30: transparentize($grey, .7);
+$grey50: transparentize($grey, .5);
 
 $pumpkin-orange: #ff7700;
 $warm-grey: #9b9b9b;

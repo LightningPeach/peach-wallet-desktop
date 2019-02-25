@@ -53,8 +53,8 @@
             opacity: 0;
 
             &:checked + .form-checkbox__label:before {
-                background: $pumpkin-orange;
-                border-color: $pumpkin-orange;
+                background: $yellow;
+                border-color: $yellow;
             }
 
             &:checked + .form-checkbox__label:after {
@@ -69,7 +69,7 @@
         &__label {
             font-size: 14px;
             line-height: 1;
-            color: #000;
+            color: $black;
             white-space: nowrap;
             display: inline-block;
             padding-left: 19px;
@@ -87,7 +87,7 @@
             &:before {
                 width: 12px;
                 height: 12px;
-                border: 1px solid transparentize($black, .7);
+                border: 1px solid $black30;
                 transition: background .2s, border-color .2s;
             }
 
@@ -96,8 +96,8 @@
                 transform: rotate(-45deg) scale(1.5);
                 width: 6px;
                 height: 2px;
-                border-left: 1px solid #fff;
-                border-bottom: 1px solid #fff;
+                border-left: 1px solid $white;
+                border-bottom: 1px solid $white;
                 top: 4px;
                 left: 4px;
                 opacity: 0;
@@ -106,13 +106,13 @@
             }
 
             &:hover:before {
-                border-color: $pastel-orange;
+                border-color: $yellow;
             }
         }
 
         &:hover input[type="checkbox"]:checked + .form-checkbox__label:before {
-            background: $pastel-orange;
-            border-color: $pastel-orange;
+            background: $yellow;
+            border-color: $yellow;
         }
     }
 
@@ -203,7 +203,7 @@
 
     &-textarea {
         font-size: 12px;
-        color: #000;
+        color: $black;
         line-height: 1.67;
         border: 1px solid rgba(74, 74, 74, 0.3);
         border-radius: 2px;
@@ -235,7 +235,7 @@
 
     &-select {
         font-size: 14px;
-        color: #000;
+        color: $black;
         line-height: 2.75;
         border: 1px solid rgba(74, 74, 74, 0.3);
         border-radius: 2px;
@@ -264,7 +264,7 @@
     &-label {
         font-size: 14px;
         line-height: 2.15;
-        color: #000000;
+        color: $black;
         position: relative;
         display: inline-block;
         white-space: nowrap;
@@ -306,7 +306,7 @@
     }
 
     &-usd {
-        color: $pumpkin-orange;
+        color: $yellow;
         font-size: 14px;
         line-height: 40px;
 
@@ -350,7 +350,7 @@
         .form-text {
             &:disabled {
                 opacity: 1;
-                background-color: rgba(0, 0, 0, 0.12);
+                background-color: $black10;
                 border: 1px solid transparent;
                 color: rgba(0, 0, 0, 0.38);
             }
