@@ -190,7 +190,7 @@
                     pointer-events: all;
                     font-size: 12px;
                     background:
-                            linear-gradient(to right, transparent 0%, transparentize($orange, 0.9) 20%, transparentize($orange, 0.9) 100%),
+                            linear-gradient(to right, transparent 0%, $yellow10 20%, $yellow10 100%),
                             linear-gradient(to right, transparent 0%, $white 20%, $white 100%);
                 }
             }

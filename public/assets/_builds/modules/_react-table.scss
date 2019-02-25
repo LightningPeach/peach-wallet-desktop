@@ -15,7 +15,7 @@
 
     .rt-tr {
         align-items: center;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+        border-bottom: 1px solid $black10;
         padding-left: 20px;
         padding-right: 20px;
         transition:
@@ -63,7 +63,7 @@
                         left: calc(100% + 10px);
                         top: 7px;
                         border-width: 0 3px 4px 3px;
-                        border-color: transparent transparent #071017 transparent;
+                        border-color: transparent transparent $black transparent;
                         transition: transform .2s;
                     }
                 }
@@ -102,7 +102,6 @@
             }
 
             &:first-child > span {
-                /*padding-left: 17px;*/
                 position: relative;
                 display: inline-block;
 
@@ -117,31 +116,19 @@
                     border-radius: 100%;
                     transform: translateY(-50%);
                 }
-
-                &.green:before {
-                    /*background-color: #7ed321;*/
-                }
-
-                &.orange:before {
-                    /*background-color: #ff864b;*/
-                }
-
-                &.red:before {
-                    /*background-color: $scarlet;*/
-                }
             }
 
             .visible-on-hover:hover {
                 overflow: visible;
 
                 > * {
-                    background: #fff;
+                    background: $white;
                     z-index: 1;
                     position: absolute;
                     padding: 8px 10px;
                     margin-top: -8px;
                     margin-left: -10px;
-                    box-shadow: 0 2px 4px 0 $greyish-50;
+                    box-shadow: 0 2px 4px 0 $grey-light50;
                 }
             }
         }
@@ -151,8 +138,8 @@
         }
 
         .rt-tr:not(.-padRow):hover {
-            background-color: transparentize($orange, 0.9);
-            box-shadow: 1px 1px 10px 0 rgba(225, 225, 225, 0.5);
+            background-color: $yellow10;
+            box-shadow: 1px 1px 10px 0 $grey-light50;
 
             .table__button {
                 opacity: 1;
@@ -162,7 +149,7 @@
         }
 
         .green {
-            color: $apple-green;
+            color: $green;
         }
     }
 
@@ -192,7 +179,7 @@
             &:hover:not(.pagination__not-item),
             &:focus:not(.pagination__not-item),
             &.pagination__current {
-                color: $pumpkin-orange;
+                color: $yellow;
             }
 
             &.pagination__prev,
@@ -226,13 +213,12 @@
         cursor: pointer;
         font-size: 0;
         line-height: 1;
-        color: $orange;
+        color: $yellow;
         padding: 0 5px;
         margin-top: 2px;
         transition: opacity .3s ease-in-out, font-size .3s ease-in-out;
 
         &:hover {
-            color: #d0021b;
             text-decoration: underline;
         }
     }
