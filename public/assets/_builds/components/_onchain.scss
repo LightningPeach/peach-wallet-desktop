@@ -3,7 +3,7 @@
         padding-top: 37px;
 
         .tab-link {
-            color: $pumpkin-orange;
+            color: $yellow;
         }
     }
 
@@ -16,9 +16,6 @@
     .ReactTable {
         .rt-tbody {
             .rt-td.name span {
-                /*padding-left: 21px;
-                position: relative;
-                display: inline-block;*/
 
                 &:before {
                     content: "";
@@ -47,19 +44,19 @@
 
                 &.pending {
                     .block__cell--active {
-                        background-color: $pumpkin-orange;
+                        background-color: $yellow;
                     }
                 }
 
                 &.sended {
                     .block__cell--active {
-                        background-color: #7ed321;
+                        background-color: $yellow;
                     }
                 }
             }
 
             &__cell {
-                background-color: #d8d8d8;
+                background-color: $grey-light;
                 margin-right: 6px;
                 border-radius: 2px;
             }
@@ -115,7 +112,7 @@
         font-weight: bold;
         line-height: 1.13;
         text-align: left;
-        color: $pumpkin-orange;
+        color: $yellow;
     }
 
     &__separator {
