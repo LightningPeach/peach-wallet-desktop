@@ -18,50 +18,48 @@ class SubHeader extends PureComponent {
         return (
             <section className="subheader">
                 <div className="container">
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <div className="balance">
-                                <div className="balance__row">
-                                    <span className="balance__title">
-                                        Lightning balance:
-                                    </span>
-                                    <span className="balance__value">
-                                        <BtcToUsd amount={lightningBalance} />
-                                    </span>
-                                </div>
-                                <div className="balance__row">
-                                    <span className="balance__title">
-                                        Onchain balance:
-                                    </span>
-                                    <span className="balance__value"><BtcToUsd amount={bitcoinBalance} /></span>
-                                </div>
-                                <div className="balance__row">
-                                    <Tooltip
-                                        placement="right"
-                                        overlay={helpers.formatMultilineText(this.lockedBalance)}
-                                        trigger="hover"
-                                        arrowContent={
-                                            <div className="rc-tooltip-arrow-inner" />
-                                        }
-                                        prefixCls="rc-tooltip__small rc-tooltip"
-                                        mouseLeaveDelay={0}
-                                    >
-                                        <i className="form-label__icon form-label__icon--left form-label__icon--info" />
-                                    </Tooltip>
-                                    <span className="balance__title">
-                                        Locked Onchain balance:
-                                    </span>
-                                    <span className="balance__value">
-                                        <BtcToUsd amount={unConfirmedBitcoinBalance} />
-                                    </span>
-                                </div>
+                    <div className="row row--no-col justify-between-xs align-center-xs">
+                        <div className="balance">
+                            <div className="balance__row">
+                                <span className="balance__title">
+                                    Lightning balance:
+                                </span>
+                                <span className="balance__value">
+                                    <BtcToUsd amount={lightningBalance} />
+                                </span>
                             </div>
-                            <div className="subheader__exchange_rate">
-                                <div className={`exchange_rate ${button ? "exchange_rate--with_btn" : ""}`}>
-                                    1BTC <BtcToUsd amount={100000000} hideBase />
-                                </div>
-                                {button || null}
+                            <div className="balance__row">
+                                <span className="balance__title">
+                                    Onchain balance:
+                                </span>
+                                <span className="balance__value"><BtcToUsd amount={bitcoinBalance} /></span>
                             </div>
+                            <div className="balance__row">
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.lockedBalance)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="form-label__icon form-label__icon--left form-label__icon--info" />
+                                </Tooltip>
+                                <span className="balance__title">
+                                    Locked Onchain balance:
+                                </span>
+                                <span className="balance__value">
+                                    <BtcToUsd amount={unConfirmedBitcoinBalance} />
+                                </span>
+                            </div>
+                        </div>
+                        <div className="row row--no-col">
+                            <div className="exchange_rate">
+                                1BTC <BtcToUsd amount={100000000} hideBase />
+                            </div>
+                            {button || null}
                         </div>
                     </div>
                 </div>
