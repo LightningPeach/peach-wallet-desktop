@@ -113,7 +113,7 @@ class GuidePage extends Component {
                     <div className="s-regular__table">
                         {background}
                         <div className="s-regular__column s-regular__column--5">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 Name of payment
                             </div>
                             <div className="s-regular__row">
@@ -127,7 +127,7 @@ class GuidePage extends Component {
                             </div>
                         </div>
                         <div className="s-regular__column s-regular__column--20">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 Amount
                             </div>
                             <div className="s-regular__row">
@@ -141,7 +141,7 @@ class GuidePage extends Component {
                             </div>
                         </div>
                         <div className="s-regular__column s-regular__column--25">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 To
                             </div>
                             <div className="s-regular__row">
@@ -155,7 +155,7 @@ class GuidePage extends Component {
                             </div>
                         </div>
                         <div className="s-regular__column s-regular__column--22">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 <span className="s-regular__sortable">Date</span>
                             </div>
                             <div className="s-regular__row">

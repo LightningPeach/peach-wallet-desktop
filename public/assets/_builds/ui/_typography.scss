@@ -1,100 +1,39 @@
-.header_20pt {
-    font-family: $Biosans;
-    font-size: 20px;
-    font-weight: bold;
-    line-height: 0.9;
-    text-align: left;
-    color: #000000;
-}
-
-.menu_18_pt {
-    font-family: $Biosans;
-    font-size: 18px;
-    font-weight: bold;
-    text-align: left;
-    color: $pumpkin-orange;
-}
-
-.menu_18_pt_white {
-    font-family: $Biosans;
-    font-size: 18px;
-    text-align: left;
-    color: $white;
-}
-
-.main_text_16pt {
-    font-family: $Biosans;
-    font-size: 16px;
-    font-weight: bold;
-    text-align: left;
-    color: $pumpkin-orange;
-}
-
-.button_14_pt {
-    font-family: $Biosans;
-    font-size: 14px;
-    font-weight: bold;
-    line-height: 1.43;
-    text-align: left;
-    color: $white;
-}
-
-.main_text_14pt {
-    font-family: $Biosans;
-    font-size: 14px;
-    line-height: 1;
-    text-align: left;
-    color: #000000;
-}
-
-.main_text_14pt_opacity_10 {
-    font-family: $Biosans;
-    font-size: 14px;
-    line-height: 1;
-    text-align: left;
-    color: #000000;
-}
-
-.support_text_12pt_opacity_10 {
-    font-family: $Biosans;
-    font-size: 12px;
-    line-height: 1;
-    text-align: justify;
-    color: #000000;
-}
-
-.support_text_12pt {
-    font-family: $Biosans;
-    font-size: 12px;
-    line-height: 1;
-    text-align: left;
-    color: #000000;
-}
-
 ::-webkit-input-placeholder {
     opacity: 0.5;
 }
 
 .placeholder_text {
-    color: rgba(00, 00, 00, 0.3);
+    color: $black30;
 }
 
-.text-medium {
-    font-weight: 600;
+.text {
+    &-semibold { font-weight: 600; }
+    &-bold { font-weight: bold; }
+
+    &-uppercase { text-transform: uppercase }
+
+    &-right { text-align: right !important; }
+    &-center { text-align: center !important; }
+    &-left { text-align: left !important; }
 }
 
-.text-bold {
-    font-weight: bold;
+.font {
+    &-12 { font-size: 12px; }
+    &-16 { font-size: 16px; }
 }
 
-.text-uppercase {
-    text-transform: uppercase;
-}
+.block {
+    &-title {
+        font-size: 20px;
+        font-weight: bold;
+        line-height: 30px;
+        color: $yellow;
 
-.font-12 {
-    font-size: 12px;
-}
-
-.text-16 {
-    font-size: 16px;
+        &-sm {
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 24px;
+            color: $yellow;
+        }
+    }
 }

@@ -19,7 +19,7 @@ class Footer extends PureComponent {
             <footer className="footer">
                 <div className="container">
                     <div className="column align-center-xs">
-                        <div className="footer__title main_text_16pt">
+                        <div className="footer__title block-title-sm">
                             Contact Us
                         </div>
                         <a className="footer__email main_text_14pt" href="mailto:hello@lightningpeach.com">
