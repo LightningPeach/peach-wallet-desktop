@@ -147,6 +147,26 @@
     }
 }
 
+.link {
+    cursor: pointer;
+    user-select: none;
+    transition: color $default-transition;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    border: 0;
+    display: inline;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: normal;
+    color: orange;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
 .switcher {
     display: flex;
     justify-content: space-between;

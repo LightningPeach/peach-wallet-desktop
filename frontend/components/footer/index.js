@@ -30,13 +30,13 @@ class Footer extends PureComponent {
                         <div className="row">
                             <div className="col-xs-12 col-md-6">
                                 <a
-                                    className="button button__link"
+                                    className="link"
                                     onClick={this.openUserGuide}
                                 >
                                     User Guide
                                 </a>
                                 <br />
-                                <button className="button button__link" onClick={this.openLegal}>
+                                <button className="link" onClick={this.openLegal}>
                                     License agreement & Terms and conditions
                                 </button>
                             </div>
