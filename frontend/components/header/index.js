@@ -68,10 +68,17 @@ class Header extends Component {
             <header className="header">
                 <div className="container">
                     <div className="header__row row row--no-col align-center-xs justify-between-xs">
-                        <Link
-                            to={WalletPath}
-                            className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
-                        />
+                        <div className="row row--no-col align-center-xs logo-wrapper">
+                            <Link
+                                to={WalletPath}
+                                className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
+                            />
+                            {privacyMode !== accountTypes.PRIVACY_MODE.PENDING &&
+                                <div className="header__privacy-mode">
+                                    {privacyMode}
+                                </div>
+                            }
+                        </div>
                         <div
                             className={`burger burger__${this.state.menuState}`}
                             onClick={this.toggleClass}
