@@ -139,12 +139,6 @@
     &--fullwide {
         width: 100%;
     }
-
-    &--logout {
-        padding-left: 25px;
-        background: url(../images/logout.svg) no-repeat left center;
-        font-size: 14px;
-    }
 }
 
 .link {
@@ -160,10 +154,21 @@
     font-size: inherit;
     line-height: inherit;
     font-weight: normal;
-    color: orange;
+    color: $yellow;
 
     &:hover {
         text-decoration: underline;
+    }
+
+    &--red {
+        color: $red;
+    }
+
+    &--logout {
+        padding-left: 30px;
+        line-height: 20px;
+        background: url(../images/logout.svg) no-repeat left center;
+        background-size: 20px 20px;
     }
 }
 
@@ -172,7 +177,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 300px;
+    max-width: 220px;
     transition: opacity $default-transition;
 
     &-toggle {
@@ -208,6 +213,8 @@
 
     &-text {
         position: relative;
+        width: 180px;
+        padding-right: 10px;
     }
 
     &.disabled {

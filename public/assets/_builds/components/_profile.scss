@@ -39,6 +39,10 @@
         @extend .row--no-col;
         flex-wrap: nowrap;
         align-items: flex-start;
+
+        &--center {
+            align-items: center;
+        }
     }
 
     &__label {
@@ -62,6 +66,10 @@
         flex-wrap: nowrap;
         max-width: calc(100% - 180px);
 
+        &--start {
+            justify-content: flex-start;
+        }
+
         &_ellipsis {
             flex: 1;
             overflow: hidden;
@@ -78,26 +86,23 @@
         }
     }
 
+    &__button {
+        &-label {
+            text-transform: capitalize;
+
+            & + .button,
+            & + .link {
+                margin-left: 40px;
+            }
+        }
+    }
+
     &__app-status {
-        font-size: 14px;
         margin-right: 20px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        white-space: normal;
-        line-height: 20px;
-        text-align: left;
 
         &.button + .button {
             margin-left: 0;
         }
-    }
-
-    &__switcher {
-        margin-top: 8px;
-    }
-
-    .placeholder_text {
-        color: $black10;
     }
 }
 

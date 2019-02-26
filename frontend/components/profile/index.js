@@ -358,7 +358,7 @@ class Profile extends Component {
                             <div className="profile__value">
                                 <span className="profile__value_ellipsis">
                                     {paymentRequest ||
-                                        <span className="placeholder_text">
+                                        <span className="text-grey">
                                             This will display your payment request
                                         </span>
                                     }
@@ -387,30 +387,56 @@ class Profile extends Component {
     };
 
     renderSettings = () => {
-        const { dispatch, appAsDefaultStatus } = this.props;
+        const { dispatch, appAsDefaultStatus, privacyMode } = this.props;
         return (
             <div className="profile__block">
                 <div className="row">
                     <div className="col-xs-12">
-                        <div className="block-title profile__title profile__title--settings">
+                        <div className="profile__title profile__title--settings">
                             Settings
                         </div>
                     </div>
                 </div>
-                <div className="row row--no-col align-center-xs">
-                    <div className="profile__label">
-                        Wallet Privacy Mode
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label">
+                                Wallet Privacy Mode
+                            </div>
+                            <div className="profile__value profile__value--start">
+                                <span className="profile__button-label">
+                                    {privacyMode}
+                                </span>
+                                <button
+                                    className="link"
+                                    onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                                >
+                                    Change Mode
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                    <div className="profile__value">
-                        <button
-                            className="button button__link"
-                            onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
-                        >
-                            Change Mode
-                        </button>
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label" />
+                            <div className="profile__value">
+                                <span className="text-grey">
+                                    {privacyMode === accountTypes.PRIVACY_MODE.EXTENDED ?
+                                        <span>
+                                            In this mode you have a few extra features. These features rely on the Peach
+                                            server to route a transaction.
+                                        </span> :
+                                        <span>
+                                            In this mode your wallet doesn’t connect to the Peach server for any reason.
+                                            The Extended Mode features are disabled.
+                                        </span>
+                                    }
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="row mt-10">
+                <div className="profile__row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="profile__currency">
@@ -419,46 +445,50 @@ class Profile extends Component {
                         </div>
                     </div>
                     <div className="col-xs-12">
-                        <Select
-                            id="profile__currency"
-                            value={this.state.measureValue}
-                            searchable={false}
-                            options={ALL_MEASURES.map(item => ({
-                                label: item.btc, toFixed: item.toFixed, value: item.btc,
-                            }))}
-                            onChange={(newOption) => {
-                                dispatch(accountOperations.setBitcoinMeasure(newOption.value));
-                                this.setState({
-                                    measureValue: newOption.value,
-                                    payReqAmountError: null,
-                                });
-                                this.pay_req_component.reset();
-                                analytics.event({
-                                    action: "Bitcoin denomination",
-                                    category: "Profile",
-                                    label: "Change",
-                                    value: newOption.toFixed,
-                                });
-                            }}
-                            clearable={false}
-                            ref={(ref) => {
-                                this.stateSelect = ref;
-                            }}
-                            arrowRenderer={({ onMouseDown, isOpen }) => (<span
-                                role="switch"
-                                tabIndex={0}
-                                aria-checked={false}
-                                onMouseDown={() => {
-                                    !isOpen ? this.stateSelect.focus() : null; // eslint-disable-line
-                                }}
-                                className="Select-arrow"
-                            />)}
-                        />
+                        <div className="prifile__line">
+                            <div className="profile__label profile__label--normal">
+                                <Select
+                                    id="profile__currency"
+                                    value={this.state.measureValue}
+                                    searchable={false}
+                                    options={ALL_MEASURES.map(item => ({
+                                        label: item.btc, toFixed: item.toFixed, value: item.btc,
+                                    }))}
+                                    onChange={(newOption) => {
+                                        dispatch(accountOperations.setBitcoinMeasure(newOption.value));
+                                        this.setState({
+                                            measureValue: newOption.value,
+                                            payReqAmountError: null,
+                                        });
+                                        this.pay_req_component.reset();
+                                        analytics.event({
+                                            action: "Bitcoin denomination",
+                                            category: "Profile",
+                                            label: "Change",
+                                            value: newOption.toFixed,
+                                        });
+                                    }}
+                                    clearable={false}
+                                    ref={(ref) => {
+                                        this.stateSelect = ref;
+                                    }}
+                                    arrowRenderer={({ onMouseDown, isOpen }) => (<span
+                                        role="switch"
+                                        tabIndex={0}
+                                        aria-checked={false}
+                                        onMouseDown={() => {
+                                            !isOpen ? this.stateSelect.focus() : null; // eslint-disable-line
+                                        }}
+                                        className="Select-arrow"
+                                    />)}
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div className="row profile__row">
+                <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className="profile__switcher switcher">
+                        <div className="profile__line switcher">
                             <div className="switcher-text">
                                 System notifications
                                 <Tooltip
@@ -480,8 +510,10 @@ class Profile extends Component {
                             />
                         </div>
                     </div>
+                </div>
+                <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className={`profile__switcher switcher ${this.state.notifications ? "" : "disabled"}`}>
+                        <div className={`profile__line switcher ${this.state.notifications ? "" : "disabled"}`}>
                             <div className="switcher-text">
                                 Sounds
                                 <Tooltip
@@ -503,8 +535,10 @@ class Profile extends Component {
                             />
                         </div>
                     </div>
+                </div>
+                <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className="profile__switcher switcher">
+                        <div className="profile__line switcher">
                             <div className="switcher-text">
                                 Anonymous Statistics
                             </div>
@@ -514,35 +548,49 @@ class Profile extends Component {
                             />
                         </div>
                     </div>
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label" />
+                            <div className="profile__value">
+                                <span className="text-grey">
+                                    We use Google Analytics to optionally collect anonymized data on how people use the
+                                    wallet. This data helps us improve the user experience of the app. By default, this
+                                    setting is disabled.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div className="row profile__row profile__row--wrap">
-                    <div className="col-xs-12 profile__flex">
-                        {
-                            appAsDefaultStatus ?
-                                <span className="profile__app-status">
-                                    <b>Peach Wallet</b> is your default lightning wallet
-                                </span> :
-                                <button
-                                    type="button"
-                                    className="button button__link profile__app-status"
-                                    onClick={this.sendSetDefaultStatus}
-                                >
-                                    Set <b>Peach Wallet</b> as your default lightning wallet
-                                </button>
-                        }
-                        <button
-                            className="button button__link button__link--logout"
-                            type="button"
-                            onClick={() => {
-                                analytics.event({
-                                    action: "Logout",
-                                    category: "Profile",
-                                });
-                                dispatch(appOperations.openLogoutModal());
-                            }}
-                        >
-                            Log out
-                        </button>
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line profile__line--center justify-between-xs">
+                            {
+                                appAsDefaultStatus ?
+                                    <span className="profile__app-status">
+                                        <b>Peach Wallet</b> is your default lightning wallet
+                                    </span> :
+                                    <button
+                                        type="button"
+                                        className="button button__link profile__app-status"
+                                        onClick={this.sendSetDefaultStatus}
+                                    >
+                                        Set <b>Peach Wallet</b> as your default lightning wallet
+                                    </button>
+                            }
+                            <button
+                                className="link link--red link--logout"
+                                type="button"
+                                onClick={() => {
+                                    analytics.event({
+                                        action: "Logout",
+                                        category: "Profile",
+                                    });
+                                    dispatch(appOperations.openLogoutModal());
+                                }}
+                            >
+                                Log out
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -601,6 +649,11 @@ Profile.propTypes = {
     modalState: PropTypes.string.isRequired,
     paymentRequest: PropTypes.string,
     paymentRequestAmount: PropTypes.number,
+    privacyMode: PropTypes.oneOf([
+        accountTypes.PRIVACY_MODE.EXTENDED,
+        accountTypes.PRIVACY_MODE.INCOGNITO,
+        accountTypes.PRIVACY_MODE.PENDING,
+    ]),
     systemNotifications: PropTypes.number.isRequired,
 };
 
@@ -614,6 +667,7 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
     paymentRequest: state.lightning.paymentRequest,
     paymentRequestAmount: state.lightning.paymentRequestAmount,
+    privacyMode: state.account.privacyMode,
     systemNotifications: state.account.systemNotifications,
 });
 
