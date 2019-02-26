@@ -205,7 +205,7 @@ class Login extends Component {
                         <div className="home__restore-block">
                             <button
                                 type="button"
-                                className="button button__link"
+                                className="link"
                                 onClick={this.showRestore}
                                 disabled={disabled}
                             >
@@ -228,7 +228,7 @@ class Login extends Component {
                             <span className={disabled ? "disabled" : ""}>I don’t have an account.</span>
                             <button
                                 type="button"
-                                className="button button__link signup__link"
+                                className="link signup__link"
                                 onClick={this.showRegistration}
                                 disabled={disabled}
                             >

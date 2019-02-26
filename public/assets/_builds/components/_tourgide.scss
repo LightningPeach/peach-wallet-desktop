@@ -1,4 +1,4 @@
-$orange-border: transparentize($pumpkin-orange, .7);
+$yellow-border: transparentize($yellow, .7);
 
 .tourgide {
     background: $black;
@@ -32,9 +32,9 @@ $orange-border: transparentize($pumpkin-orange, .7);
         background: transparent;
         border: 0;
         line-height: 1;
-        color: $cornflower;
+        color: $yellow;
         padding: 0;
-        border-bottom: 1px solid $cornflower;
+        border-bottom: 1px solid $yellow;
         cursor: pointer;
     }
 
@@ -74,7 +74,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         align-items: center;
 
         li.slick-active button {
-            background: $pumpkin-orange;
+            background: $yellow;
 
             &:focus {
                 background: #ff9b44;
@@ -95,7 +95,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
 
             &:hover,
             &:focus {
-                background: $pumpkin-orange;
+                background: $yellow;
             }
         }
     }
@@ -126,7 +126,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         white-space: nowrap;
 
         &--up {
-            color: $cornflower;
+            color: $yellow;
             text-transform: none;
             float: left;
             margin-top: -38px;
@@ -135,7 +135,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
 
     &status {
         font-size: 16px;
-        color: $cornflower;
+        color: $yellow;
         padding-bottom: 8px;
         margin-right: 0;
         text-align: right;
@@ -150,7 +150,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
     }
 
     &orange {
-        color: $pumpkin-orange;
+        color: $yellow;
     }
 
     &link {
@@ -167,7 +167,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
 
 .s-channels {
     margin: 102px 43px 121px 41px;
-    color: $warm-grey;
+    color: $grey-light;
 
     &__nav {
         border-top: solid 1px #979797;
@@ -198,7 +198,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
 
         &--active {
             font-weight: bold;
-            color: $pumpkin-orange;
+            color: $yellow;
         }
 
         &:last-child {
@@ -260,7 +260,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         &:hover,
         &:active,
         &:focus {
-            background: $pumpkin-orange;
+            background: $yellow;
             cursor: default;
         }
 
@@ -273,8 +273,8 @@ $orange-border: transparentize($pumpkin-orange, .7);
         }
 
         &:before {
-            border-top: 1px solid $orange-border;
-            border-bottom: 1px solid $orange-border;
+            border-top: 1px solid $yellow;
+            border-bottom: 1px solid $yellow;
             height: calc(100% - 1px);
             width: 800%;
             left: 50%;
@@ -282,8 +282,8 @@ $orange-border: transparentize($pumpkin-orange, .7);
         }
 
         &:after {
-            border-left: 1px solid $orange-border;
-            border-right: 1px solid $orange-border;
+            border-left: 1px solid $yellow;
+            border-right: 1px solid $yellow;
             width: calc(100% - 1px);
             height: 215px;
             left: 0;
@@ -302,7 +302,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         margin: 0 0 20px;
         line-height: 1;
         font-size: 16px;
-        color: $pumpkin-orange;
+        color: $yellow;
         text-transform: uppercase;
     }
 
@@ -311,7 +311,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         z-index: 1;
         border-top: solid 1px #979797;
         border-bottom: solid 1px #979797;
-        color: $warm-grey;
+        color: $grey-light;
         display: flex;
         margin-bottom: 95px;
         font-size: 14px;
@@ -385,7 +385,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         &--bordered:before {
             content: "";
             height: 1px;
-            background: $orange-border;
+            background: $yellow;
             position: absolute;
             width: 1000%;
             left: 50%;
@@ -440,7 +440,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         &:before {
             content: "";
             height: 2px;
-            background: $orange-border;
+            background: $yellow;
             position: absolute;
             width: 200%;
             left: 50%;
@@ -464,8 +464,8 @@ $orange-border: transparentize($pumpkin-orange, .7);
 
         &--active {
             font-weight: bold;
-            color: $pumpkin-orange;
-            border-bottom: 2px solid $pumpkin-orange;
+            color: $yellow;
+            border-bottom: 2px solid $yellow;
         }
     }
 
@@ -533,10 +533,10 @@ $orange-border: transparentize($pumpkin-orange, .7);
 
         &--active {
             color: $white;
-            border-color: $pumpkin-orange;
+            border-color: $yellow;
 
             &:before {
-                border-color: $orange-border;
+                border-color: $yellow;
                 width: 500%;
                 transform: translateX(-60%);
                 z-index: -1;
@@ -549,8 +549,8 @@ $orange-border: transparentize($pumpkin-orange, .7);
                 top: -34px;
                 height: calc(100% + 61px);
                 width: 100%;
-                border-left: 1px solid $orange-border;
-                border-right: 1px solid $orange-border;
+                border-left: 1px solid $yellow;
+                border-right: 1px solid $yellow;
                 z-index: -1;
             }
         }
@@ -583,7 +583,7 @@ $orange-border: transparentize($pumpkin-orange, .7);
         border-top: solid 1px #979797;
         border-bottom: solid 1px #979797;
         margin-bottom: 20px;
-        color: $warm-grey;
+        color: $grey-light;
         padding: 20px 13px 17px 27px;
         font-size: 12px;
         line-height: 1;
@@ -717,6 +717,6 @@ $orange-border: transparentize($pumpkin-orange, .7);
     }
 
     &__button {
-        color: $pumpkin-orange;
+        color: $yellow;
     }
 }

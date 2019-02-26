@@ -64,7 +64,7 @@
     }
 
     &-header {
-        color: $orange;
+        color: $yellow;
         font-size: 18px;
         line-height: 0.9;
         padding: 20px;
@@ -83,7 +83,7 @@
         }
 
         &__error-message {
-            color: $scarlet-two;
+            color: $red;
             margin-bottom: 10px;
         }
     }
@@ -130,7 +130,7 @@
     &__error {
 
         .modal-header {
-            color: $scarlet;
+            color: $red;
         }
     }
 }
@@ -174,7 +174,7 @@
         font-weight: bold;
         text-align: center;
         line-height: 0.75;
-        color: $orange;
+        color: $yellow;
         padding-top: 20px;
         padding-bottom: 30px;
     }
@@ -211,7 +211,7 @@
 
             .helper {
                 &__header {
-                    color: $pumpkin-orange;
+                    color: $yellow;
                 }
 
                 &__list {
