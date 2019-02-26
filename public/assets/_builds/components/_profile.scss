@@ -14,62 +14,61 @@
         padding-left: 60px;
 
         &--username {
-            background: url(../images/user.svg) no-repeat center left;
+            background: url(../images/icons/wallet.svg) no-repeat center left;
+            background-size: 30px 30px;
+        }
+
+        &--pay_req {
+            background: url(../images/payment-request.svg) no-repeat center left;
+            background-size: 30px 30px;
+        }
+
+        &--settings {
+            background: url(../images/settings.svg) no-repeat center left;
             background-size: 30px 30px;
         }
     }
 
     &__row {
-        padding-top: 14px;
-        padding-bottom: 11px;
-        font-size: 14px;
-        line-height: 1;
-
-        &--top-double {
-            padding-top: 31px;
-        }
-
-        &:last-child {
-            padding-bottom: 0;
-        }
-
-        &--wrap {
-            .profile {
-                &__flex {
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-            }
-        }
+        @extend .row;
+        padding-top: 20px;
     }
 
-    &__flex {
-        display: flex;
-    }
-
-    &__utils_btns {
-        float: right;
-
-        span + span {
-            margin-left: 20px;
-        }
+    &__line {
+        @extend .row;
+        @extend .row--no-col;
+        flex-wrap: nowrap;
     }
 
     &__label {
-        width: 192px;
+        width: 180px;
+        flex: 0 0 180px;
+        font-weight: bold;
     }
 
     &__value {
         margin: 0;
-        flex: 1;
-        display: inline-flex;
+        flex: 1 1 auto;
+        @extend .row;
+        @extend .row--no-col;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        max-width: calc(100% - 180px);
 
         &_value {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
+        }
+
+        &_utils {
+            margin-left: 10px;
+            @extend .center-content;
+
+            span + span {
+                margin-left: 20px;
+            }
         }
     }
 
@@ -136,30 +135,19 @@
     }
 }
 
-@media screen and (max-width: 890px) {
+@media screen and (max-width: $phablet-width) {
     .profile {
+        &__line {
+            flex-wrap: wrap;
+        }
+
         &__label {
-            width: 123px;
+            width: 100%;
+            flex-basis: 100%;
         }
 
         &__value {
-            width: calc(100% - 123px);
-        }
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .profile {
-        &__block {
-            padding-right: 10px;
-        }
-
-        .pay_req__label {
-            max-width: 40%;
-        }
-
-        .col-small-right-padding {
-            padding-right: 10px;
+            max-width: 100%;
         }
     }
 }

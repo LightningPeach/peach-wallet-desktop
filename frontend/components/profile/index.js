@@ -164,105 +164,111 @@ class Profile extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="row profile__row">
-                    <div className="col-xs-12 profile__flex js-lightningId">
-                        <div className="profile__label">
-                             Wallet Name
-                        </div>
-                        <div className="profile__value">
-                            {login}
-                        </div>
-                    </div>
-                </div>
-                <div className="row profile__row">
-                    <div className="col-xs-12 profile__flex js-lightningId">
-                        <div className="profile__label">
-                            Lightning ID
-                        </div>
-                        <div className="profile__value">
-                            <span className="profile__value_value">
-                                {this.props.lightningID}
-                            </span>
-                            <span className="profile__utils_btns">
-                                <Tooltip
-                                    placement="bottom"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
-                                    trigger="hover"
-                                    arrowContent={
-                                        <div className="rc-tooltip-arrow-inner" />}
-                                    prefixCls="rc-tooltip__small rc-tooltip"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <span
-                                        className="copy profile__copy"
-                                        onClick={() => {
-                                            analytics.event({
-                                                action: "LightningID",
-                                                category: "Profile",
-                                                label: "Copy",
-                                            });
-                                            dispatch(appOperations.copyToClipboard(this.props.lightningID));
-                                        }}
-                                    />
-                                </Tooltip>
-                            </span>
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label">
+                                Wallet Name
+                            </div>
+                            <div className="profile__value">
+                                {login}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="row profile__row">
-                    <div className="col-xs-12 profile__flex js-btcAddress">
-                        <div className="profile__label">
-                            BTC Address
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label">
+                                Lightning ID
+                            </div>
+                            <div className="profile__value">
+                                <span className="profile__value_value">
+                                    {this.props.lightningID}
+                                </span>
+                                <span className="profile__value_utils">
+                                    <Tooltip
+                                        placement="bottom"
+                                        overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
+                                        trigger="hover"
+                                        arrowContent={
+                                            <div className="rc-tooltip-arrow-inner" />}
+                                        prefixCls="rc-tooltip__small rc-tooltip"
+                                        mouseLeaveDelay={0}
+                                    >
+                                        <span
+                                            className="copy profile__copy"
+                                            onClick={() => {
+                                                analytics.event({
+                                                    action: "LightningID",
+                                                    category: "Profile",
+                                                    label: "Copy",
+                                                });
+                                                dispatch(appOperations.copyToClipboard(this.props.lightningID));
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </span>
+                            </div>
                         </div>
-                        <div className="profile__value">
-                            <span className="profile__value_value">
-                                {BTCAddress}
-                            </span>
-                            <span className="profile__utils_btns">
-                                <Tooltip
-                                    placement="bottom"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.address)}
-                                    trigger="hover"
-                                    arrowContent={
-                                        <div className="rc-tooltip-arrow-inner" />}
-                                    prefixCls="rc-tooltip__small rc-tooltip"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <span
-                                        className="reload profile__reload"
-                                        onClick={() => {
-                                            analytics.event({
-                                                action: "BTC Address",
-                                                category: "Profile",
-                                                label: "New",
-                                            });
-                                            dispatch(accountOperations.createNewBitcoinAccount());
-                                        }}
-                                    />
-                                </Tooltip>
-                                <Tooltip
-                                    placement="bottom"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
-                                    trigger="hover"
-                                    arrowContent={
-                                        <div className="rc-tooltip-arrow-inner" />
-                                    }
-                                    prefixCls="rc-tooltip__small rc-tooltip"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <span
-                                        className="copy profile__copy"
-                                        onClick={() => {
-                                            analytics.event({
-                                                action: "BTC Address",
-                                                category: "Profile",
-                                                label: "Copy",
-                                            });
-                                            dispatch(appOperations.copyToClipboard(BTCAddress));
-                                        }}
-                                    />
-                                </Tooltip>
-                            </span>
+                    </div>
+                </div>
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label">
+                                BTC Address
+                            </div>
+                            <div className="profile__value">
+                                <span className="profile__value_value">
+                                    {BTCAddress}
+                                </span>
+                                <span className="profile__value_utils">
+                                    <Tooltip
+                                        placement="bottom"
+                                        overlay={helpers.formatMultilineText(this.state.tooltips.address)}
+                                        trigger="hover"
+                                        arrowContent={
+                                            <div className="rc-tooltip-arrow-inner" />}
+                                        prefixCls="rc-tooltip__small rc-tooltip"
+                                        mouseLeaveDelay={0}
+                                    >
+                                        <span
+                                            className="reload profile__reload"
+                                            onClick={() => {
+                                                analytics.event({
+                                                    action: "BTC Address",
+                                                    category: "Profile",
+                                                    label: "New",
+                                                });
+                                                dispatch(accountOperations.createNewBitcoinAccount());
+                                            }}
+                                        />
+                                    </Tooltip>
+                                    <Tooltip
+                                        placement="bottom"
+                                        overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
+                                        trigger="hover"
+                                        arrowContent={
+                                            <div className="rc-tooltip-arrow-inner" />
+                                        }
+                                        prefixCls="rc-tooltip__small rc-tooltip"
+                                        mouseLeaveDelay={0}
+                                    >
+                                        <span
+                                            className="copy profile__copy"
+                                            onClick={() => {
+                                                analytics.event({
+                                                    action: "BTC Address",
+                                                    category: "Profile",
+                                                    label: "Copy",
+                                                });
+                                                dispatch(appOperations.copyToClipboard(BTCAddress));
+                                            }}
+                                        />
+                                    </Tooltip>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -290,8 +296,7 @@ class Profile extends Component {
             <div className="profile__block">
                 <div className="row">
                     <div className="col-xs-12">
-                        <div className="profile__title profile__title--pay_req">
-                            <img src={`${window.STATIC_FILES}public/assets/images/payment-request.svg`} alt="" />
+                        <div className="block-title profile__title profile__title--pay_req">
                             Payment Request
                         </div>
                     </div>
@@ -369,8 +374,7 @@ class Profile extends Component {
             <div className="profile__block">
                 <div className="row">
                     <div className="col-xs-12">
-                        <div className="profile__title profile__title--settings">
-                            <img src={`${window.STATIC_FILES}public/assets/images/settings.svg`} alt="" />
+                        <div className="block-title profile__title profile__title--settings">
                             Settings
                         </div>
                     </div>
