@@ -37,19 +37,19 @@
             }
         }
 
-        .block {
+        .confirmation {
             &__wrapper {
                 height: 14px;
                 width: 120px;
 
                 &.pending {
-                    .block__cell--active {
+                    .confirmation__cell--active {
                         background-color: $green;
                     }
                 }
 
                 &.sended {
-                    .block__cell--active {
+                    .confirmation__cell--active {
                         background-color: $green;
                     }
                 }
