@@ -38,25 +38,31 @@
         @extend .row;
         @extend .row--no-col;
         flex-wrap: nowrap;
+        align-items: flex-start;
     }
 
     &__label {
         width: 180px;
         flex: 0 0 180px;
         font-weight: bold;
+        padding-right: 10px;
+
+        &--normal {
+            font-weight: normal;
+        }
     }
 
     &__value {
-        margin: 0;
-        flex: 1 1 auto;
         @extend .row;
         @extend .row--no-col;
+        margin: 0;
+        flex: 1 1 auto;
         align-items: center;
         justify-content: space-between;
         flex-wrap: nowrap;
         max-width: calc(100% - 180px);
 
-        &_value {
+        &_ellipsis {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -90,48 +96,8 @@
         margin-top: 8px;
     }
 
-    .pay_req {
-        &__row {
-            position: relative;
-        }
-
-        &__label {
-            padding-right: 20px;
-        }
-
-        &__value {
-            padding-right: 25px;
-            line-height: 1.1;
-            display: block;
-        }
-
-        &__button {
-            position: absolute;
-            right: 20px;
-            top: 0;
-        }
-    }
-
-    #pay_req_amount {
-        width: 140px;
-        margin-right: 10px;
-    }
-
     .placeholder_text {
-        color: rgba(00, 00, 00, .1);
-    }
-
-    .Select {
-        width: 140px;
-    }
-
-    .Select-control {
-        height: 40px;
-    }
-
-    .Select--single > .Select-control .Select-value,
-    .Select-placeholder {
-        line-height: 40px;
+        color: $black10;
     }
 }
 

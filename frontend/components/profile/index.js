@@ -183,7 +183,7 @@ class Profile extends Component {
                                 Lightning ID
                             </div>
                             <div className="profile__value">
-                                <span className="profile__value_value">
+                                <span className="profile__value_ellipsis">
                                     {this.props.lightningID}
                                 </span>
                                 <span className="profile__value_utils">
@@ -220,7 +220,7 @@ class Profile extends Component {
                                 BTC Address
                             </div>
                             <div className="profile__value">
-                                <span className="profile__value_value">
+                                <span className="profile__value_ellipsis">
                                     {BTCAddress}
                                 </span>
                                 <span className="profile__value_utils">
@@ -282,26 +282,16 @@ class Profile extends Component {
         } = this.props;
         const payReqAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(paymentRequestAmount));
         const payReqPlaceholder = `${bitcoinMeasureType === "Satoshi" ? "0" : "0.0"} ${bitcoinMeasureType}`;
-        const payReqCopy = (
-            <span className="pay_req__button">
-                <span
-                    role="button"
-                    tabIndex={0}
-                    className="copy profile__copy"
-                    onClick={() => dispatch(appOperations.copyToClipboard(paymentRequest))}
-                />
-            </span>
-        );
         return (
             <div className="profile__block">
                 <div className="row">
                     <div className="col-xs-12">
-                        <div className="block-title profile__title profile__title--pay_req">
+                        <div className="profile__title profile__title--pay_req">
                             Payment Request
                         </div>
                     </div>
                 </div>
-                <div className="row mt-10">
+                <div className="profile__row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="pay_req_amount">
@@ -321,47 +311,75 @@ class Profile extends Component {
                             </Tooltip>
                         </div>
                     </div>
-                    <div className="col-xs-12 col-small-right-padding">
-                        <DigitsField
-                            id="pay_req_amount"
-                            className={`form-text ${this.state.payReqAmountError ? "form-text__error" : ""}`}
-                            name="pay_req_amount"
-                            placeholder={payReqPlaceholder}
-                            ref={(ref) => {
-                                this.pay_req_component = ref;
-                            }}
-                            setRef={(input) => {
-                                this.pay_req_amount = input;
-                            }}
-                            setOnChange={this.setPayReqAmount}
-                            type="text"
-                        />
-                        <ErrorFieldTooltip
-                            text={this.state.payReqAmountError}
-                            class="text-left"
-                        />
-                        <button
-                            className="button button__link"
-                            type="button"
-                            onClick={this.generatePayReq}
-                        >
-                            Generate request
-                        </button>
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label">
+                                <DigitsField
+                                    id="pay_req_amount"
+                                    className={`form-text ${
+                                        this.state.payReqAmountError ? "form-text__error" : ""
+                                    }`}
+                                    name="pay_req_amount"
+                                    placeholder={payReqPlaceholder}
+                                    ref={(ref) => {
+                                        this.pay_req_component = ref;
+                                    }}
+                                    setRef={(input) => {
+                                        this.pay_req_amount = input;
+                                    }}
+                                    setOnChange={this.setPayReqAmount}
+                                    type="text"
+                                />
+                            </div>
+                            <div className="profile__value">
+                                <button
+                                    className="button button__solid"
+                                    type="button"
+                                    onClick={this.generatePayReq}
+                                >
+                                    Generate request
+                                </button>
+                            </div>
+                            <ErrorFieldTooltip
+                                text={this.state.payReqAmountError}
+                                class="text-left"
+                            />
+                        </div>
                     </div>
                 </div>
-                <div className="row profile__row profile__row--top-double">
-                    <div className="col-xs-4">
-                        {paymentRequestAmount ?
-                            `Your payment request for ${payReqAmount} ${bitcoinMeasureType}` :
-                            "Your payment request"}
-                    </div>
-                    <div className="col-xs-8">
-                        <span className="pay_req__value">
-                            {paymentRequest ?
-                                <Ellipsis>{paymentRequest}</Ellipsis> :
-                                <span className="placeholder_text">This will display your payment request</span>}
-                        </span>
-                        {paymentRequest ? payReqCopy : null}
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label profile__label--normal">
+                                {paymentRequestAmount ?
+                                    `Your payment request for ${payReqAmount} ${bitcoinMeasureType}` :
+                                    "Your payment request"}
+                            </div>
+                            <div className="profile__value">
+                                <span className="profile__value_ellipsis">
+                                    {paymentRequest ||
+                                        <span className="placeholder_text">
+                                            This will display your payment request
+                                        </span>
+                                    }
+                                </span>
+                                {paymentRequest &&
+                                    <span className="profile__value_utils">
+                                        <span
+                                            className="copy profile__copy"
+                                            onClick={() => {
+                                                analytics.event({
+                                                    action: "Payment Request",
+                                                    category: "Profile",
+                                                    label: "Copy",
+                                                });
+                                                dispatch(appOperations.copyToClipboard(paymentRequest));
+                                            }}
+                                        />
+                                    </span>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
