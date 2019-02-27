@@ -53,7 +53,7 @@ class Registration extends Component {
                 );
             case types.REGISTRATION_STEP_INIT:
             default:
-                return <RegistrationForm onValid={this.onValidRegForm} />;
+                return <Terms />;
         }
     }
 }

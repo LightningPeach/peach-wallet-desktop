@@ -49,17 +49,19 @@ class Legal extends Component {
 
     render() {
         return (
-            <div className="license__wrapper">
+            <div className="license">
                 <Tabs name="legal">
                     <div className="row">
-                        <div className="col-xs-12 tabs__wrapper">
-                            <div className="tabs__container">
-                                <TabLink to="terms-tab-container" onClick={() => this.handleTabClick("terms")}>
-                                    Terms and conditions
-                                </TabLink>
-                                <TabLink to="license-tab-container" onClick={() => this.handleTabClick("license")}>
-                                    Privacy policy
-                                </TabLink>
+                        <div className="col-xs-12">
+                            <div className="tabs__wrapper">
+                                <div className="tabs__row">
+                                    <TabLink to="terms-tab-container" onClick={() => this.handleTabClick("terms")}>
+                                        Terms and conditions
+                                    </TabLink>
+                                    <TabLink to="license-tab-container" onClick={() => this.handleTabClick("license")}>
+                                        Privacy policy
+                                    </TabLink>
+                                </div>
                             </div>
                         </div>
                     </div>

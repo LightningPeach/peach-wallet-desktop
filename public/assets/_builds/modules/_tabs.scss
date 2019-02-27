@@ -1,38 +1,40 @@
 .tab {
-
     &-link {
         cursor: pointer;
-        transition: color .2s, border-color .2s;
-        text-align: center;
-        float: left;
+        transition: color $default-transition, border-color $default-transition;
         position: relative;
         font-size: 16px;
         line-height: 1.13;
         color: $black;
         text-transform: uppercase;
         margin: 0 25px;
-        padding-top: 6px;
         padding-bottom: 6px;
         border-bottom: 2px solid transparent;
 
-        &:first-child {
-            margin-left: 0;
-        }
-
-        &:last-child {
-            margin-right: 0;
-        }
-
         &-active {
-            color: $yellow;
             border-bottom-color: $yellow;
             font-weight: inherit !important;
         }
 
-        &:hover:not(.tab-link__no-hover),
-        &:focus {
+        &:hover:not(.tab-link__no-hover) {
             color: $yellow;
             font-weight: inherit !important;
+            outline: none;
         }
+
+        &:focus,
+        &:active {
+            outline: none;
+        }
+    }
+}
+
+.tabs {
+    &__row {
+        margin-left: -25px;
+        margin-right: -25px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
     }
 }
