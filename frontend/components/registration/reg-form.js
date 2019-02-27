@@ -21,7 +21,7 @@ class RegistrationForm extends PureComponent {
         super(props);
         this.state = {
             confPasswordError: null,
-            defaultPath: false,
+            defaultPath: true,
             lndPath: "",
             lndPathError: null,
             passwordError: null,
