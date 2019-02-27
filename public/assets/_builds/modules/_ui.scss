@@ -37,6 +37,12 @@
 }
 
 .form {
+    max-width: 100%;
+
+    &--home {
+        width: 340px;
+    }
+
     &-checkbox {
         position: relative;
 

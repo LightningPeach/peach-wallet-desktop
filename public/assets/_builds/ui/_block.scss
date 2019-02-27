@@ -1,0 +1,37 @@
+.block {
+  &__title {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 30px;
+    color: $black;
+
+    &-sm {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 24px;
+      color: $black;
+    }
+
+    &-lg {
+      font-size: 22px;
+      font-weight: bold;
+      line-height: 33px;
+      color: $black;
+    }
+  }
+
+  &__row {
+    @extend .row;
+    padding-top: 20px;
+
+    &-lg {
+      @extend .row;
+      padding-top: 30px;
+    }
+
+    &-xl {
+      @extend .row;
+      padding-top: 40px;
+    }
+  }
+}

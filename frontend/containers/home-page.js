@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { authTypes } from "modules/auth";
@@ -43,13 +43,11 @@ const HomePage = (props) => {
 
     return (
         <section className="home">
-            <div className="container home__container">
-                <div className="row">
-                    <div className="col-xs-12 home__logo">
-                        <img src="public/assets/images/logo-black.svg" alt="" />
-                    </div>
+            <div className="container">
+                <div className="column align-center-xs">
+                    <div className="home__logo" />
+                    {form}
                 </div>
-                {form}
                 <Notifications
                     notifications={notifications}
                     style={false} // eslint-disable-line

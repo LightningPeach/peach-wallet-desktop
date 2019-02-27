@@ -118,9 +118,11 @@ class Login extends Component {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.handleLogin}>
-                <div className="home__title">
-                    Sign in and start working with Peach Wallet
+            <form className="form form--home" onSubmit={this.handleLogin}>
+                <div className="row justify-center-xs">
+                    <div className="block__title-lg">
+                        Unlock your wallet
+                    </div>
                 </div>
                 <div className="row">
                     <div className="col-xs-12">

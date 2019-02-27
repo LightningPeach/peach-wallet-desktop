@@ -9,7 +9,7 @@
     }
 
     &__title {
-        @extend .block-title;
+        @extend .block__title;
         color: $yellow;
         margin-left: -60px;
         padding-left: 60px;

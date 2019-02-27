@@ -1,5 +1,7 @@
 .home {
     height: 100vh;
+    padding-top: 130px;
+    padding-bottom: 40px;
     background: #fff;
 
     &__sync-text {
@@ -8,35 +10,13 @@
         font-size: 12px;
     }
 
-    &__container {
-        width: 380px;
-        top: 130px;
-        position: relative;
-        max-width: 100%;
-        transition: top .2s ease-in-out;
-    }
-
     &__logo {
         text-align: center;
-        margin-bottom: 46px;
-
-        & img {
-            width: 200px;
-            display: block;
-            margin: 0 auto;
-            z-index: 1;
-            position: relative;
-            max-width: 100%;
-        }
-    }
-
-    &__title {
-        font-size: 22px;
-        line-height: 1.5;
-        color: #000;
-        margin: 0 -150px 26px;
-        text-align: center;
-        font-weight: bold;
+        width: 240px;
+        height: 60px;
+        margin-bottom: 40px;
+        background: url(../images/logo-black.svg) no-repeat center top;
+        background-size: contain;
     }
 
     &__restore {
