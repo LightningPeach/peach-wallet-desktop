@@ -111,7 +111,7 @@ class SeedVerify extends PureComponent {
                                 prefixCls="rc-tooltip__small rc-tooltip"
                                 mouseLeaveDelay={0}
                             >
-                                <i className="form-label__icon form-label__icon--info" />
+                                <i className="tooltip tooltip--info" />
                             </Tooltip>
                         </div>
                     </div>

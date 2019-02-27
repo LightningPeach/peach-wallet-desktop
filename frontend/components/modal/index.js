@@ -44,7 +44,7 @@ class Modal extends Component {
                                 prefixCls="rc-tooltip__small rc-tooltip"
                                 mouseLeaveDelay={0}
                             >
-                                <i className="form-label__icon form-label__icon--info form-label__icon--large" />
+                                <i className="tooltip tooltip--info tooltip--large" />
                             </Tooltip>
                             }
                         </span>

@@ -99,7 +99,7 @@ class StreamDetails extends Component {
                                         mouseLeaveDelay={0}
                                     >
                                         <i
-                                            className="form-label__icon form-label__icon--info"
+                                            className="tooltip tooltip--info"
                                         />
                                     </Tooltip>
                                 </span>

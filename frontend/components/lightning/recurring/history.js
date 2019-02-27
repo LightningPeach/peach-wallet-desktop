@@ -81,7 +81,7 @@ class RecurringHistory extends Component {
                         prefixCls="rc-tooltip__small rc-tooltip"
                         mouseLeaveDelay={0}
                     >
-                        <i className="form-label__icon form-label__icon--info" />
+                        <i className="tooltip tooltip--info" />
                     </Tooltip>
                 </span>),
             accessor: "amount",
@@ -114,7 +114,7 @@ class RecurringHistory extends Component {
                         prefixCls="rc-tooltip__small rc-tooltip"
                         mouseLeaveDelay={0}
                     >
-                        <i className="form-label__icon form-label__icon--info" />
+                        <i className="tooltip tooltip--info" />
                     </Tooltip>
                 </span>),
             accessor: "count",

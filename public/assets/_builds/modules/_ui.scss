@@ -273,32 +273,6 @@
         white-space: nowrap;
         margin-bottom: 4px;
 
-        &__icon {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            display: inline-block;
-            right: -13px;
-            width: 8px;
-            height: 8px;
-            cursor: pointer;
-
-            &--info {
-                background: url(../images/hint-i.svg) no-repeat center;
-                background-size: contain;
-            }
-
-            &--left {
-                left: -13px;
-            }
-
-            &--large {
-                width: 12px;
-                height: 12px;
-                right: -18px;
-            }
-        }
-
         &__wrapper {
             display: flex;
             justify-content: center;
@@ -368,6 +342,32 @@
         }
     }
 }
+
+.tooltip {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-block;
+    right: -13px;
+    width: 8px;
+    height: 8px;
+    cursor: pointer;
+
+    &--info {
+        background: url(../images/icons/hint.svg) no-repeat center;
+        background-size: contain;
+    }
+
+    &--left {
+        left: -13px;
+    }
+
+    &--large {
+        width: 12px;
+        height: 12px;
+        right: -18px;
+    }
+};
 
 .copy {
     height: 16px;
