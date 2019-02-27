@@ -17,9 +17,14 @@
     @extend .row;
     padding-top: 20px;
 
-    &-sm {
+    &-xs {
       @extend .row;
       padding-top: 10px;
+    }
+
+    &-sm {
+      @extend .row;
+      padding-top: 14px;
     }
 
     &-lg {

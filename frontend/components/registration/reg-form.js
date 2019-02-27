@@ -260,7 +260,7 @@ class RegistrationForm extends PureComponent {
                         {disabled ? spinner : null}
                     </div>
                 </div>
-                <div className="block__row-sm">
+                <div className="block__row-xs">
                     <div className="col-xs-12">
                         <button
                             type="button"

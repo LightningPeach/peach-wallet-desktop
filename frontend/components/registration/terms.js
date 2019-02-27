@@ -42,16 +42,20 @@ class Terms extends Component {
 
     render() {
         return (
-            <div>
-                <div className="home__title">
-                    Sign up and start working with Peach Wallet
+            <div className="legal__wrapper">
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Create a new wallet
+                    </div>
                 </div>
-                <div className="row">
+                <div className="block__row-lg">
                     <div className="col-xs-12">
                         <Legal />
                     </div>
-                    <div className="col-xs-12 mt-16">
-                        <label className="form-checkbox label_line pull-left">
+                </div>
+                <div className="block__row">
+                    <div className="col-xs-12">
+                        <label className="form-checkbox">
                             <input
                                 id="eula-agreement-checkbox"
                                 name="terms"
@@ -62,8 +66,10 @@ class Terms extends Component {
                             <span className="form-checkbox__label">I accept the agreement</span>
                         </label>
                     </div>
+                </div>
+                <div className="block__row-sm">
                     <div className="col-xs-12">
-                        <label className="form-checkbox label_line pull-left channels__custom">
+                        <label className="form-checkbox">
                             <input
                                 id="ga-agreement-checkbox"
                                 name="analytics"
@@ -75,8 +81,17 @@ class Terms extends Component {
                         </label>
                     </div>
                 </div>
-                <div className="row mt-30">
-                    <div className="col-xs-12">
+                <div className="block__row-lg">
+                    <div className="col-xs-12 col-md-6">
+                        <button
+                            type="button"
+                            className="button button__solid button__solid--transparent button--fullwide"
+                            onClick={this.goBack}
+                        >
+                            Back
+                        </button>
+                    </div>
+                    <div className="col-xs-12 col-md-6">
                         <button
                             type="button"
                             className="button button__solid button--fullwide"
@@ -84,15 +99,6 @@ class Terms extends Component {
                             disabled={!this.state.terms}
                         >
                             Next
-                        </button>
-                    </div>
-                    <div className="col-xs-12 text-center">
-                        <button
-                            type="button"
-                            className="button button__link button__under-button"
-                            onClick={this.goBack}
-                        >
-                            Back
                         </button>
                     </div>
                 </div>

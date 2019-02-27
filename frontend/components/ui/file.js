@@ -1,8 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const File = ({ value, placeholder, disabled, className, onChange }) => ( // eslint-disable-line object-curly-newline
-    <label // eslint-disable-line
+const File = ({
+    value,
+    placeholder,
+    disabled,
+    className,
+    onChange,
+}) => (
+    <div
         className={`file__wrapper ${disabled ? "file__wrapper--disabled" : ""} ${className}`}
         onClick={async () => {
             if (disabled) {
@@ -14,7 +20,7 @@ const File = ({ value, placeholder, disabled, className, onChange }) => ( // esl
     >
         <span className="file__value">{value || placeholder}</span>
         <span className="button button__solid file__button">Select folder</span>
-    </label>
+    </div>
 );
 
 File.propTypes = {
