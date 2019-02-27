@@ -11,7 +11,7 @@ import { authOperations as operations, authTypes as types } from "modules/auth";
 import { statusCodes } from "config";
 import { USERNAME_MAX_LENGTH } from "config/consts";
 
-const spinner = <div className="spinner" />;
+const spinner = <span className="spinner" />;
 
 class Login extends Component {
     constructor(props) {
@@ -124,11 +124,11 @@ class Login extends Component {
                         Unlock your wallet
                     </div>
                 </div>
-                <div className="row">
+                <div className="block__row-lg">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="username">
-                                Username
+                                Wallet Name
                             </label>
                             <Tooltip
                                 placement="right"
@@ -160,7 +160,7 @@ class Login extends Component {
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
                 </div>
-                <div className="row mt-14">
+                <div className="block__row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="password">
@@ -190,53 +190,50 @@ class Login extends Component {
                         <ErrorFieldTooltip text={this.state.passwordError} />
                     </div>
                 </div>
-                <div className="row spinner__wrapper mt-30">
+                <div className="block__row-lg">
                     <div className="col-xs-12">
                         <button
                             type="submit"
                             className="button button__solid button--fullwide"
                             disabled={disabled}
                         >
-                            Sign in
+                            Enter
                         </button>
                         {disabled ? spinner : null}
                     </div>
                 </div>
-                <div className="row signup">
-                    <div className="col-xs-12 home__restore">
-                        <div className="home__restore-block">
-                            <button
-                                type="button"
-                                className="link"
-                                onClick={this.showRestore}
-                                disabled={disabled}
-                            >
-                                Wallet recovery
-                            </button>
-                            <Tooltip
-                                placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.recover_wallet)}
-                                trigger="hover"
-                                arrowContent={
-                                    <div className="rc-tooltip-arrow-inner" />
-                                }
-                                prefixCls="rc-tooltip__small rc-tooltip"
-                                mouseLeaveDelay={0}
-                            >
-                                <i className="form-label__icon form-label__icon--info" />
-                            </Tooltip>
-                        </div>
-                        <div className="home__signup-block text-right">
-                            <span className={disabled ? "disabled" : ""}>I don’t have an account.</span>
-                            <button
-                                type="button"
-                                className="link signup__link"
-                                onClick={this.showRegistration}
-                                disabled={disabled}
-                            >
-                                Sign up
-                            </button>
-                        </div>
+                <div className="block__row row--no-col justify-between-xs font-12">
+                    <div className="block__row-item">
+                        <button
+                            type="button"
+                            className="link link--bold"
+                            onClick={this.showRestore}
+                            disabled={disabled}
+                        >
+                            Wallet recovery
+                        </button>
+                        <Tooltip
+                            placement="right"
+                            overlay={helpers.formatMultilineText(this.state.tooltips.recover_wallet)}
+                            trigger="hover"
+                            arrowContent={
+                                <div className="rc-tooltip-arrow-inner" />
+                            }
+                            prefixCls="rc-tooltip__small rc-tooltip"
+                            mouseLeaveDelay={0}
+                        >
+                            <i className="form-label__icon form-label__icon--info" />
+                        </Tooltip>
+                    </div>
+                    <div className="block__row-item">
+                        <button
+                            type="button"
+                            className="link link--bold"
+                            onClick={this.showRegistration}
+                            disabled={disabled}
+                        >
+                            Create a new wallet
+                        </button>
                     </div>
                 </div>
                 {this.showStatus()}

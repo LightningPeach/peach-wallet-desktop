@@ -160,6 +160,15 @@
         text-decoration: underline;
     }
 
+    &--bold {
+        font-weight: 600;
+
+        &:hover {
+            color: $yellow-dim;
+            text-decoration: none;
+        }
+    }
+
     &--red {
         color: $red;
     }

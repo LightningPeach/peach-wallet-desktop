@@ -33,5 +33,13 @@
       @extend .row;
       padding-top: 40px;
     }
+
+    &-item {
+      position: relative;
+
+      &:not(:last-child) {
+        margin-right: 20px;
+      }
+    }
   }
 }

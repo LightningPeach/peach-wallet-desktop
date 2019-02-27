@@ -268,12 +268,10 @@
     }
 
     &-label {
-        font-size: 14px;
-        line-height: 2.15;
-        color: $black;
         position: relative;
         display: inline-block;
         white-space: nowrap;
+        margin-bottom: 4px;
 
         &__icon {
             position: absolute;
@@ -793,7 +791,10 @@
 }
 
 .spinner {
-    content: "";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
     width: 25px;
     height: 25px;
     background: url("../images/spinner.svg") no-repeat center;
