@@ -34,7 +34,7 @@
         }
 
         &--red {
-            background: $red;
+            background-color: $red;
             color: $white;
 
             &:hover,
@@ -44,6 +44,16 @@
 
             &:active {
                 background-color: $red;
+            }
+        }
+
+        &--transparent {
+            background-color: $transparent;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: $transparent;
             }
         }
     }

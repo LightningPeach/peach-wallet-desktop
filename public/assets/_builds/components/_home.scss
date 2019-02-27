@@ -1,6 +1,6 @@
 .home {
     height: 100vh;
-    padding-top: 130px;
+    padding-top: 100px;
     padding-bottom: 40px;
     background: #fff;
 
@@ -62,8 +62,6 @@
 
 @media screen and (max-width: 360px) {
     .home {
-        &__container {
-            top: 60px;
-        }
+        padding-top: 60px;
     }
 }

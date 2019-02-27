@@ -120,7 +120,7 @@ class Login extends Component {
         return (
             <form className="form form--home" onSubmit={this.handleLogin}>
                 <div className="row justify-center-xs">
-                    <div className="block__title-lg">
+                    <div className="block__title">
                         Unlock your wallet
                     </div>
                 </div>

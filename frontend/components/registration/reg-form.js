@@ -101,15 +101,17 @@ class RegistrationForm extends PureComponent {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.handleRegistration}>
-                <div className="home__title">
-                    Sign up and start working with Peach Wallet
+            <form className="form form--home" onSubmit={this.handleRegistration}>
+                <div className="row justify-center-xs">
+                    <div className="block__title">
+                        Create a new wallet
+                    </div>
                 </div>
-                <div className="row">
+                <div className="block__row-lg">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="username">
-                                Username
+                                Wallet Name
                             </label>
                             <Tooltip
                                 placement="right"
@@ -142,7 +144,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.usernameError} />
                     </div>
                 </div>
-                <div className="row mt-14">
+                <div className="block__row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="password">
@@ -183,7 +185,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.passwordError} />
                     </div>
                 </div>
-                <div className="row mt-14">
+                <div className="block__row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="conf_password">
@@ -207,7 +209,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.confPasswordError} />
                     </div>
                 </div>
-                <div className="row mt-14">
+                <div className="block__row">
                     <div className="col-xs-12">
                         <div className="form-label">
                             <Checkbox
@@ -246,7 +248,7 @@ class RegistrationForm extends PureComponent {
                         <ErrorFieldTooltip text={this.state.lndPathError} />
                     </div>
                 </div>
-                <div className="row spinner__wrapper mt-30">
+                <div className="block__row-lg">
                     <div className="col-xs-12">
                         <button
                             type="submit"
@@ -258,11 +260,11 @@ class RegistrationForm extends PureComponent {
                         {disabled ? spinner : null}
                     </div>
                 </div>
-                <div className="row signup">
-                    <div className="col-xs-12 text-center">
+                <div className="block__row-sm">
+                    <div className="col-xs-12">
                         <button
                             type="button"
-                            className="button button__link button__under-button"
+                            className="button button__solid button__solid--transparent button--fullwide"
                             onClick={this.cancelRegistration}
                             disabled={disabled}
                         >

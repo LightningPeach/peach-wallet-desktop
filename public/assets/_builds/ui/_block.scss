@@ -11,18 +11,16 @@
       line-height: 24px;
       color: $black;
     }
-
-    &-lg {
-      font-size: 22px;
-      font-weight: bold;
-      line-height: 33px;
-      color: $black;
-    }
   }
 
   &__row {
     @extend .row;
     padding-top: 20px;
+
+    &-sm {
+      @extend .row;
+      padding-top: 10px;
+    }
 
     &-lg {
       @extend .row;
