@@ -44,9 +44,11 @@ const HomePage = (props) => {
     return (
         <section className="home">
             <div className="container">
-                <div className="column align-center-xs">
+                <div className="column align-center-xs home__content">
                     <div className="home__logo" />
-                    {form}
+                    <div className="home__body">
+                        {form}
+                    </div>
                 </div>
                 <Notifications
                     notifications={notifications}

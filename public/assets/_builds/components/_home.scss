@@ -1,7 +1,4 @@
 .home {
-    height: 100vh;
-    padding-top: 100px;
-    padding-bottom: 40px;
     background: #fff;
 
     &__sync-text {
@@ -14,9 +11,17 @@
         text-align: center;
         width: 240px;
         height: 60px;
-        margin-bottom: 40px;
         background: url(../images/logo-black.svg) no-repeat center top;
         background-size: contain;
+    }
+
+    &__content {
+        padding-top: 40px;
+        padding-bottom: 40px;
+    }
+
+    &__body {
+        padding-top: 40px;
     }
 }
 
