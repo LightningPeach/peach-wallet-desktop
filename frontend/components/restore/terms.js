@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
@@ -42,61 +42,73 @@ class Terms extends Component {
 
     render() {
         return (
-            <div>
-                <div className="home__title">
-                    Sign up and start working with Peach Wallet
-                </div>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <Legal />
-                    </div>
-                    <div className="col-xs-12 mt-16">
-                        <label className="form-checkbox label_line pull-left">
-                            <input
-                                id="eula-agreement-checkbox"
-                                name="terms"
-                                type="checkbox"
-                                checked={this.state.terms}
-                                onChange={this.onChange}
-                            />
-                            <span className="form-checkbox__label">I accept the agreement</span>
-                        </label>
-                    </div>
-                    <div className="col-xs-12">
-                        <label className="form-checkbox label_line pull-left channels__custom">
-                            <input
-                                id="ga-agreement-checkbox"
-                                name="analytics"
-                                type="checkbox"
-                                checked={this.state.analytics}
-                                onChange={this.onChange}
-                            />
-                            <span className="form-checkbox__label">I agree to the personal data processing</span>
-                        </label>
+            <Fragment>
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Wallet recovery
                     </div>
                 </div>
-                <div className="row mt-30">
-                    <div className="col-xs-12">
-                        <button
-                            type="button"
-                            className="button button__solid button--fullwide"
-                            onClick={this.submitTerms}
-                            disabled={!this.state.terms}
-                        >
-                            Next
-                        </button>
+                <div className="legal__wrapper">
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <Legal />
+                        </div>
                     </div>
-                    <div className="col-xs-12 text-center">
-                        <button
-                            type="button"
-                            className="button button__link button__under-button"
-                            onClick={this.goBack}
-                        >
-                            Back
-                        </button>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <label className="form-checkbox">
+                                <input
+                                    id="eula-agreement-checkbox"
+                                    name="terms"
+                                    type="checkbox"
+                                    checked={this.state.terms}
+                                    onChange={this.onChange}
+                                />
+                                <span className="form-checkbox__label">
+                                    (Required) I accept the Terms and Privacy Policy
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div className="block__row-sm">
+                        <div className="col-xs-12">
+                            <label className="form-checkbox">
+                                <input
+                                    id="ga-agreement-checkbox"
+                                    name="analytics"
+                                    type="checkbox"
+                                    checked={this.state.analytics}
+                                    onChange={this.onChange}
+                                />
+                                <span className="form-checkbox__label">
+                                    (Optional) I agree to anonymized app analytics
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12 col-md-6">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.goBack}
+                            >
+                                Back
+                            </button>
+                        </div>
+                        <div className="col-xs-12 col-md-6">
+                            <button
+                                type="button"
+                                className="button button__solid button--fullwide"
+                                onClick={this.submitTerms}
+                                disabled={!this.state.terms}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </Fragment>
         );
     }
 }
