@@ -1,8 +1,9 @@
 import React, { Fragment, Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import * as analytics from "additional/analytics";
+import { analytics } from "additional";
 
 class Method extends Component {
     useWalletData = () => {
@@ -29,7 +30,7 @@ class Method extends Component {
     render() {
         return (
             <Fragment>
-                <div className="col-xs-12 text-center">
+                <div className="col-xs-12">
                     <button
                         type="button"
                         className="button button__solid button--fullwide"

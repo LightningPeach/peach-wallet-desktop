@@ -97,7 +97,7 @@ class SeedVerify extends PureComponent {
                         Create a new wallet
                     </div>
                 </div>
-                <form onSubmit={this.submitSeedVerify}>
+                <form className="form form--home" onSubmit={this.submitSeedVerify}>
                     <div className="block__row-lg">
                         <div className="col-xs-12">
                             <div className="form-label">
