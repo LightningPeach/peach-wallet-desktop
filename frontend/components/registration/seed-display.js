@@ -98,7 +98,7 @@ class SeedDisplay extends PureComponent {
                         </div>
                     </div>
                     <div className="block__row-xs">
-                        <div className="col-xs-12 text-center">
+                        <div className="col-xs-12">
                             <button
                                 type="button"
                                 className="button button__solid button__solid--transparent button--fullwide"

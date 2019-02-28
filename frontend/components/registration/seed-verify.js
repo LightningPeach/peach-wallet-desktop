@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 import { analytics, validators, helpers } from "additional";
@@ -91,70 +91,76 @@ class SeedVerify extends PureComponent {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.submitSeedVerify}>
-                <div className="home__title">
-                    Sign up and start working with Peach Wallet
+            <Fragment>
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Create a new wallet
+                    </div>
                 </div>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="verify-seed">
-                                Enter your seed words
-                            </label>
-                            <Tooltip
-                                placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.verifySeed)}
-                                trigger="hover"
-                                arrowContent={
-                                    <div className="rc-tooltip-arrow-inner" />
-                                }
-                                prefixCls="rc-tooltip__small rc-tooltip"
-                                mouseLeaveDelay={0}
-                            >
-                                <i className="tooltip tooltip--info" />
-                            </Tooltip>
+                <form onSubmit={this.submitSeedVerify}>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="verify-seed">
+                                    Enter your seed words
+                                </label>
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.verifySeed)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="tooltip tooltip--info" />
+                                </Tooltip>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <textarea
+                                ref={(ref) => {
+                                    this.seed = ref;
+                                }}
+                                className={`form-textarea ${this.state.seedError ? "form-textarea__error" : ""}`}
+                                id="verify-seed"
+                                placeholder="Write here"
+                                onPaste={this.handleSeedPaste}
+                                onContextMenu={this.handleSeedContextMenu}
+                                onInput={this.handleSeedInput}
+                                onChange={this.handleSeedChange}
+                                disabled={disabled}
+                            />
+                            <ErrorFieldTooltip text={this.state.seedError} />
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <textarea
-                            ref={(ref) => {
-                                this.seed = ref;
-                            }}
-                            className={`form-textarea ${this.state.seedError ? "form-textarea__error" : ""}`}
-                            id="verify-seed"
-                            placeholder="Write here"
-                            onPaste={this.handleSeedPaste}
-                            onContextMenu={this.handleSeedContextMenu}
-                            onInput={this.handleSeedInput}
-                            onChange={this.handleSeedChange}
-                            disabled={disabled}
-                        />
-                        <ErrorFieldTooltip text={this.state.seedError} />
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                type="submit"
+                                className="button button__solid button--fullwide"
+                                disabled={disabled}
+                            >
+                                Create wallet
+                            </button>
+                            {disabled ? spinner : null}
+                        </div>
                     </div>
-                </div>
-                <div className="row spinner__wrapper mt-30">
-                    <div className="col-xs-12">
-                        <button
-                            type="submit"
-                            className="button button__solid button--fullwide"
-                            disabled={disabled}
-                        >
-                            Sign up
-                        </button>
-                        {disabled ? spinner : null}
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.cancelSeedVerify}
+                                disabled={disabled}
+                            >
+                                Back
+                            </button>
+                        </div>
                     </div>
-                    <div className="col-xs-12 text-center">
-                        <button
-                            type="button"
-                            className="button button__link button__under-button"
-                            onClick={this.cancelSeedVerify}
-                            disabled={disabled}
-                        >
-                            Back
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </Fragment>
         );
     }
 }
