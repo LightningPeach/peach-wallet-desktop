@@ -64,7 +64,9 @@ class Terms extends Component {
                                     checked={this.state.terms}
                                     onChange={this.onChange}
                                 />
-                                <span className="form-checkbox__label">I accept the agreement</span>
+                                <span className="form-checkbox__label">
+                                    (Required) I accept the Terms and Privacy Policy
+                                </span>
                             </label>
                         </div>
                     </div>
@@ -78,7 +80,9 @@ class Terms extends Component {
                                     checked={this.state.analytics}
                                     onChange={this.onChange}
                                 />
-                                <span className="form-checkbox__label">I agree to the personal data processing</span>
+                                <span className="form-checkbox__label">
+                                    (Optional) I agree to anonymized app analytics
+                                </span>
                             </label>
                         </div>
                     </div>
