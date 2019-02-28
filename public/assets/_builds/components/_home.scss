@@ -23,6 +23,14 @@
     &__body {
         padding-top: 40px;
     }
+
+    &__seed {
+        &-reload {
+            position: absolute;
+            bottom: 8px;
+            right: 18px;
+        }
+    }
 }
 
 .h-sync {
