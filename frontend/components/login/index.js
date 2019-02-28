@@ -118,21 +118,104 @@ class Login extends Component {
     render() {
         const disabled = this.state.processing;
         return (
-            <form className="form form--home" onSubmit={this.handleLogin}>
+            <Fragment>
                 <div className="row row--no-col justify-center-xs">
                     <div className="block__title">
                         Unlock your wallet
                     </div>
                 </div>
-                <div className="block__row-lg">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="username">
-                                Wallet Name
-                            </label>
+                <form className="form form--home" onSubmit={this.handleLogin}>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="username">
+                                    Wallet Name
+                                </label>
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.username)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="tooltip tooltip--info" />
+                                </Tooltip>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="username"
+                                className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
+                                placeholder="Enter your username"
+                                ref={(ref) => {
+                                    this.username = ref;
+                                }}
+                                disabled={disabled}
+                                max={USERNAME_MAX_LENGTH}
+                                maxLength={USERNAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ usernameError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.usernameError} />
+                        </div>
+                    </div>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="password">
+                                    Password
+                                </label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="password"
+                                className={`form-text form-text--icon_eye ${this.state.passwordError ?
+                                    "form-text__error" :
+                                    ""}`}
+                                name="password"
+                                type="password"
+                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                                ref={(ref) => {
+                                    this.password = ref;
+                                }}
+                                disabled={disabled}
+                                onChange={() => { this.setState({ passwordError: null }) }}
+                            />
+                            <i
+                                className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
+                                onClick={togglePasswordVisibility}
+                            />
+                            <ErrorFieldTooltip text={this.state.passwordError} />
+                        </div>
+                    </div>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                type="submit"
+                                className="button button__solid button--fullwide"
+                                disabled={disabled}
+                            >
+                                Enter
+                            </button>
+                            {disabled ? spinner : null}
+                        </div>
+                    </div>
+                    <div className="block__row row--no-col justify-between-xs font-12">
+                        <div className="block__row-item">
+                            <button
+                                type="button"
+                                className="link link--bold"
+                                onClick={this.showRestore}
+                                disabled={disabled}
+                            >
+                                Wallet recovery
+                            </button>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
+                                overlay={helpers.formatMultilineText(this.state.tooltips.recover_wallet)}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -143,101 +226,20 @@ class Login extends Component {
                                 <i className="tooltip tooltip--info" />
                             </Tooltip>
                         </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="username"
-                            className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
-                            placeholder="Enter your username"
-                            ref={(ref) => {
-                                this.username = ref;
-                            }}
-                            disabled={disabled}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
-                            onChange={() => { this.setState({ usernameError: null }) }}
-                        />
-                        <ErrorFieldTooltip text={this.state.usernameError} />
-                    </div>
-                </div>
-                <div className="block__row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="password">
-                                Password
-                            </label>
+                        <div className="block__row-item">
+                            <button
+                                type="button"
+                                className="link link--bold"
+                                onClick={this.showRegistration}
+                                disabled={disabled}
+                            >
+                                Create a new wallet
+                            </button>
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="password"
-                            className={`form-text form-text--icon_eye ${this.state.passwordError ?
-                                "form-text__error" :
-                                ""}`}
-                            name="password"
-                            type="password"
-                            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                            ref={(ref) => {
-                                this.password = ref;
-                            }}
-                            disabled={disabled}
-                            onChange={() => { this.setState({ passwordError: null }) }}
-                        />
-                        <i
-                            className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
-                            onClick={togglePasswordVisibility}
-                        />
-                        <ErrorFieldTooltip text={this.state.passwordError} />
-                    </div>
-                </div>
-                <div className="block__row-lg">
-                    <div className="col-xs-12">
-                        <button
-                            type="submit"
-                            className="button button__solid button--fullwide"
-                            disabled={disabled}
-                        >
-                            Enter
-                        </button>
-                        {disabled ? spinner : null}
-                    </div>
-                </div>
-                <div className="block__row row--no-col justify-between-xs font-12">
-                    <div className="block__row-item">
-                        <button
-                            type="button"
-                            className="link link--bold"
-                            onClick={this.showRestore}
-                            disabled={disabled}
-                        >
-                            Wallet recovery
-                        </button>
-                        <Tooltip
-                            placement="right"
-                            overlay={helpers.formatMultilineText(this.state.tooltips.recover_wallet)}
-                            trigger="hover"
-                            arrowContent={
-                                <div className="rc-tooltip-arrow-inner" />
-                            }
-                            prefixCls="rc-tooltip__small rc-tooltip"
-                            mouseLeaveDelay={0}
-                        >
-                            <i className="tooltip tooltip--info" />
-                        </Tooltip>
-                    </div>
-                    <div className="block__row-item">
-                        <button
-                            type="button"
-                            className="link link--bold"
-                            onClick={this.showRegistration}
-                            disabled={disabled}
-                        >
-                            Create a new wallet
-                        </button>
-                    </div>
-                </div>
-                {this.showStatus()}
-            </form>
+                    {this.showStatus()}
+                </form>
+            </Fragment>
         );
     }
 }

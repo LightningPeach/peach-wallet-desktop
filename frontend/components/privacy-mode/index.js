@@ -14,8 +14,8 @@ const PrivacyMode = ({
         callback(type);
     };
     return (
-        <div className="row align-stretch-xs">
-            <div className="col-xs-12 col-md-6">
+        <div className="row card__row align-stretch-xs">
+            <div className="col-xs-12 col-md-6 card__col">
                 <div className="card card--privacy-mode">
                     <div className="card__body">
                         <div className="card__icon card__icon--extended" />
@@ -49,7 +49,7 @@ const PrivacyMode = ({
                     </div>
                     <div className="card__footer">
                         <button
-                            className="button button__solid"
+                            className="button button__solid button--fullwide"
                             onClick={() => confirmType(accountTypes.PRIVACY_MODE.EXTENDED)}
                             disabled={privacyMode === accountTypes.PRIVACY_MODE.EXTENDED}
                         >
@@ -58,7 +58,7 @@ const PrivacyMode = ({
                     </div>
                 </div>
             </div>
-            <div className="col-xs-12 col-md-6">
+            <div className="card__col col-xs-12 col-md-6">
                 <div className="card card--privacy-mode">
                     <div className="card__body">
                         <div className="card__icon card__icon--incognito" />
@@ -98,7 +98,7 @@ const PrivacyMode = ({
                     </div>
                     <div className="card__footer">
                         <button
-                            className="button button__solid"
+                            className="button button__solid button--fullwide"
                             onClick={() => confirmType(accountTypes.PRIVACY_MODE.INCOGNITO)}
                             disabled={privacyMode === accountTypes.PRIVACY_MODE.INCOGNITO}
                         >

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
@@ -22,27 +22,29 @@ class Terms extends Component {
 
     render() {
         return (
-            <div>
-                <div className="home__title">
-                    Choose Wallet Privacy Mode
-                </div>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <PrivacyModeComponent callback={this.onChooseMode} onlyToStore />
+            <Fragment>
+                <div className="row justify-center-xs">
+                    <div className="block__title">
+                        Choose Wallet Privacy Mode
                     </div>
                 </div>
-                <div className="row mt-30">
-                    <div className="col-xs-12 text-center">
+                <div className="privacy">
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <PrivacyModeComponent callback={this.onChooseMode} onlyToStore />
+                        </div>
+                    </div>
+                    <div className="block__row-lg row--no-col justify-center-xs">
                         <button
                             type="button"
-                            className="button button__link button__under-button"
+                            className="button button__solid button__solid--transparent"
                             onClick={this.goBack}
                         >
                             Back
                         </button>
                     </div>
                 </div>
-            </div>
+            </Fragment>
         );
     }
 }

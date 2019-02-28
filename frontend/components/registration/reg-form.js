@@ -1,4 +1,4 @@
-import React, { PureComponent } from "react";
+import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
@@ -101,178 +101,180 @@ class RegistrationForm extends PureComponent {
     render() {
         const disabled = this.state.processing;
         return (
-            <form className="form form--home" onSubmit={this.handleRegistration}>
-                <div className="row justify-center-xs">
+            <Fragment>
+                <div className="row row--no-col justify-center-xs">
                     <div className="block__title">
                         Create a new wallet
                     </div>
                 </div>
-                <div className="block__row-lg">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="username">
-                                Wallet Name
-                            </label>
-                            <Tooltip
-                                placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.username)}
-                                trigger="hover"
-                                arrowContent={
-                                    <div className="rc-tooltip-arrow-inner" />
-                                }
-                                prefixCls="rc-tooltip__small rc-tooltip"
-                                mouseLeaveDelay={0}
-                            >
-                                <i className="tooltip tooltip--info" />
-                            </Tooltip>
+                <form className="form form--home" onSubmit={this.handleRegistration}>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="username">
+                                    Wallet Name
+                                </label>
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.username)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="tooltip tooltip--info" />
+                                </Tooltip>
+                            </div>
                         </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="username"
-                            ref={(ref) => {
-                                this.username = ref;
-                            }}
-                            className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
-                            placeholder="Enter your username"
-                            defaultValue={this.props.username}
-                            disabled={disabled}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
-                            onChange={() => { this.setState({ usernameError: null }) }}
-                        />
-                        <ErrorFieldTooltip text={this.state.usernameError} />
-                    </div>
-                </div>
-                <div className="block__row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="password">
-                                Password
-                            </label>
-                            <Tooltip
-                                placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.password)}
-                                trigger="hover"
-                                arrowContent={
-                                    <div className="rc-tooltip-arrow-inner" />
-                                }
-                                prefixCls="rc-tooltip__small rc-tooltip"
-                                mouseLeaveDelay={0}
-                            >
-                                <i className="tooltip tooltip--info" />
-                            </Tooltip>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="password"
-                            ref={(ref) => {
-                                this.password = ref;
-                            }}
-                            className={`form-text form-text--icon_eye
-                            ${this.state.passwordError ? "form-text__error" : ""}`}
-                            name="password"
-                            type="password"
-                            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                            disabled={disabled}
-                            onChange={() => { this.setState({ passwordError: null }) }}
-                        />
-                        <i
-                            className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
-                            onClick={togglePasswordVisibility}
-                        />
-                        <ErrorFieldTooltip text={this.state.passwordError} />
-                    </div>
-                </div>
-                <div className="block__row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="conf_password">
-                                Confirm password
-                            </label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="conf_password"
-                            ref={(ref) => {
-                                this.confPassword = ref;
-                            }}
-                            className={`form-text ${this.state.confPasswordError ? "form-text__error" : ""}`}
-                            name="password"
-                            type="password"
-                            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                            disabled={disabled}
-                            onChange={() => { this.setState({ confPasswordError: null }) }}
-                        />
-                        <ErrorFieldTooltip text={this.state.confPasswordError} />
-                    </div>
-                </div>
-                <div className="block__row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <Checkbox
-                                text="Use default path"
-                                onChange={() => this.setState({
-                                    defaultPath: !this.state.defaultPath,
-                                    lndPathError: null,
-                                })}
-                                checked={this.state.defaultPath}
+                        <div className="col-xs-12">
+                            <input
+                                id="username"
+                                ref={(ref) => {
+                                    this.username = ref;
+                                }}
+                                className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
+                                placeholder="Enter your username"
+                                defaultValue={this.props.username}
                                 disabled={disabled}
+                                max={USERNAME_MAX_LENGTH}
+                                maxLength={USERNAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ usernameError: null }) }}
                             />
-                            <Tooltip
-                                placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.defaultPath)}
-                                trigger="hover"
-                                arrowContent={
-                                    <div className="rc-tooltip-arrow-inner" />
-                                }
-                                prefixCls="rc-tooltip__small rc-tooltip"
-                                mouseLeaveDelay={0}
-                            >
-                                <i className="tooltip tooltip--info" />
-                            </Tooltip>
+                            <ErrorFieldTooltip text={this.state.usernameError} />
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <File
-                            disabled={this.state.defaultPath || disabled}
-                            value={this.state.lndPath}
-                            placeholder="Select folder"
-                            className={this.state.lndPathError ? "form-text__error" : ""}
-                            onChange={(lndPath) => {
-                                this.setState({ lndPath, lndPathError: null });
-                            }}
-                        />
-                        <ErrorFieldTooltip text={this.state.lndPathError} />
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="password">
+                                    Password
+                                </label>
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.password)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="tooltip tooltip--info" />
+                                </Tooltip>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="password"
+                                ref={(ref) => {
+                                    this.password = ref;
+                                }}
+                                className={`form-text form-text--icon_eye
+                            ${this.state.passwordError ? "form-text__error" : ""}`}
+                                name="password"
+                                type="password"
+                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                                disabled={disabled}
+                                onChange={() => { this.setState({ passwordError: null }) }}
+                            />
+                            <i
+                                className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
+                                onClick={togglePasswordVisibility}
+                            />
+                            <ErrorFieldTooltip text={this.state.passwordError} />
+                        </div>
                     </div>
-                </div>
-                <div className="block__row-lg">
-                    <div className="col-xs-12">
-                        <button
-                            type="submit"
-                            className="button button__solid button--fullwide"
-                            disabled={disabled}
-                        >
-                            Next
-                        </button>
-                        {disabled ? spinner : null}
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="conf_password">
+                                    Confirm password
+                                </label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="conf_password"
+                                ref={(ref) => {
+                                    this.confPassword = ref;
+                                }}
+                                className={`form-text ${this.state.confPasswordError ? "form-text__error" : ""}`}
+                                name="password"
+                                type="password"
+                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                                disabled={disabled}
+                                onChange={() => { this.setState({ confPasswordError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.confPasswordError} />
+                        </div>
                     </div>
-                </div>
-                <div className="block__row-xs">
-                    <div className="col-xs-12">
-                        <button
-                            type="button"
-                            className="button button__solid button__solid--transparent button--fullwide"
-                            onClick={this.cancelRegistration}
-                            disabled={disabled}
-                        >
-                            Back
-                        </button>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <Checkbox
+                                    text="Use default path"
+                                    onChange={() => this.setState({
+                                        defaultPath: !this.state.defaultPath,
+                                        lndPathError: null,
+                                    })}
+                                    checked={this.state.defaultPath}
+                                    disabled={disabled}
+                                />
+                                <Tooltip
+                                    placement="right"
+                                    overlay={helpers.formatMultilineText(this.state.tooltips.defaultPath)}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="tooltip tooltip--info" />
+                                </Tooltip>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <File
+                                disabled={this.state.defaultPath || disabled}
+                                value={this.state.lndPath}
+                                placeholder="Select folder"
+                                className={this.state.lndPathError ? "form-text__error" : ""}
+                                onChange={(lndPath) => {
+                                    this.setState({ lndPath, lndPathError: null });
+                                }}
+                            />
+                            <ErrorFieldTooltip text={this.state.lndPathError} />
+                        </div>
                     </div>
-                </div>
-            </form>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                type="submit"
+                                className="button button__solid button--fullwide"
+                                disabled={disabled}
+                            >
+                                Next
+                            </button>
+                            {disabled ? spinner : null}
+                        </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.cancelRegistration}
+                                disabled={disabled}
+                            >
+                                Back
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </Fragment>
         );
     }
 }
