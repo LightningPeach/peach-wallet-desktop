@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
@@ -78,51 +78,60 @@ class Seed extends Component {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.confirm}>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="seed">Enter your seed words</label>
+            <Fragment>
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Wallet recovery
+                    </div>
+                </div>
+                <form className="form form--home" onSubmit={this.confirm}>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="seed">Enter your seed words</label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <textarea
+                                className={`form-textarea ${this.state.seedError ? "form-textarea__error" : ""}`}
+                                id="seed"
+                                placeholder="Write here"
+                                ref={(ref) => {
+                                    this.seed = ref;
+                                }}
+                                disabled={disabled}
+                                onChange={() => { this.setState({ seedError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.seedError} />
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <textarea
-                            className={`form-textarea ${this.state.seedError ? "form-textarea__error" : ""}`}
-                            id="seed"
-                            placeholder="Write here"
-                            ref={(ref) => {
-                                this.seed = ref;
-                            }}
-                            disabled={disabled}
-                            onChange={() => { this.setState({ seedError: null }) }}
-                        />
-                        <ErrorFieldTooltip text={this.state.seedError} />
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                className="button button__solid button--fullwide"
+                                type="submit"
+                                disabled={disabled}
+                            >
+                                Confirm
+                            </button>
+                            {disabled ? spinner : null}
+                        </div>
                     </div>
-                </div>
-                <div className="row spinner__wrapper mt-30">
-                    <div className="col-xs-12">
-                        <button
-                            className="button button__solid button--fullwide"
-                            type="submit"
-                            disabled={disabled}
-                        >
-                            Confirm
-                        </button>
-                        {disabled ? spinner : null}
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.cancelRestore}
+                                disabled={disabled}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                    <div className="col-xs-12 text-center">
-                        <button
-                            type="button"
-                            className="button button__link button__under-button"
-                            onClick={this.cancelRestore}
-                            disabled={disabled}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-                {this.showStatus()}
-            </form>
+                    {this.showStatus()}
+                </form>
+            </Fragment>
         );
     }
 }
