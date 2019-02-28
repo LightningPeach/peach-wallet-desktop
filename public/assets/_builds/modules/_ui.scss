@@ -208,28 +208,32 @@
     }
 
     &-textarea {
-        font-size: 12px;
+        font-size: 14px;
         color: $black;
-        line-height: 1.67;
+        line-height: 22px;
         border: 1px solid $grey30;
-        border-radius: 2px;
+        border-radius: $border-radius-sm;
         padding: 8px 10px;
         outline: none;
-        transition: border-color .2s;
         width: 100%;
         height: 123px;
         resize: none;
         display: block;
         user-select: initial;
+        caret-color: $yellow;
+        transition: border $default-transition, background-color $default-transition;
 
         &:disabled {
             opacity: 0.3;
             pointer-events: none;
         }
 
-        &:focus,
         &:not(:placeholder-shown) {
-            border-color: $grey;
+            border-color: $black;
+        }
+
+        &:focus {
+            border-color: $yellow;
         }
 
         &__error,
