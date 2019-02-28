@@ -31,7 +31,8 @@ class Registration extends Component {
     };
 
     render() {
-        switch (this.props.authStep) {
+        const { authStep } = this.props;
+        switch (authStep) {
             case types.REGISTRATION_STEP_TERMS:
                 return <Terms />;
             case types.REGISTRATION_STEP_PRIVACY_MODE:

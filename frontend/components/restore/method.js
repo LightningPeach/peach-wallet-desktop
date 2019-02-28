@@ -30,32 +30,43 @@ class Method extends Component {
     render() {
         return (
             <Fragment>
-                <div className="col-xs-12">
-                    <button
-                        type="button"
-                        className="button button__solid button--fullwide"
-                        onClick={this.useWalletData}
-                    >
-                        From wallet folder
-                    </button>
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Wallet recovery
+                    </div>
                 </div>
-                <div className="col-xs-12">
-                    <button
-                        type="button"
-                        className="button button__solid button--fullwide"
-                        onClick={this.useSeed}
-                    >
-                        From seed words
-                    </button>
-                </div>
-                <div className="col-xs-12 text-center">
-                    <button
-                        type="button"
-                        className="button button__link button__under-button"
-                        onClick={this.cancelRestore}
-                    >
-                        Cancel
-                    </button>
+                <div className="form form--home">
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button--fullwide"
+                                onClick={this.useWalletData}
+                            >
+                                From wallet folder
+                            </button>
+                        </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button--fullwide"
+                                onClick={this.useSeed}
+                            >
+                                From seed words
+                            </button>
+                        </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <button
+                            type="button"
+                            className="button button__solid button__solid--transparent button--fullwide"
+                            onClick={this.cancelRestore}
+                        >
+                            Cancel
+                        </button>
+                    </div>
                 </div>
             </Fragment>
         );

@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { analytics } from "additional";
 import { connect } from "react-redux";
@@ -31,35 +31,32 @@ class Restore extends Component {
     };
 
     render() {
-        let content;
-        switch (this.props.authStep) {
+        const { authStep } = this.props;
+        switch (authStep) {
             case types.RESTORE_STEP_TERMS:
                 return <Terms method={this.method} />;
             case types.RESTORE_STEP_PRIVACY_MODE:
                 return <PrivacyMode method={this.method} />;
             case types.RESTORE_STEP_SEED:
-                content = <Seed username={this.username} password={this.password} />;
-                break;
+                return (
+                    <Seed
+                        username={this.username}
+                        password={this.password}
+                    />
+                );
             case types.RESTORE_STEP_USER_PASS:
-                content = <UserForm username={this.username} onValidUser={this.setUser} />;
-                break;
+                return (
+                    <UserForm
+                        username={this.username}
+                        onValidUser={this.setUser}
+                    />
+                );
             case types.RESTORE_STEP_USE_WALLET_DATA:
-                content = <Folder />;
-                break;
+                return <Folder />;
             case types.RESTORE_STEP_SELECT_METHOD:
             default:
-                content = <Method callback={this.setMethod} />;
-                break;
+                return <Method callback={this.setMethod} />;
         }
-
-        return (
-            <Fragment>
-                <div className="home__title">
-                    Wallet recovery
-                </div>
-                {content}
-            </Fragment>
-        );
     }
 }
 
