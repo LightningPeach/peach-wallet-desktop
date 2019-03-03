@@ -240,7 +240,7 @@ registerIpc("sendPayment", async (event, arg) => {
         return { ok: false, error: lnd.prettifyMessage(payment.response.payment_error) };
     }
     if (arg.isPayReq) {
-        const payReq = await lnd.call("DecodePayReq", { pay_req: arg.payment_request });
+        const payReq = await lnd.call("DecodePayReq", { pay_req: arg.details.payment_request });
         return { ok: true, payment_hash: payReq.response.payment_hash };
     }
     return { ok: true, payment_hash: arg.details.payment_hash_string };
