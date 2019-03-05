@@ -191,7 +191,9 @@ class ContactsPage extends Component {
             default:
                 modal = null;
         }
-        const headerBtn = <Button class="button__solid" onClick={this.headerBtnClick} text="ADD CONTACT" />;
+        const headerBtn = walletMode === accountTypes.WALLET_MODE.EXTENDED
+            ? <Button class="button__solid" onClick={this.headerBtnClick} text="ADD CONTACT" />
+            : null;
 
         return (
             <Fragment>
