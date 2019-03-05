@@ -13,6 +13,21 @@ const WalletMode = ({
         dispatch(onlyToStore ? accountActions.setWalletMode(type) : accountOperations.setWalletMode(type));
         callback(type);
     };
+    let extendedButtonText;
+    let standardButtonText;
+    switch (walletMode) {
+        case accountTypes.WALLET_MODE.EXTENDED:
+            extendedButtonText = "Selected";
+            standardButtonText = "Switch to Standard";
+            break;
+        case accountTypes.WALLET_MODE.STANDARD:
+            extendedButtonText = "Switch to Extended";
+            standardButtonText = "Selected";
+            break;
+        default:
+            extendedButtonText = "Choose Extended";
+            standardButtonText = "Choose Standard";
+    }
     return (
         <div className="row card__row align-stretch-xs">
             <div className="col-xs-12 col-md-6 card__col">
@@ -53,7 +68,7 @@ const WalletMode = ({
                             onClick={() => confirmType(accountTypes.WALLET_MODE.EXTENDED)}
                             disabled={walletMode === accountTypes.WALLET_MODE.EXTENDED}
                         >
-                            Choose extended
+                            {extendedButtonText}
                         </button>
                     </div>
                 </div>
@@ -103,7 +118,7 @@ const WalletMode = ({
                             onClick={() => confirmType(accountTypes.WALLET_MODE.STANDARD)}
                             disabled={walletMode === accountTypes.WALLET_MODE.STANDARD}
                         >
-                            Choose standard
+                            {standardButtonText}
                         </button>
                     </div>
                 </div>
