@@ -2,6 +2,9 @@ const fs = require("fs");
 const { join } = require("path");
 const helpers = require("../utils/helpers");
 const baseLogger = require("../utils/logger");
+// ToDo: add public ip after testing
+const publicIp = require("public-ip");
+// const internalIp = require("internal-ip");
 
 const logger = baseLogger.child("electron");
 
@@ -12,6 +15,7 @@ module.exports = ({
     config,
 }) => {
     const peersFile = join(config.get("dataPath"), "peers.json");
+    const ipFile = join(config.get("dataPath"), "ip.json");
     const userPathsFile = join(config.get("dataPath"), "usersPath.json");
     /**
      * Return username based path to database file
@@ -139,6 +143,50 @@ module.exports = ({
         await helpers.writeFile(userPathsFile, JSON.stringify(paths));
     };
 
+    const saveLndIP = async (username, ip) => {
+        const fileExists = fs.existsSync(ipFile);
+        logger.info("[SETTINGS] - saveLndIP", {
+            ip, ipFile, fileExists, username,
+        });
+        if (!fileExists) {
+            await helpers.writeFile(ipFile, JSON.stringify({ [username]: ip }));
+            return;
+        }
+        const ips = JSON.parse(fs.readFileSync(ipFile).toString());
+        logger.info("[SETTINGS] - saveLndIP", { ips });
+        if (username in ips && ips[username] === ip) {
+            return;
+        }
+        ips[username] = ip;
+        await helpers.writeFile(ipFile, JSON.stringify(ips));
+    };
+
+    /**
+     * Will save ip into file if file does not exist or if there in no data about current user
+     * @param username
+     * @returns ip
+     */
+    const getLndIP = async (username) => {
+        const fileExists = fs.existsSync(ipFile);
+        const lnd = config.get("lnd");
+        const defaultIP = `${await publicIp.v4()}:${lnd.restlisten}`;
+        logger.debug("[SETTINGS] - getLndIP defaultip:", defaultIP);
+        if (!fileExists) {
+            // default return for the function
+            await saveLndIP(username, defaultIP);
+            return defaultIP;
+        }
+        const ips = JSON.parse(fs.readFileSync(ipFile).toString());
+        logger.info("[SETTINGS] - getLndIP", { fileExists, username, ips });
+        if (username in ips) {
+            return ips[username];
+        }
+
+        // defaul return for the function
+        await saveLndIP(username, defaultIP);
+        return defaultIP;
+    };
+
     return {
         getCustomPathLndUsernames,
         databasePath,
@@ -148,5 +196,7 @@ module.exports = ({
         walletLndPath,
         loadLndPath,
         saveLndPath,
+        getLndIP,
+        saveLndIP,
     };
 };

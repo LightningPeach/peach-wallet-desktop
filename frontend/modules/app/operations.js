@@ -41,6 +41,10 @@ function openLegalModal() {
     return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_LEGAL));
 }
 
+function openConnectRemoteQRModal() {
+    return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_CONNECT_REMOTE_QR));
+}
+
 function usdBtcRate() {
     return async (dispatch, getState) => {
         let response;
@@ -202,4 +206,5 @@ export {
     openDb,
     closeDb,
     openLegalModal,
+    openConnectRemoteQRModal,
 };

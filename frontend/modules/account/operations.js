@@ -239,7 +239,7 @@ function finishIntervalStatusChecks() {
     clearIntervalLong(types.LND_SYNC_STATUS_INTERVAL_ID);
 }
 
-function logout(keepModalState = false) {
+function logout(keepModalState = false, redirect = true) {
     return async (dispatch, getState) => {
         if (getState().account.isLogouting) {
             return unsuccessPromise(logout);
@@ -266,7 +266,9 @@ function logout(keepModalState = false) {
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
         dispatch(actions.logoutAcount(keepModalState));
-        hashHistory.push("/");
+        if (redirect) {
+            hashHistory.push("/");
+        }
         dispatch(actions.finishLogout());
         dispatch(notificationsActions.removeAllNotifications());
         return successPromise();
@@ -467,6 +469,39 @@ function checkAmount(amount, type = "lightning") {
     };
 }
 
+/**
+ * @return ${host}/n${macaroonsHex}/n${port}
+ */
+function getRemoteAccressString() {
+    return async (dispatch, getState) => {
+        console.log("Will generate");
+        const response = await window.ipcClient("generateRemoteAccessString", { username: getState().account.login });
+        console.log("Internal response", response);
+        if (!response.ok) {
+            logger.error("Error on getRemoteAccressString", response.error);
+            return errorPromise(response.error, getRemoteAccressString);
+        }
+
+        console.log("Will return success promise", response.remoteAccessString);
+        return successPromise({
+            remoteAccessString: response.remoteAccessString,
+        });
+    };
+}
+
+function rebuildCertificate() {
+    return async (dispatch, getState) => {
+        console.log("Will rebuild");
+        const response = await window.ipcClient("rebuildLndCerts", { username: getState().account.login });
+        if (!response.ok) {
+            logger.error("Error on rebuildCertificate", response.error);
+            return errorPromise(response.error, rebuildCertificate);
+        }
+
+        return successPromise();
+    };
+}
+
 export {
     setInitConfig,
     loadAccountSettings,
@@ -486,4 +521,6 @@ export {
     setSystemNotificationsStatus,
     startIntervalStatusChecks,
     finishIntervalStatusChecks,
+    getRemoteAccressString,
+    rebuildCertificate,
 };
