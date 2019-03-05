@@ -128,7 +128,7 @@ class Lightning extends Component {
                                     className={`tab-link ${
                                         activeTab === "recurring" ? "tab-link-active" : ""
                                     } ${walletMode !== accountTypes.WALLET_MODE.EXTENDED
-                                        ? "button--locked"
+                                        ? "locked"
                                         : ""}`}
                                     onClick={() => this.handleTabClick("recurring")}
                                 >

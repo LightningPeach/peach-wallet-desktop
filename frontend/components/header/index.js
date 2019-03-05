@@ -118,7 +118,7 @@ class Header extends Component {
                                 to={AddressBookFullPath}
                                 className={`nav__link ${
                                     walletMode !== accountTypes.WALLET_MODE.EXTENDED
-                                        ? "button__link--locked"
+                                        ? "locked"
                                         : ""
                                 } ${AddressBookPanel.includes(path) ? "active" : ""}`}
                                 onClick={this.hideBurger}

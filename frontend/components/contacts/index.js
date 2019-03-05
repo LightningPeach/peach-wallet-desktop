@@ -137,16 +137,14 @@ class ContactsPage extends Component {
                             <div className="row">
                                 <div className="col-xs-12">
                                     <span className="placeholder_text">
-                                        Contact list is available only in the Extended Mode.
+                                        Contact list is available only in the&nbsp;
+                                        <button
+                                            className="link"
+                                            onClick={() => dispatch(accountOperations.openWalletModeModal())}
+                                        >
+                                            Extended Mode
+                                        </button>.
                                     </span>
-                                </div>
-                                <div className="col-xs-12 mt-16">
-                                    <button
-                                        className="button button__solid"
-                                        onClick={() => dispatch(accountOperations.openWalletModeModal())}
-                                    >
-                                        Change Mode
-                                    </button>
                                 </div>
                             </div>
                         </Fragment>
@@ -162,7 +160,6 @@ class ContactsPage extends Component {
             <div className="row">
                 <div className="col-xs-12 table">
                     <RecordsTable
-                        key={3}
                         data={this.getContactsData()}
                         columns={this.getHistoryHeader()}
                         source={filterTypes.FILTER_CONTACTS}
@@ -196,22 +193,23 @@ class ContactsPage extends Component {
         }
         const headerBtn = <Button class="button__solid" onClick={this.headerBtnClick} text="ADD CONTACT" />;
 
-        return [
-            <SubHeader key={1} button={headerBtn} />,
-            <div key={2} className="contacts-page">
-                {!contacts.length || walletMode !== accountTypes.WALLET_MODE.EXTENDED
-                    ? this.renderEmptyList(walletMode === accountTypes.WALLET_MODE.STANDARD)
-                    : this.renderContacts()}
-            </div>,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={3}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+        return (
+            <Fragment>
+                <SubHeader button={headerBtn} />
+                <div className="contacts-page">
+                    {!contacts.length || walletMode !== accountTypes.WALLET_MODE.EXTENDED
+                        ? this.renderEmptyList(walletMode === accountTypes.WALLET_MODE.STANDARD)
+                        : this.renderContacts()}
+                </div>
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 

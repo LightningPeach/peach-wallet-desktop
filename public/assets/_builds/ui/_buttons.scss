@@ -129,23 +129,6 @@
         }
     }
 
-    &--locked {
-        padding-right: calc(1em + 5px);
-
-        &:after {
-            content: '';
-            position: absolute;
-            display: block;
-            height: 1em;
-            width: 1em;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            background-image: url(../images/icons/lock.svg);
-            background-size: contain;
-        }
-    }
-
     &--fullwide {
         width: 100%;
     }
@@ -188,6 +171,24 @@
         line-height: 20px;
         background: url(../images/icons/logout.svg) no-repeat left center;
         background-size: 20px 20px;
+    }
+}
+
+.locked {
+    position: relative;
+    padding-right: calc(1em + 5px);
+
+    &:after {
+        content: '';
+        position: absolute;
+        display: block;
+        height: calc(1em - 2px);
+        width: calc(1em - 2px);
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background-image: url(../images/icons/lock.svg);
+        background-size: contain;
     }
 }
 
