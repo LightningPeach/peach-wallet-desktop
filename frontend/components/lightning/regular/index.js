@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
@@ -274,118 +274,123 @@ class RegularPayment extends Component {
             : (this.state.isPayReq ? usdRender(this.state.payReqAmount) : usdRender(this.state.amount));
 
         return (
-            <form
-                className="send narrow"
-                onSubmit={(e) => {
-                    e.preventDefault();
-                    this.setState({ processing: true });
-                    // TODO: check logic
-                    // Let's give some time for trying to decode pay_req if it is it
-                    setTimeout(() => {
-                        !this.state.isPayReq && walletMode === accountTypes.WALLET_MODE.EXTENDED
-                            ? this._regularPay()
-                            : this._payReqPay();
-                    }, 200);
-                }}
-                key={0}
-                ref={(el) => {
-                    this.form = el;
-                }}
-            >
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="regular__name">
-                                Name of payment
-                            </label>
+            <div className="block__row-lg">
+                <div className="col-xs-12 col-md-6">
+                    <form
+                        className="form form--regular"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            this.setState({ processing: true });
+                            // TODO: check logic
+                            // Let's give some time for trying to decode pay_req if it is it
+                            setTimeout(() => {
+                                !this.state.isPayReq && walletMode === accountTypes.WALLET_MODE.EXTENDED
+                                    ? this._regularPay()
+                                    : this._payReqPay();
+                            }, 200);
+                        }}
+                        ref={(el) => {
+                            this.form = el;
+                        }}
+                    >
+                        <div className="row">
+                            <div className="col-xs-12">
+                                <div className="form-label">
+                                    <label htmlFor="regular__name">
+                                        Name of payment
+                                    </label>
+                                </div>
+                            </div>
+                            <div className="col-xs-12">
+                                <input
+                                    id="regular__name"
+                                    className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                    name="regular__name"
+                                    placeholder="Enter name"
+                                    ref={(el) => {
+                                        this.regularName = el;
+                                    }}
+                                    onChange={e => this.setState({
+                                        nameError: null,
+                                        regularName: e.target.value,
+                                    })}
+                                    value={this.state.regularName}
+                                    disabled={this.state.processing}
+                                    max={ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                />
+                                <ErrorFieldTooltip text={this.state.nameError} />
+                            </div>
                         </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="regular__name"
-                            className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                            name="regular__name"
-                            placeholder="Enter name"
-                            ref={(el) => {
-                                this.regularName = el;
-                            }}
-                            onChange={e => this.setState({
-                                nameError: null,
-                                regularName: e.target.value,
-                            })}
-                            value={this.state.regularName}
-                            disabled={this.state.processing}
-                            max={ELEMENT_NAME_MAX_LENGTH}
-                            maxLength={ELEMENT_NAME_MAX_LENGTH}
-                        />
-                        <ErrorFieldTooltip text={this.state.nameError} />
-                    </div>
-                </div>
-                <div className="row mt-14">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="regular__to">To</label>
+                        <div className="block__row">
+                            <div className="col-xs-12">
+                                <div className="form-label">
+                                    <label htmlFor="regular__to">To</label>
+                                </div>
+                            </div>
+                            <div className="col-xs-12">
+                                <ToField
+                                    id="regular__to"
+                                    class={`form-text ${this.state.toError ? "form-text__error" : ""}`}
+                                    placeholder={toPlaceholder}
+                                    onChange={this.handleTo}
+                                    disabled={this.state.processing}
+                                    onRef={(ref) => {
+                                        this.toField = ref;
+                                    }}
+                                    disableLightningId={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
+                                />
+                                <ErrorFieldTooltip text={this.state.toError} />
+                            </div>
                         </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <ToField
-                            id="regular__to"
-                            class={`form-text ${this.state.toError ? "form-text__error" : ""}`}
-                            placeholder={toPlaceholder}
-                            onChange={this.handleTo}
-                            disabled={this.state.processing}
-                            onRef={(ref) => {
-                                this.toField = ref;
-                            }}
-                            disableLightningId={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
-                        />
-                        <ErrorFieldTooltip text={this.state.toError} />
-                    </div>
-                </div>
-                <div className="row mt-14">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="regular__amount">
-                                Amount in {bitcoinMeasureType}
-                            </label>
+                        <div className="block__row align-end-xs">
+                            <div className="col-xs-8">
+                                <div className="row">
+                                    <div className="col-xs-12">
+                                        <div className="form-label">
+                                            <label htmlFor="regular__amount">
+                                                Amount in {bitcoinMeasureType}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div className="col-xs-12">
+                                        <DigitsField
+                                            id="regular__amount"
+                                            className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
+                                            name="regular__amount"
+                                            placeholder={`${
+                                                bitcoinMeasureType === "Satoshi" ? "0" : "0.0"} ${bitcoinMeasureType}`}
+                                            ref={(ref) => {
+                                                this.amountComponent = ref;
+                                            }}
+                                            setRef={(el) => {
+                                                this.amount = el;
+                                            }}
+                                            setOnChange={e => this.setState({
+                                                amount: e.target.value.trim(),
+                                                amountError: null,
+                                            })}
+                                            disabled={this.state.processing}
+                                            value={this.state.amount}
+                                        />
+                                        <ErrorFieldTooltip text={this.state.amountError} />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="col-xs-4">
+                                {usd}
+                                <button
+                                    type="submit"
+                                    className="button button__solid button--fullwide"
+                                    disabled={this.state.processing}
+                                >
+                                    Pay
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <DigitsField
-                            id="regular__amount"
-                            className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
-                            name="regular__amount"
-                            placeholder={`${bitcoinMeasureType === "Satoshi" ? "0" : "0.0"} ${bitcoinMeasureType}`}
-                            ref={(ref) => {
-                                this.amountComponent = ref;
-                            }}
-                            setRef={(el) => {
-                                this.amount = el;
-                            }}
-                            setOnChange={e => this.setState({
-                                amount: e.target.value.trim(),
-                                amountError: null,
-                            })}
-                            disabled={this.state.processing}
-                            value={this.state.amount}
-                        />
-                        <ErrorFieldTooltip text={this.state.amountError} />
-                    </div>
-                    <div className="col-xs-12" />
+                    </form>
                 </div>
-                <div className="row mt-30">
-                    <div className="col-xs-12 text-right">
-                        {usd}
-                        <button
-                            type="submit"
-                            className="button button__solid"
-                            disabled={this.state.processing}
-                        >
-                            Pay
-                        </button>
-                    </div>
-                </div>
-            </form>
+            </div>
         );
     };
 
@@ -423,18 +428,19 @@ class RegularPayment extends Component {
                 modal = null;
                 break;
         }
-        return [
-            this.renderForm(),
-            <RegularHistory key={1} />,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key="lightningRegularModal"
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+        return (
+            <Fragment>
+                {this.renderForm()}
+                <RegularHistory />
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
