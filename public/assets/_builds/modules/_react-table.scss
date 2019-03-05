@@ -22,7 +22,6 @@
                 background-color .3s ease-in-out,
                 padding .3s ease-in-out,
                 margin .3s ease-in-out,
-                box-shadow .3s ease-in-out;
     }
 
     .rt-thead {
@@ -131,7 +130,6 @@
                     padding: 8px 10px;
                     margin-top: -8px;
                     margin-left: -10px;
-                    box-shadow: 0 2px 4px 0 $grey-light50;
                 }
             }
         }
@@ -142,7 +140,6 @@
 
         .rt-tr:not(.-padRow):hover {
             background-color: $yellow10;
-            box-shadow: 1px 1px 10px 0 $grey-light50;
 
             .table__button {
                 opacity: 1;
