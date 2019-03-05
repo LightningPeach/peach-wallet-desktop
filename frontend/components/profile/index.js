@@ -14,7 +14,6 @@ import Footer from "components/footer";
 import Select from "react-select";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { ProfileFullPath } from "routes";
-import Ellipsis from "components/common/ellipsis";
 import DigitsField from "components/ui/digits-field";
 import ConfirmLogout from "./modal/logout";
 import Legal from "./modal/law";
@@ -35,14 +34,6 @@ class Profile extends Component {
                     "of it in the filed below. Other users of the",
                     "Lightning Network will have possibility to pay",
                     "generated invoice (one payment for each request).",
-                ],
-                sounds: "Enable or disable sounds of system notifications.",
-                systemNotifications: [
-                    "Enable or disable system notifications. When enabled",
-                    "they will be shown as push messages on your PC. System",
-                    "notifications will inform you about incoming payments,",
-                    "opening and closing channels and other types of the",
-                    "wallet activities.",
                 ],
             },
         };
@@ -491,23 +482,23 @@ class Profile extends Component {
                         <div className="profile__line switcher">
                             <div className="switcher-text">
                                 System notifications
-                                <Tooltip
-                                    placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.systemNotifications)}
-                                    trigger="hover"
-                                    arrowContent={
-                                        <div className="rc-tooltip-arrow-inner" />
-                                    }
-                                    prefixCls="rc-tooltip__small rc-tooltip"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <i className="tooltip tooltip--info" />
-                                </Tooltip>
                             </div>
                             <div
                                 className={`switcher-toggle ${this.state.notifications ? "active" : ""}`}
                                 onClick={this.toggleNotifications}
                             />
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label" />
+                            <div className="profile__value">
+                                <span className="text-grey">
+                                    Enable or disable system notifications. When enabled, they will be shown as push
+                                    messages on your PC. System notifications will inform you about incoming payments,
+                                    opening and closing channels and other types of the wallet activities.
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -516,23 +507,21 @@ class Profile extends Component {
                         <div className={`profile__line switcher ${this.state.notifications ? "" : "disabled"}`}>
                             <div className="switcher-text">
                                 Sounds
-                                <Tooltip
-                                    placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.sounds)}
-                                    trigger="hover"
-                                    arrowContent={
-                                        <div className="rc-tooltip-arrow-inner" />
-                                    }
-                                    prefixCls="rc-tooltip__small rc-tooltip"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <i className="tooltip tooltip--info" />
-                                </Tooltip>
                             </div>
                             <div
                                 className={`switcher-toggle ${this.state.sound ? "active" : ""}`}
                                 onClick={this.toggleSound}
                             />
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label" />
+                            <div className="profile__value">
+                                <span className="text-grey">
+                                    Enable or disable sounds of system notifications.
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
