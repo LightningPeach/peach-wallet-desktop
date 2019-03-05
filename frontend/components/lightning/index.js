@@ -116,31 +116,23 @@ class Lightning extends Component {
             <div key={1} className="lightning lightning-page">
                 <div className="container">
                     <div className="tabs">
-                        <div className="row tabs__row">
-                            <div className="col-xs-12 tabs__wrapper">
-                                <div className={`tabs__container ${
-                                    activeTab === "recurring"
-                                        ? "tabs__container--end"
-                                        : ""}`}
-                                >
-                                    <a
-                                        className={`tab-link ${activeTab === "regular" ? "tab-link-active" : ""}`}
-                                        onClick={() => this.handleTabClick("regular")}
-                                    >
-                                        Regular payment
-                                    </a>
-                                    <a
-                                        className={`tab-link ${
-                                            activeTab === "recurring" ? "tab-link-active" : ""
-                                        } ${walletMode !== accountTypes.WALLET_MODE.EXTENDED
-                                            ? "button--locked"
-                                            : ""}`}
-                                        onClick={() => this.handleTabClick("recurring")}
-                                    >
-                                        Recurring payment
-                                    </a>
-                                </div>
-                            </div>
+                        <div className="tabs__row">
+                            <a
+                                className={`tab-link ${activeTab === "regular" ? "tab-link-active" : ""}`}
+                                onClick={() => this.handleTabClick("regular")}
+                            >
+                                Regular payment
+                            </a>
+                            <a
+                                className={`tab-link ${
+                                    activeTab === "recurring" ? "tab-link-active" : ""
+                                } ${walletMode !== accountTypes.WALLET_MODE.EXTENDED
+                                    ? "button--locked"
+                                    : ""}`}
+                                onClick={() => this.handleTabClick("recurring")}
+                            >
+                                Recurring payment
+                            </a>
                         </div>
                         {tabContent}
                     </div>

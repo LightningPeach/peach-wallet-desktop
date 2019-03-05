@@ -1,7 +1,5 @@
 .lightning {
-    .container {
-        padding-top: 37px;
-    }
+    padding-top: 40px;
 
     .connected-field {
 
@@ -69,34 +67,6 @@
                 }
             }
         }
-    }
-
-    .tabs {
-        &__wrapper {
-            min-height: 27px;
-        }
-        &__container {
-            transition: right .2s ease-in-out, margin .2s ease-in-out;
-            max-width: 350px;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-
-            &--end {
-                justify-content: flex-end;
-            }
-
-            &:after {
-                content: "";
-                clear: both;
-                display: inline-block;
-            }
-        }
-    }
-
-    .tab-content {
-        position: relative;
     }
 
     .start,

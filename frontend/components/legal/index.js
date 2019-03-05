@@ -53,7 +53,7 @@ class Legal extends Component {
                 <Tabs name="legal">
                     <div className="row">
                         <div className="col-xs-12">
-                            <div className="tabs__wrapper">
+                            <div className="tabs">
                                 <div className="tabs__row">
                                     <TabLink to="terms-tab-container" onClick={() => this.handleTabClick("terms")}>
                                         Terms and conditions

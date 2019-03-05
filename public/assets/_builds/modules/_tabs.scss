@@ -1,6 +1,5 @@
 .tab {
     &-link {
-        cursor: pointer;
         transition: color $default-transition, border-color $default-transition;
         position: relative;
         font-size: 16px;
@@ -9,16 +8,32 @@
         text-transform: uppercase;
         margin: 0 25px;
         padding-bottom: 6px;
-        border-bottom: 2px solid transparent;
+        text-align: center;
+
+        &:after {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: transparent;
+            transition: background-color $default-transition;
+        }
+
+        &:not(.tab-link__no-hover) {
+            cursor: pointer;
+        }
 
         &-active {
-            border-bottom-color: $yellow;
-            font-weight: inherit !important;
+            &:after {
+                background-color: $yellow;
+            }
         }
 
         &:hover:not(.tab-link__no-hover) {
             color: $yellow;
-            font-weight: inherit !important;
             outline: none;
         }
 

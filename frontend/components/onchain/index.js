@@ -116,8 +116,12 @@ class Onchain extends Component {
         }
         return (
             <Fragment>
-                <div className="tab-link tab-link__no-hover">
-                    Onchain payment
+                <div className="tabs">
+                    <div className="tabs__row">
+                        <div className="tab-link tab-link-active tab-link__no-hover">
+                            Onchain payment
+                        </div>
+                    </div>
                 </div>
                 <div className="block__row-lg">
                     <div className="col-xs-12 col-md-6">
