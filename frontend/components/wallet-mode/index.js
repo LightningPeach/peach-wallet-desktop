@@ -23,26 +23,26 @@ const WalletMode = ({
                             Extended Mode
                         </div>
                         <div className="card__description">
-                            Wallet connects with our server  and collects your IP address, your Lightning ID
-                            and Contact list.
+                            In this mode you will have a few extra features not yet present in the standard Lightning
+                            Network. These features rely on the Peach server to route a transaction.
                         </div>
                         <ul className="card__list">
                             <div className="card__list-title">
-                                Extended Mode includes:
+                                Added in the Extended Mode:
                             </div>
                             <li className="card__list-item">
                                 <div className="label label--checkmark">
-                                    Contacts
-                                </div>
-                            </li>
-                            <li className="card__list-item">
-                                <div className="label label--checkmark">
-                                    Streaming payments
+                                    Recurring payments
                                 </div>
                             </li>
                             <li className="card__list-item">
                                 <div className="label label--checkmark">
                                     Payments by Lightning ID
+                                </div>
+                            </li>
+                            <li className="card__list-item">
+                                <div className="label label--checkmark">
+                                    Contacts
                                 </div>
                             </li>
                         </ul>
@@ -66,32 +66,33 @@ const WalletMode = ({
                             Standard Mode
                         </div>
                         <div className="card__description">
-                            Wallet doesn&apos;t connect with our server and doesn&apos;t collect any data.
+                            In this mode your wallet will never connect to the Peach server for any reason. The Extended
+                            Mode features will be disabled.
                             <ul className="card__list">
                                 <li className="card__list-item">
                                     <div className="label label--checkmark">
-                                        Anonymous use
+                                        No 3rd party servers
                                     </div>
                                 </li>
                             </ul>
                         </div>
                         <ul className="card__list">
                             <div className="card__list-title">
-                                Standard mode disable:
+                                Disabled in the Standard Mode:
                             </div>
                             <li className="card__list-item">
                                 <div className="label label--xmark">
-                                    Contacts
-                                </div>
-                            </li>
-                            <li className="card__list-item">
-                                <div className="label label--xmark">
-                                    Streaming payments
+                                    Recurring payments
                                 </div>
                             </li>
                             <li className="card__list-item">
                                 <div className="label label--xmark">
                                     Payments by Lightning ID
+                                </div>
+                            </li>
+                            <li className="card__list-item">
+                                <div className="label label--xmark">
+                                    Contacts
                                 </div>
                             </li>
                         </ul>
