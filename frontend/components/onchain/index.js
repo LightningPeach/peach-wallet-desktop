@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import bitcoin from "bitcoinjs-lib";
@@ -114,97 +114,109 @@ class Onchain extends Component {
                 </span>
             );
         }
-        return [
-            <div className="tab-link tab-link__no-hover" key={-1}>
-                Onchain payment
-            </div>,
-            <form
-                className="send"
-                onSubmit={this.onChainPay}
-                key={0}
-                ref={(ref) => {
-                    this.form = ref;
-                }}
-            >
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="send-coins__name">Name of payment</label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="send-coins__name"
-                            className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                            name="send-coins__name"
-                            placeholder="Enter name"
+        return (
+            <Fragment>
+                <div className="tab-link tab-link__no-hover">
+                    Onchain payment
+                </div>
+                <div className="block__row-lg">
+                    <div className="col-xs-12 col-md-6">
+                        <form
+                            className="form form--onchain"
+                            onSubmit={this.onChainPay}
+                            key={0}
                             ref={(ref) => {
-                                this.name = ref;
+                                this.form = ref;
                             }}
-                            onChange={() => this.setState({ nameError: null })}
-                            max={ELEMENT_NAME_MAX_LENGTH}
-                            maxLength={ELEMENT_NAME_MAX_LENGTH}
-                        />
-                        <ErrorFieldTooltip text={this.state.nameError} />
+                        >
+                            <div className="row">
+                                <div className="col-xs-12">
+                                    <div className="form-label">
+                                        <label htmlFor="send-coins__name">Name of payment</label>
+                                    </div>
+                                </div>
+                                <div className="col-xs-12">
+                                    <input
+                                        id="send-coins__name"
+                                        className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                        name="send-coins__name"
+                                        placeholder="Enter name"
+                                        ref={(ref) => {
+                                            this.name = ref;
+                                        }}
+                                        onChange={() => this.setState({ nameError: null })}
+                                        max={ELEMENT_NAME_MAX_LENGTH}
+                                        maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                    />
+                                    <ErrorFieldTooltip text={this.state.nameError} />
+                                </div>
+                            </div>
+                            <div className="block__row">
+                                <div className="col-xs-12">
+                                    <div className="form-label">
+                                        <label htmlFor="send-coins__to">To</label>
+                                    </div>
+                                </div>
+                                <div className="col-xs-12">
+                                    <input
+                                        id="send-coins__to"
+                                        className={`form-text ${this.state.toError ? "form-text__error" : ""}`}
+                                        name="send-coins__to"
+                                        placeholder="Bitcoin Address"
+                                        ref={(ref) => {
+                                            this.to = ref;
+                                        }}
+                                        onChange={() => this.setState({ toError: null })}
+                                    />
+                                    <ErrorFieldTooltip text={this.state.toError} />
+                                </div>
+                            </div>
+                            <div className="block__row align-end-xs">
+                                <div className="col-xs-8">
+                                    <div className="row">
+                                        <div className="col-xs-12">
+                                            <div className="form-label">
+                                                <label htmlFor="send-coins__amount">
+                                                    Amount in {bitcoinMeasureType}
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div className="col-xs-12">
+                                            <DigitsField
+                                                id="send-coins__amount"
+                                                className={`form-text ${
+                                                    this.state.amountError ? "form-text__error" : ""}`}
+                                                name="send-coins__amount"
+                                                placeholder={`${
+                                                    bitcoinMeasureType === "Satoshi" ? "0" : "0.0"
+                                                } ${bitcoinMeasureType}`}
+                                                ref={(ref) => {
+                                                    this.amountComponent = ref;
+                                                }}
+                                                setRef={(ref) => {
+                                                    this.amount = ref;
+                                                }}
+                                                setOnChange={e => this.setState({
+                                                    amount: e.target.value,
+                                                    amountError: null,
+                                                })}
+                                            />
+                                            <ErrorFieldTooltip text={this.state.amountError} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-xs-4">
+                                    {usd}
+                                    <button type="submit" className="button button__solid button--fullwide">
+                                        Pay
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div className="row mt-14">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="send-coins__to">To</label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="send-coins__to"
-                            className={`form-text ${this.state.toError ? "form-text__error" : ""}`}
-                            name="send-coins__to"
-                            placeholder="Bitcoin Address"
-                            ref={(ref) => {
-                                this.to = ref;
-                            }}
-                            onChange={() => this.setState({ toError: null })}
-                        />
-                        <ErrorFieldTooltip text={this.state.toError} />
-                    </div>
-                </div>
-                <div className="row mt-14">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="send-coins__amount">Amount in {bitcoinMeasureType}</label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <DigitsField
-                            id="send-coins__amount"
-                            className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
-                            name="send-coins__amount"
-                            placeholder={`${bitcoinMeasureType === "Satoshi" ? "0" : "0.0"} ${bitcoinMeasureType}`}
-                            ref={(ref) => {
-                                this.amountComponent = ref;
-                            }}
-                            setRef={(ref) => {
-                                this.amount = ref;
-                            }}
-                            setOnChange={e => this.setState({
-                                amount: e.target.value,
-                                amountError: null,
-                            })}
-                        />
-                        <ErrorFieldTooltip text={this.state.amountError} />
-                    </div>
-                    <div className="col-xs-12" />
-                </div>
-                <div className="row mt-30">
-                    <div className="col-xs-12 text-right">
-                        {usd}
-                        <button type="submit" className="button button__solid">
-                            Pay
-                        </button>
-                    </div>
-                </div>
-            </form>,
-        ];
+            </Fragment>
+        );
     };
 
     render() {
@@ -240,23 +252,24 @@ class Onchain extends Component {
                 modal = null;
                 break;
         }
-        return [
-            <SubHeader key={1} />,
-            <div key={2} className="onchain">
-                <div className="container">
-                    {this.renderOnchain()}
-                    <OnchainHistory />,
+        return (
+            <Fragment>
+                <SubHeader />
+                <div className="onchain">
+                    <div className="container">
+                        {this.renderOnchain()}
+                        <OnchainHistory />
+                    </div>
                 </div>
-            </div>,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={3}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>,
+            </Fragment>
+        );
     }
 }
 
