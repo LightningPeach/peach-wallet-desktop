@@ -85,7 +85,7 @@ class Lightning extends Component {
     };
 
     render() {
-        const { modalState, privacyMode } = this.props;
+        const { modalState, walletMode } = this.props;
         const { activeTab } = this.state;
         let modal;
         switch (modalState) {
@@ -132,7 +132,7 @@ class Lightning extends Component {
                                     <a
                                         className={`tab-link ${
                                             activeTab === "recurring" ? "tab-link-active" : ""
-                                        } ${privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
+                                        } ${walletMode !== accountTypes.WALLET_MODE.EXTENDED
                                             ? "button--locked"
                                             : ""}`}
                                         onClick={() => this.handleTabClick("recurring")}
@@ -162,17 +162,17 @@ Lightning.propTypes = {
     dispatch: PropTypes.func.isRequired,
     externalPaymentRequest: PropTypes.string,
     modalState: PropTypes.string,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
 };
 
 const mapStateToProps = state => ({
     externalPaymentRequest: state.lightning.externalPaymentRequest,
     modalState: state.app.modalState,
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(Lightning);

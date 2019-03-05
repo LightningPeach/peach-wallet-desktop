@@ -7,7 +7,7 @@ import RegistrationForm from "./reg-form";
 import SeedDisplay from "./seed-display";
 import SeedVerify from "./seed-verify";
 import Terms from "./terms";
-import PrivacyMode from "./privacy-mode";
+import WalletMode from "./wallet-mode";
 
 class Registration extends Component {
     constructor(props) {
@@ -35,8 +35,8 @@ class Registration extends Component {
         switch (authStep) {
             case types.REGISTRATION_STEP_TERMS:
                 return <Terms />;
-            case types.REGISTRATION_STEP_PRIVACY_MODE:
-                return <PrivacyMode />;
+            case types.REGISTRATION_STEP_WALLET_MODE:
+                return <WalletMode />;
             case types.REGISTRATION_STEP_SEED_DISPLAY:
                 return (
                     <SeedDisplay

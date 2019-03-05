@@ -541,7 +541,7 @@ class RecurringPayment extends Component {
                         <button
                             type="button"
                             className="button button__link"
-                            onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                            onClick={() => dispatch(accountOperations.openWalletModeModal())}
                         >
                             Wallet Privacy Mode
                         </button>.
@@ -566,7 +566,7 @@ class RecurringPayment extends Component {
         );
     };
 
-    renderIncognitoBody = () => {
+    renderStandardBody = () => {
         const { dispatch } = this.props;
         return (
             <div>
@@ -574,7 +574,7 @@ class RecurringPayment extends Component {
                 You can&nbsp;
                 <button
                     className="button button__link"
-                    onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                    onClick={() => dispatch(accountOperations.openWalletModeModal())}
                 >
                     change
                 </button> Wallet Privacy Mode.
@@ -583,7 +583,7 @@ class RecurringPayment extends Component {
     };
 
     render() {
-        const { modalState, privacyMode } = this.props;
+        const { modalState, walletMode } = this.props;
         let modal;
         switch (modalState) {
             case streamPaymentTypes.MODAL_STATE_STREAM_PAYMENT_DETAILS:
@@ -600,9 +600,9 @@ class RecurringPayment extends Component {
         }
         return (
             <Fragment>
-                {privacyMode === accountTypes.PRIVACY_MODE.EXTENDED
+                {walletMode === accountTypes.WALLET_MODE.EXTENDED
                     ? this.renderForm()
-                    : this.renderIncognitoBody()
+                    : this.renderStandardBody()
                 }
                 <RecurringHistory />
                 <ReactCSSTransitionGroup
@@ -628,10 +628,10 @@ RecurringPayment.propTypes = {
     isThereActiveChannel: PropTypes.bool,
     lisStatus: PropTypes.string.isRequired,
     modalState: PropTypes.string.isRequired,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
 };
 
@@ -641,7 +641,7 @@ const mapStateToProps = state => ({
     isThereActiveChannel: channelsSelectors.isThereActiveChannel(state),
     lisStatus: state.account.lisStatus,
     modalState: state.app.modalState,
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(RecurringPayment);

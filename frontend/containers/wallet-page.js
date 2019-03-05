@@ -37,7 +37,7 @@ import Notifications from "components/notifications";
 import ForceCloseChannelModal from "components/channels/modal/force-close-channel";
 import ForceLogoutModal from "components/modal/window/force-logout";
 import SystemNotificationsModal from "components/modal/window/system-notifications";
-import PrivacyModeModal from "components/modal/window/privacy-mode";
+import WalletModeModal from "components/modal/window/wallet-mode";
 import TermsAndConditionsModal from "components/modal/window/terms-and-conditions";
 
 import {
@@ -196,8 +196,8 @@ class WalletPage extends Component {
             case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
                 modal = <SystemNotificationsModal />;
                 break;
-            case accountTypes.MODAL_STATE_PRIVACY_MODE:
-                modal = <PrivacyModeModal />;
+            case accountTypes.MODAL_STATE_WALLET_MODE:
+                modal = <WalletModeModal />;
                 break;
             case accountTypes.MODAL_STATE_TERMS_AND_CONDITIONS:
                 modal = <TermsAndConditionsModal />;

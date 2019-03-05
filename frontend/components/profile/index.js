@@ -387,7 +387,7 @@ class Profile extends Component {
     };
 
     renderSettings = () => {
-        const { dispatch, appAsDefaultStatus, privacyMode } = this.props;
+        const { dispatch, appAsDefaultStatus, walletMode } = this.props;
         return (
             <div className="profile__block">
                 <div className="row">
@@ -405,11 +405,11 @@ class Profile extends Component {
                             </div>
                             <div className="profile__value profile__value--start">
                                 <span className="profile__button-label">
-                                    {privacyMode}
+                                    {walletMode}
                                 </span>
                                 <button
                                     className="link"
-                                    onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                                    onClick={() => dispatch(accountOperations.openWalletModeModal())}
                                 >
                                     Change Mode
                                 </button>
@@ -421,7 +421,7 @@ class Profile extends Component {
                             <div className="profile__label" />
                             <div className="profile__value">
                                 <span className="text-grey">
-                                    {privacyMode === accountTypes.PRIVACY_MODE.EXTENDED ?
+                                    {walletMode === accountTypes.WALLET_MODE.EXTENDED ?
                                         <span>
                                             In this mode you have a few extra features. These features rely on the Peach
                                             server to route a transaction.
@@ -649,10 +649,10 @@ Profile.propTypes = {
     modalState: PropTypes.string.isRequired,
     paymentRequest: PropTypes.string,
     paymentRequestAmount: PropTypes.number,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
     systemNotifications: PropTypes.number.isRequired,
 };
@@ -667,7 +667,7 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
     paymentRequest: state.lightning.paymentRequest,
     paymentRequestAmount: state.lightning.paymentRequestAmount,
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
     systemNotifications: state.account.systemNotifications,
 });
 

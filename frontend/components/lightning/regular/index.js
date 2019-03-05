@@ -63,7 +63,7 @@ class RegularPayment extends Component {
     // TODO: check logic with delay around submit, should this check be ontime or async action upon submit
     handleTo = async (value, injectExternal = false) => {
         const toError = null;
-        const { dispatch, privacyMode } = this.props;
+        const { dispatch, walletMode } = this.props;
         let newValue = value.trim();
         if (newValue === this.state.toValue) {
             return;
@@ -191,12 +191,12 @@ class RegularPayment extends Component {
             contacts,
             isThereActiveChannel,
             dispatch,
-            privacyMode,
+            walletMode,
         } = this.props;
-        if (privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED) {
+        if (walletMode !== accountTypes.WALLET_MODE.EXTENDED) {
             this.setState({
                 processing: false,
-                toError: statusCodes.EXCEPTION_PAY_LIGHTNING_ID_IN_INCOGNITO,
+                toError: statusCodes.EXCEPTION_PAY_LIGHTNING_ID_IN_STANDARD,
             });
             return;
         }
@@ -255,7 +255,7 @@ class RegularPayment extends Component {
             dispatch,
             bitcoinMeasureType,
             lisStatus,
-            privacyMode,
+            walletMode,
         } = this.props;
         const usdRender = amount => (
             <span className="form-usd">
@@ -266,7 +266,7 @@ class RegularPayment extends Component {
             </span>
         );
         const toPlaceholder = `${
-            privacyMode === accountTypes.PRIVACY_MODE.EXTENDED && lisStatus === accountTypes.LIS_UP
+            walletMode === accountTypes.WALLET_MODE.EXTENDED && lisStatus === accountTypes.LIS_UP
                 ? "Lightning ID / "
                 : ""
         }Payment request`;
@@ -282,7 +282,7 @@ class RegularPayment extends Component {
                     // TODO: check logic
                     // Let's give some time for trying to decode pay_req if it is it
                     setTimeout(() => {
-                        !this.state.isPayReq && privacyMode === accountTypes.PRIVACY_MODE.EXTENDED
+                        !this.state.isPayReq && walletMode === accountTypes.WALLET_MODE.EXTENDED
                             ? this._regularPay()
                             : this._payReqPay();
                     }, 200);
@@ -337,7 +337,7 @@ class RegularPayment extends Component {
                             onRef={(ref) => {
                                 this.toField = ref;
                             }}
-                            disableLightningId={privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED}
+                            disableLightningId={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                         />
                         <ErrorFieldTooltip text={this.state.toError} />
                     </div>
@@ -459,10 +459,10 @@ RegularPayment.propTypes = {
         pay_req: PropTypes.string,
     })).isRequired,
     paymentStatusDetails: PropTypes.string,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
 };
 
@@ -475,7 +475,7 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
     paymentDetails: state.lightning.paymentDetails,
     paymentStatusDetails: state.lightning.paymentStatusDetails,
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(RegularPayment);

@@ -8,7 +8,7 @@ import UserForm from "./user-form";
 import Method from "./method";
 import Folder from "./folder";
 import Terms from "./terms";
-import PrivacyMode from "./privacy-mode";
+import WalletMode from "./wallet-mode";
 
 class Restore extends Component {
     constructor(props) {
@@ -35,8 +35,8 @@ class Restore extends Component {
         switch (authStep) {
             case types.RESTORE_STEP_TERMS:
                 return <Terms method={this.method} />;
-            case types.RESTORE_STEP_PRIVACY_MODE:
-                return <PrivacyMode method={this.method} />;
+            case types.RESTORE_STEP_WALLET_MODE:
+                return <WalletMode method={this.method} />;
             case types.RESTORE_STEP_SEED:
                 return (
                     <Seed

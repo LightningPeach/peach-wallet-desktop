@@ -8,7 +8,7 @@ import { accountActions, accountTypes } from "modules/account";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
 
-import PrivacyModeComponent from "components/privacy-mode";
+import WalletModeComponent from "components/wallet-mode";
 
 class Terms extends Component {
     onChooseMode = () => {
@@ -22,7 +22,7 @@ class Terms extends Component {
 
     goBack = () => {
         const { dispatch } = this.props;
-        dispatch(accountActions.setPrivacyMode(accountTypes.PRIVACY_MODE.PENDING));
+        dispatch(accountActions.setWalletMode(accountTypes.WALLET_MODE.PENDING));
         dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
@@ -37,7 +37,7 @@ class Terms extends Component {
                 <div className="privacy">
                     <div className="block__row-lg">
                         <div className="col-xs-12">
-                            <PrivacyModeComponent callback={this.onChooseMode} onlyToStore />
+                            <WalletModeComponent callback={this.onChooseMode} onlyToStore />
                         </div>
                     </div>
                     <div className="block__row-lg row--no-col justify-center-xs">

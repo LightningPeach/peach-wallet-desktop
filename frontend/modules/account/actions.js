@@ -210,9 +210,9 @@ export const setAnalyticsMode = payload => ({
     type: types.SET_ANALYTICS_MODE,
 });
 
-export const setPrivacyMode = payload => ({
+export const setWalletMode = payload => ({
     payload,
-    type: types.SET_PRIVACY_MODE,
+    type: types.SET_WALLET_MODE,
 });
 
 export const setTermsMode = payload => ({

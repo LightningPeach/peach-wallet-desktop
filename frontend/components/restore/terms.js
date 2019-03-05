@@ -37,7 +37,7 @@ class Terms extends Component {
             this.state.analytics ? accountTypes.ANALYTICS_MODE.ENABLED : accountTypes.ANALYTICS_MODE.DISABLED;
         dispatch(accountActions.setAnalyticsMode(analytics));
         dispatch(accountActions.setTermsMode(accountTypes.TERMS_MODE.ACCEPTED));
-        dispatch(operations.setAuthStep(types.RESTORE_STEP_PRIVACY_MODE));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_WALLET_MODE));
     };
 
     render() {

@@ -62,7 +62,7 @@ class Header extends Component {
     };
 
     render() {
-        const { lndSyncedToChain, privacyMode } = this.props;
+        const { lndSyncedToChain, walletMode } = this.props;
         const path = this.props.location.pathname;
         return (
             <header className="header">
@@ -73,9 +73,9 @@ class Header extends Component {
                                 to={WalletPath}
                                 className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
                             />
-                            {privacyMode !== accountTypes.PRIVACY_MODE.PENDING &&
-                                <div className="header__privacy-mode">
-                                    {privacyMode}
+                            {walletMode !== accountTypes.WALLET_MODE.PENDING &&
+                                <div className="header__wallet-mode">
+                                    {walletMode}
                                 </div>
                             }
                         </div>
@@ -117,7 +117,7 @@ class Header extends Component {
                             <Link
                                 to={AddressBookFullPath}
                                 className={`nav__link ${
-                                    privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
+                                    walletMode !== accountTypes.WALLET_MODE.EXTENDED
                                         ? "button__link--locked"
                                         : ""
                                 } ${AddressBookPanel.includes(path) ? "active" : ""}`}
@@ -160,10 +160,10 @@ Header.propTypes = {
         search: PropTypes.string,
         state: PropTypes.string,
     }).isRequired,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
     skipCreateTutorial: PropTypes.string,
 };
@@ -171,7 +171,7 @@ Header.propTypes = {
 const mapStateToProps = state => ({
     lndSyncedToChain: state.lnd.lndSyncedToChain,
     location: state.routing.locationBeforeTransitions,
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
     skipCreateTutorial: state.channels.skipCreateTutorial,
 });
 

@@ -59,8 +59,8 @@ function openSystemNotificationsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
 }
 
-function openPrivacyModeModal() {
-    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_PRIVACY_MODE));
+function openWalletModeModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_WALLET_MODE));
 }
 
 function checkBalance() {
@@ -113,13 +113,13 @@ function createNewBitcoinAccount() {
 function startLis() {
     return async (dispatch, getState) => {
         const {
-            privacyMode,
+            walletMode,
             termsMode,
             lisStatus,
             lightningID,
         } = getState().account;
         if (
-            privacyMode !== types.PRIVACY_MODE.EXTENDED
+            walletMode !== types.WALLET_MODE.EXTENDED
             || termsMode !== types.TERMS_MODE.ACCEPTED
             || lisStatus === types.LIS_UP
         ) {
@@ -127,11 +127,11 @@ function startLis() {
         }
         const response = await window.ipcClient("startLis");
         if (!response.ok) {
-            if (privacyMode === types.PRIVACY_MODE.EXTENDED) {
-                dispatch(actions.setPrivacyMode(types.PRIVACY_MODE.INCOGNITO));
+            if (walletMode === types.WALLET_MODE.EXTENDED) {
+                dispatch(actions.setWalletMode(types.WALLET_MODE.STANDARD));
                 db.configBuilder()
                     .update()
-                    .set({ privacyMode: types.PRIVACY_MODE.INCOGNITO })
+                    .set({ walletMode: types.WALLET_MODE.STANDARD })
                     .where("lightningId = :lightningID", { lightningID })
                     .execute();
             }
@@ -157,7 +157,7 @@ function shutDownLis() {
 
 function setInitConfig(lightningId) {
     return async (dispatch, getState) => {
-        const { analyticsMode, termsMode, privacyMode } = getState().account;
+        const { analyticsMode, termsMode, walletMode } = getState().account;
         const modalFlow = [];
         await db.configBuilder()
             .insert()
@@ -166,7 +166,7 @@ function setInitConfig(lightningId) {
                 analytics: analyticsMode,
                 createChannelViewed: 0,
                 lightningId,
-                privacyMode,
+                walletMode,
                 systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
                 terms: termsMode,
             })
@@ -176,8 +176,8 @@ function setInitConfig(lightningId) {
         if (termsMode === types.TERMS_MODE.PENDING || analyticsMode === types.ANALYTICS_MODE.PENDING) {
             modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
         }
-        if (privacyMode === types.PRIVACY_MODE.PENDING) {
-            modalFlow.push(types.MODAL_STATE_PRIVACY_MODE);
+        if (walletMode === types.WALLET_MODE.PENDING) {
+            modalFlow.push(types.MODAL_STATE_WALLET_MODE);
         }
         modalFlow.push(types.MODAL_STATE_SYSTEM_NOTIFICATIONS);
         dispatch(appActions.addModalToFlow(modalFlow));
@@ -198,7 +198,7 @@ function loadAccountSettings() {
                 const modalFlow = [];
                 dispatch(actions.setBitcoinMeasure(response.activeMeasure));
                 dispatch(actions.setAnalyticsMode(response.analytics || types.ANALYTICS_MODE.PENDING));
-                dispatch(actions.setPrivacyMode(response.privacyMode || types.PRIVACY_MODE.PENDING));
+                dispatch(actions.setWalletMode(response.walletMode || types.WALLET_MODE.PENDING));
                 dispatch(actions.setTermsMode(response.terms || types.TERMS_MODE.PENDING));
                 dispatch(actions.setSystemNotificationsStatus(response.systemNotifications));
                 if (
@@ -209,8 +209,8 @@ function loadAccountSettings() {
                 ) {
                     modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
                 }
-                if (!response.privacyMode || response.privacyMode === types.PRIVACY_MODE.PENDING) {
-                    modalFlow.push(types.MODAL_STATE_PRIVACY_MODE);
+                if (!response.walletMode || response.walletMode === types.WALLET_MODE.PENDING) {
+                    modalFlow.push(types.MODAL_STATE_WALLET_MODE);
                 }
                 if (response.createChannelViewed) {
                     dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));
@@ -505,25 +505,25 @@ function setTermsMode(value) {
     };
 }
 
-function setPrivacyMode(value) {
+function setWalletMode(value) {
     return async (dispatch, getState) => {
         const { lightningID } = getState().account;
-        dispatch(actions.setPrivacyMode(value));
+        dispatch(actions.setWalletMode(value));
         try {
             db.configBuilder()
                 .update()
-                .set({ privacyMode: value })
+                .set({ walletMode: value })
                 .where("lightningId = :lightningID", { lightningID })
                 .execute();
-            if (value === types.PRIVACY_MODE.EXTENDED) {
+            if (value === types.WALLET_MODE.EXTENDED) {
                 await dispatch(startLis());
-            } else if (value === types.PRIVACY_MODE.INCOGNITO) {
+            } else if (value === types.WALLET_MODE.STANDARD) {
                 dispatch(streamPaymentOperations.pauseAllStreams());
                 await dispatch(shutDownLis());
             }
             return successPromise();
         } catch (e) {
-            return errorPromise(e.message, setPrivacyMode);
+            return errorPromise(e.message, setWalletMode);
         }
     };
 }
@@ -630,11 +630,11 @@ export {
     checkBalance,
     setBitcoinMeasure,
     openSystemNotificationsModal,
-    openPrivacyModeModal,
+    openWalletModeModal,
     setSystemNotificationsStatus,
     startIntervalStatusChecks,
     finishIntervalStatusChecks,
     setAnalyticsMode,
     setTermsMode,
-    setPrivacyMode,
+    setWalletMode,
 };

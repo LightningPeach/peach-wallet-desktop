@@ -3,20 +3,20 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { accountTypes, accountOperations, accountActions } from "modules/account";
 
-const PrivacyMode = ({
+const WalletMode = ({
     dispatch,
     callback,
-    privacyMode,
+    walletMode,
     onlyToStore,
 }) => {
     const confirmType = (type) => {
-        dispatch(onlyToStore ? accountActions.setPrivacyMode(type) : accountOperations.setPrivacyMode(type));
+        dispatch(onlyToStore ? accountActions.setWalletMode(type) : accountOperations.setWalletMode(type));
         callback(type);
     };
     return (
         <div className="row card__row align-stretch-xs">
             <div className="col-xs-12 col-md-6 card__col">
-                <div className="card card--privacy-mode">
+                <div className="card card--wallet-mode">
                     <div className="card__body">
                         <div className="card__icon card__icon--extended" />
                         <div className="card__title">
@@ -50,8 +50,8 @@ const PrivacyMode = ({
                     <div className="card__footer">
                         <button
                             className="button button__solid button--fullwide"
-                            onClick={() => confirmType(accountTypes.PRIVACY_MODE.EXTENDED)}
-                            disabled={privacyMode === accountTypes.PRIVACY_MODE.EXTENDED}
+                            onClick={() => confirmType(accountTypes.WALLET_MODE.EXTENDED)}
+                            disabled={walletMode === accountTypes.WALLET_MODE.EXTENDED}
                         >
                             Choose extended
                         </button>
@@ -59,11 +59,11 @@ const PrivacyMode = ({
                 </div>
             </div>
             <div className="card__col col-xs-12 col-md-6">
-                <div className="card card--privacy-mode">
+                <div className="card card--wallet-mode">
                     <div className="card__body">
-                        <div className="card__icon card__icon--incognito" />
+                        <div className="card__icon card__icon--standard" />
                         <div className="card__title">
-                            Incognito Mode
+                            Standard Mode
                         </div>
                         <div className="card__description">
                             Wallet doesn&apos;t connect with our server and doesn&apos;t collect any data.
@@ -77,7 +77,7 @@ const PrivacyMode = ({
                         </div>
                         <ul className="card__list">
                             <div className="card__list-title">
-                                Incognito mode disable:
+                                Standard mode disable:
                             </div>
                             <li className="card__list-item">
                                 <div className="label label--xmark">
@@ -99,10 +99,10 @@ const PrivacyMode = ({
                     <div className="card__footer">
                         <button
                             className="button button__solid button--fullwide"
-                            onClick={() => confirmType(accountTypes.PRIVACY_MODE.INCOGNITO)}
-                            disabled={privacyMode === accountTypes.PRIVACY_MODE.INCOGNITO}
+                            onClick={() => confirmType(accountTypes.WALLET_MODE.STANDARD)}
+                            disabled={walletMode === accountTypes.WALLET_MODE.STANDARD}
                         >
-                            Choose incognito
+                            Choose standard
                         </button>
                     </div>
                 </div>
@@ -111,19 +111,19 @@ const PrivacyMode = ({
     );
 };
 
-PrivacyMode.propTypes = {
+WalletMode.propTypes = {
     callback: PropTypes.func,
     dispatch: PropTypes.func.isRequired,
     onlyToStore: PropTypes.bool,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
 };
 
 const mapStateToProps = state => ({
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
 });
 
-export default connect(mapStateToProps)(PrivacyMode);
+export default connect(mapStateToProps)(WalletMode);

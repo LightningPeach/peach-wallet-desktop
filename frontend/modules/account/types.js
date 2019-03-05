@@ -41,10 +41,10 @@ export const KERNEL_DISCONNECTED = `${$prefix}KERNEL_DISCONNECTED`;
 export const KERNEL_CONNECTED = `${$prefix}KERNEL_CONNECTED`;
 export const SET_SYSTEM_NOTIFICATIONS_STATUS = `${$prefix}SET_SYSTEM_NOTIFICATIONS_STATUS`;
 export const MODAL_STATE_SYSTEM_NOTIFICATIONS = `${$prefix}MODAL_STATE_SYSTEM_NOTIFICATIONS`;
-export const MODAL_STATE_PRIVACY_MODE = `${$prefix}MODAL_STATE_PRIVACY_MODE`;
+export const MODAL_STATE_WALLET_MODE = `${$prefix}MODAL_STATE_WALLET_MODE`;
 export const MODAL_STATE_TERMS_AND_CONDITIONS = `${$prefix}MODAL_STATE_TERMS_AND_CONDITIONS`;
 export const SET_ANALYTICS_MODE = `${$prefix}SET_ANALYTICS_MODE`;
-export const SET_PRIVACY_MODE = `${$prefix}SET_PRIVACY_MODE`;
+export const SET_WALLET_MODE = `${$prefix}SET_WALLET_MODE`;
 export const SET_TERMS_MODE = `${$prefix}SET_TERMS_MODE`;
 
 export const NOTIFICATIONS = {
@@ -57,10 +57,10 @@ export const NOTIFICATIONS = {
     ENABLED_SILENT_DONT_SHOW_AGAIN: 4,
     ENABLED_SILENT_SHOW_AGAIN: 5,
 };
-export const PRIVACY_MODE = {
+export const WALLET_MODE = {
     EXTENDED: "extended",
-    INCOGNITO: "incognito",
     PENDING: null,
+    STANDARD: "standard",
 };
 export const ANALYTICS_MODE = {
     DISABLED: "disabled",

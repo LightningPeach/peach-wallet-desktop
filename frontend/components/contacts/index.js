@@ -127,11 +127,11 @@ class ContactsPage extends Component {
         dispatch(operations.openNewContactModal());
     };
 
-    renderEmptyList = (isIncognito = false) => {
+    renderEmptyList = (isStandard = false) => {
         const { dispatch } = this.props;
         return (
             <div className="empty-placeholder">
-                {isIncognito
+                {isStandard
                     ? (
                         <Fragment>
                             <div className="row">
@@ -143,7 +143,7 @@ class ContactsPage extends Component {
                                 <div className="col-xs-12 mt-16">
                                     <button
                                         className="button button__solid"
-                                        onClick={() => dispatch(accountOperations.openPrivacyModeModal())}
+                                        onClick={() => dispatch(accountOperations.openWalletModeModal())}
                                     >
                                         Change Mode
                                     </button>
@@ -179,7 +179,7 @@ class ContactsPage extends Component {
     );
 
     render() {
-        const { contacts, modalState, privacyMode } = this.props;
+        const { contacts, modalState, walletMode } = this.props;
         let modal;
         switch (modalState) {
             case types.MODAL_STATE_NEW_CONTACT:
@@ -199,8 +199,8 @@ class ContactsPage extends Component {
         return [
             <SubHeader key={1} button={headerBtn} />,
             <div key={2} className="contacts-page">
-                {!contacts.length || privacyMode !== accountTypes.PRIVACY_MODE.EXTENDED
-                    ? this.renderEmptyList(privacyMode === accountTypes.PRIVACY_MODE.INCOGNITO)
+                {!contacts.length || walletMode !== accountTypes.WALLET_MODE.EXTENDED
+                    ? this.renderEmptyList(walletMode === accountTypes.WALLET_MODE.STANDARD)
                     : this.renderContacts()}
             </div>,
             <ReactCSSTransitionGroup
@@ -223,10 +223,10 @@ ContactsPage.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape().isRequired,
     modalState: PropTypes.string.isRequired,
-    privacyMode: PropTypes.oneOf([
-        accountTypes.PRIVACY_MODE.EXTENDED,
-        accountTypes.PRIVACY_MODE.INCOGNITO,
-        accountTypes.PRIVACY_MODE.PENDING,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
     ]),
 };
 
@@ -234,7 +234,7 @@ const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
     filter: state.filter.contacts,
     modalState: state.app.modalState,
-    privacyMode: state.account.privacyMode,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(ContactsPage);

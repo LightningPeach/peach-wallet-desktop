@@ -29,7 +29,7 @@ export const initStateAccount = {
         isCreating: false,
     },
     peers: [],
-    privacyMode: types.PRIVACY_MODE.PENDING,
+    walletMode: types.WALLET_MODE.PENDING,
     signedMessage: null,
     systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
     termsMode: types.TERMS_MODE.PENDING,
@@ -104,8 +104,8 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, analyticsMode: action.payload };
         case types.SET_TERMS_MODE:
             return { ...state, termsMode: action.payload };
-        case types.SET_PRIVACY_MODE:
-            return { ...state, privacyMode: action.payload };
+        case types.SET_WALLET_MODE:
+            return { ...state, walletMode: action.payload };
         default:
             return state;
     }
