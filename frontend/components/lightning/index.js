@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
@@ -111,42 +111,43 @@ class Lightning extends Component {
                 tabContent = null;
                 break;
         }
-        return [
-            <SubHeader key={0} />,
-            <div key={1} className="lightning lightning-page">
-                <div className="container">
-                    <div className="tabs">
-                        <div className="tabs__row">
-                            <a
-                                className={`tab-link ${activeTab === "regular" ? "tab-link-active" : ""}`}
-                                onClick={() => this.handleTabClick("regular")}
-                            >
-                                Regular payment
-                            </a>
-                            <a
-                                className={`tab-link ${
-                                    activeTab === "recurring" ? "tab-link-active" : ""
-                                } ${walletMode !== accountTypes.WALLET_MODE.EXTENDED
-                                    ? "button--locked"
-                                    : ""}`}
-                                onClick={() => this.handleTabClick("recurring")}
-                            >
-                                Recurring payment
-                            </a>
+        return (
+            <Fragment>
+                <SubHeader />
+                <div className="lightning lightning-page">
+                    <div className="container">
+                        <div className="tabs">
+                            <div className="tabs__row">
+                                <a
+                                    className={`tab-link ${activeTab === "regular" ? "tab-link-active" : ""}`}
+                                    onClick={() => this.handleTabClick("regular")}
+                                >
+                                    Regular payment
+                                </a>
+                                <a
+                                    className={`tab-link ${
+                                        activeTab === "recurring" ? "tab-link-active" : ""
+                                    } ${walletMode !== accountTypes.WALLET_MODE.EXTENDED
+                                        ? "button--locked"
+                                        : ""}`}
+                                    onClick={() => this.handleTabClick("recurring")}
+                                >
+                                    Recurring payment
+                                </a>
+                            </div>
+                            {tabContent}
                         </div>
-                        {tabContent}
                     </div>
                 </div>
-            </div>,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={2}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
