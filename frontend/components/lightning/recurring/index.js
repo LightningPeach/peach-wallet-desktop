@@ -267,302 +267,298 @@ class RecurringPayment extends Component {
             );
         }
         return (
-            <form
-                className={`send form ${(lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""}`}
-                onSubmit={this.streamPay}
-                key={0}
-                ref={(ref) => {
-                    this.form = ref;
-                }}
-            >
-                <div className="row mt-m14">
-                    <div className="col-xs-12 col-md-6">
-                        <div className="row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="stream__name">Name of Payment</label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="stream__name"
-                                    className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                                    name="stream__name"
-                                    placeholder="Enter name"
-                                    ref={(ref) => {
-                                        this.name = ref;
-                                    }}
-                                    onChange={this.setName}
-                                    disabled={this.state.processing}
-                                    max={ELEMENT_NAME_MAX_LENGTH}
-                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
-                                />
-                            </div>
-                        </div>
-                        <ErrorFieldTooltip text={this.state.nameError} />
-                    </div>
-                    <div className="col-xs-12 col-md-6">
-                        <div className="row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="stream__to">To</label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <ToField
-                                    id="stream__to_field"
-                                    class={`form-text ${this.state.toError ? "form-text__error" : ""}`}
-                                    onChange={this.handleTo}
-                                    placeholder="Lightning ID"
-                                    disabled={this.state.processing}
-                                    onRef={(ref) => {
-                                        this.toField = ref;
-                                    }}
-                                />
-                            </div>
-                        </div>
-                        <ErrorFieldTooltip text={this.state.toError} />
-                    </div>
-                    <div className="col-xs-12 col-md-4">
-                        <div className={`row mt-14 connected-field ${filledFrequency
-                            ? "connected-field--filled"
-                            : ""}`}
-                        >
-                            <div className="col-xs-6">
-                                <div className="row">
+            <div className="block__row-xs">
+                <div className="col-xs-12">
+                    <form
+                        className={`form form--recurring ${
+                            (lisStatus !== accountTypes.LIS_UP && "stream__form--disabled") || ""
+                        }`}
+                        onSubmit={this.streamPay}
+                        key={0}
+                        ref={(ref) => {
+                            this.form = ref;
+                        }}
+                    >
+                        <div className="row">
+                            <div className="col-xs-12 col-md-6">
+                                <div className="block__row">
                                     <div className="col-xs-12">
                                         <div className="form-label">
-                                            <label htmlFor="stream__frequency">
-                                                Frequency
+                                            <label htmlFor="stream__name">Name of Payment</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-xs-12">
+                                        <input
+                                            id="stream__name"
+                                            className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                            name="stream__name"
+                                            placeholder="Enter name"
+                                            ref={(ref) => {
+                                                this.name = ref;
+                                            }}
+                                            onChange={this.setName}
+                                            disabled={this.state.processing}
+                                            max={ELEMENT_NAME_MAX_LENGTH}
+                                            maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                        />
+                                    </div>
+                                </div>
+                                <ErrorFieldTooltip text={this.state.nameError} />
+                            </div>
+                            <div className="col-xs-12 col-md-6">
+                                <div className="block__row">
+                                    <div className="col-xs-12">
+                                        <div className="form-label">
+                                            <label htmlFor="stream__to">To</label>
+                                        </div>
+                                    </div>
+                                    <div className="col-xs-12">
+                                        <ToField
+                                            id="stream__to_field"
+                                            class={`form-text ${this.state.toError ? "form-text__error" : ""}`}
+                                            onChange={this.handleTo}
+                                            placeholder="Lightning ID"
+                                            disabled={this.state.processing}
+                                            onRef={(ref) => {
+                                                this.toField = ref;
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <ErrorFieldTooltip text={this.state.toError} />
+                            </div>
+                            <div className="col-xs-12 col-md-4">
+                                <div className={`block__row connected-field ${filledFrequency
+                                    ? "connected-field--filled"
+                                    : ""}`}
+                                >
+                                    <div className="col-xs-6">
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <div className="form-label">
+                                                    <label htmlFor="stream__frequency">
+                                                        Frequency
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <DigitsField
+                                                    id="stream__frequency"
+                                                    className={`connected-field__input form-text ${
+                                                        this.state.frequencyError
+                                                            ? "form-text__error"
+                                                            : ""}`}
+                                                    defaultValue="1"
+                                                    pattern="above_zero_int"
+                                                    name="stream__frequency"
+                                                    placeholder="0"
+                                                    ref={(ref) => {
+                                                        this.frequencyComponent = ref;
+                                                    }}
+                                                    setRef={(ref) => {
+                                                        this.frequency = ref;
+                                                    }}
+                                                    setOnChange={this.setFrequency}
+                                                    disabled={this.state.processing}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-xs-6">
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <div className="form-label">
+                                                    <label htmlFor="stream__frequency--currency">
+                                                        Time unit
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <Select
+                                                    id="stream__frequency--currency"
+                                                    value={this.state.timeCurrency}
+                                                    searchable={false}
+                                                    options={TIME_RANGE_MEASURE.map(item => ({
+                                                        label: item.measure,
+                                                        value: item.measure,
+                                                    }))}
+                                                    onChange={(newOption) => {
+                                                        this.setState({
+                                                            timeCurrency: newOption.value,
+                                                        });
+                                                    }}
+                                                    clearable={false}
+                                                    ref={(ref) => {
+                                                        this.timeCurrencySelect = ref;
+                                                    }}
+                                                    arrowRenderer={({ onMouseDown, isOpen }) => (<span
+                                                        role="switch"
+                                                        tabIndex={0}
+                                                        aria-checked={false}
+                                                        onMouseDown={() => {
+                                                            !isOpen ? this.timeCurrencySelect.focus() : null; // eslint-disable-line
+                                                        }}
+                                                        className="Select-arrow"
+                                                    />)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ErrorFieldTooltip text={this.state.frequencyError} />
+                            </div>
+                            <div className="col-xs-12 col-md-4">
+                                <div className={`block__row connected-field ${filledAmount
+                                    ? "connected-field--filled"
+                                    : ""}`}
+                                >
+                                    <div className="col-xs-6">
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <div className="form-label">
+                                                    <label htmlFor="stream__amount">
+                                                        Price per payment
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <DigitsField
+                                                    id="stream__amount"
+                                                    className={`form-text connected-field__input ${
+                                                        this.state.amountError
+                                                            ? "form-text__error"
+                                                            : ""}`}
+                                                    name="stream__amount"
+                                                    pattern={this.state.valueCurrency === "Satoshi"
+                                                        ? "above_zero_int"
+                                                        : "above_zero_float"}
+                                                    placeholder={this.state.valueCurrency === "Satoshi"
+                                                        ? "0"
+                                                        : "0.0"}
+                                                    ref={(ref) => {
+                                                        this.amountComponent = ref;
+                                                    }}
+                                                    setRef={(ref) => {
+                                                        this.amount = ref;
+                                                    }}
+                                                    setOnChange={this.setAmount}
+                                                    disabled={this.state.processing}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="col-xs-6">
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <div className="form-label">
+                                                    <label htmlFor="stream__amount--currency">
+                                                        Value unit
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-xs-12">
+                                                <Select
+                                                    id="stream__amount--currency"
+                                                    value={this.state.valueCurrency}
+                                                    searchable={false}
+                                                    options={[
+                                                        { label: "USD", value: "USD" },
+                                                        { label: bitcoinMeasureType, value: bitcoinMeasureType },
+                                                    ]}
+                                                    onChange={(newOption) => {
+                                                        this.setState({
+                                                            valueCurrency: newOption.value,
+                                                        });
+                                                    }}
+                                                    clearable={false}
+                                                    ref={(ref) => {
+                                                        this.valueCurrencySelect = ref;
+                                                    }}
+                                                    arrowRenderer={({ onMouseDown, isOpen }) => (<span
+                                                        role="switch"
+                                                        tabIndex={0}
+                                                        aria-checked={false}
+                                                        onMouseDown={() => {
+                                                            !isOpen ? this.valueCurrencySelect.focus() : null; // eslint-disable-line
+                                                        }}
+                                                        className="Select-arrow"
+                                                    />)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <ErrorFieldTooltip text={this.state.amountError} />
+                            </div>
+                            <div className="col-xs-12 col-md-4">
+                                <div className="block__row">
+                                    <div className="col-xs-12">
+                                        <div className="form-label">
+                                            <label htmlFor="stream__payments-number">
+                                                Number of payments
                                             </label>
                                         </div>
                                     </div>
                                 </div>
                                 <div className="row">
-                                    <div className="col-xs-12">
+                                    <div className={`col-xs-12 check-input ${this.state.isInfinite
+                                        ? "check-input--checked"
+                                        : ""}`}
+                                    >
                                         <DigitsField
-                                            id="stream__frequency"
-                                            className={`connected-field__input form-text ${this.state.frequencyError
-                                                ? "form-text__error"
-                                                : ""}`}
-                                            defaultValue="1"
+                                            id="stream__payments-number"
+                                            className={`form-text ${this.state.timeError ? "form-text__error" : ""}`}
+                                            name="stream__payments-number"
                                             pattern="above_zero_int"
-                                            name="stream__frequency"
                                             placeholder="0"
                                             ref={(ref) => {
-                                                this.frequencyComponent = ref;
+                                                this.timeComponent = ref;
                                             }}
                                             setRef={(ref) => {
-                                                this.frequency = ref;
+                                                this.time = ref;
                                             }}
-                                            setOnChange={this.setFrequency}
-                                            disabled={this.state.processing}
+                                            setOnChange={this.setTime}
+                                            disabled={this.state.isInfinite}
+                                        />
+                                        <Checkbox
+                                            text="Infinite"
+                                            checked={this.state.isInfinite}
+                                            onChange={this.toggleInfinite}
+                                            class="check-input__checkbox"
                                         />
                                     </div>
                                 </div>
-                            </div>
-                            <div className="col-xs-6">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="stream__frequency--currency">
-                                                Time unit
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <Select
-                                            id="stream__frequency--currency"
-                                            value={this.state.timeCurrency}
-                                            searchable={false}
-                                            options={TIME_RANGE_MEASURE.map(item => ({
-                                                label: item.measure,
-                                                value: item.measure,
-                                            }))}
-                                            onChange={(newOption) => {
-                                                this.setState({
-                                                    timeCurrency: newOption.value,
-                                                });
-                                            }}
-                                            clearable={false}
-                                            ref={(ref) => {
-                                                this.timeCurrencySelect = ref;
-                                            }}
-                                            arrowRenderer={({ onMouseDown, isOpen }) => (<span
-                                                role="switch"
-                                                tabIndex={0}
-                                                aria-checked={false}
-                                                onMouseDown={() => {
-                                                    !isOpen ? this.timeCurrencySelect.focus() : null; // eslint-disable-line
-                                                }}
-                                                className="Select-arrow"
-                                            />)}
-                                        />
-                                    </div>
-                                </div>
+                                <ErrorFieldTooltip text={this.state.timeError} />
                             </div>
                         </div>
-                        <ErrorFieldTooltip text={this.state.frequencyError} />
-                    </div>
-                    <div className="col-xs-12 col-md-4">
-                        <div className={`row mt-14 connected-field ${filledAmount
-                            ? "connected-field--filled"
-                            : ""}`}
-                        >
-                            <div className="col-xs-6">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="stream__amount">
-                                                Price per payment
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <DigitsField
-                                            id="stream__amount"
-                                            className={`form-text connected-field__input ${
-                                                this.state.amountError
-                                                    ? "form-text__error"
-                                                    : ""}`}
-                                            name="stream__amount"
-                                            pattern={this.state.valueCurrency === "Satoshi"
-                                                ? "above_zero_int"
-                                                : "above_zero_float"}
-                                            placeholder={this.state.valueCurrency === "Satoshi"
-                                                ? "0"
-                                                : "0.0"}
-                                            ref={(ref) => {
-                                                this.amountComponent = ref;
-                                            }}
-                                            setRef={(ref) => {
-                                                this.amount = ref;
-                                            }}
-                                            setOnChange={this.setAmount}
-                                            disabled={this.state.processing}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="col-xs-6">
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="stream__amount--currency">
-                                                Value unit
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="row">
-                                    <div className="col-xs-12">
-                                        <Select
-                                            id="stream__amount--currency"
-                                            value={this.state.valueCurrency}
-                                            searchable={false}
-                                            options={[
-                                                { label: "USD", value: "USD" },
-                                                { label: bitcoinMeasureType, value: bitcoinMeasureType },
-                                            ]}
-                                            onChange={(newOption) => {
-                                                this.setState({
-                                                    valueCurrency: newOption.value,
-                                                });
-                                            }}
-                                            clearable={false}
-                                            ref={(ref) => {
-                                                this.valueCurrencySelect = ref;
-                                            }}
-                                            arrowRenderer={({ onMouseDown, isOpen }) => (<span
-                                                role="switch"
-                                                tabIndex={0}
-                                                aria-checked={false}
-                                                onMouseDown={() => {
-                                                    !isOpen ? this.valueCurrencySelect.focus() : null; // eslint-disable-line
-                                                }}
-                                                className="Select-arrow"
-                                            />)}
-                                        />
-                                    </div>
-                                </div>
+                        <div className="block__row-lg">
+                            <div className="col-xs-12 col-md-4 col-md-offset-8">
+                                {usd}
+                                <button
+                                    type="submit"
+                                    className="button button__solid button--fullwide"
+                                    disabled={this.state.processing}
+                                >
+                                    Create payment
+                                </button>
                             </div>
                         </div>
-                        <ErrorFieldTooltip text={this.state.amountError} />
-                    </div>
-                    <div className="col-xs-12 col-md-4">
-                        <div className="row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="stream__payments-number">
-                                        Number of payments
-                                    </label>
-                                </div>
+                        {lisStatus !== accountTypes.LIS_UP && (
+                            <div className="stream__disabled">
+                                <span>Recurring payment temporarily disabled</span>
                             </div>
-                        </div>
-                        <div className="row">
-                            <div className={`col-xs-12 check-input ${this.state.isInfinite
-                                ? "check-input--checked"
-                                : ""}`}
-                            >
-                                <DigitsField
-                                    id="stream__payments-number"
-                                    className={`form-text ${this.state.timeError ? "form-text__error" : ""}`}
-                                    name="stream__payments-number"
-                                    pattern="above_zero_int"
-                                    placeholder="0"
-                                    ref={(ref) => {
-                                        this.timeComponent = ref;
-                                    }}
-                                    setRef={(ref) => {
-                                        this.time = ref;
-                                    }}
-                                    setOnChange={this.setTime}
-                                    disabled={this.state.isInfinite}
-                                />
-                                <Checkbox
-                                    text="Infinite"
-                                    checked={this.state.isInfinite}
-                                    onChange={this.toggleInfinite}
-                                    class="check-input__checkbox"
-                                />
-                            </div>
-                        </div>
-                        <ErrorFieldTooltip text={this.state.timeError} />
-                    </div>
+                        )}
+                    </form>
                 </div>
-                <div className="row mt-30">
-                    <div className="col-xs-12 col-lg-8">
-                        You use the Extended Mode, so Wallet connects with our server.<br />
-                        You can change&nbsp;
-                        <button
-                            type="button"
-                            className="button button__link"
-                            onClick={() => dispatch(accountOperations.openWalletModeModal())}
-                        >
-                            Wallet Privacy Mode
-                        </button>.
-                    </div>
-                    <div className="col-xs-12 col-lg-4 text-right">
-                        {usd}
-                        <button
-                            type="submit"
-                            className="button button__solid"
-                            disabled={this.state.processing}
-                        >
-                            Create payment
-                        </button>
-                    </div>
-                </div>
-                {lisStatus !== accountTypes.LIS_UP && (
-                    <div className="stream__disabled" key="streamDisabledPlaceholder">
-                        <span>Recurring payment temporarily disabled</span>
-                    </div>
-                )}
-            </form>
+            </div>
         );
     };
 

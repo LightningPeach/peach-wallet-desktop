@@ -3,28 +3,46 @@
         padding-top: 37px;
     }
 
-    .send {
-        padding-top: 23px;
+    .connected-field {
 
-        &--no-pt {
-            padding-top: 0;
+        & > :not(:last-child) {
+            padding-right: 0;
+
+            .connected-field__input,
+            .Select-control {
+                border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
+                border: 1px solid rgba(74,74,74,0.3);
+                border-right: 0;
+            }
         }
 
-        &.narrow {
-            width: 420px;
-            max-width: 100%;
+        & > :not(:first-child) {
+            padding-left: 0;
+
+            .connected-field__input,
+            .Select-control {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                border: 1px solid rgba(74,74,74,0.3);
+                border-left: 1px dashed rgba(74,74,74,0.3);
+            }
         }
 
-        .connected-field {
+        .connected-field__input,
+        .Select-control {
+            &:disabled {
+                opacity: 1;
+                color: transparentize($black, 0.7);
+            }
+        }
 
+        &--filled {
             & > :not(:last-child) {
-                padding-right: 0;
 
                 .connected-field__input,
                 .Select-control {
-                    border-bottom-right-radius: 0;
-                    border-top-right-radius: 0;
-                    border: 1px solid rgba(74,74,74,0.3);
+                    border: 1px solid $black;
                     border-right: 0;
                 }
             }
@@ -34,51 +52,20 @@
 
                 .connected-field__input,
                 .Select-control {
-                    border-bottom-left-radius: 0;
-                    border-top-left-radius: 0;
-                    border: 1px solid rgba(74,74,74,0.3);
-                    border-left: 1px dashed rgba(74,74,74,0.3);
+                    border: 1px solid $black;
+                    border-left: 1px dashed $black;
                 }
             }
+        }
+
+        &--disabled {
+            opacity: 0.3;
 
             .connected-field__input,
             .Select-control {
                 &:disabled {
                     opacity: 1;
-                    color: transparentize($black, 0.7);
-                }
-            }
-
-            &--filled {
-                & > :not(:last-child) {
-
-                    .connected-field__input,
-                    .Select-control {
-                        border: 1px solid $black;
-                        border-right: 0;
-                    }
-                }
-
-                & > :not(:first-child) {
-                    padding-left: 0;
-
-                    .connected-field__input,
-                    .Select-control {
-                        border: 1px solid $black;
-                        border-left: 1px dashed $black;
-                    }
-                }
-            }
-
-            &--disabled {
-                opacity: 0.3;
-
-                .connected-field__input,
-                .Select-control {
-                    &:disabled {
-                        opacity: 1;
-                        color: $black;
-                    }
+                    color: $black;
                 }
             }
         }
