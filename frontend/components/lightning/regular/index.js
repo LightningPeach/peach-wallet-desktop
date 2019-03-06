@@ -22,7 +22,7 @@ import { error } from "modules/notifications";
 import DigitsField from "components/ui/digits-field";
 import RegularHistory from "./history";
 import ToField from "../ui/to";
-import LightningDetails from "../modal/lightning-details";
+import { LightningDetails } from "../modal";
 
 const getInitialState = (params) => {
     const initState = {

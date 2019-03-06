@@ -31,9 +31,7 @@ import DigitsField from "components/ui/digits-field";
 import Checkbox from "components/ui/checkbox";
 import RecurringHistory from "./history";
 import ToField from "../ui/to";
-import StreamDetails from "../modal/stream-details";
-import EditStream from "../modal/edit-stream";
-import ActiveRecurringWarning from "../modal/active-recurring-warning";
+import { StreamDetails, EditStream, ActiveRecurringWarning } from "../modal";
 
 const getInitialState = (params = {}) => {
     const initState = {
@@ -565,15 +563,16 @@ class RecurringPayment extends Component {
     renderStandardBody = () => {
         const { dispatch } = this.props;
         return (
-            <div>
-                Stream Payments are available only in the Extended Mode.
-                You can&nbsp;
-                <button
-                    className="button button__link"
-                    onClick={() => dispatch(accountOperations.openWalletModeModal())}
-                >
-                    change
-                </button> Wallet Privacy Mode.
+            <div className="block__row-lg">
+                <div className="col-xs-12">
+                    Recurring Payments are only available in the&nbsp;
+                    <button
+                        className="link"
+                        onClick={() => dispatch(accountOperations.openWalletModeModal())}
+                    >
+                        Extended Mode
+                    </button>.
+                </div>
             </div>
         );
     };

@@ -19,7 +19,7 @@ import { appTypes } from "modules/app";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { LightningFullPath } from "routes";
-import ChannelWarning from "./modal/channel_warning";
+import { ChannelWarning } from "./modal";
 import RegularPayment from "./regular";
 import RecurringPayment from "./recurring";
 
