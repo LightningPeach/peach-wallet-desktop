@@ -58,7 +58,7 @@ class OnChainDetails extends Component {
         const { sendCoinsDetails } = this.props;
         return (
             <Modal title="Check your data" onClose={this.closeModal} titleTooltip={this.state.tooltips.processing}>
-                <div className="modal-body send-form">
+                <div className="modal__body">
                     {sendCoinsDetails.name ?
                         <div className="row send-form__row">
                             <div className="col-xs-12">
@@ -113,7 +113,7 @@ class OnChainDetails extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

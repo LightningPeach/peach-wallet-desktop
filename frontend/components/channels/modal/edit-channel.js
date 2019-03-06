@@ -91,7 +91,7 @@ class EditChannel extends Component {
         return (
             <Modal title="Edit channel" onClose={this.closeModal} showCloseButton>
                 <form onSubmit={this.editChannel}>
-                    <div className="modal-body">
+                    <div className="modal__body">
                         <div className="row form-row">
                             <div className="col-xs-12">
                                 <div className="form-label">
@@ -148,7 +148,7 @@ class EditChannel extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal__footer">
                         <div className="row">
                             <div className="col-xs-12 channels__create-actions">
                                 <div className="channels__create-buttons">

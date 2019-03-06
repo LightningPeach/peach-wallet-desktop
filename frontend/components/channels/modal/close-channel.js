@@ -55,7 +55,7 @@ class CloseChannel extends Component {
         const spinner = this.state.processing ? <div className="spinner" /> : null;
         return (
             <Modal title="Close Channel" onClose={this.closeModal}>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to close <strong title={title}>{title}</strong> cooperatively?
@@ -63,7 +63,7 @@ class CloseChannel extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

@@ -55,7 +55,7 @@ class StreamDetails extends Component {
         const totalAmount = amount + fee;
         return (
             <Modal title="Check your data" onClose={this.closeModal}>
-                <div className="modal-body send-form">
+                <div className="modal__body">
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
@@ -145,7 +145,7 @@ class StreamDetails extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

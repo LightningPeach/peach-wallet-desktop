@@ -10,6 +10,7 @@
   &__row {
     margin-left: -20px;
     margin-right: -20px;
+    max-width: calc(100% + 40px);
   }
 
   &__col {

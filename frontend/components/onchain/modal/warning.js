@@ -29,14 +29,14 @@ class OnchainWarning extends Component {
     render() {
         return (
             <Modal title="Attention!" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body text-center text-16">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             Recipient address looks like Lightning Id address instead of bitcoin address.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer text-center">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12">
                             <button

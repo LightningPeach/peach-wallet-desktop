@@ -29,14 +29,14 @@ class StreamWarning extends Component {
     render() {
         return (
             <Modal title="Attention!" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body text-center text-16">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             You have <strong>active recurring payments</strong>. Channel closing may lead to errors.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer text-center">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

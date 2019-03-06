@@ -59,7 +59,7 @@ class DeleteContact extends Component {
         }
         return (
             <Modal title="Delete contact" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to
@@ -67,7 +67,7 @@ class DeleteContact extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

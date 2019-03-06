@@ -272,7 +272,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should success payment", async () => {
-            await app.client.click(".modal-footer .button__close");
+            await app.client.click(".modal__footer .button__close");
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-payment_result__success"),
                 config.timeoutForElementChecks,
@@ -311,7 +311,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should close channel", async () => {
-            await app.client.click(".modal-footer .button__close");
+            await app.client.click(".modal__footer .button__close");
             await utils.btcctlGenerate(3);
             await app.client.waitUntil(
                 async () => await app.client.isExisting(".channel__deleting") || await app.client.isExisting(".empty-placeholder"), // eslint-disable-line

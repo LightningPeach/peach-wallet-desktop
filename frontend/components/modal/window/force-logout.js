@@ -38,13 +38,13 @@ class ForceLogout extends Component {
             <Modal
                 title="Some problem acquired"
                 onClose={this.onClose}
-                styleSet="error"
+                theme="error"
                 showCloseButton
                 disabled={this.state.processing}
             >
-                <div className="modal-body modal-body-bottom30 text-left text-16">
+                <div className="modal__body">
                     <div className="row">
-                        <div className="col-xs-12 modal-body__error-message">
+                        <div className="col-xs-12 text-red">
                             {this.props.forceLogoutError}
                         </div>
                         <div className="col-xs-12">
@@ -52,7 +52,7 @@ class ForceLogout extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer text-right">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12">
                             <button

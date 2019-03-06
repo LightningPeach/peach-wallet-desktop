@@ -29,7 +29,7 @@ class DeepLinkLightning extends Component {
     render() {
         return (
             <Modal title="Default lightning application" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body modal-body-bottom30 text-left text-16">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             Would you like to use <b>Peach Wallet</b> as a default one for making
@@ -37,7 +37,7 @@ class DeepLinkLightning extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

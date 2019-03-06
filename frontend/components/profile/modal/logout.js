@@ -46,14 +46,14 @@ class ConfirmLogout extends Component {
     render() {
         return (
             <Modal title="Log out" onClose={this.closeModal} disabled={this.state.processing}>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to log out?
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

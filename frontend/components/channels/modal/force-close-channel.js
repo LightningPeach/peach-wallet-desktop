@@ -53,7 +53,7 @@ class ForceCloseChannel extends Component {
         const title = currentChannel.name || currentChannel.remote_pubkey;
         return (
             <Modal title="Force Close Channel" onClose={this.closeModal}>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Cooperative close of <strong title={title}>{title}</strong> is failed. You can close channel
@@ -61,7 +61,7 @@ class ForceCloseChannel extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

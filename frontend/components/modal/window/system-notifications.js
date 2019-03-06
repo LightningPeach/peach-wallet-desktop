@@ -65,7 +65,7 @@ class SystemNotifications extends Component {
     render() {
         return (
             <Modal title="System Notifications" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body modal-body-bottom30 text-left text-16">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             Would you like to enable system notifications?<br />
@@ -83,7 +83,7 @@ class SystemNotifications extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

@@ -30,14 +30,14 @@ class ActiveRecurringWarning extends Component {
     render() {
         return (
             <Modal title="Attention!" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body text-center text-16">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             Recurring payment must be paused before making any changes.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button

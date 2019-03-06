@@ -208,12 +208,12 @@ class EditStream extends Component {
         const filledFrequency = this.state.frequency;
         const filledAmount = this.state.amount;
         return (
-            <Modal styleSet="wide" title="Edit recurring payment" onClose={this.closeModal} showCloseButton>
+            <Modal theme="wide" title="Edit recurring payment" onClose={this.closeModal} showCloseButton>
                 <form
                     className="send send--no-pt form"
                     onSubmit={this.updateStream}
                 >
-                    <div className="modal-body">
+                    <div className="modal__body">
                         <div className="row mt-m14">
                             <div className="col-xs-12 col-md-6">
                                 <div className="row mt-14">
@@ -472,7 +472,7 @@ class EditStream extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal__footer">
                         <div className="row">
                             <div className="col-xs-12 text-right">
                                 <button

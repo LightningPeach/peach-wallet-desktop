@@ -92,7 +92,7 @@ class NewContact extends Component {
         return (
             <Modal title="Add new contact" onClose={this.closeModal}>
                 <form onSubmit={this.addContact}>
-                    <div className="modal-body">
+                    <div className="modal__body">
                         <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
@@ -144,7 +144,7 @@ class NewContact extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal__footer">
                         <div className="row">
                             <div className="col-xs-12 text-right">
                                 <button

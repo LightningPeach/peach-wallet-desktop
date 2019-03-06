@@ -36,15 +36,15 @@ class Law extends Component {
     render() {
         const { terms } = this.props;
         return (
-            <Modal styleSet="legal">
-                <div className="modal-body">
+            <Modal theme="legal">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             <Legal fromProfile />
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         {terms === accountTypes.TERMS_MODE.PENDING &&
                             <div className="col-xs-12">

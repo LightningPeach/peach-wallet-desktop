@@ -165,7 +165,7 @@ class CreateChannel extends Component {
         return (
             <Modal title="Create channel" onClose={this.closeModal} titleTooltip={this.state.tooltips.createChannel}>
                 <form onSubmit={this.addChannel}>
-                    <div className="modal-body">
+                    <div className="modal__body">
                         <div className="row">
                             <div className="col-xs-12">
                                 <Checkbox
@@ -246,7 +246,7 @@ class CreateChannel extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal__footer">
                         <div className="row">
                             <div className="col-xs-12 channels__create-actions">
                                 <span className="placeholder_text font-12">

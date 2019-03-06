@@ -102,7 +102,7 @@ class EditContact extends Component {
         return (
             <Modal title="Edit contact" onClose={this.closeModal} showCloseButton>
                 <form onSubmit={this.updateContact}>
-                    <div className="modal-body">
+                    <div className="modal__body">
                         <div className="row">
                             <div className="col-xs-12">
                                 <div className="form-label">
@@ -147,7 +147,7 @@ class EditContact extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className="modal-footer">
+                    <div className="modal__footer">
                         <div className="row">
                             <div className="col-xs-12 text-right">
                                 <button
