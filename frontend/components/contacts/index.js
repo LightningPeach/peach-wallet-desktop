@@ -18,9 +18,7 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import { appOperations, appTypes } from "modules/app";
 import { filterTypes, filterOperations } from "modules/filter";
-import DeleteContact from "./modal/delete-contact";
-import NewContact from "./modal/new-contact";
-import EditContact from "./modal/edit-contact";
+import { DeleteContact, NewContact, EditContact } from "./modal";
 
 class ContactsPage extends Component {
     constructor(props) {
