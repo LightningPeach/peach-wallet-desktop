@@ -601,7 +601,7 @@ class Profile extends Component {
         return (
             <Fragment>
                 <SubHeader />
-                <div className="profile">
+                <div className="page page--top-none profile">
                     <div className="container">
                         {this.renderProfile()}
                         {this.renderPaymentRequest()}

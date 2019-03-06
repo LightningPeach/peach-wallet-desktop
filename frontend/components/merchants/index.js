@@ -42,14 +42,16 @@ class MerchantsPage extends Component {
     };
 
     renderEmptyList = () => (
-        <div className="empty-placeholder">
-            <span className="placeholder_text">Here all merchants will be displayed</span>
+        <div className="page__placeholder page__placeholder--book">
+            <span className="page__placeholder-text">
+                Here all merchants will be displayed
+            </span>
         </div>
     );
 
     renderMerchants = () => (
         <div className="container">
-            <div className="merchants__header">Merchants list</div>
+            <div className="block__header">Merchants list</div>
             <RecordsList
                 data={this.getMerchantsData()}
                 source={filterTypes.FILTER_MERCHANTS}
@@ -77,7 +79,7 @@ class MerchantsPage extends Component {
         return (
             <Fragment>
                 <SubHeader />
-                <div className="merchants">
+                <div className="page merchants">
                     {!merchants.length ? this.renderEmptyList() : this.renderMerchants()}
                 </div>
                 <ReactCSSTransitionGroup

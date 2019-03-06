@@ -114,7 +114,7 @@ class Lightning extends Component {
         return (
             <Fragment>
                 <SubHeader />
-                <div className="lightning lightning-page">
+                <div className="page lightning">
                     <div className="container">
                         <div className="tabs">
                             <div className="tabs__row">

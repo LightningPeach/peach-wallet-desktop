@@ -130,13 +130,13 @@ class ContactsPage extends Component {
     renderEmptyList = (isStandard = false) => {
         const { dispatch } = this.props;
         return (
-            <div className="empty-placeholder">
+            <div className="page__placeholder page__placeholder--book">
                 {isStandard
                     ? (
                         <Fragment>
                             <div className="row">
                                 <div className="col-xs-12">
-                                    <span className="placeholder_text">
+                                    <span className="page__placeholder-text">
                                         Contact list is available only in the&nbsp;
                                         <button
                                             className="link"
@@ -149,7 +149,7 @@ class ContactsPage extends Component {
                             </div>
                         </Fragment>
                     )
-                    : <span className="placeholder_text">Here all your contacts will be displayed</span>
+                    : <span className="page__placeholder-text">Here all your contacts will be displayed</span>
                 }
             </div>
         );
@@ -198,7 +198,7 @@ class ContactsPage extends Component {
         return (
             <Fragment>
                 <SubHeader button={headerBtn} />
-                <div className="contacts-page">
+                <div className="page contacts">
                     {!contacts.length || walletMode !== accountTypes.WALLET_MODE.EXTENDED
                         ? this.renderEmptyList(walletMode === accountTypes.WALLET_MODE.STANDARD)
                         : this.renderContacts()}

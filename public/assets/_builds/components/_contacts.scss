@@ -1,28 +1,4 @@
-.contacts-page {
-    .empty-placeholder {
-        position: relative;
-        padding-top: 120px;
-        text-align: center;
-        margin-top: 100px;
-
-        &:before {
-            content: "";
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 82px;
-            height: 90px;
-            background: url(../images/address-book.svg) no-repeat center top;
-            background-size: contain;
-        }
-    }
-
-    .container {
-        margin-top: 30px;
-    }
-
+.contacts {
     .search {
         width: 336px;
         max-width: 100%;

@@ -259,7 +259,7 @@ class Onchain extends Component {
         return (
             <Fragment>
                 <SubHeader />
-                <div className="onchain">
+                <div className="page onchain">
                     <div className="container">
                         {this.renderOnchain()}
                         <OnchainHistory />

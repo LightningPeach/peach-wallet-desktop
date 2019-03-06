@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, logger } from "additional";
@@ -12,10 +12,7 @@ import { appTypes } from "modules/app";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
 import { ChannelsFullPath } from "routes";
-import CreateChannel from "./modal/create-channel";
-import EditChannel from "./modal/edit-channel";
-import CloseChannel from "./modal/close-channel";
-import StreamWarning from "./modal/stream-warning";
+import { CreateChannel, EditChannel, CloseChannel, StreamWarning } from "./modal";
 import ChannelsList from "./ui/channels-list";
 
 class ChannelsPage extends Component {
@@ -64,28 +61,28 @@ class ChannelsPage extends Component {
                 modal = null;
                 break;
         }
-        return [
-            <SubHeader
-                key="subHeader"
-                button={
-                    <Button
-                        class="button__solid overlay__item"
-                        onClick={this.createChannel}
-                        text={this.props.creatingNewChannel ? "Channel creating" : "Create Channel"}
-                        disabled={this.props.creatingNewChannel}
-                    />
-                }
-            />,
-            <ChannelsList key="channelList" />,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key="channelsModals"
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+        return (
+            <Fragment>
+                <SubHeader
+                    button={
+                        <Button
+                            class="button__solid overlay__item"
+                            onClick={this.createChannel}
+                            text={this.props.creatingNewChannel ? "Channel creating" : "Create Channel"}
+                            disabled={this.props.creatingNewChannel}
+                        />
+                    }
+                />
+                <ChannelsList />
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
