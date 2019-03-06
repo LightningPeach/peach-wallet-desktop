@@ -16,6 +16,11 @@
         width: 740px;
     }
 
+    &-qr-password {
+        width: 300px;
+        padding: 40px 30px 0 40px;
+    }
+
     &-payment_result {
         width: 334px;
         padding: 50px;
@@ -136,7 +141,8 @@
     }
 
     .qr-connect {
-        width: 300px;
+        width: 320px;
+        height: 320px;
     }
 }
 

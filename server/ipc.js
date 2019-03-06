@@ -392,10 +392,10 @@ registerIpc("clearLndData", async () => {
 
 registerIpc("rebuildLndCerts", async (event, arg) => {
     logger.debug("Inside rebuildLndCerts");
-    // const stopResp = await lnd.stop();
-    // logger.debug("Inside rebuildLndCerts stop resp", stopResp);
+    const stopResp = await lnd.stop();
+    logger.debug("Inside rebuildLndCerts stop resp", stopResp);
     const response = await lnd.rebuildCerts(arg.username);
-    logger.debg("Rebuilded cert");
+    logger.debug("Rebuilded cert");
     if (response.ok) {
         return {
             ok: true,
@@ -420,7 +420,7 @@ registerIpc("generateRemoteAccessString", async (event, arg) => {
 
         return {
             ok: true,
-            remoteAccessString: `https://${lndIP}:${settings.get.lnd.restlisten}\n${macaroons}\n${cert}`,
+            remoteAccessString: `https://${lndIP}\n${macaroons}\n${cert}`,
         };
     } catch (err) {
         logger.error("ipc generateRemoteAccessString", err);

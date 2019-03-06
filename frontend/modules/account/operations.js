@@ -241,6 +241,7 @@ function finishIntervalStatusChecks() {
 
 function logout(keepModalState = false, redirect = true) {
     return async (dispatch, getState) => {
+        console.log("Logouting");
         if (getState().account.isLogouting) {
             return unsuccessPromise(logout);
         }
@@ -266,6 +267,7 @@ function logout(keepModalState = false, redirect = true) {
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
         dispatch(actions.logoutAcount(keepModalState));
+        console.log("Will redirect", redirect);
         if (redirect) {
             hashHistory.push("/");
         }

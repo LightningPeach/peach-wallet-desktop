@@ -348,7 +348,7 @@ class Lnd extends Exec {
      * Options for lnd starting
      * @return {*[]}
      */
-    getOptions() {
+    async getOptions() {
         const options = [
             "--lnddir", path.join(settings.get.lndPath, this.name),
             "--configfile", path.join(settings.get.lndPath, this.name, LND_CONF_FILE),
@@ -358,6 +358,7 @@ class Lnd extends Exec {
             "--logdir", path.join(settings.get.lndPath, this.name, "log"),
             "--debuglevel", getLogLevel(),
             "--tlsextraip", "0.0.0.0",
+            "--tlsextraip", (await settings.get.getLndIP(this.name)).split(":")[0],
             "--bitcoin.node", settings.get.bitcoin.node,
             "--listen", `0.0.0.0:${this._peerPort}`,
             // "--nat",
@@ -532,13 +533,13 @@ class Lnd extends Exec {
         if (!injectPreload.ok) {
             logger.error("Preload injection failed:", injectPreload);
         }
-        logger.info("Will start lnd with params: \n", this.getOptions().join(" "));
+        logger.info("Will start lnd with params: \n", (await this.getOptions()).join(" "));
         ipcSend("setLndInitStatus", "Lnd prepare to start");
         try {
             // trying to remove old tls.cert / tls.key
             // await this._clearCerts();
             // Start Lnd
-            const lnd = spawn(settings.get.binariesLndPath, this.getOptions(), { detached: true });
+            const lnd = spawn(settings.get.binariesLndPath, await this.getOptions(), { detached: true });
             lnd.stdout.on("data", (data) => {
                 console.log(`LND stdout: ${data}`);
             });

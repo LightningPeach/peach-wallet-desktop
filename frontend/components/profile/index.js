@@ -19,6 +19,7 @@ import DigitsField from "components/ui/digits-field";
 import ConfirmLogout from "./modal/logout";
 import Legal from "./modal/law";
 import ConnectRemoteQR from "./modal/connect-remote-qr";
+import PasswordRemoteQR from "./modal/password-remote-qr";
 
 class Profile extends Component {
     constructor(props) {
@@ -510,6 +511,9 @@ class Profile extends Component {
                 break;
             case appTypes.MODAL_STATE_CONNECT_REMOTE_QR:
                 modal = <ConnectRemoteQR />;
+                break;
+            case appTypes.MODAL_STATE_PASSWORD_REMOTE_QR:
+                modal = <PasswordRemoteQR />;
                 break;
             default:
                 modal = null;

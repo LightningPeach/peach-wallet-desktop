@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { appOperations } from "modules/app";
+import { analytics } from "additional";
 import { accountOperations } from "modules/account";
 import { helpers, logger } from "additional";
 import { authOperations } from "modules/auth";
@@ -19,57 +20,21 @@ class ConnectRemoteQR extends Component {
     }
 
     componentWillMount = async () => {
-        console.log("Will mount");
         const response = await this.props.dispatch(accountOperations.getRemoteAccressString());
-        console.log("Got remote access string: ", response);
         if (response.ok) {
-            const qr = await QRCode.toDataURL(response.response.remoteAccessString);
-            console.log("Got remote access string: ", response.response.remoteAccessString);
+            const qrRemoteAccessString = await QRCode.toDataURL(response.response.remoteAccessString);
             this.setState({
-                qrRemoteAccessString: qr,
+                qrRemoteAccessString,
             });
         }
     };
 
-    _validatePassword = (restorePass) => {
-        const { password } = this.props;
-
-        // ToDo: remove console.log
-        console.log("Hashed password:", password);
-        console.log("Password:", restorePass);
-        if (!password) {
-            logger.error("User password not found in store");
-            return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
-        }
-        if (!restorePass) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
-        } else if (helpers.hash(restorePass) !== password) {
-            return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
-        }
-        return null;
-    };
-
-    generateNewQR = async (e) => {
-        e.preventDefault();
-        const { dispatch, login } = this.props;
-        const password = this.password.value.trim();
-        const passwordError = this._validatePassword(password);
-        console.log("Password error:", passwordError);
-        if (passwordError) {
-            return;
-        }
-        const logout = await dispatch(accountOperations.logout(false, false));
-        await dispatch(accountOperations.rebuildCertificate());
-        console.log("Will dispatch login with pass and login", password, login);
-
-        function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
-
-        await sleep(10 * 1000);
-        await window.ipcClient("loadLndPath", { login });
-        const init = await dispatch(authOperations.login(login, password));
-        dispatch(accountOperations.initAccount());
+    generateNewQR = async () => {
+        analytics.event({
+            action: "Generate new QR",
+            category: "Profile",
+        });
+        this.props.dispatch(appOperations.openPasswordRemoteQRModal());
     };
 
     closeModal = () => {
