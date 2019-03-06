@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { appOperations } from "modules/app";
-import { analytics } from "additional";
 import { accountOperations } from "modules/account";
-import { helpers, logger } from "additional";
+import { helpers, logger, analytics } from "additional";
 import { authOperations } from "modules/auth";
 import Modal from "components/modal";
 import QRCode from "qrcode";
@@ -50,36 +49,6 @@ class ConnectRemoteQR extends Component {
                         <div className="col-xs-12">
                             <img className="qr-connect" src={this.state.qrRemoteAccessString} alt="QR" />
                         </div>
-                    </div>
-                </div>
-                <form onSubmit={this.handleLogin}>
-                    <div className="row mt-14">
-                        <div className="col-xs-12">
-                            <div className="form-label">
-                                <label htmlFor="password">
-                                    Password
-                                </label>
-                            </div>
-                        </div>
-                        <div className="col-xs-12">
-                            <input
-                                id="password"
-                                className={`form-text form-text--icon_eye ${this.state.passwordError ?
-                                    "form-text__error" :
-                                    ""}`}
-                                name="password"
-                                type="password"
-                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                                ref={(ref) => {
-                                    this.password = ref;
-                                }}
-                                onChange={() => { this.setState({ passwordError: null }) }}
-                            />
-                        </div>
-                    </div>
-                </form>
-                <div className="modal-footer">
-                    <div className="row">
                         <div className="col-xs-12 text-left">
                             <button
                                 type="button"
@@ -107,13 +76,6 @@ class ConnectRemoteQR extends Component {
 
 ConnectRemoteQR.propTypes = {
     dispatch: PropTypes.func.isRequired,
-    login: PropTypes.string.isRequired,
-    password: PropTypes.string,
 };
 
-const mapStateToProps = state => ({
-    login: state.account.login,
-    password: state.auth.password,
-});
-
-export default connect(mapStateToProps)(ConnectRemoteQR);
+export default connect(null)(ConnectRemoteQR);
