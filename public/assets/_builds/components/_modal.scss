@@ -91,6 +91,29 @@
 
         &-error {
             width: 368px;
+
+            .modal {
+                &__icon {
+                    background: url(../images/failed.svg) no-repeat center top;
+                    background-size: 68px 68px;
+                    height: 68px;
+                }
+            }
+
+            .helper {
+                &__header {
+                    color: $yellow;
+                }
+
+                &__list {
+                    list-style-type: disc;
+                    -webkit-padding-start: 16px;
+
+                    li {
+                        margin-top: 4px;
+                    }
+                }
+            }
         }
     }
 
@@ -110,13 +133,6 @@
 
     &--wallet-mode {
         width: 780px;
-    }
-
-    &--error {
-
-        .modal-header {
-            color: $red;
-        }
     }
 }
 
@@ -144,68 +160,6 @@
             transform: scale(.3);
             opacity: 0;
             transition: transform .2s ease-in-out, opacity .2s ease-in-out;
-        }
-    }
-}
-
-.payment_result {
-    &--success {
-
-    }
-
-    &__icon {
-    }
-
-    &__title {
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        line-height: 0.75;
-        color: $yellow;
-        padding-top: 20px;
-        padding-bottom: 30px;
-    }
-
-    &__btn-row {
-        padding-top: 25px;
-        text-align: center;
-    }
-
-    &__info {
-        line-height: 1;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        font-size: 14px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        &:first-letter {
-            text-transform: uppercase;
-        }
-
-        &:first-child {
-            padding-top: 0;
-        }
-
-        &--error {
-            max-height: 62px;
-            text-overflow: ellipsis;
-        }
-
-        &--helper {
-            margin-top: 20px;
-            line-height: 1.2;
-
-            .helper {
-                &__header {
-                    color: $yellow;
-                }
-
-                &__list {
-                    margin-top: 5px;
-                    -webkit-padding-start: 20px;
-                }
-            }
         }
     }
 }

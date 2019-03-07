@@ -36,11 +36,15 @@ class SuccessPayment extends Component {
                         <div className="col-xs-12">
                             Your payment was sent
                         </div>
-                        {name &&
-                            <div className="col-xs-12">
-                                {name}
-                            </div>
-                        }
+                    </div>
+                    {name &&
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            {name}
+                        </div>
+                    </div>
+                    }
+                    <div className="block__row-xs">
                         <div className="col-xs-12">
                             <BtcToUsd amount={amount} />
                         </div>
