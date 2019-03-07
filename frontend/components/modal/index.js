@@ -56,7 +56,7 @@ class Modal extends Component {
         const {
             disabled, onClose, theme, children, showCloseButton,
         } = this.props;
-        const spinner = <div className="spinner" />;
+        const spinner = <div className="spinner modal__spinner" />;
         const themeFull = theme
             ? theme.split(" ").map(style => `modal--${style}`).join(" ")
             : "";

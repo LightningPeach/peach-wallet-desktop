@@ -159,14 +159,12 @@ class EditChannel extends Component {
                                     >
                                         Close channel
                                     </button>
-                                    <span className="button__spinner">
-                                        <button
-                                            type="submit"
-                                            className="button button__solid"
-                                        >
-                                            Edit
-                                        </button>
-                                    </span>
+                                    <button
+                                        type="submit"
+                                        className="button button__solid"
+                                    >
+                                        Edit
+                                    </button>
                                 </div>
                             </div>
                         </div>

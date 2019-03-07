@@ -411,10 +411,17 @@ class RegularPayment extends Component {
                 );
                 break;
             case appTypes.SUCCESS_SEND_PAYMENT:
-                modal = (<UnSuccessPayment
-                    error={this.props.paymentStatusDetails}
+                modal = (<SuccessPayment
+                    name={paymentDetails[0].name}
+                    amount={paymentDetails[0].amount}
                     category="Lightning"
-                    showRetryHelper
+                    onClose={() => {
+                        dispatch(lightningOperations.clearSinglePayment());
+                        this.setState(getInitialState());
+                        this.form.reset();
+                        this.amountComponent.reset();
+                        this.toField.reset();
+                    }}
                 />);
                 break;
             default:

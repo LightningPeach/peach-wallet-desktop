@@ -10,7 +10,8 @@
     height: 40px;
     display: inline-block;
 
-    & + & {
+    & + &,
+    & + .button__spinner {
         margin-left: 20px;
     }
 
@@ -117,7 +118,12 @@
     }
 
     &__spinner {
-        padding-right: 45px;
+        position: relative;
+
+        .button {
+            padding-right: 45px;
+            padding-left: 45px;
+        }
 
         .spinner {
             position: absolute;
