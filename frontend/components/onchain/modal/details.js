@@ -117,7 +117,7 @@ class OnChainDetails extends Component {
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}

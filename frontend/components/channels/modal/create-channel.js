@@ -254,7 +254,7 @@ class CreateChannel extends Component {
                                 </span>
                                 <div className="channels__create-buttons">
                                     <button
-                                        className="button button__link text-uppercase"
+                                        className="button button__link"
                                         type="button"
                                         onClick={this.closeModal}
                                         disabled={this.state.processing}

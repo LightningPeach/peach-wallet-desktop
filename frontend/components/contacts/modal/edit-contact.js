@@ -151,7 +151,7 @@ class EditContact extends Component {
                         <div className="row">
                             <div className="col-xs-12 text-right">
                                 <button
-                                    className="button button__link text-uppercase button__link--red"
+                                    className="button button__link button__link--red"
                                     type="button"
                                     onClick={this.openDeleteContact}
                                 >

@@ -58,7 +58,7 @@ class ConfirmLogout extends Component {
                         <div className="col-xs-12 text-right">
                             <button
                                 type="button"
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
                             >

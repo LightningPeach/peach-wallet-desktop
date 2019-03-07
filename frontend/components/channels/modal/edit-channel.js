@@ -153,7 +153,7 @@ class EditChannel extends Component {
                             <div className="col-xs-12 channels__create-actions">
                                 <div className="channels__create-buttons">
                                     <button
-                                        className="button button__link button__link--red text-uppercase"
+                                        className="button button__link button__link--red"
                                         type="button"
                                         onClick={this.openDeleteChannel}
                                     >
