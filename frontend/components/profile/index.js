@@ -331,11 +331,13 @@ class Profile extends Component {
                                     Generate request
                                 </button>
                             </div>
-                            <ErrorFieldTooltip
-                                text={this.state.payReqAmountError}
-                                class="text-left"
-                            />
                         </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <ErrorFieldTooltip
+                            text={this.state.payReqAmountError}
+                            class="text-left"
+                        />
                     </div>
                 </div>
                 <div className="profile__row">
