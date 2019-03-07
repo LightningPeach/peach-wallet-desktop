@@ -31,7 +31,6 @@ import {
     GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
 import { statusCodes } from "config";
-import { pauseAllStreams } from "../streamPayments/operations";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(actions.setDisconnectedKernelConnectIndicator());
@@ -127,14 +126,12 @@ function startLis() {
         }
         const response = await window.ipcClient("startLis");
         if (!response.ok) {
-            if (walletMode === types.WALLET_MODE.EXTENDED) {
-                dispatch(actions.setWalletMode(types.WALLET_MODE.STANDARD));
-                db.configBuilder()
-                    .update()
-                    .set({ walletMode: types.WALLET_MODE.STANDARD })
-                    .where("lightningId = :lightningID", { lightningID })
-                    .execute();
-            }
+            dispatch(actions.setWalletMode(types.WALLET_MODE.STANDARD));
+            db.configBuilder()
+                .update()
+                .set({ walletMode: types.WALLET_MODE.STANDARD })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
             return errorPromise(response.error, startLis);
         }
         return successPromise();

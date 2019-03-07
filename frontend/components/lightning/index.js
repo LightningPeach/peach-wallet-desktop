@@ -97,7 +97,6 @@ class Lightning extends Component {
                 break;
             default:
                 modal = null;
-                break;
         }
         let tabContent;
         switch (activeTab) {
