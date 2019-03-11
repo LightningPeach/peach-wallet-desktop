@@ -1,4 +1,4 @@
-import { statusCodes } from "config";
+import { exceptions, statuses } from "config";
 import { delay, successPromise, errorPromise, logger } from "additional";
 import { store } from "store/configure-store";
 import { LND_SYNC_TIMEOUT } from "config/consts";
@@ -29,10 +29,10 @@ function waitLndSync(restoreConnection = false) {
                         title: "Synchronization is lost",
                     }));
                 }
-                dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
+                dispatch(actions.setLndInitStatus(statuses.LND_SYNCING));
                 await delay(LND_SYNC_TIMEOUT); // eslint-disable-line
             } else if (!restoreConnection || tickNumber > 1) {
-                dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_FULLY_SYNCED));
+                dispatch(actions.setLndInitStatus(statuses.LND_FULLY_SYNCED));
             }
         }
         if (tickNumber > 1 && restoreConnection) {

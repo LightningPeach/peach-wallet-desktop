@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { helpers } from "additional";
 import moment from "moment";
 
@@ -18,7 +18,7 @@ describe("Helpers Unit Tests", () => {
             expect(valid).to.equal(moment(time).format(format));
         });
         it("should return error if wrong date passed", () => {
-            expect(() => helpers.formatDate(34, null, false)).to.throw(statusCodes.EXCEPTION_DATE_INSTANCE);
+            expect(() => helpers.formatDate(34, null, false)).to.throw(exceptions.DATE_INSTANCE);
         });
     });
 

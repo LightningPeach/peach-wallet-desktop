@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { LIGHTNING_ID_LENGTH, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 import {
     contactsActions as actions,
@@ -56,11 +56,11 @@ class NewContact extends Component {
                 const nameEqual = contact.name.toUpperCase() === name.toUpperCase();
                 const lightningIdEqual = contact.lightningID.toUpperCase() === lightningID.toUpperCase();
                 if (nameEqual && lightningIdEqual) {
-                    lightningIDError = statusCodes.EXCEPTION_CONTACT_CREATE_USER_ID_EXISTS;
+                    lightningIDError = exceptions.CONTACT_CREATE_USER_ID_EXISTS;
                 } else if (nameEqual) {
-                    nameError = statusCodes.EXCEPTION_CONTACT_CREATE_USER_EXISTS;
+                    nameError = exceptions.CONTACT_CREATE_USER_EXISTS;
                 } else if (lightningIdEqual) {
-                    lightningIDError = statusCodes.EXCEPTION_CONTACT_CREATE_ID_EXISTS;
+                    lightningIDError = exceptions.CONTACT_CREATE_ID_EXISTS;
                 }
             });
         }

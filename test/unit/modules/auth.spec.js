@@ -1,7 +1,7 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { authActions as actions, authTypes as types, authOperations as operations } from "modules/auth";
 import authReducer, { initStateAuth } from "modules/auth/reducers";
 import { accountTypes, accountOperations } from "modules/account";
@@ -618,7 +618,7 @@ describe("Auth Unit Tests", () => {
                     .returns({ ok: false, error: data.error });
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_USERNAME_PASSWORD_WRONG,
+                    error: exceptions.USERNAME_PASSWORD_WRONG,
                     f: "login",
                 };
                 expectedActions = [

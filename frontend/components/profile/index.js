@@ -6,7 +6,7 @@ import SubHeader from "components/subheader";
 import { accountOperations, accountTypes } from "modules/account";
 import { appOperations, appTypes, appActions } from "modules/app";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { ALL_MEASURES, MODAL_ANIMATION_TIMEOUT, MAX_PAYMENT_REQUEST } from "config/consts";
 import Tooltip from "rc-tooltip";
 import { lightningOperations } from "modules/lightning";
@@ -65,17 +65,17 @@ class Profile extends Component {
         const { bitcoinMeasureType, dispatch } = this.props;
         const amount = parseFloat(value);
         if (!amount) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(amount)) {
-            return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
+            return exceptions.FIELD_DIGITS_ONLY;
         }
         const amountInStoshi = dispatch(appOperations.convertToSatoshi(amount));
         if (amountInStoshi === 0) {
-            return statusCodes.EXCEPTION_AMOUNT_EQUAL_ZERO;
+            return exceptions.AMOUNT_EQUAL_ZERO;
         } else if (amountInStoshi < 0) {
-            return statusCodes.EXCEPTION_AMOUNT_NEGATIVE;
+            return exceptions.AMOUNT_NEGATIVE;
         } else if (amountInStoshi > MAX_PAYMENT_REQUEST) {
-            return statusCodes.EXCEPTION_AMOUNT_MORE_MAX(
+            return exceptions.AMOUNT_MORE_MAX(
                 dispatch(appOperations.convertSatoshiToCurrentMeasure(MAX_PAYMENT_REQUEST)),
                 bitcoinMeasureType,
             );

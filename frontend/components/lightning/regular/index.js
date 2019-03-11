@@ -7,7 +7,7 @@ import { accountOperations, accountTypes } from "modules/account";
 import { lightningOperations, lightningActions, lightningTypes } from "modules/lightning";
 import SuccessPayment from "components/common/success-payment";
 import UnSuccessPayment from "components/common/unsuccess-payment";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     PAYMENT_REQUEST_LENGTH,
     LIGHTNING_ID_LENGTH,
@@ -116,11 +116,11 @@ class RegularPayment extends Component {
     _validateTo = (value) => {
         const { lisStatus } = this.props;
         if (!value) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (value.length !== LIGHTNING_ID_LENGTH) {
-            return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT;
+            return exceptions.LIGHTNING_ID_WRONG_LENGTH_NO_CONTACT;
         } else if (lisStatus === accountTypes.LIS_DOWN) {
-            return statusCodes.EXCEPTION_LIS_DOWN_DURING_TX;
+            return exceptions.LIS_DOWN_DURING_TX;
         }
         return null;
     };
@@ -135,7 +135,7 @@ class RegularPayment extends Component {
         if (!this.state.isPayReq) {
             this.setState({
                 processing: false,
-                toError: statusCodes.EXCEPTION_INCORRECT_PAYMENT_REQUEST,
+                toError: exceptions.INCORRECT_PAYMENT_REQUEST,
             });
             return;
         }
@@ -152,7 +152,7 @@ class RegularPayment extends Component {
         let amountError = dispatch(accountOperations.checkAmount(amount));
         amount = dispatch(appOperations.convertToSatoshi(amount));
         if (amount < this.state.payReqDecoded.num_satoshis) {
-            amountError = statusCodes.EXEPTION_REDUCE_PAY_REQ_AMOUNT;
+            amountError = exceptions.EXEPTION_REDUCE_PAY_REQ_AMOUNT;
         }
         const comment = name;
         const paymentReq = this.state.toValue;
@@ -196,7 +196,7 @@ class RegularPayment extends Component {
         if (walletMode !== accountTypes.WALLET_MODE.EXTENDED) {
             this.setState({
                 processing: false,
-                toError: statusCodes.EXCEPTION_PAY_LIGHTNING_ID_IN_STANDARD,
+                toError: exceptions.PAY_LIGHTNING_ID_IN_STANDARD,
             });
             return;
         }

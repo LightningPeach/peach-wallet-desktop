@@ -11,7 +11,7 @@ import { errorPromise, successPromise } from "additional";
 import serverReducer, { initStateServer } from "modules/server/reducers";
 import { notificationsTypes } from "modules/notifications";
 import { PEACH_API_HOST } from "config/node-settings";
-import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
+import { exceptions } from "config";
 import { accountTypes } from "modules/account";
 import { store as defaultStore } from "store/configure-store";
 
@@ -24,7 +24,7 @@ describe("Server Unit Tests", () => {
         let expectedData;
 
         beforeEach(() => {
-            data = EXCEPTION_SERVER_UNAVAILABLE;
+            data = exceptions.SERVER_UNAVAILABLE;
             expectedData = {
                 payload: data,
                 type: undefined,
@@ -101,14 +101,14 @@ describe("Server Unit Tests", () => {
                         type: types.MERCHANTS_REQUEST,
                     },
                     {
-                        payload: EXCEPTION_SERVER_UNAVAILABLE,
+                        payload: exceptions.SERVER_UNAVAILABLE,
                         type: types.MERCHANTS_FAIL,
                     },
                     {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            message: exceptions.SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
@@ -127,14 +127,14 @@ describe("Server Unit Tests", () => {
                         type: types.MERCHANTS_REQUEST,
                     },
                     {
-                        payload: EXCEPTION_SERVER_UNAVAILABLE,
+                        payload: exceptions.SERVER_UNAVAILABLE,
                         type: types.MERCHANTS_FAIL,
                     },
                     {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            message: exceptions.SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
@@ -198,7 +198,7 @@ describe("Server Unit Tests", () => {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            message: exceptions.SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,

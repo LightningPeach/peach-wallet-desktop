@@ -1,7 +1,7 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
-import { statusCodes } from "config";
+import { exceptions, statuses } from "config";
 import { lndActions as actions, lndTypes as types, lndOperations as operations } from "modules/lnd";
 import lndReducer, { initStateLnd } from "modules/lnd/reducers";
 import { accountTypes } from "modules/account";
@@ -236,7 +236,7 @@ describe("Lnd Unit Tests", () => {
                         type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
-                        payload: statusCodes.STATUS_LND_SYNCING,
+                        payload: statuses.LND_SYNCING,
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {
@@ -244,7 +244,7 @@ describe("Lnd Unit Tests", () => {
                         type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
-                        payload: statusCodes.STATUS_LND_FULLY_SYNCED,
+                        payload: statuses.LND_FULLY_SYNCED,
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {
@@ -357,7 +357,7 @@ describe("Lnd Unit Tests", () => {
                         type: types.LND_SYNCED,
                     },
                     {
-                        payload: statusCodes.STATUS_LND_SYNCING,
+                        payload: statuses.LND_SYNCING,
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {
@@ -365,7 +365,7 @@ describe("Lnd Unit Tests", () => {
                         type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
-                        payload: statusCodes.STATUS_LND_FULLY_SYNCED,
+                        payload: statuses.LND_FULLY_SYNCED,
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {

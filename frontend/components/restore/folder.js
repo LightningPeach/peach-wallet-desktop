@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { error } from "modules/notifications";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 
 import File from "components/ui/file";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
@@ -45,7 +45,7 @@ class Folder extends Component {
         const lnPath = paths.join(window.pathSep);
         const lndPathError = await validators.validateLndPath(lnPath) || await this._validateUsername(username);
         const password = this.password.value.trim();
-        const passwordError = !password ? statusCodes.EXCEPTION_FIELD_IS_REQUIRED : null;
+        const passwordError = !password ? exceptions.FIELD_IS_REQUIRED : null;
 
         if (passwordError || lndPathError) {
             this.setState({ lndPathError, passwordError, processing: false });
@@ -66,7 +66,7 @@ class Folder extends Component {
     _validateUsername = async (username) => {
         const response = await validators.validateUserExistence(username);
         if (response) {
-            return statusCodes.EXCEPTION_FOLDER_USERNAME_EXISTS;
+            return exceptions.FOLDER_USERNAME_EXISTS;
         }
         return null;
     };

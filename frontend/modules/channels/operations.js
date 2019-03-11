@@ -1,7 +1,7 @@
 import keyBy from "lodash/keyBy";
 import has from "lodash/has";
 import isEqual from "lodash/isEqual";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
@@ -288,7 +288,7 @@ function connectPeer(lightningID, peerAddress) {
 function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
-            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareNewChannel);
+            return errorPromise(exceptions.ACCOUNT_NO_KERNEL, prepareNewChannel);
         }
         const newChannel = {
             capacity,
@@ -305,7 +305,7 @@ function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
 function setCurrentChannel(id) {
     return async (dispatch, getState) => {
         if (!getState().channels.channels[id]) {
-            return errorPromise(statusCodes.EXCEPTION_CHANNEL_ABSENT, setCurrentChannel);
+            return errorPromise(exceptions.CHANNEL_ABSENT, setCurrentChannel);
         }
         dispatch(actions.setCurrentChannel(getState().channels.channels[id]));
         return successPromise();
@@ -364,7 +364,7 @@ function closeChannel(channel, force = false) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         dispatch(actions.removeFromDelete(channel.channel_point));
         return successPromise();
@@ -445,7 +445,7 @@ function createNewChannel() {
             creatingChannelPoint = null;
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         const expectedBitcoinBalance = getState().account.bitcoinBalance - newChannelDetails.capacity;
         dispatch(actions.successCreateNewChannel(expectedBitcoinBalance));

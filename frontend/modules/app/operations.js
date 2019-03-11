@@ -1,7 +1,7 @@
 import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     USD_PER_BTC_URL,
     LIGHTNING_ID_LENGTH,
@@ -128,13 +128,13 @@ function convertUsdToCurrentMeasure(amount) {
 
 const validateLightning = lightningId => (dispatch, getState) => {
     if (!lightningId) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (lightningId.length !== LIGHTNING_ID_LENGTH) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+        return exceptions.LIGHTNING_ID_WRONG_LENGTH;
     } else if (lightningId === getState().account.lightningID) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF;
+        return exceptions.LIGHTNING_ID_WRONG_SELF;
     } else if (!ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+        return exceptions.LIGHTNING_ID_WRONG;
     }
     return null;
 };

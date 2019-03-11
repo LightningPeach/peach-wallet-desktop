@@ -8,7 +8,7 @@ import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
 import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { PEACH } from "config/node-settings";
 import { ChannelsFullPath, MerchantsFullPath } from "routes";
 import Modal from "components/modal";
@@ -77,19 +77,19 @@ class CreateChannel extends Component {
             bitcoinMeasureType, bitcoinBalance, dispatch, toCurMeasure,
         } = this.props;
         if (!amount) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(amount)) {
-            return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
+            return exceptions.FIELD_DIGITS_ONLY;
         }
         const amountInStoshi = dispatch(appOperations.convertToSatoshi(amount));
         if (amountInStoshi < MIN_CHANNEL_SIZE) {
             const channelSize = toCurMeasure(MIN_CHANNEL_SIZE);
-            return statusCodes.EXCEPTION_AMOUNT_LESS_MIN_CHANNEL(channelSize, bitcoinMeasureType);
+            return exceptions.AMOUNT_LESS_MIN_CHANNEL(channelSize, bitcoinMeasureType);
         } else if (amountInStoshi > bitcoinBalance) {
-            return statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
+            return exceptions.AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
         } else if (amountInStoshi > MAX_CHANNEL_SIZE) {
             const channelSize = `${toCurMeasure(MAX_CHANNEL_SIZE)} ${bitcoinMeasureType}`;
-            return statusCodes.EXCEPTION_AMOUNT_MORE_MAX_CHANNEL(channelSize);
+            return exceptions.AMOUNT_MORE_MAX_CHANNEL(channelSize);
         }
         return null;
     };
@@ -108,7 +108,7 @@ class CreateChannel extends Component {
         if (channels) {
             channels.forEach((channel) => {
                 if (name === channel.name) {
-                    nameError = statusCodes.EXCEPTION_CHANNEL_CREATE_CHANNEL_EXISTS;
+                    nameError = exceptions.CHANNEL_CREATE_CHANNEL_EXISTS;
                 }
             });
         }

@@ -1,4 +1,4 @@
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 import { errorPromise, successPromise, logger, helpers } from "additional";
 import { accountActions, accountOperations } from "modules/account";
@@ -112,7 +112,7 @@ function login(username, password) {
         response = await window.ipcClient("unlockLnd", params);
         logger.log(response);
         if (!response.ok) {
-            const error = statusCodes.EXCEPTION_USERNAME_PASSWORD_WRONG;
+            const error = exceptions.USERNAME_PASSWORD_WRONG;
             dispatch(accountActions.finishInitAccount());
             return errorPromise(error, login);
         }

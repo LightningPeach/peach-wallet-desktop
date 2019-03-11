@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
 import "../../utils";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { onChainActions as actions, onChainTypes as types, onChainOperations as operations } from "modules/onchain";
 import onChainReducer, { initStateOnchain } from "modules/onchain/reducers";
 import { accountTypes, accountOperations } from "modules/account";
@@ -370,7 +370,7 @@ describe("OnChain Unit Tests", () => {
                 store = mockStore(initState);
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_SEND_COINS_DETAILS_REQUIRED,
+                    error: exceptions.SEND_COINS_DETAILS_REQUIRED,
                     f: "sendCoins",
                 };
                 expect(await store.dispatch(operations.sendCoins())).to.deep.equal(expectedData);

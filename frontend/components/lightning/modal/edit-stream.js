@@ -15,7 +15,7 @@ import { error, info } from "modules/notifications";
 import { LightningFullPath } from "routes";
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,
@@ -93,9 +93,9 @@ class EditStream extends Component {
 
     _validateFrequency = (frequency, measuredMax, measure) => {
         if (!frequency) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (frequency > MAX_INTERVAL_FREUENCY) {
-            return statusCodes.EXCEPTION_RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
+            return exceptions.RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
         }
         return null;
     };
@@ -109,13 +109,13 @@ class EditStream extends Component {
         if (time === STREAM_INFINITE_TIME_VALUE) {
             return null;
         } else if (!time) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(time)) {
-            return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
+            return exceptions.FIELD_DIGITS_ONLY;
         } else if (time <= 0) {
-            return statusCodes.EXCEPTION_TIME_NEGATIVE;
+            return exceptions.TIME_NEGATIVE;
         } else if (currentStream.status !== types.STREAM_PAYMENT_FINISHED && currentParts >= time) {
-            return statusCodes.EXCEPTION_RECURRING_LESS_PAID_PARTS(currentParts);
+            return exceptions.RECURRING_LESS_PAID_PARTS(currentParts);
         }
         return null;
     };

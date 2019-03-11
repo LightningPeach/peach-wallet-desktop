@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import crypto from "crypto";
 import { TIME_RANGE_MEASURE, STREAM_MEMO_PREFIX, RECURRING_MEMO_PREFIX } from "config/consts";
 import moment from "moment";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 
 /**
  * @param {Date} date - date
@@ -12,7 +12,7 @@ import { statusCodes } from "config";
 const formatDate = (date, format) => {
     const formattedDate = format || "DD.MM.YY hh:mm:ss A";
     if (!(date instanceof Date)) {
-        throw new Error(statusCodes.EXCEPTION_DATE_INSTANCE);
+        throw new Error(exceptions.DATE_INSTANCE);
     }
     return moment(date).format(formattedDate);
 };

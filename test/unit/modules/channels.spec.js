@@ -2,7 +2,7 @@ import configureStore from "redux-mock-store";
 import omit from "lodash/omit";
 import thunk from "redux-thunk";
 
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     channelsActions as actions,
     channelsTypes as types,
@@ -914,7 +914,7 @@ describe("Channels Unit Tests", () => {
                 expectedData = {
                     ...errorResp,
                     f: "prepareNewChannel",
-                    error: statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL,
+                    error: exceptions.ACCOUNT_NO_KERNEL,
                 };
                 expect(await store.dispatch(operations.prepareNewChannel(
                     data.channelLightningID,
@@ -986,7 +986,7 @@ describe("Channels Unit Tests", () => {
                 expectedData = {
                     ...errorResp,
                     f: "setCurrentChannel",
-                    error: statusCodes.EXCEPTION_CHANNEL_ABSENT,
+                    error: exceptions.CHANNEL_ABSENT,
                 };
                 expect(await store.dispatch(operations.setCurrentChannel(1))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);

@@ -7,7 +7,7 @@ import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
 import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { PEACH } from "config/node-settings";
 import { ChannelsFullPath } from "routes";
 import Modal from "components/modal";
@@ -57,7 +57,7 @@ class EditChannel extends Component {
         if (channels) {
             channels.forEach((channel) => {
                 if (name === channel.name) {
-                    nameError = statusCodes.EXCEPTION_CHANNEL_EDIT_CHANNEL_EXISTS;
+                    nameError = exceptions.CHANNEL_EDIT_CHANNEL_EXISTS;
                 }
             });
         }

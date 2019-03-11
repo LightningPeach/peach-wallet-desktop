@@ -1,7 +1,7 @@
 import omit from "lodash/omit";
 
 import "../../utils";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     streamPaymentActions as actions,
     streamPaymentTypes as types,
@@ -373,7 +373,7 @@ describe("Stream Payment Unit Tests", () => {
                 store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL,
+                    error: exceptions.ACCOUNT_NO_KERNEL,
                     f: "prepareStreamPayment",
                 };
                 expect(await store.dispatch(operations.prepareStreamPayment(
@@ -499,7 +499,7 @@ describe("Stream Payment Unit Tests", () => {
                 store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL,
+                    error: exceptions.ACCOUNT_NO_KERNEL,
                     f: "updateStreamPayment",
                 };
                 expect(await store.dispatch(operations.updateStreamPayment(
@@ -524,7 +524,7 @@ describe("Stream Payment Unit Tests", () => {
                 store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE,
+                    error: exceptions.RECURRING_NOT_IN_STORE,
                     f: "updateStreamPayment",
                 };
                 expect(await store.dispatch(operations.updateStreamPayment(
@@ -919,7 +919,7 @@ describe("Stream Payment Unit Tests", () => {
             it("no stream details", async () => {
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_RECURRING_DETAILS_REQUIRED,
+                    error: exceptions.RECURRING_DETAILS_REQUIRED,
                     f: "addStreamPaymentToList",
                 };
                 expect(await store.dispatch(operations.addStreamPaymentToList())).to.deep.equal(expectedData);

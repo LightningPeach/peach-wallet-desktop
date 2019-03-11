@@ -12,7 +12,7 @@ import Select from "react-select";
 import { lightningOperations } from "modules/lightning";
 import BtcToUsd from "components/common/btc-to-usd";
 import { appOperations } from "modules/app";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     LIGHTNING_ID_LENGTH,
     MODAL_ANIMATION_TIMEOUT,
@@ -140,9 +140,9 @@ class RecurringPayment extends Component {
 
     _validateFrequency = (frequency, measuredMax, measure) => {
         if (!frequency) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (frequency > MAX_INTERVAL_FREUENCY) {
-            return statusCodes.EXCEPTION_RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
+            return exceptions.RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
         }
         return null;
     };
@@ -151,11 +151,11 @@ class RecurringPayment extends Component {
         if (time === STREAM_INFINITE_TIME_VALUE) {
             return null;
         } else if (!time) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(time)) {
-            return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
+            return exceptions.FIELD_DIGITS_ONLY;
         } else if (time <= 0) {
-            return statusCodes.EXCEPTION_TIME_NEGATIVE;
+            return exceptions.TIME_NEGATIVE;
         }
         return null;
     };

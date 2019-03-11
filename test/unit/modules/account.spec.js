@@ -2,7 +2,7 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
 import "../../utils";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     accountActions as actions,
     accountTypes as types,
@@ -1547,7 +1547,7 @@ describe("Account Unit Tests", () => {
                         type: types.START_VALIDATING_LIGHTNING_ID,
                     },
                     {
-                        payload: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF,
+                        payload: exceptions.LIGHTNING_ID_WRONG_SELF,
                         type: types.INCORRECT_LIGHTNING_ID,
                     },
                     {
@@ -1568,7 +1568,7 @@ describe("Account Unit Tests", () => {
                         type: types.START_VALIDATING_LIGHTNING_ID,
                     },
                     {
-                        payload: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH,
+                        payload: exceptions.LIGHTNING_ID_WRONG_LENGTH,
                         type: types.INCORRECT_LIGHTNING_ID,
                     },
                     {
@@ -1616,22 +1616,22 @@ describe("Account Unit Tests", () => {
 
             it("should check if amount present", () => {
                 const resp = store.dispatch(operations.checkAmount());
-                expect(resp).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+                expect(resp).to.equal(exceptions.FIELD_IS_REQUIRED);
             });
 
             it("should check if amount is number", () => {
                 const resp = store.dispatch(operations.checkAmount("test"));
-                expect(resp).to.equal(statusCodes.EXCEPTION_FIELD_DIGITS_ONLY);
+                expect(resp).to.equal(exceptions.FIELD_DIGITS_ONLY);
             });
 
             it("should check if amount negative", () => {
                 const resp = store.dispatch(operations.checkAmount(-1));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_NEGATIVE);
+                expect(resp).to.equal(exceptions.AMOUNT_NEGATIVE);
             });
 
             it("should check if amount equals zero", () => {
                 const resp = store.dispatch(operations.checkAmount(0));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_EQUAL_ZERO());
+                expect(resp).to.equal(exceptions.AMOUNT_EQUAL_ZERO());
             });
 
             it("should check lightning balance without errors", () => {
@@ -1641,7 +1641,7 @@ describe("Account Unit Tests", () => {
 
             it("should check lightning balance with insufficient funds error", () => {
                 const resp = store.dispatch(operations.checkAmount(1e6));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS);
+                expect(resp).to.equal(exceptions.AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS);
             });
 
             it("should check lightning balance with max payment error", () => {
@@ -1659,7 +1659,7 @@ describe("Account Unit Tests", () => {
                 store = mockStore(initState);
                 const resp = store.dispatch(operations.checkAmount(50));
                 expect(resp)
-                    .to.equal(statusCodes.EXCEPTION_AMOUNT_MORE_MAX((MAX_PAYMENT_REQUEST * 1e-5).toFixed(5)));
+                    .to.equal(exceptions.AMOUNT_MORE_MAX((MAX_PAYMENT_REQUEST * 1e-5).toFixed(5)));
             });
 
             it("should check bitcoin balance without errors", () => {
@@ -1669,12 +1669,12 @@ describe("Account Unit Tests", () => {
 
             it("should check bitcoin balance with insufficient funds error", () => {
                 const resp = store.dispatch(operations.checkAmount(2, "bitcoin"));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
+                expect(resp).to.equal(exceptions.AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
             });
 
             it("should check bitcoin balance with low payment error", () => {
                 const resp = store.dispatch(operations.checkAmount(1e-4, "bitcoin"));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_LESS_THAN_FEE(0.11468));
+                expect(resp).to.equal(exceptions.AMOUNT_LESS_THAN_FEE(0.11468));
             });
         });
 

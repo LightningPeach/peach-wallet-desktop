@@ -3,7 +3,7 @@ import thunk from "redux-thunk";
 import nock from "nock";
 import omit from "lodash/omit";
 
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { USD_PER_BTC_HOST, USD_PER_BTC_QUERY, MBTC_MEASURE } from "config/consts";
 import { appActions as actions, appTypes as types, appOperations as operations } from "modules/app";
 import appReducer, { initStateApp } from "modules/app/reducers";
@@ -450,18 +450,18 @@ describe("App Unit Tests", () => {
             });
 
             it("error with undefined lightning id", async () => {
-                expectedData = statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+                expectedData = exceptions.FIELD_IS_REQUIRED;
                 expect(await store.dispatch(operations.validateLightning())).to.deep.equal(expectedData);
             });
 
             it("error with personal lightning id", async () => {
-                expectedData = statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF;
+                expectedData = exceptions.LIGHTNING_ID_WRONG_SELF;
                 expect(await store.dispatch(operations.validateLightning(data.lightningId)))
                     .to.deep.equal(expectedData);
             });
 
             it("error with incorrect lightning id", async () => {
-                expectedData = statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+                expectedData = exceptions.LIGHTNING_ID_WRONG_LENGTH;
                 expect(await store.dispatch(operations.validateLightning(data.lightningId[0])))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -469,7 +469,7 @@ describe("App Unit Tests", () => {
 
             it("error with incorrect symbol", async () => {
                 data.lightningId = "x@xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-                expectedData = statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+                expectedData = exceptions.LIGHTNING_ID_WRONG;
                 expect(await store.dispatch(operations.validateLightning(data.lightningId)))
                     .to.deep.equal(expectedData);
             });

@@ -8,7 +8,7 @@ import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { USERNAME_MAX_LENGTH } from "config/consts";
 
 const spinner = <span className="spinner" />;
@@ -62,7 +62,7 @@ class Login extends Component {
         const username = this.username.value.trim();
         const password = this.password.value.trim();
         const usernameError = validators.validateName(username, true, false, false);
-        const passwordError = !password ? statusCodes.EXCEPTION_FIELD_IS_REQUIRED : null;
+        const passwordError = !password ? exceptions.FIELD_IS_REQUIRED : null;
 
         if (usernameError || passwordError) {
             this.setState({ passwordError, processing: false, usernameError });

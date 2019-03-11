@@ -30,7 +30,7 @@ import {
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
     GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 
 window.ipcRenderer.on("lnd-down", () => {
     store.dispatch(actions.setDisconnectedKernelConnectIndicator());
@@ -546,12 +546,12 @@ function checkLightningID(lightningID) {
             return unsuccessPromise(checkLightningID);
         }
         if (lightningID === getState().account.lightningID) {
-            dispatch(actions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF }));
+            dispatch(actions.incorrectLightningID({ error: exceptions.LIGHTNING_ID_WRONG_SELF }));
             dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
         if (lightningID.length !== getState().account.lightningID.length) {
-            dispatch(actions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH }));
+            dispatch(actions.incorrectLightningID({ error: exceptions.LIGHTNING_ID_WRONG_LENGTH }));
             dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
@@ -577,34 +577,34 @@ function checkAmount(amount, type = "lightning") {
         const validateBitcoin = (am) => {
             if (am <= fee) {
                 const currentFee = dispatch(appOperations.convertSatoshiToCurrentMeasure(fee));
-                return statusCodes.EXCEPTION_AMOUNT_LESS_THAN_FEE(currentFee, bitcoinMeasureType);
+                return exceptions.AMOUNT_LESS_THAN_FEE(currentFee, bitcoinMeasureType);
             } else if (am > bitcoinBalance) {
-                return statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
+                return exceptions.AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
             }
             return null;
         };
 
         if (!amount && amount !== 0) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(amount)) {
-            return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
+            return exceptions.FIELD_DIGITS_ONLY;
         }
 
         const satoshiAmount = dispatch(appOperations.convertToSatoshi(amount));
         if (!satoshiAmount) {
-            return statusCodes.EXCEPTION_AMOUNT_EQUAL_ZERO(bitcoinMeasureType);
+            return exceptions.AMOUNT_EQUAL_ZERO(bitcoinMeasureType);
         } else if (satoshiAmount < 0) {
-            return statusCodes.EXCEPTION_AMOUNT_NEGATIVE;
+            return exceptions.AMOUNT_NEGATIVE;
         }
         if (type === "bitcoin") {
             return validateBitcoin(satoshiAmount);
         }
 
         if (satoshiAmount > lightningBalance) {
-            return statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
+            return exceptions.AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
         } else if (satoshiAmount > MAX_PAYMENT_REQUEST) {
             const capacity = dispatch(appOperations.convertSatoshiToCurrentMeasure(MAX_PAYMENT_REQUEST));
-            return statusCodes.EXCEPTION_AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
+            return exceptions.AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
         }
         return null;
     };

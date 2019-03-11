@@ -1,5 +1,5 @@
 import { DB } from "config/node-settings";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { errorPromise, successPromise } from "./index";
 
 const {
@@ -34,7 +34,7 @@ async function dbClose() {
 
 function getBuilder(repository, alias) {
     if (tempClose) {
-        throw new Error(`${alias}: ${statusCodes.EXCEPTION_DB_NOT_OPENED}`);
+        throw new Error(`${alias}: ${exceptions.DB_NOT_OPENED}`);
     }
     return connection.get()
         .createQueryBuilder(repository, alias);

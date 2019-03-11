@@ -8,7 +8,7 @@ import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
 
 const spinner = <div className="spinner" />;
@@ -27,12 +27,12 @@ class RestoreSession extends Component {
         const { password } = this.props;
         if (!password) {
             logger.error("User password not found in store");
-            return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
+            return exceptions.PASSWORD_MISMATCH;
         }
         if (!restorePass) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (helpers.hash(restorePass) !== password) {
-            return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
+            return exceptions.PASSWORD_MISMATCH;
         }
         return null;
     };

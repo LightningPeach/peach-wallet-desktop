@@ -11,7 +11,7 @@ import { error, info } from "modules/notifications";
 import { AddressBookFullPath } from "routes";
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 
 class EditContact extends Component {
@@ -60,7 +60,7 @@ class EditContact extends Component {
         contacts.forEach((contact) => {
             const nameEqual = contact.name.toUpperCase() === name.toUpperCase();
             if (nameEqual) {
-                nameError = statusCodes.EXCEPTION_CONTACT_EDIT_USER_EXISTS;
+                nameError = exceptions.CONTACT_EDIT_USER_EXISTS;
             }
         });
 

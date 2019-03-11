@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import bitcoin from "bitcoinjs-lib";
 import { analytics, helpers, validators } from "additional";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import SubHeader from "components/subheader";
 import {
     MODAL_ANIMATION_TIMEOUT,
@@ -90,7 +90,7 @@ class Onchain extends Component {
 
     validateTo = (to) => {
         if (!to) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         }
         const network = this.getNetwork();
         return validators.validateBitcoinAddr(to, network);
