@@ -126,7 +126,7 @@ class RestoreSession extends Component {
                             onClick={this.handleLogout}
                             disabled={disabled}
                         >
-                            Logout
+                            Switch to another wallet
                         </button>
                     </div>
                 </form>

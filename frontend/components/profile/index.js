@@ -580,7 +580,7 @@ class Profile extends Component {
                                     dispatch(appOperations.openLogoutModal());
                                 }}
                             >
-                                Log out
+                                Switch to another wallet
                             </button>
                         </div>
                     </div>
