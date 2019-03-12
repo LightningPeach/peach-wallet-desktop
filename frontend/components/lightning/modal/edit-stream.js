@@ -34,7 +34,7 @@ class EditStream extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            amount: props.currentStream.price,
+            amount: props.dispatch(appOperations.convertSatoshiToCurrentMeasure(props.currentStream.price)),
             amountError: null,
             frequency: helpers.formatTimeRange(props.currentStream.delay, false).split(" ")[0],
             frequencyError: null,
@@ -201,7 +201,7 @@ class EditStream extends Component {
     };
 
     render() {
-        const { currentStream, bitcoinMeasureType } = this.props;
+        const { currentStream, bitcoinMeasureType, dispatch } = this.props;
         if (!currentStream) {
             return null;
         }
@@ -381,7 +381,7 @@ class EditStream extends Component {
                                                     placeholder={this.state.valueCurrency === "Satoshi"
                                                         ? "0"
                                                         : "0.0"}
-                                                    value={currentStream.price}
+                                                    value={dispatch(appOperations.convertSatoshiToCurrentMeasure(currentStream.price))} // eslint-disable-line
                                                     ref={(ref) => {
                                                         this.amountComponent = ref;
                                                     }}
