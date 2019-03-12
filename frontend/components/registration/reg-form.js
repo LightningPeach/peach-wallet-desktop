@@ -1,10 +1,9 @@
 import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
+
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import Checkbox from "components/ui/checkbox";
-import File from "components/ui/file";
+import { tooltips } from "config";
 import { error } from "modules/notifications";
 import { connect } from "react-redux";
 import {
@@ -13,6 +12,10 @@ import {
 } from "modules/auth";
 import { lndOperations, lndActions } from "modules/lnd";
 import { USERNAME_MAX_LENGTH } from "config/consts";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
+import Checkbox from "components/ui/checkbox";
+import File from "components/ui/file";
 
 const spinner = <div className="spinner" />;
 
@@ -26,22 +29,6 @@ class RegistrationForm extends PureComponent {
             lndPathError: null,
             passwordError: null,
             processing: false,
-            tooltips: {
-                defaultPath: [
-                    "Better to set wallet data path in dropbox",
-                    "or google drive folder.",
-                ],
-                password: [
-                    "The password must be at least 8 characters and contain",
-                    "minimum 1 uppercase letter [A-Z], 1 lower case letter [a-z]",
-                    "and 1 digit [0-9]. Also, you can use special characters",
-                    "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~",
-                ],
-                username: [
-                    "Username is a name of wallet (folder),",
-                    "it is stored locally on your PC.",
-                ],
-            },
             usernameError: null,
         };
     }
@@ -116,7 +103,7 @@ class RegistrationForm extends PureComponent {
                                 </label>
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.username)}
+                                    overlay={tooltips.WALLET_NAME}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -153,7 +140,7 @@ class RegistrationForm extends PureComponent {
                                 </label>
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.password)}
+                                    overlay={tooltips.PASSWORD}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -224,7 +211,7 @@ class RegistrationForm extends PureComponent {
                                 />
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.defaultPath)}
+                                    overlay={tooltips.DEFAULT_WALLET_PATH}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />

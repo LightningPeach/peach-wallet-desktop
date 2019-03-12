@@ -1,16 +1,16 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
-import Checkbox from "components/ui/checkbox";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
-import { exceptions } from "config";
-import { PEACH } from "config/node-settings";
+import { exceptions, tooltips, nodeSettings, consts } from "config";
 import { ChannelsFullPath, MerchantsFullPath } from "routes";
+
+import Checkbox from "components/ui/checkbox";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Modal from "components/modal";
 import DigitsField from "components/ui/digits-field";
 
@@ -25,15 +25,6 @@ class CreateChannel extends Component {
             lightningError: null,
             nameError: null,
             processing: false,
-            tooltips: {
-                createChannel: [
-                    "The payment channel allows users to make payments between",
-                    "each other without broadcasting such transactions to the",
-                    "Bitcoin blockchain. Creating a channel can take some time",
-                    "as opening transaction should be confirmed on the Bitcoin",
-                    "blockchain.",
-                ],
-            },
         };
 
         const basePath = this.props.page && this.props.page === "merchants" ? MerchantsFullPath : ChannelsFullPath;
@@ -82,13 +73,13 @@ class CreateChannel extends Component {
             return exceptions.FIELD_DIGITS_ONLY;
         }
         const amountInStoshi = dispatch(appOperations.convertToSatoshi(amount));
-        if (amountInStoshi < MIN_CHANNEL_SIZE) {
-            const channelSize = toCurMeasure(MIN_CHANNEL_SIZE);
+        if (amountInStoshi < consts.MIN_CHANNEL_SIZE) {
+            const channelSize = toCurMeasure(consts.MIN_CHANNEL_SIZE);
             return exceptions.AMOUNT_LESS_MIN_CHANNEL(channelSize, bitcoinMeasureType);
         } else if (amountInStoshi > bitcoinBalance) {
             return exceptions.AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
-        } else if (amountInStoshi > MAX_CHANNEL_SIZE) {
-            const channelSize = `${toCurMeasure(MAX_CHANNEL_SIZE)} ${bitcoinMeasureType}`;
+        } else if (amountInStoshi > consts.MAX_CHANNEL_SIZE) {
+            const channelSize = `${toCurMeasure(consts.MAX_CHANNEL_SIZE)} ${bitcoinMeasureType}`;
             return exceptions.AMOUNT_MORE_MAX_CHANNEL(channelSize);
         }
         return null;
@@ -118,7 +109,7 @@ class CreateChannel extends Component {
             });
             return;
         }
-        let lightningId = PEACH.pubKey;
+        let lightningId = nodeSettings.PEACH.pubKey;
         let peer = null;
         this.setState({ amountError, lightningError, nameError });
         if (this.state.custom) {
@@ -126,7 +117,7 @@ class CreateChannel extends Component {
             lightningId = tempLight;
             peer = tempPeer;
         } else {
-            peer = [PEACH.host, PEACH.peerPort].join(":");
+            peer = [nodeSettings.PEACH.host, nodeSettings.PEACH.peerPort].join(":");
         }
         amount = dispatch(appOperations.convertToSatoshi(amount));
         name = name || `CHANNEL ${firstEmptyChannelDefaultName}`;
@@ -163,7 +154,7 @@ class CreateChannel extends Component {
         }
         helpText += ".";
         return (
-            <Modal title="Create channel" onClose={this.closeModal} titleTooltip={this.state.tooltips.createChannel}>
+            <Modal title="Create channel" onClose={this.closeModal} titleTooltip={tooltips.CREATE_CHANNEL}>
                 <form onSubmit={this.addChannel}>
                     <div className="modal__body">
                         <div className="row">
@@ -190,8 +181,8 @@ class CreateChannel extends Component {
                                     }}
                                     defaultValue={prepareNewChannel ? prepareNewChannel.name : null}
                                     disabled={this.state.processing}
-                                    max={ELEMENT_NAME_MAX_LENGTH}
-                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                    max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                    maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
                                     onChange={() => { this.setState({ nameError: null }) }}
                                 />
                                 <ErrorFieldTooltip text={this.state.nameError} />

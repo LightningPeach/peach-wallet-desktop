@@ -2,28 +2,22 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
-import { analytics, helpers } from "additional";
+
+import { analytics } from "additional";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
+import { LightningFullPath } from "routes";
+import { tooltips } from "config";
+
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { LightningFullPath } from "routes";
 import Modal from "components/modal";
 import Ellipsis from "components/common/ellipsis";
 
 class StreamDetails extends Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            tooltips: {
-                fee: [
-                    "Fee is relevant only as of today.",
-                    "In future it may change.",
-                ],
-            },
-        };
         analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Details");
     }
 
@@ -90,7 +84,7 @@ class StreamDetails extends Component {
                                     Transaction fee
                                     <Tooltip
                                         placement="right"
-                                        overlay={helpers.formatMultilineText(this.state.tooltips.fee)}
+                                        overlay={tooltips.RECURRING_FEE}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />

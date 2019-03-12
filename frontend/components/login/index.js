@@ -2,14 +2,16 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
-import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { push } from "react-router-redux";
+
+import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import { WalletPath } from "routes";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { exceptions } from "config";
+import { exceptions, tooltips } from "config";
 import { USERNAME_MAX_LENGTH } from "config/consts";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 const spinner = <span className="spinner" />;
 
@@ -19,20 +21,6 @@ class Login extends Component {
         this.state = {
             passwordError: null,
             processing: false,
-            tooltips: {
-                recover_wallet: [
-                    "You can use wallet recovery procedure in 2 situations:",
-                    "1) If you want to use your existing Bitcoin wallet for Lightning payments,",
-                    "go through the wallet recovery procedure, during which specify seed words",
-                    "from your Bitcoin wallet.",
-                    <Fragment>2) If you have forgotten your Peach Wallet password. Enter <b>new</b></Fragment>,
-                    <Fragment>username, <b>new</b> password and use seed words associated with it.</Fragment>,
-                ],
-                username: [
-                    "Username is a name of wallet (folder),",
-                    "it is stored locally on your PC.",
-                ],
-            },
             usernameError: null,
         };
         analytics.pageview("/login", "Login");
@@ -133,7 +121,7 @@ class Login extends Component {
                                 </label>
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.username)}
+                                    overlay={tooltips.WALLET_NAME}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -215,7 +203,7 @@ class Login extends Component {
                             </button>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.recover_wallet)}
+                                overlay={tooltips.RECOVER_WALLET}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />

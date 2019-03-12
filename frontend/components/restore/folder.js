@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import { error } from "modules/notifications";
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { exceptions } from "config";
+import { exceptions, tooltips } from "config";
 
 import File from "components/ui/file";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
@@ -22,9 +22,6 @@ class Folder extends Component {
             lndPathError: null,
             passwordError: null,
             processing: false,
-            tooltips: {
-                walletPath: ["Full path (include username) to wallet data"],
-            },
         };
     }
 
@@ -88,7 +85,7 @@ class Folder extends Component {
                                     User folder
                                     <Tooltip
                                         placement="right"
-                                        overlay={helpers.formatMultilineText(this.state.tooltips.walletPath)}
+                                        overlay={tooltips.WALLET_PATH}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />

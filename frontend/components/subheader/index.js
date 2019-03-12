@@ -1,16 +1,13 @@
 import React, { PureComponent } from "react";
 import Tooltip from "rc-tooltip";
-import PropTypes from "prop-types";
-import { helpers } from "additional";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
+
+import { tooltips } from "config";
+
 import BtcToUsd from "components/common/btc-to-usd";
 
 class SubHeader extends PureComponent {
-    lockedBalance = [
-        "Your onchain balance which is not yet",
-        "confirmed on the Bitcoin blockchain.",
-    ];
-
     render() {
         const {
             button, bitcoinBalance, unConfirmedBitcoinBalance, lightningBalance,
@@ -37,7 +34,7 @@ class SubHeader extends PureComponent {
                             <div className="balance__row">
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.lockedBalance)}
+                                    overlay={tooltips.LOCKED_BALANCE}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />

@@ -1,12 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
+import { tooltips } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { onChainOperations as operations } from "modules/onchain";
+import { OnchainFullPath } from "routes";
+
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { OnchainFullPath } from "routes";
 import Modal from "components/modal";
 import Ellipsis from "components/common/ellipsis";
 
@@ -17,13 +20,6 @@ class OnChainDetails extends Component {
         super(props);
         this.state = {
             processing: false,
-            tooltips: {
-                processing: [
-                    "You need to wait for transaction processing.",
-                    "Your payment will be processed when it is",
-                    "confirmed on the Bitcoin blockchain",
-                ],
-            },
         };
 
         analytics.pageview(`${OnchainFullPath}/details`, "Payment details");
@@ -57,7 +53,7 @@ class OnChainDetails extends Component {
     render() {
         const { sendCoinsDetails } = this.props;
         return (
-            <Modal title="Check your data" onClose={this.closeModal} titleTooltip={this.state.tooltips.processing}>
+            <Modal title="Check your data" onClose={this.closeModal} titleTooltip={tooltips.TRANSACTION_PROCESSING}>
                 <div className="modal__body">
                     {sendCoinsDetails.name ?
                         <div className="row send-form__row">

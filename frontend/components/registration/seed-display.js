@@ -1,27 +1,15 @@
 import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
+
 import { analytics, helpers } from "additional";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
 import { accountActions } from "modules/account";
+import { tooltips } from "config";
 
 class SeedDisplay extends PureComponent {
-    constructor(props) {
-        super(props);
-        this.state = {
-            tooltips: {
-                seedWords: [
-                    "Seed words are random words that are used to regain access",
-                    "to the wallet when computer breaks or hard drive is corrupted.",
-                    "You should keep seed words safe and do not share with anyone.",
-                    "When someone knows your seed words, they can have access to",
-                    "your wallet and funds.",
-                ],
-            },
-        };
-    }
     submitSeedView = (e) => {
         e.preventDefault();
         const { dispatch } = this.props;
@@ -62,7 +50,7 @@ class SeedDisplay extends PureComponent {
                                 </label>
                                 <Tooltip
                                     placement="bottom"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.seedWords)}
+                                    overlay={tooltips.SEED_WORDS}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />

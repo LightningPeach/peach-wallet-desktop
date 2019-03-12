@@ -1,19 +1,20 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, helpers } from "additional";
-import SubHeader from "components/subheader";
-import { accountOperations, accountTypes } from "modules/account";
-import { appOperations, appTypes, appActions } from "modules/app";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { exceptions } from "config";
-import { ALL_MEASURES, MODAL_ANIMATION_TIMEOUT, MAX_PAYMENT_REQUEST } from "config/consts";
-import Tooltip from "rc-tooltip";
-import { lightningOperations } from "modules/lightning";
-import Footer from "components/footer";
 import Select from "react-select";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+import Tooltip from "rc-tooltip";
+
+import { analytics, helpers } from "additional";
+import { accountOperations, accountTypes } from "modules/account";
+import { appOperations, appTypes, appActions } from "modules/app";
+import { exceptions, consts, tooltips } from "config";
+import { lightningOperations } from "modules/lightning";
 import { ProfileFullPath } from "routes";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
+import Footer from "components/footer";
+import SubHeader from "components/subheader";
 import DigitsField from "components/ui/digits-field";
 import ConfirmLogout from "./modal/logout";
 import Legal from "./modal/law";
@@ -43,9 +44,9 @@ class Profile extends Component {
 
     componentWillMount() {
         let initMeasure;
-        for (let i = 0; i < ALL_MEASURES.length; i += 1) {
-            if (ALL_MEASURES[i].btc === this.props.bitcoinMeasureType) {
-                initMeasure = ALL_MEASURES[i].btc;
+        for (let i = 0; i < consts.ALL_MEASURES.length; i += 1) {
+            if (consts.ALL_MEASURES[i].btc === this.props.bitcoinMeasureType) {
+                initMeasure = consts.ALL_MEASURES[i].btc;
             }
         }
         this.setState({ measureValue: initMeasure });
@@ -74,9 +75,9 @@ class Profile extends Component {
             return exceptions.AMOUNT_EQUAL_ZERO;
         } else if (amountInStoshi < 0) {
             return exceptions.AMOUNT_NEGATIVE;
-        } else if (amountInStoshi > MAX_PAYMENT_REQUEST) {
+        } else if (amountInStoshi > consts.MAX_PAYMENT_REQUEST) {
             return exceptions.AMOUNT_MORE_MAX(
-                dispatch(appOperations.convertSatoshiToCurrentMeasure(MAX_PAYMENT_REQUEST)),
+                dispatch(appOperations.convertSatoshiToCurrentMeasure(consts.MAX_PAYMENT_REQUEST)),
                 bitcoinMeasureType,
             );
         }
@@ -180,7 +181,7 @@ class Profile extends Component {
                                 <span className="profile__value_utils">
                                     <Tooltip
                                         placement="bottom"
-                                        overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
+                                        overlay={tooltips.COPY_TO_CLIPBOARD}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />}
@@ -217,7 +218,7 @@ class Profile extends Component {
                                 <span className="profile__value_utils">
                                     <Tooltip
                                         placement="bottom"
-                                        overlay={helpers.formatMultilineText(this.state.tooltips.address)}
+                                        overlay={tooltips.GENERATE_BTC_ADDRESS}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />}
@@ -238,7 +239,7 @@ class Profile extends Component {
                                     </Tooltip>
                                     <Tooltip
                                         placement="bottom"
-                                        overlay={helpers.formatMultilineText(this.state.tooltips.copy)}
+                                        overlay={tooltips.COPY_TO_CLIPBOARD}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />
@@ -290,7 +291,7 @@ class Profile extends Component {
                             </label>
                             <Tooltip
                                 placement="right"
-                                overlay={helpers.formatMultilineText(this.state.tooltips.payReq)}
+                                overlay={tooltips.GENERATE_PAYMENT_REQUEST}
                                 trigger="hover"
                                 arrowContent={
                                     <div className="rc-tooltip-arrow-inner" />
@@ -444,7 +445,7 @@ class Profile extends Component {
                                     id="profile__currency"
                                     value={this.state.measureValue}
                                     searchable={false}
-                                    options={ALL_MEASURES.map(item => ({
+                                    options={consts.ALL_MEASURES.map(item => ({
                                         label: item.btc, toFixed: item.toFixed, value: item.btc,
                                     }))}
                                     onChange={(newOption) => {
@@ -613,8 +614,8 @@ class Profile extends Component {
                 <Footer />
                 <ReactCSSTransitionGroup
                     transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
                 >
                     {modal}
                 </ReactCSSTransitionGroup>
@@ -640,12 +641,12 @@ Profile.propTypes = {
     modalState: PropTypes.string.isRequired,
     paymentRequest: PropTypes.string,
     paymentRequestAmount: PropTypes.number,
+    systemNotifications: PropTypes.number.isRequired,
     walletMode: PropTypes.oneOf([
         accountTypes.WALLET_MODE.EXTENDED,
         accountTypes.WALLET_MODE.STANDARD,
         accountTypes.WALLET_MODE.PENDING,
     ]),
-    systemNotifications: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -658,8 +659,8 @@ const mapStateToProps = state => ({
     modalState: state.app.modalState,
     paymentRequest: state.lightning.paymentRequest,
     paymentRequestAmount: state.lightning.paymentRequestAmount,
-    walletMode: state.account.walletMode,
     systemNotifications: state.account.systemNotifications,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(Profile);

@@ -1,14 +1,16 @@
 import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
-import { analytics, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { error } from "modules/notifications";
-import { connect } from "react-redux";
-import { GuidePath } from "routes";
 import { push } from "react-router-redux";
+import { connect } from "react-redux";
+
+import { analytics, validators, helpers } from "additional";
+import { error } from "modules/notifications";
+import { GuidePath } from "routes";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { DEV_MODE } from "config/node-settings";
+import { nodeSettings, tooltips } from "config";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 const spinner = <div className="spinner" />;
 
@@ -18,12 +20,6 @@ class SeedVerify extends PureComponent {
         this.state = {
             processing: false,
             seedError: null,
-            tooltips: {
-                verifySeed: [
-                    "Seed words should be specified manually.",
-                    "You can't paste them from the clipboard.",
-                ],
-            },
         };
     }
 
@@ -68,13 +64,13 @@ class SeedVerify extends PureComponent {
     };
 
     handleSeedPaste = (e) => {
-        if (!DEV_MODE) {
+        if (!nodeSettings.DEV_MODE) {
             e.preventDefault();
         }
     };
 
     handleSeedContextMenu = (e) => {
-        if (!DEV_MODE) {
+        if (!nodeSettings.DEV_MODE) {
             e.preventDefault();
         }
     };
@@ -106,7 +102,7 @@ class SeedVerify extends PureComponent {
                                 </label>
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.verifySeed)}
+                                    overlay={tooltips.SEED_VERIFY}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />

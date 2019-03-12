@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
+import { tooltips } from "config";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Checkbox from "components/ui/checkbox";
@@ -23,16 +24,6 @@ class UserForm extends Component {
             lndPathError: null,
             passwordError: null,
             processing: false,
-            tooltips: {
-                defaultPath: [
-                    "Better to set wallet data path in dropbox",
-                    "or google drive folder.",
-                ],
-                username: [
-                    "Username is a name of wallet (folder),",
-                    "it is stored locally on your PC.",
-                ],
-            },
             usernameError: null,
         };
     }
@@ -85,11 +76,11 @@ class UserForm extends Component {
                         <div className="col-xs-12">
                             <div className="form-label">
                                 <label htmlFor="username">
-                                    Username
+                                    Wallet Name
                                 </label>
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.username)}
+                                    overlay={tooltips.WALLET_NAME}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
@@ -183,7 +174,7 @@ class UserForm extends Component {
                                 />
                                 <Tooltip
                                     placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.defaultPath)}
+                                    overlay={tooltips.DEFAULT_WALLET_PATH}
                                     trigger="hover"
                                     arrowContent={
                                         <div className="rc-tooltip-arrow-inner" />
