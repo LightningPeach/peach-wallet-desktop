@@ -434,7 +434,7 @@ class Profile extends Component {
                     <div className="col-xs-12">
                         <div className="form-label">
                             <label htmlFor="profile__currency">
-                                Bitcoin denomination
+                                Change unit
                             </label>
                         </div>
                     </div>
@@ -456,7 +456,7 @@ class Profile extends Component {
                                         });
                                         this.pay_req_component.reset();
                                         analytics.event({
-                                            action: "Bitcoin denomination",
+                                            action: "Change unit",
                                             category: "Profile",
                                             label: "Change",
                                             value: newOption.toFixed,
