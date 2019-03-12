@@ -53,7 +53,7 @@ class LightningDetails extends Component {
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                Name of payment
+                                Description
                             </div>
                             <div className="send-form__value">
                                 {!paymentDetails[0].name ? "-" : paymentDetails[0].name}

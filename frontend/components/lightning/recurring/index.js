@@ -282,7 +282,7 @@ class RecurringPayment extends Component {
                                 <div className="block__row">
                                     <div className="col-xs-12">
                                         <div className="form-label">
-                                            <label htmlFor="stream__name">Name of Payment</label>
+                                            <label htmlFor="stream__name">Description</label>
                                         </div>
                                     </div>
                                     <div className="col-xs-12">
@@ -290,7 +290,7 @@ class RecurringPayment extends Component {
                                             id="stream__name"
                                             className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                             name="stream__name"
-                                            placeholder="Enter name"
+                                            placeholder="Optional"
                                             ref={(ref) => {
                                                 this.name = ref;
                                             }}

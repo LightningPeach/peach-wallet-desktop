@@ -59,7 +59,7 @@ class OnChainDetails extends Component {
                         <div className="row send-form__row">
                             <div className="col-xs-12">
                                 <div className="send-form__label">
-                                    Name of payment
+                                    Description
                                 </div>
                                 <div className="send-form__value">
                                     {sendCoinsDetails.name}

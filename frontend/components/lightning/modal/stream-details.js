@@ -54,7 +54,7 @@ class StreamDetails extends Component {
                         <div className="col-xs-12">
                             <div className="send-form__label">
                                 <span className="send-form__label--text">
-                                    Name of payment
+                                    Description
                                 </span>
                             </div>
                             <div className="send-form__value">

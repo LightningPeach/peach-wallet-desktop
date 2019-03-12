@@ -34,7 +34,7 @@ const compare = (a, b, aPinned, bPinned, desc) => {
 class RecurringHistory extends Component {
     getHistoryHeader = () => ([
         {
-            Header: <span className="sortable">Name of payment</span>,
+            Header: <span className="sortable">Description</span>,
             accessor: "name",
             sortMethod: (a, b, desc) => compare(
                 a.props.children.toLowerCase(),

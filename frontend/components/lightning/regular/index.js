@@ -297,7 +297,7 @@ class RegularPayment extends Component {
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="regular__name">
-                                        Name of payment
+                                        Description
                                     </label>
                                 </div>
                             </div>
@@ -306,7 +306,7 @@ class RegularPayment extends Component {
                                     id="regular__name"
                                     className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                     name="regular__name"
-                                    placeholder="Enter name"
+                                    placeholder="Optional"
                                     ref={(el) => {
                                         this.regularName = el;
                                     }}

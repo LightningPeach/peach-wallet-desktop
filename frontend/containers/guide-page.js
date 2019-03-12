@@ -114,7 +114,7 @@ class GuidePage extends Component {
                         {background}
                         <div className="s-regular__column s-regular__column--5">
                             <div className="s-regular__row text-semibold">
-                                Name of payment
+                                Description
                             </div>
                             <div className="s-regular__row">
                                 Spanish Lessons
@@ -192,7 +192,7 @@ class GuidePage extends Component {
                         <h4 className="s-stream__tabname s-stream__tabname--active">RECURRING PAYMENT</h4>
                     </div>
                     <div className="s-stream__row">
-                        <div className="s-stream__label">Name of payment</div>
+                        <div className="s-stream__label">Description</div>
                         <div className="s-stream__input">
                             <span>Spanish Lessons</span>
                         </div>

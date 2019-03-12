@@ -219,7 +219,7 @@ class EditStream extends Component {
                                 <div className="row mt-14">
                                     <div className="col-xs-12">
                                         <div className="form-label">
-                                            <label htmlFor="stream__name">Name of Payment</label>
+                                            <label htmlFor="stream__name">Description</label>
                                         </div>
                                     </div>
                                     <div className="col-xs-12">
@@ -227,7 +227,7 @@ class EditStream extends Component {
                                             id="stream__name"
                                             className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                             name="stream__name"
-                                            placeholder="Enter name"
+                                            placeholder="Optional"
                                             defaultValue={currentStream.name}
                                             ref={(ref) => {
                                                 this.name = ref;

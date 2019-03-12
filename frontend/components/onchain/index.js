@@ -136,7 +136,7 @@ class Onchain extends Component {
                             <div className="row">
                                 <div className="col-xs-12">
                                     <div className="form-label">
-                                        <label htmlFor="send-coins__name">Name of payment</label>
+                                        <label htmlFor="send-coins__name">Description</label>
                                     </div>
                                 </div>
                                 <div className="col-xs-12">
@@ -144,7 +144,7 @@ class Onchain extends Component {
                                         id="send-coins__name"
                                         className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                         name="send-coins__name"
-                                        placeholder="Enter name"
+                                        placeholder="Optional"
                                         ref={(ref) => {
                                             this.name = ref;
                                         }}

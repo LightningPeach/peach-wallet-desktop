@@ -106,7 +106,7 @@ class NewContact extends Component {
                                     id="contact__name"
                                     className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
                                     name="contact__name"
-                                    placeholder="Enter name"
+                                    placeholder="Optional"
                                     ref={(input) => {
                                         this.contact__name = input;
                                     }}

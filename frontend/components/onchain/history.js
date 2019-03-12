@@ -14,7 +14,7 @@ const compare = (a, b) => !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
 class OnchainHistory extends Component {
     getHistoryHeader = () => [
         {
-            Header: <span className="sortable">Name of payment</span>,
+            Header: <span className="sortable">Description</span>,
             accessor: "name",
             className: "name",
             sortMethod: (a, b) => compare(
