@@ -26,7 +26,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         await utils.beforeTestPrepare(testParams);
         await app.start();
         const userDataPath = await app.electron.remote.app.getPath("userData");
-        testParams.userPath = path.join(userDataPath, ".lnd", config.username);
+        testParams.userPath = path.join(userDataPath, ".lnd", config.walletName);
         rimraf.sync(testParams.userPath);
     });
 
@@ -65,12 +65,12 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
     describe("Login form", () => {
         it("Change to registration window", async () => {
-            await app.client.setValue("#username", config.username);
+            await app.client.setValue("#wallet-name", config.walletName);
             await app.client.setValue("#password", config.password);
             await app.client.click("button=Sign in");
             await app.client.waitForVisible(".notification-message");
             const loginError = await app.client.getText(".notification-message");
-            assert.equal(loginError, "Incorrect username or password", "should show error for not exists user");
+            assert.equal(loginError, "Incorrect wallet name or password", "should show error for not exists user");
         });
     });
 
@@ -79,7 +79,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
         it("Step 1", async () => {
             await app.client.click("button=Sign up");
-            await app.client.setValue("#username", config.username);
+            await app.client.setValue("#wallet-name", config.walletName);
             await app.client.setValue("#password", config.password);
             await app.client.setValue("#conf_password", config.password);
             await app.client.click("button=Next");

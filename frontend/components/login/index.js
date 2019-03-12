@@ -9,7 +9,7 @@ import { WalletPath } from "routes";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { exceptions, tooltips } from "config";
-import { USERNAME_MAX_LENGTH } from "config/consts";
+import { WALLET_NAME_MAX_LENGTH } from "config/consts";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
@@ -21,7 +21,7 @@ class Login extends Component {
         this.state = {
             passwordError: null,
             processing: false,
-            usernameError: null,
+            walletNameError: null,
         };
         analytics.pageview("/login", "Login");
     }
@@ -47,19 +47,19 @@ class Login extends Component {
             this.setState({ processing: false });
             dispatch(error({ message: helpers.formatNotificationMessage(msg) }));
         };
-        const username = this.username.value.trim();
+        const walletName = this.walletName.value.trim();
         const password = this.password.value.trim();
-        const usernameError = validators.validateName(username, true, false, false);
+        const walletNameError = validators.validateName(walletName, true, false, false);
         const passwordError = !password ? exceptions.FIELD_IS_REQUIRED : null;
 
-        if (usernameError || passwordError) {
-            this.setState({ passwordError, processing: false, usernameError });
+        if (walletNameError || passwordError) {
+            this.setState({ passwordError, processing: false, walletNameError });
             return;
         }
-        this.setState({ passwordError, usernameError });
+        this.setState({ passwordError, walletNameError });
 
-        await window.ipcClient("loadLndPath", { username });
-        const init = await dispatch(operations.login(username, password));
+        await window.ipcClient("loadLndPath", { walletName });
+        const init = await dispatch(operations.login(walletName, password));
         this.setState({ processing: false });
         if (!init.ok) {
             handleError(init.error);
@@ -116,7 +116,7 @@ class Login extends Component {
                     <div className="block__row-lg">
                         <div className="col-xs-12">
                             <div className="form-label">
-                                <label htmlFor="username">
+                                <label htmlFor="wallet-name">
                                     Wallet Name
                                 </label>
                                 <Tooltip
@@ -135,18 +135,18 @@ class Login extends Component {
                         </div>
                         <div className="col-xs-12">
                             <input
-                                id="username"
-                                className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
-                                placeholder="Enter your username"
+                                id="wallet-name"
+                                className={`form-text ${this.state.walletNameError ? "form-text__error" : ""}`}
+                                placeholder="Enter your wallet name"
                                 ref={(ref) => {
-                                    this.username = ref;
+                                    this.walletName = ref;
                                 }}
                                 disabled={disabled}
-                                max={USERNAME_MAX_LENGTH}
-                                maxLength={USERNAME_MAX_LENGTH}
-                                onChange={() => { this.setState({ usernameError: null }) }}
+                                max={WALLET_NAME_MAX_LENGTH}
+                                maxLength={WALLET_NAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ walletNameError: null }) }}
                             />
-                            <ErrorFieldTooltip text={this.state.usernameError} />
+                            <ErrorFieldTooltip text={this.state.walletNameError} />
                         </div>
                     </div>
                     <div className="block__row">

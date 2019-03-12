@@ -11,7 +11,7 @@ import {
     authTypes as types,
 } from "modules/auth";
 import { lndOperations, lndActions } from "modules/lnd";
-import { USERNAME_MAX_LENGTH } from "config/consts";
+import { WALLET_NAME_MAX_LENGTH } from "config/consts";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Checkbox from "components/ui/checkbox";
@@ -29,7 +29,7 @@ class RegistrationForm extends PureComponent {
             lndPathError: null,
             passwordError: null,
             processing: false,
-            usernameError: null,
+            walletNameError: null,
         };
     }
 
@@ -46,28 +46,28 @@ class RegistrationForm extends PureComponent {
         this.setState({ processing: true });
         const { dispatch, onValid } = this.props;
         const { lndPath, defaultPath } = this.state;
-        const username = this.username.value.trim();
+        const walletName = this.walletName.value.trim();
         const password = this.password.value.trim();
         const confPassword = this.confPassword.value.trim();
-        const usernameError = await validators.validateUserExistence(username);
+        const walletNameError = await validators.validateUserExistence(walletName);
         const passwordError = validators.validatePass(password);
         const confPasswordError = validators.validatePassMismatch(password, confPassword);
         const lndPathError = defaultPath ? null : await validators.validateLndPath(lndPath);
 
-        if (usernameError || passwordError || confPasswordError || lndPathError) {
+        if (walletNameError || passwordError || confPasswordError || lndPathError) {
             this.setState({
                 confPasswordError,
                 lndPathError,
                 passwordError,
                 processing: false,
-                usernameError,
+                walletNameError,
             });
             return;
         }
 
         await window.ipcClient("setLndPath", { defaultPath, lndPath });
-        this.setState({ confPasswordError, passwordError, usernameError });
-        const response = await dispatch(operations.regStartLnd(username));
+        this.setState({ confPasswordError, passwordError, walletNameError });
+        const response = await dispatch(operations.regStartLnd(walletName));
         if (!response.ok) {
             this.setState({ processing: false });
             dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
@@ -80,7 +80,7 @@ class RegistrationForm extends PureComponent {
             return;
         }
         onValid({ password, seed: seed.response.seed });
-        dispatch(operations.setTempUsername(username));
+        dispatch(operations.setTempWalletName(walletName));
         dispatch(lndActions.setLndInitStatus(""));
         dispatch(operations.setAuthStep(types.REGISTRATION_STEP_TERMS));
     };
@@ -98,7 +98,7 @@ class RegistrationForm extends PureComponent {
                     <div className="block__row-lg">
                         <div className="col-xs-12">
                             <div className="form-label">
-                                <label htmlFor="username">
+                                <label htmlFor="wallet-name">
                                     Wallet Name
                                 </label>
                                 <Tooltip
@@ -117,19 +117,19 @@ class RegistrationForm extends PureComponent {
                         </div>
                         <div className="col-xs-12">
                             <input
-                                id="username"
+                                id="wallet-name"
                                 ref={(ref) => {
-                                    this.username = ref;
+                                    this.walletName = ref;
                                 }}
-                                className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
-                                placeholder="Enter your username"
-                                defaultValue={this.props.username}
+                                className={`form-text ${this.state.walletNameError ? "form-text__error" : ""}`}
+                                placeholder="Enter your wallet name"
+                                defaultValue={this.props.walletName}
                                 disabled={disabled}
-                                max={USERNAME_MAX_LENGTH}
-                                maxLength={USERNAME_MAX_LENGTH}
-                                onChange={() => { this.setState({ usernameError: null }) }}
+                                max={WALLET_NAME_MAX_LENGTH}
+                                maxLength={WALLET_NAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ walletNameError: null }) }}
                             />
-                            <ErrorFieldTooltip text={this.state.usernameError} />
+                            <ErrorFieldTooltip text={this.state.walletNameError} />
                         </div>
                     </div>
                     <div className="block__row">
@@ -269,11 +269,11 @@ class RegistrationForm extends PureComponent {
 RegistrationForm.propTypes = {
     dispatch: PropTypes.func.isRequired,
     onValid: PropTypes.func.isRequired,
-    username: PropTypes.string,
+    walletName: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
-    username: state.auth.tempUsername,
+    walletName: state.auth.tempWalletName,
 });
 
 export default connect(mapStateToProps)(RegistrationForm);

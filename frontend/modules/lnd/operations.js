@@ -65,12 +65,12 @@ function checkLndSync() {
     };
 }
 
-function startLnd(username, toCheckUser = true) {
+function startLnd(walletName, toCheckUser = true) {
     return async (dispatch) => {
         logger.log("Check user existance");
         let response;
         if (toCheckUser) {
-            response = await window.ipcClient("checkUser", { username });
+            response = await window.ipcClient("checkUser", { walletName });
             logger.log(response);
             if (!response.ok) {
                 dispatch(actions.setLndInitStatus(""));
@@ -79,7 +79,7 @@ function startLnd(username, toCheckUser = true) {
         }
         dispatch(actions.startInitLnd());
         logger.log("Lnd start resp");
-        response = await window.ipcClient("startLnd", { username });
+        response = await window.ipcClient("startLnd", { walletName });
         logger.log(response);
         if (!response.ok) {
             dispatch(actions.setLndInitStatus(""));

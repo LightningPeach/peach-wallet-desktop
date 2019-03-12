@@ -42,7 +42,7 @@ class SeedVerify extends PureComponent {
         analytics.event({ action: "Registration", category: "Auth", label: "Submit Enter Seed Words" });
         this.setState({ processing: true });
         const {
-            dispatch, username, password, seed,
+            dispatch, walletName, password, seed,
         } = this.props;
         const userSeed = this.seed.value.trim();
         const seedError = validators.validatePassSeed(userSeed, this.props.seed.join(" "));
@@ -52,7 +52,7 @@ class SeedVerify extends PureComponent {
             return;
         }
         this.setState({ seedError });
-        const response = await dispatch(operations.regFinish(username, password, seed));
+        const response = await dispatch(operations.regFinish(walletName, password, seed));
         if (this._isMounted) {
             this.setState({ processing: false });
         }
@@ -165,11 +165,11 @@ SeedVerify.propTypes = {
     dispatch: PropTypes.func.isRequired,
     password: PropTypes.string.isRequired,
     seed: PropTypes.arrayOf(PropTypes.string.isRequired).isRequired,
-    username: PropTypes.string.isRequired,
+    walletName: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
-    username: state.auth.tempUsername,
+    walletName: state.auth.tempWalletName,
 });
 
 export default connect(mapStateToProps)(SeedVerify);

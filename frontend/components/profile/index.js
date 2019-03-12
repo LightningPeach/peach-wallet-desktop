@@ -151,7 +151,7 @@ class Profile extends Component {
             <div className="profile__block">
                 <div className="row">
                     <div className="col-xs-12">
-                        <div className="profile__title profile__title--username">
+                        <div className="profile__title profile__title--wallet-name">
                             Your wallet
                         </div>
                     </div>

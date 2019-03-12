@@ -20,11 +20,11 @@ export const RECOVER_WALLET = helpers.formatMultilineText([
     "go through the wallet recovery procedure, during which specify seed words",
     "from your Bitcoin wallet.",
     <Fragment>2) If you have forgotten your Peach Wallet password. Enter <b>new</b></Fragment>,
-    <Fragment>username, <b>new</b> password and use seed words associated with it.</Fragment>,
+    <Fragment>wallet name, <b>new</b> password and use seed words associated with it.</Fragment>,
 ]);
 
 export const WALLET_NAME = helpers.formatMultilineText([
-    "Username is a name of wallet (folder),",
+    "Wallet name is a name of wallet (folder),",
     "it is stored locally on your PC.",
 ]);
 
@@ -47,7 +47,7 @@ export const DEFAULT_WALLET_PATH = helpers.formatMultilineText([
 ]);
 
 export const WALLET_PATH = helpers.formatMultilineText([
-    "Full path (include username) to wallet data",
+    "Full path (include wallet name) to wallet data",
 ]);
 
 export const PASSWORD = helpers.formatMultilineText([

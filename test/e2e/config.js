@@ -1,4 +1,4 @@
-const username = "testUsername";
+const walletName = "testWalletName";
 const password = "testPass1234";
 const randomSeed = "test test";
 const onchainAmount = 100000000;
@@ -18,7 +18,7 @@ const cmdUtilsTimeout = 1000;
 const cmdUtilsCallDelay = 5 * 1000;
 
 module.exports = {
-    username,
+    walletName,
     password,
     randomSeed,
     onchainAmount,

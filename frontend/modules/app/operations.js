@@ -139,9 +139,9 @@ const validateLightning = lightningId => (dispatch, getState) => {
     return null;
 };
 
-function openDb(username, password) {
+function openDb(walletName, password) {
     return async (dispatch) => {
-        const response = await db.dbStart(username, password);
+        const response = await db.dbStart(walletName, password);
         if (!response.ok) {
             dispatch(actions.dbSetStatus(types.DB_CLOSED));
             return errorPromise(response.error, openDb);

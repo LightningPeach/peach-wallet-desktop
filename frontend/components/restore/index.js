@@ -13,7 +13,7 @@ import WalletMode from "./wallet-mode";
 class Restore extends Component {
     constructor(props) {
         super(props);
-        this.username = null;
+        this.walletName = null;
         this.password = null;
         this.method = null;
 
@@ -23,9 +23,9 @@ class Restore extends Component {
         this.method = method;
     };
 
-    setUser = ({ username, password }) => {
+    setUser = ({ walletName, password }) => {
         const { dispatch } = this.props;
-        this.username = username;
+        this.walletName = walletName;
         this.password = password;
         dispatch(operations.setHashedPassword(password));
     };
@@ -40,14 +40,14 @@ class Restore extends Component {
             case types.RESTORE_STEP_SEED:
                 return (
                     <Seed
-                        username={this.username}
+                        walletName={this.walletName}
                         password={this.password}
                     />
                 );
             case types.RESTORE_STEP_USER_PASS:
                 return (
                     <UserForm
-                        username={this.username}
+                        walletName={this.walletName}
                         onValidUser={this.setUser}
                     />
                 );

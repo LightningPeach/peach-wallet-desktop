@@ -26,8 +26,8 @@ class GuidePage extends Component {
     }
 
     initAccount = async () => {
-        const { dispatch, username } = this.props;
-        const response = await dispatch(accountOperations.initAccount(username, true));
+        const { dispatch, walletName } = this.props;
+        const response = await dispatch(accountOperations.initAccount(walletName, true));
         if (!response.ok) {
             dispatch(appOperations.openForceLogoutModal());
             dispatch(appActions.setForceLogoutError(response.error));
@@ -363,14 +363,14 @@ GuidePage.propTypes = {
     lndBlocks: PropTypes.number.isRequired,
     modalState: PropTypes.string.isRequired,
     networkBlocks: PropTypes.number.isRequired,
-    username: PropTypes.string.isRequired,
+    walletName: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
     lndBlocks: state.lnd.lndBlocks,
     modalState: state.app.modalState,
     networkBlocks: state.server.networkBlocks,
-    username: state.auth.tempUsername,
+    walletName: state.auth.tempWalletName,
 });
 
 export default connect(mapStateToProps)(GuidePage);

@@ -23,7 +23,7 @@ class Seed extends Component {
     confirm = async (e) => {
         e.preventDefault();
         this.setState({ processing: true });
-        const { dispatch, password, username } = this.props;
+        const { dispatch, password, walletName } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Submit seed" });
         const seed = this.seed.value.trim().split(" ");
         const seedError = validators.validateSeed(seed);
@@ -31,7 +31,7 @@ class Seed extends Component {
             this.setState({ processing: false, seedError });
             return;
         }
-        const init = await dispatch(operations.restore(username, password, seed));
+        const init = await dispatch(operations.restore(walletName, password, seed));
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({
@@ -143,7 +143,7 @@ Seed.propTypes = {
     lndSyncedToChain: PropTypes.bool,
     networkBlocks: PropTypes.number.isRequired,
     password: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
+    walletName: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({

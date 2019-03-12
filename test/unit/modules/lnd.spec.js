@@ -422,7 +422,7 @@ describe("Lnd Unit Tests", () => {
                 expect(await store.dispatch(operations.startLnd(data.attr))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.attr });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.attr });
             });
 
             it("lnd initializing error", async () => {
@@ -453,8 +453,8 @@ describe("Lnd Unit Tests", () => {
                 expect(await store.dispatch(operations.startLnd(data))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data });
-                expect(window.ipcClient).to.be.calledWith("startLnd", { username: data });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data });
+                expect(window.ipcClient).to.be.calledWith("startLnd", { walletName: data });
             });
 
             it("success", async () => {
@@ -470,8 +470,8 @@ describe("Lnd Unit Tests", () => {
                 expect(await store.dispatch(operations.startLnd(data))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data });
-                expect(window.ipcClient).to.be.calledWith("startLnd", { username: data });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data });
+                expect(window.ipcClient).to.be.calledWith("startLnd", { walletName: data });
             });
         });
     });

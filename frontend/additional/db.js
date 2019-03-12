@@ -16,8 +16,8 @@ const connection = DB.Connection;
 // TODO implement over dispatch
 let tempClose = false;
 
-async function dbStart(username, dbPass) {
-    const dbPath = DB.databasePath(username);
+async function dbStart(walletName, dbPass) {
+    const dbPath = DB.databasePath(walletName);
     try {
         await connection.init({ dbPass, dbPath });
         tempClose = false;

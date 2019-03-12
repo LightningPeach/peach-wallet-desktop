@@ -1,5 +1,5 @@
 import {
-    USERNAME_MAX_LENGTH,
+    WALLET_NAME_MAX_LENGTH,
     MIN_PASS_LENGTH,
     DEFAULT_BITCOIN_MEASURE_TYPE,
     MIN_CHANNEL_SIZE,
@@ -27,12 +27,12 @@ export const FIELD_DIGITS_ONLY = "Only digits are allowed.";
 // Passed parameter should be instance of required type
 export const DATE_INSTANCE = "Date must be instance of Date.";
 
-// USERNAME PATTERNS
+// WALLET NAME PATTERNS
 // PD: Incorrect name length (more than max allowed)
-export const USERNAME_WRONG_MAX_LENGTH = (maxChars = USERNAME_MAX_LENGTH) =>
+export const WALLET_NAME_WRONG_MAX_LENGTH = (maxChars = WALLET_NAME_MAX_LENGTH) =>
     `Invalid length. Maximum allowed length is ${maxChars} characters.`;
 // PD: Incorrect name format
-export const USERNAME_WRONG_FORMAT = (withSpace = 1, withSeparators = 0) =>
+export const WALLET_NAME_WRONG_FORMAT = (withSpace = 1, withSeparators = 0) =>
     `Only letters${withSpace ? ", space" : ""}${withSeparators ? ", separators" : ""} and numbers are allowed.`;
 
 // PASSWORD PATTERNS
@@ -72,17 +72,17 @@ export const BITCOIN_ADDRESS_WRONG = "Incorrect bitcoin address.";
 export const LIGHTNING_HOST_WRONG_FORMAT = "Incorrect format. Correct is LightningID@host.";
 
 // VALIDATION
-// Incorrect username or password upon attempt
-export const USERNAME_PASSWORD_WRONG = "Incorrect username or password.";
+// Incorrect wallet name or password upon attempt
+export const WALLET_NAME_PASSWORD_WRONG = "Incorrect wallet name or password.";
 
 // Folder unavailable
 export const FOLDER_UNAVAILABLE = "Folder unavailable.";
 
 // User already exists
-export const USERNAME_EXISTS = "User already exist.";
+export const WALLET_NAME_EXISTS = "User already exist.";
 
-// username exists before restore through folder
-export const FOLDER_USERNAME_EXISTS = "Username already exists. Please rename selected folder.";
+// Wallet name exists before restore through folder
+export const FOLDER_WALLET_NAME_EXISTS = "Wallet name already exists. Please rename selected folder.";
 
 // ACCOUNT
 // Account not connected to kernel

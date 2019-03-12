@@ -78,7 +78,7 @@ module.exports = {
     },
     btcd: {
         rpcuser: {
-            doc: "Username for RPC connections",
+            doc: "Wallet name for RPC connections",
             format: String,
         },
         rpcpass: {

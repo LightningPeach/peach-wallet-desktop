@@ -1,7 +1,7 @@
 import bitcoin from "bitcoinjs-lib";
 import { exceptions } from "config";
 import { validators } from "additional";
-import { MIN_PASS_LENGTH, SIMNET_NETWORK, USERNAME_MAX_LENGTH } from "config/consts";
+import { MIN_PASS_LENGTH, SIMNET_NETWORK, WALLET_NAME_MAX_LENGTH } from "config/consts";
 
 describe("Validators Unit Tests", () => {
     const seed = [
@@ -240,15 +240,15 @@ describe("Validators Unit Tests", () => {
 
     describe("validateName", () => {
         it("should return null for valid name", () => {
-            const valid = validators.validateName("Username");
+            const valid = validators.validateName("WalletName");
             expect(valid).to.equal(null);
         });
         it("should return null for valid required name", () => {
-            const valid = validators.validateName("Username", true);
+            const valid = validators.validateName("WalletName", true);
             expect(valid).to.equal(null);
         });
         it("should return null for valid required name without space", () => {
-            const valid = validators.validateName("Username", true, false);
+            const valid = validators.validateName("WalletName", true, false);
             expect(valid).to.equal(null);
         });
         it("should return null for valid required unicode name with space", () => {
@@ -256,16 +256,16 @@ describe("Validators Unit Tests", () => {
             expect(valid).to.equal(null);
         });
         it("should return null for valid required name with spaces and separators", () => {
-            const valid = validators.validateName("Username: xxxx", true, true, undefined, undefined, true);
+            const valid = validators.validateName("WalletName: xxxx", true, true, undefined, undefined, true);
             expect(valid).to.equal(null);
         });
         it("should return error for unicode name", () => {
             const valid = validators.validateName("久保田 利伸", false, true, false);
-            expect(valid).to.equal(exceptions.USERNAME_WRONG_FORMAT());
+            expect(valid).to.equal(exceptions.WALLET_NAME_WRONG_FORMAT());
         });
         it("should return error for all unicode characters name", () => {
             const valid = validators.validateName("%");
-            expect(valid).to.equal(exceptions.USERNAME_WRONG_FORMAT());
+            expect(valid).to.equal(exceptions.WALLET_NAME_WRONG_FORMAT());
         });
         it("should return error for empty required name", () => {
             const valid = validators.validateName("", true);
@@ -280,7 +280,7 @@ describe("Validators Unit Tests", () => {
                 "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" +
                 "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq";
             const valid = validators.validateName(name);
-            expect(valid).to.equal(exceptions.USERNAME_WRONG_MAX_LENGTH());
+            expect(valid).to.equal(exceptions.WALLET_NAME_WRONG_MAX_LENGTH());
         });
     });
 
@@ -349,36 +349,36 @@ describe("Validators Unit Tests", () => {
     describe("validateUserExistence", () => {
         beforeEach(() => {
             window.ipcClient
-                .withArgs("checkUsername")
+                .withArgs("checkWalletName")
                 .returns({
                     ok: true,
                 });
         });
 
         it("should return error for invalid name (required, w/o space, unicode)", async () => {
-            const username = "@username";
-            const valid = await validators.validateUserExistence(username);
-            expect(valid).to.equal(exceptions.USERNAME_WRONG_FORMAT(false));
+            const walletName = "@walletName";
+            const valid = await validators.validateUserExistence(walletName);
+            expect(valid).to.equal(exceptions.WALLET_NAME_WRONG_FORMAT(false));
             expect(window.ipcClient).not.to.be.called;
         });
         it("should return error if user exists", async () => {
             window.ipcClient
-                .withArgs("checkUsername")
+                .withArgs("checkWalletName")
                 .returns({
                     ok: false,
                 });
-            const username = "username";
-            const valid = await validators.validateUserExistence(username);
-            expect(valid).to.equal(exceptions.USERNAME_EXISTS);
+            const walletName = "walletName";
+            const valid = await validators.validateUserExistence(walletName);
+            expect(valid).to.equal(exceptions.WALLET_NAME_EXISTS);
             expect(window.ipcClient).to.be.calledOnce;
-            expect(window.ipcClient).to.be.calledWith("checkUsername", { username });
+            expect(window.ipcClient).to.be.calledWith("checkWalletName", { walletName });
         });
         it("should return null for not existing user", async () => {
-            const username = "username";
-            const valid = await validators.validateUserExistence(username);
+            const walletName = "walletName";
+            const valid = await validators.validateUserExistence(walletName);
             expect(valid).to.equal(null);
             expect(window.ipcClient).to.be.calledOnce;
-            expect(window.ipcClient).to.be.calledWith("checkUsername", { username });
+            expect(window.ipcClient).to.be.calledWith("checkWalletName", { walletName });
         });
     });
 

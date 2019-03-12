@@ -30,9 +30,9 @@ describe("Auth Unit Tests", () => {
             expect(actions.setCurrentForm(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to set temporary username", () => {
-            expectedData.type = types.SET_TEMP_USERNAME;
-            expect(actions.setTempUsername(data)).to.deep.equal(expectedData);
+        it("should create an action to set temporary wallet name", () => {
+            expectedData.type = types.SET_TEMP_WALLET_NAME;
+            expect(actions.setTempWalletName(data)).to.deep.equal(expectedData);
         });
 
         it("should create an action to set auth step", () => {
@@ -81,7 +81,7 @@ describe("Auth Unit Tests", () => {
             fakeAccount = sandbox.stub(accountOperations);
             fakeLnd = sandbox.stub(lndOperations);
             data = {
-                username: "testUsername",
+                walletName: "testWalletName",
                 password: "testPassword",
                 seed: "testMnemonic",
                 setClearLndData: {
@@ -150,14 +150,14 @@ describe("Auth Unit Tests", () => {
             expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
-        it("setTempUsername()", async () => {
-            data.username = "Test username";
+        it("setTempWalletName()", async () => {
+            data.walletName = "Test walletName";
             expectedData = {
-                payload: data.username,
-                type: types.SET_TEMP_USERNAME,
+                payload: data.walletName,
+                type: types.SET_TEMP_WALLET_NAME,
             };
             expectedActions = [expectedData];
-            expect(await store.dispatch(operations.setTempUsername(data.username))).to.deep.equal(expectedData);
+            expect(await store.dispatch(operations.setTempWalletName(data.walletName))).to.deep.equal(expectedData);
             expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
@@ -188,10 +188,10 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.ERROR_CREATE_NEW_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.regStartLnd(data.walletName))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.startLnd).to.be.callCount(0);
@@ -211,14 +211,14 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.ERROR_CREATE_NEW_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.regStartLnd(data.walletName))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
                 expect(fakeLnd.clearLndData).to.be.calledOnce;
                 expect(fakeLnd.clearLndData).to.be.calledWith();
             });
@@ -233,20 +233,20 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.SUCCESS_CREATE_NEW_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regStartLnd(data.username))).to.deep.equal(expectedData);
+                expect(await store.dispatch(operations.regStartLnd(data.walletName))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
             });
         });
 
         describe("regFinish()", () => {
             beforeEach(() => {
-                data.username = "testUsername";
+                data.walletName = "testWalletName";
                 data.password = "testPassword";
                 data.seed = "testMnemonic";
                 fakeLnd.setClearLndData.returns(fakeDispatchReturnSuccess);
@@ -273,7 +273,7 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regFinish(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.regFinish(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
@@ -299,7 +299,7 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regFinish(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.regFinish(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
@@ -311,7 +311,7 @@ describe("Auth Unit Tests", () => {
                     });
                 expect(fakeLnd.setClearLndData).to.be.callCount(0);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
             });
 
             it("success recovery=false", async () => {
@@ -321,7 +321,7 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.START_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regFinish(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.regFinish(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
@@ -334,7 +334,7 @@ describe("Auth Unit Tests", () => {
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(false);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
             });
 
             it("success recovery=true", async () => {
@@ -344,7 +344,7 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.START_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.regFinish(data.username, data.password, data.seed, true)))
+                expect(await store.dispatch(operations.regFinish(data.walletName, data.password, data.seed, true)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
@@ -391,11 +391,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.ERROR_CREATE_NEW_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.restore(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.startLnd).to.be.callCount(0);
@@ -418,15 +418,15 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.ERROR_CREATE_NEW_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.restore(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
                 expect(fakeLnd.clearLndData).to.be.calledOnce;
                 expect(fakeLnd.clearLndData).to.be.calledWith();
             });
@@ -451,11 +451,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.restore(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(window.ipcClient)
                     .to
                     .be
@@ -465,7 +465,7 @@ describe("Auth Unit Tests", () => {
                 expect(fakeLnd.setClearLndData).to.be.calledOnce;
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
                 expect(fakeLnd.clearLndData).to.be.calledOnce;
                 expect(fakeLnd.clearLndData).to.be.calledWith();
             });
@@ -487,11 +487,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.restore(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(window.ipcClient)
                     .to
                     .be
@@ -502,9 +502,9 @@ describe("Auth Unit Tests", () => {
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.setClearLndData).to.be.calledWith(false);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
             });
 
             it("error initAccount()", async () => {
@@ -521,11 +521,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.START_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.restore(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(window.ipcClient)
                     .to
                     .be
@@ -536,11 +536,11 @@ describe("Auth Unit Tests", () => {
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.setClearLndData).to.be.calledWith(false);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
                 expect(fakeAccount.initAccount).to.be.calledOnce;
-                expect(fakeAccount.initAccount).to.be.calledWith(data.username, true);
+                expect(fakeAccount.initAccount).to.be.calledWith(data.walletName, true);
             });
 
             it("success", async () => {
@@ -556,11 +556,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.START_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.restore(data.username, data.password, data.seed)))
+                expect(await store.dispatch(operations.restore(data.walletName, data.password, data.seed)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.username });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.walletName });
                 expect(window.ipcClient)
                     .to
                     .be
@@ -571,17 +571,17 @@ describe("Auth Unit Tests", () => {
                 expect(fakeLnd.setClearLndData).to.be.calledWith(true);
                 expect(fakeLnd.setClearLndData).to.be.calledWith(false);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username, false);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName, false);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
                 expect(fakeAccount.initAccount).to.be.calledOnce;
-                expect(fakeAccount.initAccount).to.be.calledWith(data.username, true);
+                expect(fakeAccount.initAccount).to.be.calledWith(data.walletName, true);
             });
         });
 
         describe("login()", () => {
             beforeEach(() => {
-                data.username = "testUsername";
+                data.walletName = "testWalletName";
                 data.password = "testPassword";
                 data.seed = "testMnemonic";
                 fakeApp.openDb.returns(fakeDispatchReturnSuccess);
@@ -603,11 +603,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.login(data.username, data.password)))
+                expect(await store.dispatch(operations.login(data.walletName, data.password)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName);
                 expect(window.ipcClient).not.to.be.called;
             });
 
@@ -618,7 +618,7 @@ describe("Auth Unit Tests", () => {
                     .returns({ ok: false, error: data.error });
                 expectedData = {
                     ...errorResp,
-                    error: exceptions.USERNAME_PASSWORD_WRONG,
+                    error: exceptions.WALLET_NAME_PASSWORD_WRONG,
                     f: "login",
                 };
                 expectedActions = [
@@ -629,11 +629,11 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.login(data.username, data.password)))
+                expect(await store.dispatch(operations.login(data.walletName, data.password)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
@@ -654,16 +654,16 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.FINISH_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.login(data.username, data.password)))
+                expect(await store.dispatch(operations.login(data.walletName, data.password)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
             });
 
             it("error initAccount()", async () => {
@@ -674,15 +674,15 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.START_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.login(data.username, data.password)))
+                expect(await store.dispatch(operations.login(data.walletName, data.password)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
                 expect(fakeAccount.initAccount).to.be.calledOnce;
-                expect(fakeAccount.initAccount).to.be.calledWith(data.username);
+                expect(fakeAccount.initAccount).to.be.calledWith(data.walletName);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
@@ -695,18 +695,18 @@ describe("Auth Unit Tests", () => {
                         type: accountTypes.START_INIT_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.login(data.username, data.password)))
+                expect(await store.dispatch(operations.login(data.walletName, data.password)))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient)
                     .to.be.calledWith("unlockLnd", { password: data.password });
                 expect(fakeLnd.startLnd).to.be.calledOnce;
-                expect(fakeLnd.startLnd).to.be.calledWith(data.username);
+                expect(fakeLnd.startLnd).to.be.calledWith(data.walletName);
                 expect(fakeApp.openDb).to.be.calledOnce;
-                expect(fakeApp.openDb).to.be.calledWith(data.username, data.password);
+                expect(fakeApp.openDb).to.be.calledWith(data.walletName, data.password);
                 expect(fakeAccount.initAccount).to.be.calledOnce;
-                expect(fakeAccount.initAccount).to.be.calledWith(data.username);
+                expect(fakeAccount.initAccount).to.be.calledWith(data.walletName);
             });
         });
     });
@@ -734,7 +734,7 @@ describe("Auth Unit Tests", () => {
         it("should handle LOGOUT_ACCOUNT action", () => {
             action.type = accountTypes.LOGOUT_ACCOUNT;
             state = JSON.parse(JSON.stringify(initStateAuth));
-            state.tempUsername = "bar";
+            state.tempWalletName = "bar";
             expect(authReducer(state, action)).to.deep.equal(expectedData);
         });
 
@@ -750,9 +750,9 @@ describe("Auth Unit Tests", () => {
             expect(authReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle SET_TEMP_USERNAME action", () => {
-            action.type = types.SET_TEMP_USERNAME;
-            expectedData.tempUsername = data;
+        it("should handle SET_TEMP_WALLET_NAME action", () => {
+            action.type = types.SET_TEMP_WALLET_NAME;
+            expectedData.tempWalletName = data;
             expect(authReducer(state, action)).to.deep.equal(expectedData);
         });
 

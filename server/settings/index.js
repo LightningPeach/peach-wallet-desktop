@@ -84,7 +84,7 @@ module.exports = Object.freeze({
         }
         throw new Error(`Set method not available for ${prop} property`);
     },
-    saveLndPath: (username, lndPath) => calculatedBase.saveLndPath(username, lndPath),
+    saveLndPath: (walletName, lndPath) => calculatedBase.saveLndPath(walletName, lndPath),
     preload: {
         getAnalytics: config.get("analytics"),
         getBitcoin: config.get("bitcoin"),

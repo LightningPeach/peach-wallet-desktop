@@ -24,7 +24,7 @@ class UserForm extends Component {
             lndPathError: null,
             passwordError: null,
             processing: false,
-            usernameError: null,
+            walletNameError: null,
         };
     }
 
@@ -41,10 +41,10 @@ class UserForm extends Component {
         const { lndPath, defaultPath } = this.state;
         await window.ipcClient("setLndPath", { defaultPath, lndPath });
 
-        const username = this.username.value.trim();
+        const walletName = this.walletName.value.trim();
         const password = this.password.value.trim();
         const confPassword = this.confPassword.value.trim();
-        const usernameError = await validators.validateUserExistence(username);
+        const walletNameError = await validators.validateUserExistence(walletName);
         const passwordError = validators.validatePass(password);
         const confPasswordError = validators.validatePassMismatch(password, confPassword);
         const lndPathError = defaultPath ? null : await validators.validateLndPath(lndPath);
@@ -53,12 +53,12 @@ class UserForm extends Component {
             lndPathError,
             passwordError,
             processing: false,
-            usernameError,
+            walletNameError,
         });
-        if (usernameError || passwordError || confPasswordError || lndPathError) {
+        if (walletNameError || passwordError || confPasswordError || lndPathError) {
             return;
         }
-        onValidUser({ password, username });
+        onValidUser({ password, walletName });
         dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
@@ -75,7 +75,7 @@ class UserForm extends Component {
                     <div className="block__row-lg">
                         <div className="col-xs-12">
                             <div className="form-label">
-                                <label htmlFor="username">
+                                <label htmlFor="wallet-name">
                                     Wallet Name
                                 </label>
                                 <Tooltip
@@ -94,19 +94,19 @@ class UserForm extends Component {
                         </div>
                         <div className="col-xs-12">
                             <input
-                                id="username"
+                                id="wallet-name"
                                 ref={(ref) => {
-                                    this.username = ref;
+                                    this.walletName = ref;
                                 }}
-                                className={`form-text ${this.state.usernameError ? "form-text__error" : ""}`}
-                                name="username"
+                                className={`form-text ${this.state.walletNameError ? "form-text__error" : ""}`}
+                                name="wallet-name"
                                 type="text"
-                                placeholder="Enter your username"
+                                placeholder="Enter your wallet name"
                                 disabled={disabled}
-                                defaultValue={this.props.username}
-                                onChange={() => { this.setState({ usernameError: null }) }}
+                                defaultValue={this.props.walletName}
+                                onChange={() => { this.setState({ walletNameError: null }) }}
                             />
-                            <ErrorFieldTooltip text={this.state.usernameError} />
+                            <ErrorFieldTooltip text={this.state.walletNameError} />
                         </div>
                     </div>
                     <div className="block__row">
@@ -232,7 +232,7 @@ class UserForm extends Component {
 UserForm.propTypes = {
     dispatch: PropTypes.func.isRequired,
     onValidUser: PropTypes.func.isRequired,
-    username: PropTypes.string,
+    walletName: PropTypes.string,
 };
 
 export default connect()(UserForm);

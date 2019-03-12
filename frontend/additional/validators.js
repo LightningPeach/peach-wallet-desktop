@@ -1,7 +1,7 @@
 import bitcoin from "bitcoinjs-lib";
 import { exceptions } from "config";
 import {
-    MIN_PASS_LENGTH, USERNAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
+    MIN_PASS_LENGTH, WALLET_NAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
     ONLY_LETTERS_AND_NUMBERS, LIGHTNING_ID_LENGTH, SEED_COUNT,
 } from "config/consts";
 
@@ -118,7 +118,7 @@ const validateName = (
     required = false,
     withSpace = true,
     allUnicodeLettersAndNumbers = true,
-    maxChars = USERNAME_MAX_LENGTH,
+    maxChars = WALLET_NAME_MAX_LENGTH,
     withSeparators = false,
 ) => {
     let tempName = name;
@@ -131,29 +131,29 @@ const validateName = (
         tempName = tempName.replace(/\s/g, "");
     }
     if (tempName.length > maxChars) {
-        return exceptions.USERNAME_WRONG_MAX_LENGTH(maxChars);
+        return exceptions.WALLET_NAME_WRONG_MAX_LENGTH(maxChars);
     }
     if (withSeparators) {
         tempName = tempName.replace(/[!-\/:-@[-`{-~]/g, ""); // eslint-disable-line
     }
     if (allUnicodeLettersAndNumbers) {
         if (!ONLY_UNICODE_LETTERS_AND_NUMBERS.test(tempName)) {
-            return exceptions.USERNAME_WRONG_FORMAT(withSpace, withSeparators);
+            return exceptions.WALLET_NAME_WRONG_FORMAT(withSpace, withSeparators);
         }
     } else if (!ONLY_LETTERS_AND_NUMBERS.test(tempName)) {
-        return exceptions.USERNAME_WRONG_FORMAT(withSpace, withSeparators);
+        return exceptions.WALLET_NAME_WRONG_FORMAT(withSpace, withSeparators);
     }
     return null;
 };
 
-const validateUserExistence = async (username) => {
-    const invalidName = validateName(username, true, false, false);
+const validateUserExistence = async (walletName) => {
+    const invalidName = validateName(walletName, true, false, false);
     if (invalidName) {
         return invalidName;
     }
-    const { ok } = await window.ipcClient("checkUsername", { username });
+    const { ok } = await window.ipcClient("checkWalletName", { walletName });
     if (!ok) {
-        return exceptions.USERNAME_EXISTS;
+        return exceptions.WALLET_NAME_EXISTS;
     }
     return null;
 };

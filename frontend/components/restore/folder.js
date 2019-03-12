@@ -38,9 +38,9 @@ class Folder extends Component {
         this.setState({ processing: true });
         const { lndPath } = this.state;
         const paths = lndPath.split(window.pathSep);
-        const username = paths.pop();
+        const walletName = paths.pop();
         const lnPath = paths.join(window.pathSep);
-        const lndPathError = await validators.validateLndPath(lnPath) || await this._validateUsername(username);
+        const lndPathError = await validators.validateLndPath(lnPath) || await this._validatewalletName(walletName);
         const password = this.password.value.trim();
         const passwordError = !password ? exceptions.FIELD_IS_REQUIRED : null;
 
@@ -50,7 +50,7 @@ class Folder extends Component {
         }
         this.setState({ passwordError });
         await window.ipcClient("setLndPath", { defaultPath: false, lndPath: lnPath });
-        const init = await dispatch(operations.login(username, password));
+        const init = await dispatch(operations.login(walletName, password));
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({ message: helpers.formatNotificationMessage(init.error) }));
@@ -60,10 +60,10 @@ class Folder extends Component {
         dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
-    _validateUsername = async (username) => {
-        const response = await validators.validateUserExistence(username);
+    _validateWalletName = async (walletName) => {
+        const response = await validators.validateUserExistence(walletName);
         if (response) {
-            return exceptions.FOLDER_USERNAME_EXISTS;
+            return exceptions.FOLDER_WALLET_NAME_EXISTS;
         }
         return null;
     };

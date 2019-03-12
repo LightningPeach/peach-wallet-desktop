@@ -27,7 +27,7 @@ ipcMain.on("setDefaultLightningApp", () => {
 
 registerIpc("startLnd", async (event, arg) => {
     console.log("Stating lnd");
-    const response = await lnd.start(arg.username);
+    const response = await lnd.start(arg.walletName);
     logger.info(response);
     if (!response.ok) {
         await lnd.stop();
@@ -56,22 +56,22 @@ registerIpc("createLndWallet", async (event, arg) => lnd.createWallet(arg.passwo
  */
 registerIpc("startLis", async (event, arg) => {
     console.log("Starting local invoice server");
-    await localInvoiceServer.openConnection(arg.username);
+    await localInvoiceServer.openConnection(arg.walletName);
     return { ok: true };
 });
 
 registerIpc("shutDownLis", async (event, arg) => {
     console.log("Shutting down local invoice server");
-    await localInvoiceServer.closeConnection(arg.username);
+    await localInvoiceServer.closeConnection(arg.walletName);
     return { ok: true };
 });
 
 registerIpc("logout", async () => shutdown()); // eslint-disable-line no-use-before-define
 
-registerIpc("checkUsername", async (event, arg) => {
-    const usernames = await settings.get.getCustomPathLndUsernames();
+registerIpc("checkWalletName", async (event, arg) => {
+    const walletNames = await settings.get.getCustomPathLndWalletNames();
     const response = { ok: true };
-    if (arg.username in usernames) {
+    if (arg.walletName in walletNames) {
         response.ok = false;
         response.error = "User exist.";
     }
@@ -79,7 +79,7 @@ registerIpc("checkUsername", async (event, arg) => {
 });
 
 registerIpc("checkUser", async (event, arg) => {
-    const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.username, "data"));
+    const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.walletName, "data"));
     if (!exists.ok) {
         exists.error = "User doesn't exist.";
     }
@@ -92,7 +92,7 @@ registerIpc("setLndPath", async (event, arg) => {
 });
 
 registerIpc("loadLndPath", async (event, arg) => {
-    const loadedPath = await settings.get.loadLndPath(arg.username);
+    const loadedPath = await settings.get.loadLndPath(arg.walletName);
     settings.set("lndPath", loadedPath);
 });
 
