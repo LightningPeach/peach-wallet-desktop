@@ -15,23 +15,23 @@ export const COPY_TO_CLIPBOARD = helpers.formatMultilineText([
  */
 
 export const RECOVER_WALLET = helpers.formatMultilineText([
-    "You can use wallet recovery procedure in 2 situations:",
-    "1) If you want to use your existing Bitcoin wallet for Lightning payments,",
-    "go through the wallet recovery procedure, during which specify seed words",
+    "You may use wallet recovery in 2 cases:",
+    "1) If you want to use your existing Bitcoin wallet for Lightning payments",
+    "then go through the wallet recovery procedure and specify the seed words",
     "from your Bitcoin wallet.",
-    <Fragment>2) If you have forgotten your Peach Wallet password. Enter <b>new</b></Fragment>,
-    <Fragment>wallet name, <b>new</b> password and use seed words associated with it.</Fragment>,
+    <Fragment>2) If you have forgotten your Peach Wallet password then enter a <b>new</b></Fragment>,
+    <Fragment>wallet name, <b>new</b> password and use the seed words you have for this wallet.</Fragment>,
 ]);
 
 export const WALLET_NAME = helpers.formatMultilineText([
-    "Wallet name is a name of wallet (folder),",
-    "it is stored locally on your PC.",
+    "Wallet name is used when creating a local folder",
+    "where your wallet data will be stored",
 ]);
 
 export const SEED_WORDS = helpers.formatMultilineText([
     "Seed words are random words that are used to regain access",
-    "to the wallet when computer breaks or hard drive is corrupted.",
-    "You should keep seed words safe and do not share with anyone.",
+    "to the wallet when a computer breaks or a hard drive is corrupted.",
+    "You should keep these seed words safe and never share them with anyone.",
     "When someone knows your seed words, they can have access to",
     "your wallet and funds.",
 ]);
@@ -42,8 +42,9 @@ export const SEED_VERIFY = helpers.formatMultilineText([
 ]);
 
 export const DEFAULT_WALLET_PATH = helpers.formatMultilineText([
-    "Better to set wallet data path in dropbox",
-    "or google drive folder.",
+    "It is recommended that you backup this folder periodically.",
+    "Some people are comfortable with using Dropbox or",
+    "Google Cloud for this purpose.",
 ]);
 
 export const WALLET_PATH = helpers.formatMultilineText([
