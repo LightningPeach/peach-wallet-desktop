@@ -59,7 +59,7 @@ class CloseChannel extends Component {
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to close <strong title={title}>{title}</strong> cooperatively?
-                            All your bitcoins will send to ONCHAIN balance.
+                            All your bitcoins will send to ON-CHAIN balance.
                         </div>
                     </div>
                 </div>

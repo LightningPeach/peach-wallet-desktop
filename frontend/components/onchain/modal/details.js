@@ -30,14 +30,14 @@ class OnChainDetails extends Component {
         if (this.state.processing) {
             return;
         }
-        analytics.event({ action: "Details Modal", category: "Onchain", label: "Cancel" });
+        analytics.event({ action: "Details Modal", category: "On-chain", label: "Cancel" });
         dispatch(appOperations.closeModal());
     };
 
     sendCoins = async () => {
         const { dispatch } = this.props;
         this.setState({ processing: true });
-        analytics.event({ action: "Details Modal", category: "Onchain", label: "Pay" });
+        analytics.event({ action: "Details Modal", category: "On-chain", label: "Pay" });
         const response = await dispatch(operations.sendCoins());
         dispatch(operations.getOnchainHistory());
         this.setState({ processing: false });

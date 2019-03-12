@@ -16,13 +16,13 @@ class OnchainWarning extends Component {
 
     closeModal = () => {
         const { dispatch } = this.props;
-        analytics.event({ action: "Onchain Warning Modal", category: "Onchain", label: "Cancel" });
+        analytics.event({ action: "On-chain Warning Modal", category: "On-chain", label: "Cancel" });
         dispatch(appOperations.closeModal());
     };
 
     sendPayment = () => {
         const { dispatch } = this.props;
-        analytics.event({ action: "Warning Modal", category: "Onchain", label: "Send payment" });
+        analytics.event({ action: "Warning Modal", category: "On-chain", label: "Send payment" });
         dispatch(operations.openSendCoinsModal());
     };
 

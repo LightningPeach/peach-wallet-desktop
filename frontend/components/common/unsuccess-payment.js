@@ -47,7 +47,7 @@ class UnSuccessPayment extends Component {
                             <ul className="helper__list">
                                 <li>Wait for some time and try again later.</li>
                                 <li>Open a direct channel with the recipient.</li>
-                                <li>Send the onchain payment to recipient.</li>
+                                <li>Send the on-chain payment to recipient.</li>
                             </ul>
                         </div>
                     </div>

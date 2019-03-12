@@ -105,7 +105,7 @@ class Header extends Component {
                                 className={`nav__link ${OnchainPanel.includes(path) ? "active" : ""}`}
                                 onClick={this.hideBurger}
                             >
-                                Onchain
+                                On-chain
                             </Link>
                             <Link
                                 to={ChannelsFullPath}

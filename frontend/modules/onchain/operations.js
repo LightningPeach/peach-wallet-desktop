@@ -20,7 +20,7 @@ function openWarningModal() {
 }
 
 async function getChainTxns() {
-    logger.log("LND ONCHAIN TRANSACTIONS");
+    logger.log("LND ON-CHAIN TRANSACTIONS");
     const response = await window.ipcClient("getTransactions");
     if (!response.ok) {
         logger.error(response);
@@ -70,7 +70,7 @@ function getOnchainHistory() {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
-                                title: "Incoming Onchain transaction",
+                                title: "Incoming On-chain transaction",
                             }));
                         }
                         db.onchainBuilder()
@@ -110,7 +110,7 @@ function getOnchainHistory() {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
-                                title: "Incoming Onchain transaction",
+                                title: "Incoming On-chain transaction",
                             }));
                         }
                         db.onchainBuilder()

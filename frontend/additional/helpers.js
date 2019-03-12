@@ -84,7 +84,7 @@ const formatNotificationMessage =
         helperActions = [
             "Wait for some time and try again later.",
             "Open a direct channel with the recipient.",
-            "Send the onchain payment to recipient.",
+            "Send the on-chain payment to recipient.",
         ],
     ) => (
         <Fragment>

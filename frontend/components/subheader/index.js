@@ -27,7 +27,7 @@ class SubHeader extends PureComponent {
                             </div>
                             <div className="balance__row">
                                 <span className="balance__title">
-                                    Onchain balance:
+                                    On-chain balance:
                                 </span>
                                 <span className="balance__value"><BtcToUsd amount={bitcoinBalance} /></span>
                             </div>
@@ -45,7 +45,7 @@ class SubHeader extends PureComponent {
                                     <i className="tooltip tooltip--left tooltip--info" />
                                 </Tooltip>
                                 <span className="balance__title">
-                                    Locked Onchain balance:
+                                    Locked On-chain balance:
                                 </span>
                                 <span className="balance__value">
                                     <BtcToUsd amount={unConfirmedBitcoinBalance} />

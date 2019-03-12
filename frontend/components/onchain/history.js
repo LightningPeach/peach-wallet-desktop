@@ -98,7 +98,7 @@ class OnchainHistory extends Component {
                         onClick={() => {
                             if (helpers.hasSelection()) return;
                             if (item.tempAddress !== "-") {
-                                analytics.event({ action: "History address", category: "Onchain", label: "Copy" });
+                                analytics.event({ action: "History address", category: "On-chain", label: "Copy" });
                                 dispatch(appOperations.copyToClipboard(item.to));
                             }
                         }}
@@ -111,7 +111,7 @@ class OnchainHistory extends Component {
                     <span
                         onClick={() => {
                             if (helpers.hasSelection()) return;
-                            analytics.event({ action: "History transaction hash", category: "Onchain", label: "Copy" });
+                            analytics.event({ action: "History transaction hash", category: "On-chain", label: "Copy" });
                             dispatch(appOperations.copyToClipboard(item.tx_hash));
                         }}
                         title={item.tx_hash}
@@ -150,7 +150,7 @@ class OnchainHistory extends Component {
                     },
                 ]}
                 source={filterTypes.FILTER_ONCHAIN}
-                title="Onchain payments history"
+                title="On-chain payments history"
                 filters={filterTypes.FILTER_KIND_LIST}
                 emptyPlaceholder="No payments found"
                 searchPlaceholder="Name, To, Transaction ID"

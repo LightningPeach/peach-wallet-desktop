@@ -125,8 +125,8 @@ export const SEND_COINS_DETAILS_REQUIRED = "Send coins details are empty";
 // PD: Amount is less than fee for operation
 export const AMOUNT_LESS_THAN_FEE = (currentFee = 0, bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `Your payment must be greater than ${currentFee} ${bitcoinMeasureType} fee.`;
-// No funds on onchain balance for this operation
-export const AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS = "Insufficient funds on Onchain balance.";
+// No funds on on-chain balance for this operation
+export const AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS = "Insufficient funds on On-chain balance.";
 // PD: Field exists but amount is 0 Satoshi
 export const AMOUNT_EQUAL_ZERO = (bitcoinMeasureType = DEFAULT_BITCOIN_MEASURE_TYPE) =>
     `0 ${bitcoinMeasureType} payment is not allowed.`;

@@ -95,7 +95,7 @@ export const CREATE_CHANNEL = helpers.formatMultilineText([
  */
 
 export const LOCKED_BALANCE = helpers.formatMultilineText([
-    "Your onchain balance which is not yet",
+    "Your on-chain balance which is not yet",
     "confirmed on the Bitcoin blockchain.",
 ]);
 

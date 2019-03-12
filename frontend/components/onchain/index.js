@@ -36,7 +36,7 @@ class Onchain extends Component {
             nameError: null,
             toError: null,
         };
-        analytics.pageview(OnchainFullPath, "Onchain");
+        analytics.pageview(OnchainFullPath, "On-chain");
     }
 
     componentWillMount() {
@@ -45,13 +45,13 @@ class Onchain extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(OnchainFullPath, "Onchain");
+            analytics.pageview(OnchainFullPath, "On-chain");
         }
     }
 
     onChainPay = async (e) => {
         e.preventDefault();
-        analytics.event({ action: "Payment", category: "Onchain", label: "Pay" });
+        analytics.event({ action: "Payment", category: "On-chain", label: "Pay" });
         const { dispatch } = this.props;
         const name = this.name.value.trim();
         const to = this.to.value.trim();
@@ -119,7 +119,7 @@ class Onchain extends Component {
                 <div className="tabs">
                     <div className="tabs__row">
                         <div className="tab-link tab-link-active tab-link__no-hover">
-                            Onchain payment
+                            On-chain payment
                         </div>
                     </div>
                 </div>
@@ -234,7 +234,7 @@ class Onchain extends Component {
                 modal = (
                     <UnSuccessPayment
                         error={this.props.sendCoinsPaymentDetails}
-                        category="Onchain"
+                        category="On-chain"
                         onClose={() => dispatch(operations.clearSendCoinsError())}
                     />
                 );
@@ -244,7 +244,7 @@ class Onchain extends Component {
                     <SuccessPayment
                         name={sendCoinsDetails.name}
                         amount={sendCoinsDetails.amount}
-                        category="Onchain"
+                        category="On-chain"
                         onClose={this.successPaymentCallback}
                     />
                 );
