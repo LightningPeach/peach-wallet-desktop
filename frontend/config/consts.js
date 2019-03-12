@@ -72,7 +72,7 @@ export const TIMEOUT_PART = 0x7FFFFFF;
 export const SESSION_EXPIRE_TIMEOUT = 15 * 60 * 1000;
 export const MAX_INTERVAL_FREUENCY = 100000000000;
 export const STREAM_INFINITE_TIME_VALUE = "Infinite";
-export const LOGOUT_ACCOUNT_TIMEOUT = NODE_ENV === "test" ? 1 : 5000;
+export const LOGOUT_ACCOUNT_TIMEOUT = NODE_ENV === "test" ? 1 : 5 * 1000;
 export const LND_SYNC_TIMEOUT = NODE_ENV === "test" ? 1 : 15 * 1000;
 export const STREAM_ERROR_TIMEOUT = 10 * 1000;
 export const BALANCE_INTERVAL_TIMEOUT = 30 * 1000;
