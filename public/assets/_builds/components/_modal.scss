@@ -1,8 +1,9 @@
 .modal {
+    top: 160px;
     width: 660px;
-    max-width: 100%;
+    max-width: calc(100% - 40px);
     z-index: 5;
-    position: relative;
+    position: fixed;
     border-radius: $border-radius;
     background: $white;
     padding: 50px;
@@ -23,7 +24,6 @@
         display: flex;
         justify-content: center;
         align-items: flex-start;
-        padding: 160px 20px 60px;
     }
 
     &__layout {
