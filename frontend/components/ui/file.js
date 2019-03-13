@@ -2,6 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const File = ({
+    buttonPlaceholder,
     value,
     placeholder,
     disabled,
@@ -19,11 +20,12 @@ const File = ({
         }}
     >
         <span className="file__value">{value || placeholder}</span>
-        <span className="button button__solid file__button">Select folder</span>
+        <button className="button button__solid file__button">{buttonPlaceholder}</button>
     </div>
 );
 
 File.propTypes = {
+    buttonPlaceholder: PropTypes.string,
     className: PropTypes.string,
     disabled: PropTypes.bool,
     onChange: PropTypes.func,
@@ -32,6 +34,7 @@ File.propTypes = {
 };
 
 File.defaultProps = {
+    buttonPlaceholder: "Select",
     className: "",
     disabled: false,
     onChange: () => ({}),

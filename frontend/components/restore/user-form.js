@@ -190,7 +190,8 @@ class UserForm extends Component {
                             <File
                                 disabled={this.state.defaultPath || disabled}
                                 value={this.state.lndPath}
-                                placeholder="Select folder"
+                                placeholder="Wallet folder"
+                                buttonPlaceholder="Select"
                                 className={this.state.lndPathError ? "form-text__error" : ""}
                                 onChange={(lndPath) => {
                                     this.setState({ lndPath, lndPathError: null });

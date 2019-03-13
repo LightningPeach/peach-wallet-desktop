@@ -103,7 +103,8 @@ class Folder extends Component {
                                 id="wallet_folder"
                                 disabled={disabled}
                                 value={this.state.lndPath}
-                                placeholder="Select folder"
+                                placeholder="Wallet folder"
+                                buttonPlaceholder="Select"
                                 className={this.state.lndPathError ? "form-text__error" : ""}
                                 onChange={(lndPath) => {
                                     this.setState({ lndPath, lndPathError: null });
