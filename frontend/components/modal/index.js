@@ -23,7 +23,8 @@ class Modal extends Component {
     };
 
     renderHeader = () => {
-        if (!this.props.title) {
+        const { title, titleTooltip } = this.props;
+        if (!title) {
             return null;
         }
 
@@ -31,11 +32,11 @@ class Modal extends Component {
             <div className="modal__header">
                 <div className="row justify-center-xs">
                     <div className="block__title position-relative">
-                        {this.props.title}
-                        {this.props.titleTooltip &&
+                        {title}
+                        {titleTooltip &&
                         <Tooltip
                             placement="right"
-                            overlay={this.props.titleTooltip}
+                            overlay={titleTooltip}
                             trigger="hover"
                             arrowContent={
                                 <div className="rc-tooltip-arrow-inner" />
@@ -100,8 +101,8 @@ Modal.propTypes = {
     theme: PropTypes.string,
     title: PropTypes.string,
     titleTooltip: PropTypes.oneOfType([
-        PropTypes.arrayOf(PropTypes.string),
-        PropTypes.string,
+        PropTypes.arrayOf(PropTypes.node),
+        PropTypes.node,
     ]),
 };
 
