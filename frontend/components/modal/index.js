@@ -30,7 +30,7 @@ class Modal extends Component {
         return (
             <div className="modal__header">
                 <div className="row justify-center-xs">
-                    <div className="block__title">
+                    <div className="block__title position-relative">
                         {this.props.title}
                         {this.props.titleTooltip &&
                         <Tooltip

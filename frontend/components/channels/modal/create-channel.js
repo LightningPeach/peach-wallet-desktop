@@ -155,17 +155,10 @@ class CreateChannel extends Component {
         helpText += ".";
         return (
             <Modal title="Create channel" onClose={this.closeModal} titleTooltip={tooltips.CREATE_CHANNEL}>
-                <form onSubmit={this.addChannel}>
-                    <div className="modal__body">
+                <div className="modal__body">
+                    <form className="form">
                         <div className="row">
                             <div className="col-xs-12">
-                                <Checkbox
-                                    text="Custom channel"
-                                    checked={this.state.custom}
-                                    onChange={this.toggleCustom}
-                                    class="label_line pull-right channels__custom"
-                                    disabled={this.state.processing}
-                                />
                                 <div className="form-label">
                                     <label htmlFor="channel__name">Name of channel</label>
                                 </div>
@@ -188,7 +181,7 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.nameError} />
                             </div>
                         </div>
-                        <div className="row mt-14">
+                        <div className="block__row">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__amount">Amount in {bitcoinMeasureType} *</label>
@@ -212,7 +205,17 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.amountError} />
                             </div>
                         </div>
-                        <div className="row mt-14">
+                        <div className="block__row">
+                            <div className="col-xs-12">
+                                <Checkbox
+                                    text="Custom channel"
+                                    checked={this.state.custom}
+                                    onChange={this.toggleCustom}
+                                    disabled={this.state.processing}
+                                />
+                            </div>
+                        </div>
+                        <div className="block__row-xs">
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="channel__lightningId">
@@ -236,37 +239,37 @@ class CreateChannel extends Component {
                                 <ErrorFieldTooltip text={this.state.lightningError} />
                             </div>
                         </div>
-                    </div>
-                    <div className="modal__footer">
-                        <div className="row">
-                            <div className="col-xs-12 channels__create-actions">
-                                <span className="placeholder_text font-12">
-                                    {helpText}
-                                </span>
-                                <div className="channels__create-buttons">
+                    </form>
+                </div>
+                <div className="modal__footer">
+                    <div className="row">
+                        <div className="col-xs-12 channels__create-actions">
+                            <span className="placeholder_text font-12">
+                                {helpText}
+                            </span>
+                            <div className="channels__create-buttons">
+                                <button
+                                    className="button button__link"
+                                    type="button"
+                                    onClick={this.closeModal}
+                                    disabled={this.state.processing}
+                                >
+                                    Cancel
+                                </button>
+                                <span className="button__spinner">
                                     <button
-                                        className="button button__link"
-                                        type="button"
-                                        onClick={this.closeModal}
+                                        className="button button__solid"
                                         disabled={this.state.processing}
+                                        onClick={this.addChannel}
                                     >
-                                        Cancel
+                                        Create
                                     </button>
-                                    <span className="button__spinner">
-                                        <button
-                                            type="submit"
-                                            className="button button__solid"
-                                            disabled={this.state.processing}
-                                        >
-                                            Create
-                                        </button>
-                                        {this.state.processing && spinner}
-                                    </span>
-                                </div>
+                                    {this.state.processing && spinner}
+                                </span>
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
             </Modal>
         );
     }

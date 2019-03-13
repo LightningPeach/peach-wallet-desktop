@@ -1,7 +1,3 @@
-.position-init {
-    position: initial;
-}
-
 .date__ymd + .date__hms {
     padding-left: 8px;
 }
@@ -34,4 +30,8 @@
             }
         }
     }
+}
+
+.position {
+    &-relative { position: relative; }
 }
