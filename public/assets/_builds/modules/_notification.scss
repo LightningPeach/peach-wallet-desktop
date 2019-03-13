@@ -1,7 +1,7 @@
 .notifications {
     &-bc {
         position: fixed;
-        width: 541px;
+        width: 540px;
         max-width: calc(100% - 40px);
         padding: 0;
         z-index: 9998;
@@ -9,7 +9,7 @@
         height: auto;
         top: auto;
         bottom: 25px;
-        margin: 0 auto 0px -270px;
+        transform: translateX(-50%);
         left: 50%;
     }
 }
@@ -18,26 +18,20 @@
     position: relative;
     width: 100%;
     border-radius: 2px;
-    padding: 14px 40px;
+    padding: 15px 40px;
     display: block;
     box-sizing: border-box;
     transition: 0.3s ease-in-out;
     transform: translate3d(0px, 0px, 0px);
     will-change: transform, opacity;
-    color: #000;
+    color: $black;
     bottom: 0;
     opacity: 0;
     margin-top: 10px;
 
-    &-success {
-        box-shadow: rgba(94, 164, 0, 0.9) 0 0 1px;
-        border-top: 2px solid rgb(94, 164, 0);
-        background-color: rgb(240, 245, 234);
-    }
-
     &-error {
         cursor: pointer;
-        background: #f1b2b9;
+        background: $red30;
         display: flex;
         align-items: center;
 
@@ -50,7 +44,7 @@
     }
 
     &-info {
-        background-color: rgba(255, 119, 0, .5);
+        background-color: $yellow;
         text-align: center;
     }
 
@@ -60,11 +54,11 @@
 
     &-message {
         margin: 0;
-        padding: 0;
+        padding: 5px 0;
         display: flex;
         flex-direction: column;
         font-size: 14px;
-        line-height: 2.15;
+        line-height: 20px;
         overflow: hidden;
         text-overflow: ellipsis;
         width: 100%;
@@ -129,15 +123,8 @@
 }
 
 @media screen and (max-width: 581px) {
-    .notifications {
-        &-bc {
-            margin: 0 auto;
-            transform: translateX(-50%);
-        }
-    }
-
     .notification{
-        padding: 14px 20px;
+        padding: 15px 20px;
 
         &-action-wrapper {
             padding-left: 5px;
