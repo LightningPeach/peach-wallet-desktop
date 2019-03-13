@@ -27,7 +27,7 @@ class WalletMode extends Component {
         const { walletMode } = this.props;
         return (
             <Modal
-                title="Wallet Privacy Mode"
+                title="Choose Wallet Privacy Mode"
                 onClose={walletMode !== accountTypes.WALLET_MODE.PENDING ? this.onClose : null}
                 showCloseButton={walletMode !== accountTypes.WALLET_MODE.PENDING}
                 theme="wallet-mode"

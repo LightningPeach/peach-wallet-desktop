@@ -395,7 +395,7 @@ class Profile extends Component {
                     <div className="col-xs-12">
                         <div className="profile__line">
                             <div className="profile__label">
-                                Wallet Privacy Mode
+                                Choose Wallet Privacy Mode
                             </div>
                             <div className="profile__value profile__value--start">
                                 <span className="profile__button-label">
