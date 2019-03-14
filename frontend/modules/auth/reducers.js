@@ -20,7 +20,7 @@ const authReducer = (state = defaultState, action) => {
         case types.SET_REGISTRATION_STEP:
             return { ...state, authStep: action.payload };
         case types.SET_TEMP_WALLET_NAME:
-            return { ...state, tempWallet: action.payload };
+            return { ...state, tempWalletName: action.payload };
         case types.SET_PASSWORD:
             return { ...state, password: action.payload };
         case types.SET_SESSION_STATUS:
