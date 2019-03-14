@@ -41,7 +41,10 @@
         flex-wrap: nowrap;
         align-items: flex-start;
 
-        &--center {
+        &-center {
+            @extend .row;
+            @extend .row--no-col;
+            flex-wrap: nowrap;
             align-items: center;
         }
     }

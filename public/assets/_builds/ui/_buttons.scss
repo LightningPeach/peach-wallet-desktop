@@ -200,57 +200,33 @@
 }
 
 .switcher {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    max-width: 220px;
-    transition: opacity $default-transition;
+    @extend .button;
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: $grey;
+    position: relative;
+    cursor: pointer;
+    transition: background-color $default-transition;
 
-    &-toggle {
-        width: 40px;
-        height: 20px;
-        border-radius: 10px;
-        background-color: $grey;
-        position: relative;
-        cursor: pointer;
-        transition: background-color $default-transition;
+    &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        height: 14px;
+        width: 14px;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        background-color: $white;
+        transition: left $default-transition;
+    }
+
+    &.active {
+        background-color: $yellow;
 
         &:after {
-            content: "";
-            display: block;
-            position: absolute;
-            height: 14px;
-            width: 14px;
-            border-radius: 50%;
-            top: 3px;
-            left: 3px;
-            background-color: $white;
-            transition: left $default-transition;
-        }
-
-        &.active {
-            background-color: $yellow;
-
-            &:after {
-                left: 23px;
-            }
-        }
-    }
-
-    &-text {
-        position: relative;
-        padding-right: 10px;
-    }
-
-    &.disabled {
-
-        .profile__switcher {
-            opacity: 0.7;
-
-            &-toggle {
-                cursor: default;
-            }
+            left: 23px;
         }
     }
 }

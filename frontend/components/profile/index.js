@@ -27,16 +27,6 @@ class Profile extends Component {
             notifications: (props.systemNotifications >> 2) & 1, // eslint-disable-line
             payReqAmountError: null,
             sound: (props.systemNotifications >> 1) & 1, // eslint-disable-line
-            tooltips: {
-                address: "Generate new BTC address",
-                copy: "Copy to clipboard",
-                payReq: [
-                    "Create new payment request by specifying amount",
-                    "of it in the filed below. Other users of the",
-                    "Lightning Network will have possibility to pay",
-                    "generated invoice (one payment for each request).",
-                ],
-            },
         };
 
         analytics.pageview(ProfileFullPath, "Profile");
@@ -395,7 +385,7 @@ class Profile extends Component {
                     <div className="col-xs-12">
                         <div className="profile__line">
                             <div className="profile__label">
-                                Choose Wallet Privacy Mode
+                                Wallet Privacy Mode
                             </div>
                             <div className="profile__value profile__value--start">
                                 <span className="profile__button-label">
@@ -482,14 +472,16 @@ class Profile extends Component {
                 </div>
                 <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className="profile__line switcher">
-                            <div className="switcher-text">
+                        <div className="profile__line-center">
+                            <div className="profile__label">
                                 System notifications
                             </div>
-                            <div
-                                className={`switcher-toggle ${this.state.notifications ? "active" : ""}`}
-                                onClick={this.toggleNotifications}
-                            />
+                            <div className="profile__value">
+                                <button
+                                    className={`switcher ${this.state.notifications ? "active" : ""}`}
+                                    onClick={this.toggleNotifications}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -507,14 +499,16 @@ class Profile extends Component {
                 </div>
                 <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className={`profile__line switcher ${this.state.notifications ? "" : "disabled"}`}>
-                            <div className="switcher-text">
+                        <div className={`profile__line-center ${this.state.notifications ? "" : "disabled"}`}>
+                            <div className="profile__label">
                                 Sounds
                             </div>
-                            <div
-                                className={`switcher-toggle ${this.state.sound ? "active" : ""}`}
-                                onClick={this.toggleSound}
-                            />
+                            <div className="profile__value">
+                                <button
+                                    className={`switcher ${this.state.sound ? "active" : ""}`}
+                                    onClick={this.toggleSound}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -530,14 +524,16 @@ class Profile extends Component {
                 </div>
                 <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className="profile__line switcher">
-                            <div className="switcher-text">
-                                Anonymous Statistics
+                        <div className="profile__line-center">
+                            <div className="profile__label">
+                                App Analytics
                             </div>
-                            <div
-                                className={`switcher-toggle ${this.state.analytics ? "active" : ""}`}
-                                onClick={this.toggleAnalytics}
-                            />
+                            <div className="profile__value">
+                                <button
+                                    className={`switcher ${this.state.analytics ? "active" : ""}`}
+                                    onClick={this.toggleAnalytics}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="col-xs-12">
@@ -559,7 +555,7 @@ class Profile extends Component {
                             {
                                 appAsDefaultStatus ?
                                     <span className="profile__app-status">
-                                        <b>Peach Wallet</b> is your default lightning wallet
+                                        Peach Wallet is your default lightning wallet
                                     </span> :
                                     <button
                                         type="button"
