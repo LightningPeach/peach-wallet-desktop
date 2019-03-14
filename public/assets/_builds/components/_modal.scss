@@ -8,6 +8,7 @@
     background: $white;
     padding: 50px;
     outline: none;
+    overflow: hidden;
 
     &__spinner {
         position: absolute;
@@ -134,6 +135,16 @@
 
     &--wallet-mode {
         width: 780px;
+    }
+
+    &--cover {
+        padding: 0;
+    }
+
+    &--legal {
+        .license {
+            background-color: $white;
+        }
     }
 }
 
