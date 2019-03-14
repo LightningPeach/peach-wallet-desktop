@@ -3,6 +3,10 @@ import React, { Fragment } from "react";
 import { helpers } from "additional";
 
 /**
+ * FLOATING TOOLTIPS
+ */
+
+/**
  * Common
  */
 
@@ -42,7 +46,7 @@ export const SEED_VERIFY = helpers.formatMultilineText([
 ]);
 
 export const DEFAULT_WALLET_PATH = helpers.formatMultilineText([
-    "It is recommended that you backup this folder periodically.",
+    "We recommend you to back up this folder periodically.",
     "Some people are comfortable with using Dropbox or",
     "Google Cloud for this purpose.",
 ]);
@@ -115,7 +119,50 @@ export const GENERATE_BTC_ADDRESS = helpers.formatMultilineText([
 
 export const GENERATE_PAYMENT_REQUEST = helpers.formatMultilineText([
     "Create new payment request by specifying amount",
-    "of it in the filed below. Other users of the",
-    "Lightning Network will have possibility to pay",
+    "of it in the field below. Other users of the",
+    "Lightning Network will be able to pay",
     "generated invoice (one payment for each request).",
 ]);
+
+/**
+ * INLINE TOOLTIPS
+ */
+
+/**
+ * Settings
+ */
+
+export const MODE_STANDARD = (
+    <Fragment>
+        In this mode your wallet never connects to the Peach server for any reason. The Extended Mode features are
+        disabled.
+    </Fragment>
+);
+
+export const MODE_EXTENDED = (
+    <Fragment>
+        In this mode you have a few extra features not yet present in the standard Lightning Network. These features
+        rely on the Peach server to route a transaction.
+    </Fragment>
+);
+
+export const SYSTEM_NOTIFICATIONS = (
+    <Fragment>
+        Enable or disable system notifications. When enabled, they will be shown as push messages on your PC. System
+        notifications will inform you about incoming payments, opening and closing channels and other types of the
+        wallet activities.
+    </Fragment>
+);
+
+export const SYSTEM_NOTIFICATIONS_SOUNDS = (
+    <Fragment>
+        Enable or disable sounds of system notifications.
+    </Fragment>
+);
+
+export const APP_ANALYTICS = (
+    <Fragment>
+        We use Google Analytics to optionally collect anonymized data on how people use the wallet. This data helps us
+        improve the user experience of the app. By default, this setting is disabled when a new wallet is being created.
+    </Fragment>
+);

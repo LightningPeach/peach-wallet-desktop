@@ -405,15 +405,9 @@ class Profile extends Component {
                             <div className="profile__label" />
                             <div className="profile__value">
                                 <span className="text-grey">
-                                    {walletMode === accountTypes.WALLET_MODE.EXTENDED ?
-                                        <span>
-                                            In this mode you have a few extra features. These features rely on the Peach
-                                            server to route a transaction.
-                                        </span> :
-                                        <span>
-                                            In this mode your wallet doesn’t connect to the Peach server for any reason.
-                                            The Extended Mode features are disabled.
-                                        </span>
+                                    {walletMode === accountTypes.WALLET_MODE.EXTENDED
+                                        ? tooltips.MODE_EXTENDED
+                                        : tooltips.MODE_STANDARD
                                     }
                                 </span>
                             </div>
@@ -489,9 +483,7 @@ class Profile extends Component {
                             <div className="profile__label" />
                             <div className="profile__value">
                                 <span className="text-grey">
-                                    Enable or disable system notifications. When enabled, they will be shown as push
-                                    messages on your PC. System notifications will inform you about incoming payments,
-                                    opening and closing channels and other types of the wallet activities.
+                                    {tooltips.SYSTEM_NOTIFICATIONS}
                                 </span>
                             </div>
                         </div>
@@ -516,7 +508,7 @@ class Profile extends Component {
                             <div className="profile__label" />
                             <div className="profile__value">
                                 <span className="text-grey">
-                                    Enable or disable sounds of system notifications.
+                                    {tooltips.SYSTEM_NOTIFICATIONS_SOUNDS}
                                 </span>
                             </div>
                         </div>
@@ -541,9 +533,7 @@ class Profile extends Component {
                             <div className="profile__label" />
                             <div className="profile__value">
                                 <span className="text-grey">
-                                    We use Google Analytics to optionally collect anonymized data on how people use the
-                                    wallet. This data helps us improve the user experience of the app. By default, this
-                                    setting is disabled.
+                                    {tooltips.APP_ANALYTICS}
                                 </span>
                             </div>
                         </div>
