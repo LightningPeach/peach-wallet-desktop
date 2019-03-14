@@ -106,14 +106,6 @@ class Onchain extends Component {
 
     renderOnchain = () => {
         const { dispatch, bitcoinMeasureType } = this.props;
-        let usd = null;
-        if (this.state.amount) {
-            usd = (
-                <span className="form-usd">
-                    <BtcToUsd amount={dispatch(appOperations.convertToSatoshi(this.state.amount))} hideBase />
-                </span>
-            );
-        }
         return (
             <Fragment>
                 <div className="tabs">
@@ -179,10 +171,21 @@ class Onchain extends Component {
                                 <div className="col-xs-8">
                                     <div className="row">
                                         <div className="col-xs-12">
-                                            <div className="form-label">
-                                                <label htmlFor="send-coins__amount">
-                                                    Amount in {bitcoinMeasureType}
-                                                </label>
+                                            <div className="row row--no-col justify-between-xs">
+                                                <div className="form-label">
+                                                    <label htmlFor="send-coins__amount">
+                                                        Amount in {bitcoinMeasureType}
+                                                    </label>
+                                                </div>
+                                                {this.state.amount &&
+                                                <div className="form-usd form-usd--label">
+                                                    <BtcToUsd
+                                                        amount={dispatch(appOperations
+                                                            .convertToSatoshi(this.state.amount))}
+                                                        hideBase
+                                                    />
+                                                </div>
+                                                }
                                             </div>
                                         </div>
                                         <div className="col-xs-12">
@@ -210,7 +213,6 @@ class Onchain extends Component {
                                     </div>
                                 </div>
                                 <div className="col-xs-4">
-                                    {usd}
                                     <button type="submit" className="button button__solid button--fullwide">
                                         Pay
                                     </button>

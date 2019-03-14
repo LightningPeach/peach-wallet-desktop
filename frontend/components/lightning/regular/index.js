@@ -257,22 +257,11 @@ class RegularPayment extends Component {
             lisStatus,
             walletMode,
         } = this.props;
-        const usdRender = amount => (
-            <span className="form-usd">
-                <BtcToUsd
-                    amount={dispatch(appOperations.convertToSatoshi(amount))}
-                    hideBase
-                />
-            </span>
-        );
         const toPlaceholder = `${
             walletMode === accountTypes.WALLET_MODE.EXTENDED && lisStatus === accountTypes.LIS_UP
                 ? "Lightning ID / "
                 : ""
         }Payment request`;
-        const usd = !this.state.isPayReq && !this.state.amount ? null
-            : (this.state.isPayReq ? usdRender(this.state.payReqAmount) : usdRender(this.state.amount));
-
         return (
             <div className="block__row-lg">
                 <div className="col-xs-12 col-md-6">
@@ -347,10 +336,20 @@ class RegularPayment extends Component {
                             <div className="col-xs-8">
                                 <div className="row">
                                     <div className="col-xs-12">
-                                        <div className="form-label">
-                                            <label htmlFor="regular__amount">
-                                                Amount in {bitcoinMeasureType}
-                                            </label>
+                                        <div className="row row--no-col justify-between-xs">
+                                            <div className="form-label">
+                                                <label htmlFor="regular__amount">
+                                                    Amount in {bitcoinMeasureType}
+                                                </label>
+                                            </div>
+                                            {this.state.amount &&
+                                            <span className="form-usd form-usd--label">
+                                                <BtcToUsd
+                                                    amount={dispatch(appOperations.convertToSatoshi(this.state.amount))}
+                                                    hideBase
+                                                />
+                                            </span>
+                                            }
                                         </div>
                                     </div>
                                     <div className="col-xs-12">
@@ -378,7 +377,6 @@ class RegularPayment extends Component {
                                 </div>
                             </div>
                             <div className="col-xs-4">
-                                {usd}
                                 <button
                                     type="submit"
                                     className="button button__solid button--fullwide"

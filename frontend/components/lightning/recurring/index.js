@@ -250,20 +250,6 @@ class RecurringPayment extends Component {
         const { dispatch, bitcoinMeasureType, lisStatus } = this.props;
         const filledFrequency = this.state.frequency;
         const filledAmount = this.amount && this.amount.value.trim();
-        let usd = null;
-        if (this.state.totalAmount) {
-            usd = (
-                <span className="form-usd">
-                    <BtcToUsd
-                        amount={this.state.valueCurrency === "USD"
-                            ? this.state.totalAmount
-                            : dispatch(appOperations.convertToSatoshi(this.state.totalAmount))}
-                        reversed={this.state.valueCurrency === "USD"}
-                    />
-                    {this.state.isInfinite && " per payment"}
-                </span>
-            );
-        }
         return (
             <div className="block__row-xs">
                 <div className="col-xs-12">
@@ -537,16 +523,34 @@ class RecurringPayment extends Component {
                                 <ErrorFieldTooltip text={this.state.timeError} />
                             </div>
                         </div>
-                        <div className="block__row-lg">
-                            <div className="col-xs-12 col-md-4 col-md-offset-8">
-                                {usd}
-                                <button
-                                    type="submit"
-                                    className="button button__solid button--fullwide"
-                                    disabled={this.state.processing}
-                                >
-                                    Create payment
-                                </button>
+                        <div className="block__row-xs">
+                            <div className="col-xs-12 col-md-8">
+                                {this.state.totalAmount &&
+                                <div className="block__row row--no-col justify-end-xs">
+                                    <span className="form-usd">
+                                        <BtcToUsd
+                                            amount={this.state.valueCurrency === "USD"
+                                                ? this.state.totalAmount
+                                                : dispatch(appOperations.convertToSatoshi(this.state.totalAmount))}
+                                            reversed={this.state.valueCurrency === "USD"}
+                                        />
+                                        {this.state.isInfinite && " per payment"}
+                                    </span>
+                                </div>
+                                }
+                            </div>
+                            <div className="col-xs-12 col-md-4">
+                                <div className="block__row">
+                                    <div className="col-xs-12">
+                                        <button
+                                            type="submit"
+                                            className="button button__solid button--fullwide"
+                                            disabled={this.state.processing}
+                                        >
+                                            Create payment
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         {lisStatus !== accountTypes.LIS_UP && (
