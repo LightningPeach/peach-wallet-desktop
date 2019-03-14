@@ -7,7 +7,6 @@ import { WalletPath } from "routes";
 import { accountOperations } from "modules/account";
 import { appTypes, appActions, appOperations } from "modules/app";
 import ForceLogout from "components/modal/window/force-logout";
-import { GITHUB_USERGUIDE_LINK } from "config/consts";
 
 const background = <div className="tourgide__background" />;
 
@@ -53,10 +52,6 @@ class GuidePage extends Component {
             );
         }
         return `Synchronization - ${currentPercent}%`;
-    };
-
-    openUserGuide = () => {
-        window.ELECTRON_SHELL.openExternal(GITHUB_USERGUIDE_LINK);
     };
 
     firstSlide = () => (
@@ -277,9 +272,7 @@ class GuidePage extends Component {
             <div className="guide__description">
                 On the <span className="guide__orange">PROFILE</span> page users can find their Lightning ID and BTC
                 Address, generate a payment request for another Lightning Network participant to pay it, and other
-                options.<br />
-                For a detailed description on how to navigate around our wallet see
-                the <span className="guide__link" onClick={this.openUserGuide}>User Guide.</span>
+                options.
             </div>
         </div>
     );

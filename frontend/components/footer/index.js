@@ -1,15 +1,12 @@
 import PropTypes from "prop-types";
 import React, { PureComponent } from "react";
 import { connect } from "react-redux";
+
 import { appOperations } from "modules/app";
-import { GITHUB_USERGUIDE_LINK } from "config/consts";
 
 class Footer extends PureComponent {
     openLegal = () => {
         this.props.dispatch(appOperations.openLegalModal());
-    };
-    openUserGuide = () => {
-        window.ELECTRON_SHELL.openExternal(GITHUB_USERGUIDE_LINK);
     };
 
     render() {
@@ -29,13 +26,6 @@ class Footer extends PureComponent {
                     <div className="footer__extra">
                         <div className="row">
                             <div className="col-xs-12 col-md-6">
-                                <a
-                                    className="link"
-                                    onClick={this.openUserGuide}
-                                >
-                                    User Guide
-                                </a>
-                                <br />
                                 <button className="link" onClick={this.openLegal}>
                                     License agreement & Terms and conditions
                                 </button>
