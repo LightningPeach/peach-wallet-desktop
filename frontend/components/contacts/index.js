@@ -47,7 +47,7 @@ class ContactsPage extends Component {
     getHistoryHeader = () => (
         [
             {
-                Header: <span className="sortable">Name of contact</span>,
+                Header: <span className="sortable">Name</span>,
                 accessor: "name",
                 maxWidth: 201,
                 minWidth: 142,

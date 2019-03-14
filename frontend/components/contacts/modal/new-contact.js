@@ -97,7 +97,7 @@ class NewContact extends Component {
                             <div className="col-xs-12">
                                 <div className="form-label">
                                     <label htmlFor="contact__name">
-                                        Name of contact
+                                        Name
                                     </label>
                                 </div>
                             </div>
