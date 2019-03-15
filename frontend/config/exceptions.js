@@ -174,6 +174,7 @@ export const SERVER_UNAVAILABLE = "Server api unavailable.";
 
 // PRIVACY MODE
 // Attempt to pay via Lightning Id not in extended mode
-export const PAY_LIGHTNING_ID_IN_STANDARD = "You can not pay via Lightning Id while not in extended mode.";
+export const PAY_LIGHTNING_ID_IN_STANDARD
+    = "Lightning ID payments are not supported in standard mode. You can change Wallet privacy mode in Profile";
 // Incorrect payment request
 export const INCORRECT_PAYMENT_REQUEST = "Incorrect payment request.";

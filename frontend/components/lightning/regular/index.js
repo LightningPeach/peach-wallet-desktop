@@ -131,11 +131,20 @@ class RegularPayment extends Component {
             category: "Lightning",
             label: "Pay",
         });
-        const { contacts, isThereActiveChannel, dispatch } = this.props;
+        const {
+            contacts,
+            isThereActiveChannel,
+            dispatch,
+            walletMode,
+        } = this.props;
         if (!this.state.isPayReq) {
             this.setState({
                 processing: false,
-                toError: exceptions.INCORRECT_PAYMENT_REQUEST,
+                toError:
+                    walletMode === accountTypes.WALLET_MODE.STANDARD
+                    && this.state.toValue.length === LIGHTNING_ID_LENGTH
+                        ? exceptions.PAY_LIGHTNING_ID_IN_STANDARD
+                        : exceptions.INCORRECT_PAYMENT_REQUEST,
             });
             return;
         }
