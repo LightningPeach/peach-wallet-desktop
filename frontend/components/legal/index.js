@@ -13,7 +13,7 @@ class Legal extends Component {
         this.state = {
             activeTab: "license",
         };
-        this.openLinks = subscribeOpenLinkExternal(".license__wrapper");
+        this.openLinks = subscribeOpenLinkExternal(".license");
 
         if (props.fromProfile) {
             analytics.pageview(`${ProfileFullPath}/license`, "License agreement");
