@@ -165,14 +165,12 @@ Header.propTypes = {
         accountTypes.WALLET_MODE.STANDARD,
         accountTypes.WALLET_MODE.PENDING,
     ]),
-    skipCreateTutorial: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
     lndSyncedToChain: state.lnd.lndSyncedToChain,
     location: state.routing.locationBeforeTransitions,
     walletMode: state.account.walletMode,
-    skipCreateTutorial: state.channels.skipCreateTutorial,
 });
 
 export default connect(mapStateToProps)(Header);

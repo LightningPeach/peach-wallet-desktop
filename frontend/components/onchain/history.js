@@ -111,7 +111,11 @@ class OnchainHistory extends Component {
                     <span
                         onClick={() => {
                             if (helpers.hasSelection()) return;
-                            analytics.event({ action: "History transaction hash", category: "On-chain", label: "Copy" });
+                            analytics.event({
+                                action: "History transaction hash",
+                                category: "On-chain",
+                                label: "Copy",
+                            });
                             dispatch(appOperations.copyToClipboard(item.tx_hash));
                         }}
                         title={item.tx_hash}

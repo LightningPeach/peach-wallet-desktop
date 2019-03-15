@@ -29,7 +29,6 @@ export const initStateAccount = {
         isCreating: false,
     },
     peers: [],
-    walletMode: types.WALLET_MODE.PENDING,
     signedMessage: null,
     systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
     termsMode: types.TERMS_MODE.PENDING,
@@ -37,6 +36,7 @@ export const initStateAccount = {
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,
     validatingLightningId: false,
+    walletMode: types.WALLET_MODE.PENDING,
 };
 
 const defaultState = JSON.parse(JSON.stringify(initStateAccount));

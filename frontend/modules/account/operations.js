@@ -163,9 +163,9 @@ function setInitConfig(lightningId) {
                 analytics: analyticsMode,
                 createChannelViewed: 0,
                 lightningId,
-                walletMode,
                 systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
                 terms: termsMode,
+                walletMode,
             })
             .execute();
         dispatch(actions.setBitcoinMeasure(ALL_MEASURES[0].btc));
