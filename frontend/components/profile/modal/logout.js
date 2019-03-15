@@ -45,32 +45,45 @@ class ConfirmLogout extends Component {
 
     render() {
         return (
-            <Modal title="Log out" onClose={this.closeModal} disabled={this.state.processing}>
+            <Modal
+                title="Are you sure you want to switch to another wallet?"
+                theme="small"
+                onClose={this.closeModal}
+                showCloseButton
+            >
                 <div className="modal__body">
                     <div className="row">
-                        <div className="col-xs-12 channel-close__text">
-                            Are you sure you want to log out?
+                        <div className="col-xs-12">
+                            All data related to this wallet will be securely stored on your hard drive. You can always
+                            switch back to this wallet without any data loss.
                         </div>
                     </div>
                 </div>
                 <div className="modal__footer">
                     <div className="row">
-                        <div className="col-xs-12 text-right">
+                        <div className="col-xs-12">
+                            <span className="button__spinner">
+                                <button
+                                    type="button"
+                                    className="button button__solid button--fullwide"
+                                    onClick={this.logout}
+                                    disabled={this.state.processing}
+                                >
+                                    Switch
+                                </button>
+                                {this.state.processing && <div className="spinner" />}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__link"
+                                className="button button__solid button__solid--transparent button--fullwide"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
                             >
                                 Cancel
-                            </button>
-                            <button
-                                type="button"
-                                className="button button__solid"
-                                onClick={this.logout}
-                                disabled={this.state.processing}
-                            >
-                                Log out
                             </button>
                         </div>
                     </div>

@@ -55,12 +55,12 @@
         &:before,
         &:after {
             content: '';
-            height: 25px;
-            width: 2px;
+            height: 20px;
+            width: 1px;
             display: block;
             background: $grey-light;
             left: 45%;
-            top: -12%;
+            top: 0;
             position: absolute;
         }
 
@@ -71,6 +71,16 @@
         &:after {
             transform: rotate(-45deg);
         }
+    }
+
+    &__header {
+        & + .modal__body {
+            padding-top: 40px;
+        }
+    }
+
+    &__footer {
+        padding-top: 30px;
     }
 
     &--payment_result {
@@ -119,14 +129,22 @@
         }
     }
 
-    &__header {
-        & + .modal__body {
-            padding-top: 40px;
-        }
-    }
+    &--small {
+        width: 300px;
+        padding: 40px 30px 20px;
+        text-align: center;
 
-    &__footer {
-        padding-top: 30px;
+        .modal {
+            &__header {
+                & + .modal__body {
+                    padding-top: 20px;
+                }
+            }
+
+            &__footer {
+                padding-top: 20px;
+            }
+        }
     }
 
     &--wide {
