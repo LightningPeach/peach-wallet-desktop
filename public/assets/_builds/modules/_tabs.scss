@@ -26,6 +26,8 @@
         }
 
         &-active {
+            font-weight: normal!important;
+
             &:before {
                 background-color: $yellow;
             }
