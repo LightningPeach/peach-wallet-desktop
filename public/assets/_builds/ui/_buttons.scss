@@ -142,6 +142,7 @@
 }
 
 .link {
+    background-color: $transparent;
     cursor: pointer;
     user-select: none;
     transition: color $default-transition;

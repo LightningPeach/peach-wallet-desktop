@@ -642,7 +642,7 @@ $yellow-border: transparentize($yellow, .7);
     }
 
     &__copy {
-        background: url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path stroke="#F70" d="M2 2h9.5v9.5H2z"/><path fill="#F70" d="M0 0h1v9H0z"/><path fill="#F70" d="M0 0h9v1H0z"/></g></svg>') no-repeat center;
+        background: url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><path stroke="#ffb700" d="M2 2h9.5v9.5H2z"/><path fill="#ffb700" d="M0 0h1v9H0z"/><path fill="#ffb700" d="M0 0h9v1H0z"/></g></svg>') no-repeat center;
         background-size: cover;
         width: 12px;
         height: 12px;
@@ -650,7 +650,7 @@ $yellow-border: transparentize($yellow, .7);
     }
 
     &__refresh {
-        background: url('data:image/svg+xml;utf8,<svg width="11" height="13" viewBox="0 0 11 13" xmlns="http://www.w3.org/2000/svg"><path d="M7.668 2.417a5.655 5.655 0 0 0-4.436.052L3.954.49a.359.359 0 0 0-.399-.486.36.36 0 0 0-.278.236L2.222 3.093a.408.408 0 0 0 .03.305.36.36 0 0 0 .163.15l2.728 1.33a.359.359 0 1 0 .314-.647L3.339 3.208c1.06-.493 2.572-.75 4.037-.13a4.663 4.663 0 0 1 2.62 2.812 4.972 4.972 0 0 1-.073 3.478c-.902 2.13-3.662 3.659-6.314 2.535C1.944 11.197.867 9.661.723 7.796A.361.361 0 0 0 0 7.85c.159 2.137 1.398 3.901 3.318 4.714A5.403 5.403 0 0 0 5.448 13a5.705 5.705 0 0 0 5.14-3.35 5.63 5.63 0 0 0 .09-3.993 5.376 5.376 0 0 0-3.01-3.24z" fill="#F70" fill-rule="nonzero"/></svg>') no-repeat center;
+        background: url('data:image/svg+xml;utf8,<svg width="11" height="13" viewBox="0 0 11 13" xmlns="http://www.w3.org/2000/svg"><path d="M7.668 2.417a5.655 5.655 0 0 0-4.436.052L3.954.49a.359.359 0 0 0-.399-.486.36.36 0 0 0-.278.236L2.222 3.093a.408.408 0 0 0 .03.305.36.36 0 0 0 .163.15l2.728 1.33a.359.359 0 1 0 .314-.647L3.339 3.208c1.06-.493 2.572-.75 4.037-.13a4.663 4.663 0 0 1 2.62 2.812 4.972 4.972 0 0 1-.073 3.478c-.902 2.13-3.662 3.659-6.314 2.535C1.944 11.197.867 9.661.723 7.796A.361.361 0 0 0 0 7.85c.159 2.137 1.398 3.901 3.318 4.714A5.403 5.403 0 0 0 5.448 13a5.705 5.705 0 0 0 5.14-3.35 5.63 5.63 0 0 0 .09-3.993 5.376 5.376 0 0 0-3.01-3.24z" fill="#ffb700" fill-rule="nonzero"/></svg>') no-repeat center;
         background-size: cover;
         width: 11px;
         height: 13px;
