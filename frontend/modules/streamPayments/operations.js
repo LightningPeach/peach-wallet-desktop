@@ -322,7 +322,10 @@ function startStreamPayment(streamId, forceStart = false) {
                     : response.error);
                 return;
             }
-            response = await window.ipcClient("sendPayment", { payment_request: response.response.payment_request });
+            response = await window.ipcClient("sendPayment", {
+                details: { payment_request: response.response.payment_request },
+                isPayReq: true,
+            });
             dispatch(actions.changeStreamPartsPending(streamId, -1));
             if (!response.ok) {
                 handleStreamError(response.error);
