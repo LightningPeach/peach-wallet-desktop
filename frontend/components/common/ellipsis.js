@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const Ellipsis = props => (
-    <span className={`js-ellipsis text-ellipsis__container ${props.classList || ""}`}>
+    <span className={`js-ellipsis text-ellipsis__container ${props.className || ""}`}>
         <span className="text-ellipsis__text">{props.children}</span>
     </span>
 );
@@ -12,7 +12,7 @@ Ellipsis.propTypes = {
         PropTypes.arrayOf(PropTypes.node),
         PropTypes.node,
     ]).isRequired,
-    classList: PropTypes.string,
+    className: PropTypes.string,
 };
 
 export default Ellipsis;

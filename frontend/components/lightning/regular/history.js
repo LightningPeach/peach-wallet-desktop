@@ -110,7 +110,7 @@ class RegularHistory extends Component {
                             {helpers.formatDate(item.date)}
                         </div>
                     ),
-                    name: <Ellipsis classList="history">{item.name}</Ellipsis>,
+                    name: <Ellipsis className="history">{item.name}</Ellipsis>,
                     to: <Ellipsis>{address}</Ellipsis>,
                 };
             });

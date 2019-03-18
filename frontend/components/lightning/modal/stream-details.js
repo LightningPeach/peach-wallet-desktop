@@ -115,7 +115,7 @@ class StreamDetails extends Component {
                             </div>
                             <div className="send-form__value send-form__value--no-overflow">
                                 {streamDetails.contact_name ?
-                                    <Ellipsis classList="send-form__contact_name">
+                                    <Ellipsis className="send-form__contact_name">
                                         {streamDetails.contact_name}
                                     </Ellipsis>
                                     : ""}

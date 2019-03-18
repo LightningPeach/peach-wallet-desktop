@@ -87,7 +87,7 @@ class LightningDetails extends Component {
                             </div>
                             <div className="send-form__value send-form__value--no-overflow">
                                 {paymentDetails[0].contact_name ?
-                                    <Ellipsis classList="send-form__contact_name">
+                                    <Ellipsis className="send-form__contact_name">
                                         {paymentDetails[0].contact_name}
                                     </Ellipsis>
                                     : ""}
