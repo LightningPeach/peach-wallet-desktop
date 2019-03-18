@@ -170,18 +170,6 @@ export function togglePasswordVisibility() {
     }
 }
 
-export const subscribeToWatchHoverOnEllipsis = () => {
-    $(document)
-        .on("mouseenter mouseleave", ".js-ellipsis", (e) => {
-            const $this = $(e.currentTarget);
-            if (e.type === "mouseenter" && $this.first()[0].scrollWidth > $this.width()) {
-                $this.addClass("hovered");
-            } else {
-                $this.removeClass("hovered");
-            }
-        });
-};
-
 export const subscribeOpenLinkExternal = (target) => {
     let subscribed = false;
 
