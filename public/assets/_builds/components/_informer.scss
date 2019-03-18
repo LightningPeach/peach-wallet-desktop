@@ -1,11 +1,8 @@
 .informer {
+    margin: 20px -10px -20px;
     padding: 10px;
-    background: rgba(255, 229, 100, 0.2);
+    background: $yellow10;
     font-size: 14px;
     text-align: center;
     border-radius: 4px;
-
-    a{
-        color: $yellow;
-    }
 }

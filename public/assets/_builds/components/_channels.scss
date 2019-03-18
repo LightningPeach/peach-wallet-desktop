@@ -277,36 +277,6 @@
     }
 }
 
-.overlay__create {
-    width: 185px;
-    height: 60px;
-    top: -82px;
-    right: 10px;
-    z-index: 5;
-
-    .overlay__tooltip {
-        width: 255px;
-        transform: translateX(-50%);
-        left: 50%;
-    }
-}
-
-.overlay__lightning {
-    width: 115px;
-    height: 42px;
-    top: -145px;
-    right: 505px;
-
-    .overlay__hole {
-        box-shadow: none;
-    }
-
-    .overlay__tooltip {
-        width: 230px;
-        margin-left: -57px;
-    }
-}
-
 .channel-close__text {
     font-size: 16px;
     line-height: 1.56;

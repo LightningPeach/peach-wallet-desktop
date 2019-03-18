@@ -14,21 +14,39 @@
     text-align: center;
     margin-top: 60px;
 
+    &:before {
+      content: "";
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
     &--book {
       padding-top: 120px;
 
       &:before {
-        content: "";
-        display: block;
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
         width: 82px;
         height: 90px;
         background: url(../images/address-book.svg) no-repeat center top;
         background-size: contain;
       }
+    }
+
+    &--list {
+      padding-top: 90px;
+
+      &:before {
+        width: 120px;
+        height: 60px;
+        background: url(../images/placeholder-channels.svg) no-repeat center top;
+        background-size: contain;
+      }
+    }
+
+    &-text {
+      color: $grey;
     }
   }
 }
