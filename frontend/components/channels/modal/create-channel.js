@@ -143,16 +143,11 @@ class CreateChannel extends Component {
             prepareNewChannel, bitcoinMeasureType, firstEmptyChannelDefaultName, toCurMeasure,
         } = this.props;
         let customLightningHost = null;
-        let helpText = "* To create a channel, you need to specify the amount you want to transfer from Onchain";
         if (prepareNewChannel && prepareNewChannel.custom) {
             customLightningHost = prepareNewChannel.channelInfo
                 ? prepareNewChannel.channelInfo
                 : `${prepareNewChannel.lightningID}@${prepareNewChannel.host}`;
         }
-        if (this.state.custom) {
-            helpText += ", Lightning ID and IP address of counterparty";
-        }
-        helpText += ".";
         return (
             <Modal title="Create channel" onClose={this.closeModal} titleTooltip={tooltips.CREATE_CHANNEL}>
                 <div className="modal__body">
@@ -245,7 +240,13 @@ class CreateChannel extends Component {
                     <div className="row">
                         <div className="col-xs-12 channels__create-actions">
                             <span className="placeholder_text font-12">
-                                {helpText}
+                                By default, new channels are opened with the&nbsp;
+                                <button
+                                    className="link"
+                                    onClick={() => window.ELECTRON_SHELL.openExternal(consts.PEACH_NODE_URL)}
+                                >
+                                    Lightning Peach public node
+                                </button>. You can open a custom channel by manually specifying a peer address.
                             </span>
                             <div className="channels__create-buttons">
                                 <button
