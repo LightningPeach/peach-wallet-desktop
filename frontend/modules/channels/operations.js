@@ -501,20 +501,6 @@ function hideShowCreateTutorial() {
     };
 }
 
-function shouldShowLightningTutorial() {
-    return async (dispatch, getState) => {
-        getState()
-            .channels
-            .channels
-            .forEach((item) => {
-                if (item.status === types.CHANNEL_STATUS_ACTIVE) {
-                    dispatch(actions.updateLightningTutorialStatus(types.HIDE));
-                }
-            });
-        return successPromise();
-    };
-}
-
 export {
     openStreamWarningModal,
     openNewChannelModal,
@@ -531,6 +517,5 @@ export {
     createNewChannel,
     updateChannelOnServer,
     shouldShowCreateTutorial,
-    shouldShowLightningTutorial,
     hideShowCreateTutorial,
 };

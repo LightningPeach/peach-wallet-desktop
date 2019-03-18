@@ -106,11 +106,6 @@ describe("Channels Unit Tests", () => {
             expect(actions.updateCreateTutorialStatus(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to update lightning tutorial status", () => {
-            expectedData.type = types.UPDATE_LIGHTNING_TUTORIAL_STATUS;
-            expect(actions.updateLightningTutorialStatus(data)).to.deep.equal(expectedData);
-        });
-
         it("should create an action for adding to delete", () => {
             expectedData.type = types.ADD_TO_DELETE;
             expect(actions.addToDelete(data)).to.deep.equal(expectedData);
@@ -1543,47 +1538,6 @@ describe("Channels Unit Tests", () => {
                 expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
             });
         });
-
-        describe("shouldShowLightningTutorial()", () => {
-            beforeEach(() => {
-                initState.channels.channels = [];
-                store = mockStore(initState);
-            });
-
-            it("should hide tutorial", async () => {
-                initState.channels.channels = [{ status: types.CHANNEL_STATUS_ACTIVE }];
-                store = mockStore(initState);
-                expectedData = { ...successResp };
-                expectedActions = [{
-                    payload: types.HIDE,
-                    type: types.UPDATE_LIGHTNING_TUTORIAL_STATUS,
-                }];
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("should no touch tutorial with no channels", async () => {
-                expectedData = { ...successResp };
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("should no touch tutorial with no active channels", async () => {
-                initState.channels.channels = [{ status: types.CHANNEL_STATUS_NOT_ACTIVE }];
-                store = mockStore(initState);
-                expectedData = { ...successResp };
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("should no touch tutorial with pending channels", async () => {
-                initState.channels.channels = [{ status: types.CHANNEL_STATUS_PENDING }];
-                store = mockStore(initState);
-                expectedData = { ...successResp };
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-        });
     });
 
     describe("Reducer actions", () => {
@@ -1675,12 +1629,6 @@ describe("Channels Unit Tests", () => {
         it("should handle UPDATE_CREATE_TUTORIAL_STATUS action", () => {
             action.type = types.UPDATE_CREATE_TUTORIAL_STATUS;
             expectedData.skipCreateTutorial = data;
-            expect(channelsReducer(state, action)).to.deep.equal(expectedData);
-        });
-
-        it("should handle UPDATE_LIGHTNING_TUTORIAL_STATUS action", () => {
-            action.type = types.UPDATE_LIGHTNING_TUTORIAL_STATUS;
-            expectedData.skipLightningTutorial = data;
             expect(channelsReducer(state, action)).to.deep.equal(expectedData);
         });
 

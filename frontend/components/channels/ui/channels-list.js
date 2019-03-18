@@ -120,29 +120,9 @@ class ChannelsList extends Component {
     );
 
     render() {
-        logger.log("CHANNELS LIST RENDERING");
         const {
-            dispatch, channels, skipCreateTutorial, skipLightningTutorial, creatingNewChannel,
+            dispatch, channels, skipCreateTutorial, creatingNewChannel,
         } = this.props;
-        let overlay;
-        if (skipLightningTutorial === types.SHOW) {
-            overlay = (<OverlayWithHole
-                class="overlay--lightning"
-                title="Make payment"
-                content="Make fast payments with minimal commission"
-                onClose={() => dispatch(actions.updateLightningTutorialStatus(types.HIDE))}
-                closeOnWrapper={false}
-            />);
-        }
-        if (skipCreateTutorial === types.SHOW) {
-            overlay = (<OverlayWithHole
-                class="overlay--create-channel"
-                title="Create channel"
-                content="Create channel for making payments with BTC"
-                onClose={() => dispatch(operations.hideShowCreateTutorial())}
-                closeOnWrapper={false}
-            />);
-        }
         return (
             <Fragment>
                 {
@@ -156,7 +136,15 @@ class ChannelsList extends Component {
                 <div className="page channels">
                     <div className="container">
                         {!channels.length && !creatingNewChannel ? this.renderEmptyList() : this.renderChannels()}
-                        {overlay}
+                        {skipCreateTutorial === types.SHOW && (
+                            <OverlayWithHole
+                                class="overlay--create-channel"
+                                title="Create channel"
+                                content="Create channel for making payments with BTC"
+                                onClose={() => dispatch(operations.hideShowCreateTutorial())}
+                                closeOnWrapper={false}
+                            />
+                        )}
                     </div>
                 </div>
             </Fragment>
@@ -185,7 +173,6 @@ ChannelsList.propTypes = {
         lightningID: PropTypes.string.isRequired,
     }),
     skipCreateTutorial: PropTypes.string,
-    skipLightningTutorial: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
@@ -196,7 +183,6 @@ const mapStateToProps = state => ({
     isActiveStreamRunning: streamPaymentSelectors.isActiveStreamRunning(state),
     prepareNewChannel: state.channels.prepareNewChannel,
     skipCreateTutorial: state.channels.skipCreateTutorial,
-    skipLightningTutorial: state.channels.skipLightningTutorial,
 });
 
 export default connect(mapStateToProps)(ChannelsList);

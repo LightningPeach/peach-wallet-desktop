@@ -408,7 +408,6 @@ function initAccount(login, newAccount = false) {
             dispatch(contactsOperations.getContacts()),
             dispatch(channelsOperations.getChannels(true)),
             dispatch(channelsOperations.shouldShowCreateTutorial()),
-            dispatch(channelsOperations.shouldShowLightningTutorial()),
             dispatch(appOperations.usdBtcRate()),
             dispatch(createNewBitcoinAccount()),
             dispatch(loadAccountSettings()),

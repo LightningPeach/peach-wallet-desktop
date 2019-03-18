@@ -96,20 +96,4 @@
       left: -20px;
     }
   }
-
-  &--lightning {
-    width: 115px;
-    height: 42px;
-    top: -145px;
-    right: 505px;
-
-    .overlay__hole {
-      box-shadow: none;
-    }
-
-    .overlay__tooltip {
-      width: 230px;
-      margin-left: -57px;
-    }
-  }
 }

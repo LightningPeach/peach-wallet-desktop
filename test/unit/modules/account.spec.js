@@ -782,7 +782,6 @@ describe("Account Unit Tests", () => {
                 fakeChannels = sandbox.stub(channelsOperations);
                 fakeChannels.getChannels.returns(fakeDispatchReturnSuccess);
                 fakeChannels.shouldShowCreateTutorial.returns(fakeDispatchReturnSuccess);
-                fakeChannels.shouldShowLightningTutorial.returns(fakeDispatchReturnSuccess);
                 fakeOnchain = sandbox.stub(onChainOperations);
                 fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
@@ -1038,7 +1037,6 @@ describe("Account Unit Tests", () => {
                 expect(fakeLightning.subscribeInvoices).to.be.calledOnce;
                 expect(fakeChannels.getChannels).to.be.calledOnce;
                 expect(fakeChannels.shouldShowCreateTutorial).to.be.calledOnce;
-                expect(fakeChannels.shouldShowLightningTutorial).to.be.calledOnce;
                 expect(fakeApp.usdBtcRate).to.be.calledOnce;
                 expect(fakeStreamOperations.loadStreams).to.be.calledOnce;
             });
