@@ -53,6 +53,7 @@ export function preparePayment(
     amount,
     comment,
     pay_req = null,
+    pay_req_decoded = null,
     paymentName = null,
     contact_name = null,
 ) {
@@ -67,6 +68,7 @@ export function preparePayment(
             amount,
             comment,
             pay_req,
+            pay_req_decoded,
             name,
             contact_name,
             fees.response.fee,
@@ -243,7 +245,25 @@ function addInvoiceRemote(lightningID, amount, memo = "") {
 
 function pay(details) {
     return async (dispatch, getState) => {
-        const response = await window.ipcClient("sendPayment", { payment_request: details.pay_req });
+        let paymentDetails;
+        let isPayReqPayment = true;
+        if (details.pay_req_decoded && details.pay_req_decoded.num_satoshis !== details.amount) {
+            isPayReqPayment = false;
+            paymentDetails = {
+                amt: details.amount,
+                dest_string: details.pay_req_decoded.destination,
+                final_cltv_delta: details.pay_req_decoded.cltv_expiry,
+                payment_hash_string: details.pay_req_decoded.payment_hash,
+            };
+        } else {
+            paymentDetails = {
+                payment_request: details.pay_req,
+            };
+        }
+        const response = await window.ipcClient("sendPayment", {
+            details: paymentDetails,
+            isPayReq: isPayReqPayment,
+        });
         if (!response.ok) {
             dispatch(actions.errorPayment(response.error));
             return errorPromise(response.error, pay);
@@ -271,6 +291,7 @@ function makePayment() {
         logger.log("Will send payment");
         dispatch(pendingPayment());
         let payReq = getState().lightning.paymentDetails[0].pay_req || null;
+        const payReqDecoded = getState().lightning.paymentDetails[0].pay_req_decoded || null;
         const details = {
             amount: getState().lightning.paymentDetails[0].amount,
             comment: getState().lightning.paymentDetails[0].comment,
@@ -294,6 +315,7 @@ function makePayment() {
             lightningID: details.lightningID,
             name: details.name,
             pay_req: payReq,
+            pay_req_decoded: payReqDecoded,
         }));
     };
 }

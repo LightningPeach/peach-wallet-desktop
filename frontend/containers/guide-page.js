@@ -182,17 +182,17 @@ class GuidePage extends Component {
     thirdSlide = () => (
         <div className="guide__slide">
             <div className="guide__header">
-                <h2 className="guide__title">Stream Lightning payments</h2>
+                <h2 className="guide__title">Recurring Lightning payments</h2>
                 <div className="guide__status">{this.status()}</div>
             </div>
             <div className="guide__img">
                 <div className="s-stream">
                     <div className="s-stream__tabs">
                         <h4 className="s-stream__tabname">REGULAR PAYMENT</h4>
-                        <h4 className="s-stream__tabname s-stream__tabname--active">STREAM PAYMENT</h4>
+                        <h4 className="s-stream__tabname s-stream__tabname--active">RECURRING PAYMENT</h4>
                     </div>
                     <div className="s-stream__row">
-                        <div className="s-stream__label">Stream name</div>
+                        <div className="s-stream__label">Name of payment</div>
                         <div className="s-stream__input">
                             <span>Spanish Lessons</span>
                         </div>
@@ -222,8 +222,8 @@ class GuidePage extends Component {
             </div>
             <div className="guide__description">
                 Apart from regular Lightning payments, there is a possibility to
-                make <span className="guide__orange">STREAM</span> Lightning payments. This type of payment can be used
-                in services based on spent time (for example, online lessons).
+                make <span className="guide__orange">RECURRING</span> Lightning payments. This type of payment can be
+                used in services based on spent time (for example, online lessons).
             </div>
         </div>
     );

@@ -31,6 +31,7 @@ function getMerchants() {
         try {
             response = await fetch(url);
             response = await response.json();
+            response = response.map(item => ({ ...item, logo: item.logo.replace("http://", "https://") }));
             dispatch(actions.merchantsSuccess(response));
         } catch (e) {
             logger.error(e.message);

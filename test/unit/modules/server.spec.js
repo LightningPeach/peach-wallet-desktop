@@ -151,13 +151,27 @@ describe("Server Unit Tests", () => {
                     {
                         foo: "foo",
                         bar: "bar",
+                        logo: "/logo1",
                     },
                     {
                         foo: "foo",
                         bar: "bar",
+                        logo: "/logo",
                     },
                 ];
                 nock(PEACH_API_HOST).get(types.ENDPOINT_MERCHANTS).reply(200, data);
+                data = [
+                    {
+                        foo: "foo",
+                        bar: "bar",
+                        logo: "/logo1",
+                    },
+                    {
+                        foo: "foo",
+                        bar: "bar",
+                        logo: "/logo",
+                    },
+                ];
                 expectedActions = [
                     {
                         type: types.MERCHANTS_REQUEST,

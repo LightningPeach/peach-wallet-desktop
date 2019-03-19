@@ -112,6 +112,11 @@ module.exports = {
             format: Boolean,
         },
     },
+    version: {
+        legal: {
+            format: String,
+        },
+    },
     logger: {
         level: {
             format: String,

@@ -148,6 +148,8 @@ export const EXCEPTION_AMOUNT_MORE_MAX_CHANNEL = (channelSize = MIN_CHANNEL_SIZE
     `Maximum allowed channel size is ${channelSize}`;
 // Time value is lower than zero
 export const EXCEPTION_TIME_NEGATIVE = "Time value should be positive.";
+// Edited amount is lower than in payment request
+export const EXEPTION_REDUCE_PAY_REQ_AMOUNT = "Payment request amount can not be reduced.";
 
 // EXTRAORDINARY ERROR
 export const EXCEPTION_EXTRA = "This error must not happen.";
