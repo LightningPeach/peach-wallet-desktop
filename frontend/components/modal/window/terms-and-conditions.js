@@ -49,7 +49,7 @@ class Law extends Component {
                     <div className="row">
                         {terms === accountTypes.TERMS_MODE.PENDING &&
                             <div className="col-xs-12">
-                                <label className="form-checkbox label_line pull-left">
+                                <label className="form-checkbox label__line">
                                     <input
                                         id="eula-agreement-checkbox"
                                         name="terms"
@@ -63,7 +63,7 @@ class Law extends Component {
                         }
                         {analytics === accountTypes.ANALYTICS_MODE.PENDING &&
                         <div className="col-xs-12">
-                            <label className="form-checkbox label_line pull-left channels__custom">
+                            <label className="form-checkbox label__line">
                                 <input
                                     id="ga-agreement-checkbox"
                                     name="analytics"

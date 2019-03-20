@@ -89,87 +89,81 @@ class EditChannel extends Component {
             return null;
         }
         return (
-            <Modal title="Edit channel" onClose={this.closeModal} showCloseButton>
-                <form onSubmit={this.editChannel}>
-                    <div className="modal__body">
-                        <div className="row form-row">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="channel__name">Name of channel</label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="channel__name"
-                                    className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                                    name="channel_name"
-                                    placeholder={this.state.defaultName}
-                                    ref={(ref) => {
-                                        this.channel__name = ref;
-                                    }}
-                                    defaultValue={currentChannel.name}
-                                    max={ELEMENT_NAME_MAX_LENGTH}
-                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
-                                    onChange={() => { this.setState({ nameError: null }) }}
-                                />
-                                <ErrorFieldTooltip text={this.state.nameError} />
+            <Modal title="Edit channel" theme="body-20" onClose={this.closeModal} showCloseButton>
+                <div className="modal__body">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="channel__name">Name of channel</label>
                             </div>
                         </div>
-                        <div className="row form-row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="channel__amount">Amount in {bitcoinMeasureType}</label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="channel__amount"
-                                    className="form-text"
-                                    name="channel_amount"
-                                    value={toCurMeasure(currentChannel.capacity)}
-                                    disabled
-                                />
-                            </div>
-                        </div>
-                        <div className="row form-row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="channel__lightningId">Lightning address</label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="channel__lightningId"
-                                    className="form-text"
-                                    name="channel_lightningId"
-                                    value={currentChannel.remote_pubkey}
-                                    disabled
-                                />
-                            </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="channel__name"
+                                className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                name="channel_name"
+                                placeholder={this.state.defaultName}
+                                ref={(ref) => {
+                                    this.channel__name = ref;
+                                }}
+                                defaultValue={currentChannel.name}
+                                max={ELEMENT_NAME_MAX_LENGTH}
+                                maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ nameError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.nameError} />
                         </div>
                     </div>
-                    <div className="modal__footer">
-                        <div className="row">
-                            <div className="col-xs-12 channels__create-actions">
-                                <div className="channels__create-buttons">
-                                    <button
-                                        className="button button__link button__link--red"
-                                        type="button"
-                                        onClick={this.openDeleteChannel}
-                                    >
-                                        Close channel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="button button__solid"
-                                    >
-                                        Edit
-                                    </button>
-                                </div>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="channel__amount">Amount in {bitcoinMeasureType}</label>
                             </div>
                         </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="channel__amount"
+                                className="form-text"
+                                name="channel_amount"
+                                value={toCurMeasure(currentChannel.capacity)}
+                                disabled
+                            />
+                        </div>
                     </div>
-                </form>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="channel__lightningId">Lightning address</label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="channel__lightningId"
+                                className="form-text"
+                                name="channel_lightningId"
+                                value={currentChannel.remote_pubkey}
+                                disabled
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="modal__footer">
+                    <div className="row row--no-col justify-end-xs">
+                        <button
+                            className="link link--red"
+                            type="button"
+                            onClick={this.openDeleteChannel}
+                        >
+                            Close channel
+                        </button>
+                        <button
+                            onClick={this.editChannel}
+                            className="button button__solid"
+                        >
+                            Edit
+                        </button>
+                    </div>
+                </div>
             </Modal>
         );
     }

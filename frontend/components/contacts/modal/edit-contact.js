@@ -51,7 +51,7 @@ class EditContact extends Component {
         e.preventDefault();
         analytics.event({ action: "Update Contact Modal", category: "Address Book", label: "Edit" });
         const { contacts, currentContact, dispatch } = this.props;
-        const name = this.contact__name.value.trim();
+        const name = this.contactName.value.trim();
         if (name === currentContact.name) {
             dispatch(appOperations.closeModal());
             return;
@@ -96,77 +96,75 @@ class EditContact extends Component {
     render() {
         const { currentContact } = this.props;
         if (!currentContact) {
-            logger.log("Cant show Edit contact 'cause currentContact not provided");
+            logger.log("Cant show Edit contact cause currentContact not provided");
             return null;
         }
         return (
-            <Modal title="Edit contact" onClose={this.closeModal} showCloseButton>
-                <form onSubmit={this.updateContact}>
-                    <div className="modal__body">
-                        <div className="row">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="contact__name">
-                                        Name
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="contact__name"
-                                    className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                                    name="contact__name"
-                                    placeholder="Optional"
-                                    ref={(input) => {
-                                        this.contact__name = input;
-                                    }}
-                                    defaultValue={currentContact.name}
-                                    max={ELEMENT_NAME_MAX_LENGTH}
-                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
-                                    onChange={() => { this.setState({ nameError: null }) }}
-                                />
-                                <ErrorFieldTooltip text={this.state.nameError} />
+            <Modal title="Edit contact" theme="body-20" onClose={this.closeModal} showCloseButton>
+                <div className="modal__body">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="contact__name">
+                                    Name
+                                </label>
                             </div>
                         </div>
-                        <div className="row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="contact__name">
-                                        Lightning Address
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="contact__lightning"
-                                    className="form-text"
-                                    name="contact__lightning"
-                                    value={currentContact.lightningID}
-                                    disabled
-                                />
-                            </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="contact__name"
+                                className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                name="contact__name"
+                                placeholder="Optional"
+                                ref={(ref) => {
+                                    this.contactName = ref;
+                                }}
+                                defaultValue={currentContact.name}
+                                max={ELEMENT_NAME_MAX_LENGTH}
+                                maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ nameError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.nameError} />
                         </div>
                     </div>
-                    <div className="modal__footer">
-                        <div className="row">
-                            <div className="col-xs-12 text-right">
-                                <button
-                                    className="button button__link button__link--red"
-                                    type="button"
-                                    onClick={this.openDeleteContact}
-                                >
-                                    Delete
-                                </button>
-                                <button
-                                    className="button button__solid"
-                                    type="submit"
-                                >
-                                    Edit
-                                </button>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="contact__name">
+                                    Lightning Address
+                                </label>
                             </div>
                         </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="contact__lightning"
+                                className="form-text"
+                                name="contact__lightning"
+                                value={currentContact.lightningID}
+                                disabled
+                            />
+                        </div>
                     </div>
-                </form>
+                </div>
+                <div className="modal__footer">
+                    <div className="row row--no-col justify-end-xs">
+                        <div className="col-xs-12">
+                            <button
+                                className="link link--red"
+                                type="button"
+                                onClick={this.openDeleteContact}
+                            >
+                                Delete
+                            </button>
+                            <button
+                                className="button button__solid"
+                                onClick={this.updateContact}
+                            >
+                                Edit
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </Modal>
         );
     }

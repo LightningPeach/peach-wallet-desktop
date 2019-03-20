@@ -32,7 +32,8 @@ class SystemNotifications extends Component {
             category: "Modal Windows",
             label: "Enable notifications",
         });
-        dispatch(accountOperations.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.ENABLED_LOUD_DONT_SHOW_AGAIN)); // eslint-disable-line
+        dispatch(accountOperations
+            .setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.ENABLED_LOUD_DONT_SHOW_AGAIN));
         dispatch(appOperations.closeModal());
     };
 
@@ -44,14 +45,16 @@ class SystemNotifications extends Component {
                 category: "Modal Windows",
                 label: "Disable notifications",
             });
-            dispatch(accountOperations.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN)); // eslint-disable-line
+            dispatch(accountOperations
+                .setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
         } else {
             analytics.event({
                 action: "System Notifications Modal",
                 category: "Modal Windows",
                 label: "Disable notifications, never ask again",
             });
-            dispatch(accountOperations.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_DONT_SHOW_AGAIN)); // eslint-disable-line
+            dispatch(accountOperations
+                .setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_DONT_SHOW_AGAIN));
         }
         dispatch(appOperations.closeModal());
     };
@@ -64,41 +67,43 @@ class SystemNotifications extends Component {
 
     render() {
         return (
-            <Modal title="System Notifications" onClose={this.closeModal} showCloseButton>
+            <Modal title="System Notifications" theme="small" onClose={this.closeModal} showCloseButton>
                 <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
-                            Would you like to enable system notifications?<br />
-                            You can change that in settings later
+                            Would you like to enable system notifications? You can change that in settings later
                         </div>
                     </div>
-                    <div className="row mt-12">
+                    <div className="block__row">
                         <div className="col-xs-12">
                             <Checkbox
                                 text="Never ask this question again"
                                 checked={!this.state.showAgain}
                                 onChange={this.toggleShowAgain}
-                                class="label_line channels__custom"
                             />
                         </div>
                     </div>
                 </div>
                 <div className="modal__footer">
                     <div className="row">
-                        <div className="col-xs-12 text-right">
+                        <div className="col-xs-12">
                             <button
-                                className="button button__link"
-                                type="button"
-                                onClick={this.rejectNotifications}
-                            >
-                                Disable
-                            </button>
-                            <button
-                                className="button button__solid"
+                                className="button button__solid button--fullwide"
                                 type="button"
                                 onClick={this.resolveNotifications}
                             >
                                 Enable
+                            </button>
+                        </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                type="button"
+                                onClick={this.rejectNotifications}
+                            >
+                                Disable
                             </button>
                         </div>
                     </div>

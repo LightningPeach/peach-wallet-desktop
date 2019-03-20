@@ -29,6 +29,14 @@
         align-items: center;
     }
 
+    &__layout {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+
     &__close {
         background: none;
         top: 10px;
@@ -140,6 +148,28 @@
 
     &--wide {
         width: 740px;
+    }
+
+    &--body-20 {
+        .modal {
+            &__header {
+                & + .modal__body {
+                    padding-top: 20px;
+                }
+            }
+
+        }
+    }
+
+    &--body-0 {
+        .modal {
+            &__header {
+                & + .modal__body {
+                    padding-top: 0px;
+                }
+            }
+
+        }
     }
 
     &--wallet-mode {
