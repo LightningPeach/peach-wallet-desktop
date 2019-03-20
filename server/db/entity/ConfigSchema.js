@@ -33,5 +33,9 @@ module.exports = new EntitySchema({
             type: "varchar",
             default: "",
         },
+        legalVersion: {
+            type: "varchar",
+            default: "",
+        },
     },
 });

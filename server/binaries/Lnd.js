@@ -125,8 +125,9 @@ const isLndPortsAvailable = async (peerPort) => {
         if (!restPortListen) {
             portErrors.push(restPort);
         }
-        const error = `${portErrors.join(", ")} 
-        ${portErrors.length > 1 ? "ports" : "port"} is used by some app. Free it before using wallet`;
+        const error = `${portErrors.join(", ")} ${
+            portErrors.length > 1 ? "ports are" : "port is"
+        } used by some app. Free ${portErrors.length > 1 ? "them" : "it"} before using wallet`;
         return { ok: peerPortListen && rpcPortListen && restPortListen, error, type: "port" };
     } catch (e) {
         return { ok: false, error: e.message, type: "internal" };

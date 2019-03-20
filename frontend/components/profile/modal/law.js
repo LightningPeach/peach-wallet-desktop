@@ -13,7 +13,7 @@ class Law extends Component {
 
     render() {
         return (
-            <Modal onClose={this.closeModal} theme="cover legal" showCloseButton>
+            <Modal onClose={this.closeModal} theme="legal" showCloseButton>
                 <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">

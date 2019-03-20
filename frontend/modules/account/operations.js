@@ -162,6 +162,7 @@ function setInitConfig(lightningId) {
                 activeMeasure: ALL_MEASURES[0].btc,
                 analytics: analyticsMode,
                 createChannelViewed: 0,
+                legalVersion: window.VERSION.Legal,
                 lightningId,
                 systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
                 terms: termsMode,
@@ -203,6 +204,7 @@ function loadAccountSettings() {
                     || response.terms === types.TERMS_MODE.PENDING
                     || !response.analytics
                     || response.analytics === types.ANALYTICS_MODE.PENDING
+                    || response.legalVersion !== window.VERSION.Legal
                 ) {
                     modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
                 }
@@ -491,7 +493,10 @@ function setTermsMode(value) {
         try {
             db.configBuilder()
                 .update()
-                .set({ terms: value })
+                .set({
+                    legalVersion: window.VERSION.Legal,
+                    terms: value,
+                })
                 .where("lightningId = :lightningID", { lightningID })
                 .execute();
             return successPromise();

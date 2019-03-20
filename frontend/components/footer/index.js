@@ -32,7 +32,7 @@ class Footer extends PureComponent {
                             </div>
                             <div className="col-xs-12 col-md-6 text-right">
                                     LND port: {peerPort}<br />
-                                    v {window.VERSION}
+                                    v {window.VERSION.Wallet}
                             </div>
                         </div>
                     </div>

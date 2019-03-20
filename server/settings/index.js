@@ -90,6 +90,7 @@ module.exports = Object.freeze({
         getBitcoin: config.get("bitcoin"),
         getDatabasePath: calculatedBase.databasePath,
         getPeach: config.get("peach"),
+        getVersion: config.get("version"),
         getDevMode: config.get("backend.devMode"),
         getInitListenPort: config.get("lnd.init_listen"),
     },

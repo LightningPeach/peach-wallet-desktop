@@ -11,6 +11,7 @@
     display: inline-block;
 
     & + &,
+    & + .link,
     & + .button__spinner {
         margin-left: 20px;
     }
@@ -156,6 +157,12 @@
     line-height: inherit;
     font-weight: normal;
     color: $yellow;
+
+    & + &,
+    & + .button,
+    & + .button__spinner {
+        margin-left: 20px;
+    }
 
     &:hover {
         text-decoration: underline;

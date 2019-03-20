@@ -155,12 +155,9 @@
         width: 780px;
     }
 
-    &--cover {
-        padding: 0;
-    }
-
     &--legal {
         .license {
+            margin: -40px -40px -8px;
             background-color: $white;
         }
     }

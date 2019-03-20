@@ -34,13 +34,14 @@ class Law extends Component {
     };
 
     render() {
-        const { terms } = this.props;
+        const { terms, analytics } = this.props;
+        const title = terms !== accountTypes.TERMS_MODE.PENDING ? "Privacy policy updated" : "";
         return (
-            <Modal theme="legal">
+            <Modal theme="legal" title={title}>
                 <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
-                            <Legal fromProfile />
+                            <Legal />
                         </div>
                     </div>
                 </div>
@@ -60,6 +61,7 @@ class Law extends Component {
                                 </label>
                             </div>
                         }
+                        {analytics === accountTypes.ANALYTICS_MODE.PENDING &&
                         <div className="col-xs-12">
                             <label className="form-checkbox label_line pull-left channels__custom">
                                 <input
@@ -72,17 +74,23 @@ class Law extends Component {
                                 <span className="form-checkbox__label">I agree to the personal data processing</span>
                             </label>
                         </div>
+                        }
                     </div>
                     <div className="row justify-end-xs">
-                        <div className="col-xs-12">
-                            <button
-                                disabled={!this.state.terms}
-                                className="button button__solid"
-                                onClick={this.handleConfirm}
-                            >
-                                Confirm
-                            </button>
-                        </div>
+                        <button
+                            type="button"
+                            className="link link--red link--logout"
+                            onClick={this.handleLogout}
+                        >
+                            Switch to another wallet
+                        </button>
+                        <button
+                            disabled={!this.state.terms}
+                            className="button button__solid"
+                            onClick={this.handleConfirm}
+                        >
+                            Confirm
+                        </button>
                     </div>
                 </div>
             </Modal>

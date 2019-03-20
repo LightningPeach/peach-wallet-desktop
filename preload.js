@@ -15,6 +15,8 @@ window.INIT_LISTEN_PORT = settings.preload.getInitListenPort;
 window.ELECTRON_SHELL = electron.shell;
 window.ANALYTICS = settings.preload.getAnalytics;
 window.PEACH = settings.preload.getPeach;
+window.VERSION = {};
+window.VERSION.Legal = settings.preload.getVersion.legal;
 window.BITCOIN_SETTINGS = settings.preload.getBitcoin;
 window.DEV_MODE = settings.preload.getDevMode;
 window.DB = { Connection: {}, Entities: {} };
@@ -27,7 +29,7 @@ window.DB.Entities.LightningTxns = require("./server/db/model/LightningTxns").Li
 window.DB.Entities.Stream = require("./server/db/model/Stream").Stream;
 window.DB.Entities.StreamPart = require("./server/db/model/StreamPart").StreamPart;
 window.DB.Entities.Config = require("./server/db/model/Config").Config;
-window.VERSION = require("./package").version;
+window.VERSION.Wallet = require("./package").version;
 
 window.LICENSE = fs.readFileSync(path.join(__dirname, "privacy_policy.html")).toString();
 window.TERMS = fs.readFileSync(path.join(__dirname, "terms_and_conditions.html")).toString();
