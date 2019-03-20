@@ -1,7 +1,7 @@
 const fs = require("fs");
 // ToDo: add public ip after testing
 const publicIp = require("public-ip");
-// const internalIp = require("internal-ip");
+const { Certificate } = require('@fidm/x509');
 const protoLoader = require("@grpc/proto-loader");
 const grpc = require("grpc");
 const path = require("path");
@@ -532,6 +532,30 @@ class Lnd extends Exec {
         const injectPreload = await this.injectPreload();
         if (!injectPreload.ok) {
             logger.error("Preload injection failed:", injectPreload);
+        }
+        // check if lnd cert is available for external (0.0.0.0) usage
+        if (fs.existsSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE))) {
+            const tlsCert = fs.readFileSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE)).toString();
+            const issuer = Certificate.fromPEM(tlsCert);
+            const extensions = issuer.extensions;
+            let ips = null;
+            extensions.forEach((el) => {
+                if (el.name === "subjectAltName") {
+                    ips = el.altNames;
+                }
+            });
+            console.log(ips);
+            let certIsForExternalUsage = false;
+            if (ips != null) {
+                ips.forEach((el) => {
+                    if (el.ip === "0.0.0.0") {
+                        certIsForExternalUsage = true;
+                    }
+                });
+            }
+            if (!certIsForExternalUsage) {
+                await this.rebuildCerts();
+            }
         }
         logger.info("Will start lnd with params: \n", (await this.getOptions()).join(" "));
         ipcSend("setLndInitStatus", "Lnd prepare to start");
