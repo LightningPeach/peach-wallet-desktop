@@ -114,16 +114,9 @@ class Terms extends Component {
 }
 
 Terms.propTypes = {
-    analytics: PropTypes.oneOf([
-        accountTypes.ANALYTICS_MODE.DISABLED,
-        accountTypes.ANALYTICS_MODE.ENABLED,
-        accountTypes.ANALYTICS_MODE.PENDING,
-    ]),
+    analytics: PropTypes.oneOf(accountTypes.ANALYTICS_MODES_LIST),
     dispatch: PropTypes.func.isRequired,
-    terms: PropTypes.PropTypes.oneOf([
-        accountTypes.TERMS_MODE.ACCEPTED,
-        accountTypes.TERMS_MODE.PENDING,
-    ]),
+    terms: PropTypes.PropTypes.oneOf(accountTypes.TERMS_MODES_LIST),
 };
 
 const mapStateToProps = state => ({

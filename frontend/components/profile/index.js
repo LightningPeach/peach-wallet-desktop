@@ -611,10 +611,7 @@ class Profile extends Component {
 }
 
 Profile.propTypes = {
-    analytics: PropTypes.oneOf([
-        accountTypes.ANALYTICS_MODE.DISABLED,
-        accountTypes.ANALYTICS_MODE.ENABLED,
-    ]),
+    analytics: PropTypes.oneOf(accountTypes.ANALYTICS_MODES_LIST),
     appAsDefaultStatus: PropTypes.bool.isRequired,
     bitcoinAccount: PropTypes.arrayOf(PropTypes.oneOfType([
         PropTypes.shape({ address: PropTypes.string.isRequired }),
@@ -628,11 +625,7 @@ Profile.propTypes = {
     paymentRequest: PropTypes.string,
     paymentRequestAmount: PropTypes.number,
     systemNotifications: PropTypes.number.isRequired,
-    walletMode: PropTypes.oneOf([
-        accountTypes.WALLET_MODE.EXTENDED,
-        accountTypes.WALLET_MODE.STANDARD,
-        accountTypes.WALLET_MODE.PENDING,
-    ]),
+    walletMode: PropTypes.oneOf(accountTypes.WALLET_MODES_LIST),
 };
 
 const mapStateToProps = state => ({

@@ -62,15 +62,29 @@ export const WALLET_MODE = {
     PENDING: null,
     STANDARD: "standard",
 };
+export const WALLET_MODES_LIST = [
+    WALLET_MODE.EXTENDED,
+    WALLET_MODE.PENDING,
+    WALLET_MODE.STANDARD,
+];
 export const ANALYTICS_MODE = {
     DISABLED: "disabled",
     ENABLED: "enabled",
     PENDING: null,
 };
+export const ANALYTICS_MODES_LIST = [
+    ANALYTICS_MODE.ENABLED,
+    ANALYTICS_MODE.DISABLED,
+    ANALYTICS_MODE.PENDING,
+];
 export const TERMS_MODE = {
     ACCEPTED: 1,
     PENDING: 0,
 };
+export const TERMS_MODES_LIST = [
+    TERMS_MODE.ACCEPTED,
+    TERMS_MODE.PENDING,
+];
 
 export const CHANNELS_INTERVAL_ID = `${$prefix}CHANNELS_INTERVAL_ID`;
 export const BALANCE_INTERVAL_ID = `${$prefix}BALANCE_INTERVAL_ID`;

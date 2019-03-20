@@ -160,11 +160,7 @@ Header.propTypes = {
         search: PropTypes.string,
         state: PropTypes.string,
     }).isRequired,
-    walletMode: PropTypes.oneOf([
-        accountTypes.WALLET_MODE.EXTENDED,
-        accountTypes.WALLET_MODE.STANDARD,
-        accountTypes.WALLET_MODE.PENDING,
-    ]),
+    walletMode: PropTypes.oneOf(accountTypes.WALLET_MODES_LIST),
 };
 
 const mapStateToProps = state => ({

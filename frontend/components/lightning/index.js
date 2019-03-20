@@ -154,11 +154,7 @@ Lightning.propTypes = {
     dispatch: PropTypes.func.isRequired,
     externalPaymentRequest: PropTypes.string,
     modalState: PropTypes.string,
-    walletMode: PropTypes.oneOf([
-        accountTypes.WALLET_MODE.EXTENDED,
-        accountTypes.WALLET_MODE.STANDARD,
-        accountTypes.WALLET_MODE.PENDING,
-    ]),
+    walletMode: PropTypes.oneOf(accountTypes.WALLET_MODES_LIST),
 };
 
 const mapStateToProps = state => ({
