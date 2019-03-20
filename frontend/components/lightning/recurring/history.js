@@ -13,6 +13,7 @@ import {
 } from "modules/streamPayments";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
+import { accountTypes } from "modules/account";
 import { consts, tooltips } from "config";
 
 import RecordsTable from "components/records/table";
@@ -133,7 +134,7 @@ class RecurringHistory extends Component {
 
     getHistoryData = () => {
         const {
-            dispatch, contacts, history, lightningID, streams, isThereActiveChannel, filter,
+            dispatch, contacts, history, lightningID, streams, isThereActiveChannel, filter, walletMode,
         } = this.props;
         return [
             ...streams.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0),
@@ -189,7 +190,7 @@ class RecurringHistory extends Component {
                 if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED) {
                     status = (
                         <Fragment>
-                            <span
+                            <button
                                 className="start"
                                 onClick={() => {
                                     analytics.event({
@@ -203,8 +204,9 @@ class RecurringHistory extends Component {
                                     }
                                     dispatch(streamPaymentOperations.startStreamPayment(item.id));
                                 }}
+                                disabled={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                             />
-                            <span
+                            <button
                                 className="stop"
                                 onClick={() => {
                                     analytics.event({
@@ -214,12 +216,13 @@ class RecurringHistory extends Component {
                                     });
                                     dispatch(streamPaymentOperations.finishStreamPayment(item.id));
                                 }}
+                                disabled={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                             />
                         </Fragment>
                     );
                 } else if (item.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING) {
                     status = (
-                        <span
+                        <button
                             className="pause"
                             onClick={() => {
                                 analytics.event({
@@ -229,6 +232,7 @@ class RecurringHistory extends Component {
                                 });
                                 dispatch(streamPaymentOperations.pauseStreamPayment(item.id));
                             }}
+                            disabled={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                         />
                     );
                 }
@@ -281,6 +285,7 @@ class RecurringHistory extends Component {
                         <div data-pinned={item.isActive}>
                             <Ellipsis>{item.name}</Ellipsis>
                             <div className="stream__actions">
+                                {walletMode === accountTypes.WALLET_MODE.EXTENDED &&
                                 <button
                                     className="table__button"
                                     type="button"
@@ -288,6 +293,7 @@ class RecurringHistory extends Component {
                                 >
                                     Edit
                                 </button>
+                                }
                                 <button
                                     className="table__button"
                                     type="button"
@@ -366,6 +372,11 @@ RecurringHistory.propTypes = {
         status: PropTypes.string.isRequired,
         totalParts: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     })).isRequired,
+    walletMode: PropTypes.oneOf([
+        accountTypes.WALLET_MODE.EXTENDED,
+        accountTypes.WALLET_MODE.STANDARD,
+        accountTypes.WALLET_MODE.PENDING,
+    ]),
 };
 
 const mapStateToProps = state => ({
@@ -377,6 +388,7 @@ const mapStateToProps = state => ({
     lightningID: state.account.lightningID,
     modalState: state.app.modalState,
     streams: state.streamPayment.streams,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(RecurringHistory);

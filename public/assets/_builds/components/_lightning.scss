@@ -69,6 +69,7 @@
     .start,
     .pause,
     .stop {
+        @extend .button;
         display: inline-block;
         width: 14px;
         height: 14px;
@@ -76,11 +77,18 @@
         cursor: pointer;
         margin-left: 9px;
         float: left;
+
+        &[disabled],
+        &.disabled {
+            opacity: 1;
+            filter: grayscale(100%);
+            cursor: default;
+        }
     }
 
     .start {
         background: url(../images/play.svg) no-repeat center;
-        margin-left: -3px;
+        margin-left: 0;
     }
 
     .pause {
