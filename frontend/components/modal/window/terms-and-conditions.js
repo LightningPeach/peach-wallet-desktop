@@ -76,7 +76,7 @@ class Law extends Component {
                         </div>
                         }
                     </div>
-                    <div className="row justify-end-xs">
+                    <div className="block__row justify-end-xs">
                         <button
                             type="button"
                             className="link link--red link--logout"

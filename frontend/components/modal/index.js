@@ -63,8 +63,7 @@ class Modal extends Component {
             : "";
 
         return (
-            <div className="modal__wrapper">
-                <div className="modal__layout" onClick={onClose} />
+            <div className="modal__wrapper" onClick={onClose}>
                 <div
                     className={`modal ${theme ? themeFull : ""}`}
                     tabIndex="-1"
