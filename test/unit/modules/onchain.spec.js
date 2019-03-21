@@ -2,7 +2,6 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
-import "../../utils";
 import { exceptions } from "config";
 import { onChainActions as actions, onChainTypes as types, onChainOperations as operations } from "modules/onchain";
 import onChainReducer, { initStateOnchain } from "modules/onchain/reducers";

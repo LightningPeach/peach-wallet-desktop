@@ -1,4 +1,4 @@
-export const $prefix = "app/account/";
+const $prefix = "app/account/";
 export const CREATE_ACCOUNT = `${$prefix}CREATE_ACCOUNT`;
 export const SUCCESS_CREATE_NEW_ACCOUNT = `${$prefix}SUCCESS_CREATE_NEW_ACCOUNT`;
 export const ERROR_CREATE_NEW_ACCOUNT = `${$prefix}ERROR_CREATE_NEW_ACCOUNT`;

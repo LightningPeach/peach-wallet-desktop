@@ -1,6 +1,5 @@
 import omit from "lodash/omit";
 
-import "../../utils";
 import { exceptions } from "config";
 import {
     streamPaymentActions as actions,

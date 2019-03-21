@@ -2,7 +2,6 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
-import "../../utils";
 import { exceptions, consts } from "config";
 import {
     lightningActions as actions,

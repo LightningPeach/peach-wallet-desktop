@@ -1,6 +1,6 @@
 /* eslint-env node, mocha */
 /* eslint-disable prefer-arrow-callback */
-require("babel-polyfill");
+require("@babel/polyfill");
 const { Application } = require("spectron");
 const path = require("path");
 const assert = require("assert");

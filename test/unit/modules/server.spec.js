@@ -2,6 +2,7 @@ import omit from "lodash/omit";
 import nock from "nock";
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
+
 import {
     serverActions as actions,
     serverTypes as types,

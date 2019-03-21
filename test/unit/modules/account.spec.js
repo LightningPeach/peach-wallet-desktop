@@ -1,7 +1,6 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 
-import "../../utils";
 import { exceptions } from "config";
 import {
     accountActions as actions,

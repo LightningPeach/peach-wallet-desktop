@@ -2,9 +2,9 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
-import { accountActions, accountTypes } from "modules/account";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
+import { accountActions, accountTypes } from "modules/account";
 
 import Legal from "components/legal";
 

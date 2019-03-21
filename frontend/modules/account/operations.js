@@ -1,4 +1,5 @@
 import { hashHistory } from "react-router";
+
 import { appOperations, appActions } from "modules/app";
 import { accountActions as actions, accountTypes as types } from "modules/account";
 import { lndActions, lndOperations } from "modules/lnd";
