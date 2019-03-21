@@ -109,11 +109,7 @@ function login(username, password) {
         }
         logger.log("Unlock lnd");
         const params = { password };
-        // ToDo: delete logging password
-        console.log("Will call unlock lnd with password", password);
-        console.log("Will call unlock lnd with params", params);
         response = await window.ipcClient("unlockLnd", params);
-        // logger.log(response);
         console.log("Response unlock", response);
         if (!response.ok) {
             const error = statusCodes.EXCEPTION_USERNAME_PASSWORD_WRONG;

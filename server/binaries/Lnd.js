@@ -113,6 +113,17 @@ const awaitTlsGen = async name => new Promise((resolve) => {
     }, 500);
 });
 
+const awaitMacaroonsGen = async name => new Promise((resolve) => {
+    const intervalId = setInterval(() => {
+        if (fs.existsSync(path.join(settings.get.lndPath, name, MACAROON_FILE))) {
+            clearInterval(intervalId);
+            resolve();
+        }
+    }, 500);
+});
+
+
+
 const isLndPortsAvailable = async (peerPort) => {
     const rpcPort = settings.get.lnd.rpclisten ? settings.get.lnd.rpclisten : LND_DEFAULT_RPC_PORT;
     const restPort = settings.get.lnd.restlisten ? settings.get.lnd.restlisten : LND_DEFAULT_REST_PORT;
@@ -653,7 +664,14 @@ class Lnd extends Exec {
     async _initWallet() {
         // Get Lightning rpc service
         logger.debug("[LND] Init grpc Lightning");
+        // macaroons are not created immediately so we need to wait
+        if (!settings.get.lnd.no_macaroons) {
+            await awaitMacaroonsGen(this.name);
+            logger.debug("[LND] Macaroons are created");
+        }
+        logger.debug("[LND] Macaroons existance", fs.existsSync(path.join(settings.get.lndPath, this.name, MACAROON_FILE)));
         const service = await getRpcService(this.name, "Lightning");
+        logger.debug("[LND] Service response", service);
         if (!settings.get.lnd.no_macaroons) {
             this._client = service.client;
             this._metadata = service.metadata;
@@ -661,7 +679,9 @@ class Lnd extends Exec {
             this._client = service;
         }
         // Sometimes rpc client start before lnd ready to accept rpc calls, let's wait
+        logger.debug("[LND] Will wait for lnd is ready");
         const getInfo = await this._waitRpcAvailability();
+        logger.debug("[LND] Got getInfo response", getInfo);
         this.starting = false;
         settings.set("lndPeer", [this.name, this._peerPort]);
         settings.saveLndPath(this.name, settings.get.lndPath);

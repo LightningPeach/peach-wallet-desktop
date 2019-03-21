@@ -59,14 +59,10 @@ async function _startLndIpc(arg) {
 registerIpc("startLnd", async (event, arg) => _startLndIpc(arg));
 
 registerIpc("unlockLnd", async (event, arg) => {
-    // ToDo: delete logging password
     logger.debug("Will unlock lnd");
     const response = await lnd.unlockWallet(arg.password);
-    logger.debug("Unlock lnd response", response);
     if (!response.ok) {
-        logger.debug("Will call stop from unlockLnd ipd");
         await lnd.stop();
-        logger.error({ func: "unlockLnd" }, response);
     }
     logger.info({ func: "unlockLnd" }, response);
 
