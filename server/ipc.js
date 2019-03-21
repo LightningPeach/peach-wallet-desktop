@@ -392,9 +392,7 @@ registerIpc("clearLndData", async () => {
 registerIpc("rebuildLndCerts", async (event, arg) => {
     logger.debug("Inside rebuildLndCerts");
     const stopResp = await lnd.stop();
-    logger.debug("Inside rebuildLndCerts stop resp", stopResp);
     const response = await lnd.rebuildCerts(arg.username);
-    logger.debug("Rebuilded cert");
     if (response.ok) {
         return {
             ok: true,

@@ -40,10 +40,8 @@ class PasswordRemoteQR extends Component {
         this.setState({
             rebuilding: true,
         });
-        // analytics.event({ action: "Success Payment Modal", category, label: "Ok" });
-        // ToDo: Add spinner
-        // dispatch(accountOperations.waitRebuild());
         const { dispatch, login } = this.props;
+        const savedLogin = login.toString();
         const password = this.password.value.trim();
         const passwordError = this._validatePassword(password);
         if (passwordError) {
@@ -53,10 +51,9 @@ class PasswordRemoteQR extends Component {
             });
             return;
         }
-        // const logout = await dispatch(accountOperations.logout(false, false));
         // delete old certs and change ip
         await dispatch(accountOperations.rebuildCertificate());
-        console.log("Will dispatch login with pass and login", password, login);
+        console.log("Will dispatch login with pass and login", password, savedLogin);
 
         // test
         function sleep(ms) {
@@ -64,9 +61,8 @@ class PasswordRemoteQR extends Component {
         }
         await sleep(10 * 1000);
 
-        // await window.ipcClient("loadLndPath", { login });
-        const init = await dispatch(authOperations.login(login, password));
-        await dispatch(accountOperations.initAccount());
+        await window.ipcClient("loadLndPath", { login });
+        const init = await dispatch(authOperations.login(savedLogin, password));
         this.setState({
             rebuilding: false,
         });

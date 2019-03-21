@@ -504,12 +504,12 @@ function getRemoteAccressString() {
 function rebuildCertificate() {
     return async (dispatch, getState) => {
         console.log("Will rebuild");
+        await delay(10000);
         const response = await window.ipcClient("rebuildLndCerts", { username: getState().account.login });
         if (!response.ok) {
             logger.error("Error on rebuildCertificate", response.error);
             return errorPromise(response.error, rebuildCertificate);
         }
-
         return successPromise();
     };
 }
