@@ -1,15 +1,15 @@
 import React, { Fragment } from "react";
 import crypto from "crypto";
-import { TIME_RANGE_MEASURE, STREAM_MEMO_PREFIX, RECURRING_MEMO_PREFIX } from "config/consts";
 import moment from "moment";
-import { exceptions } from "config";
+
+import { exceptions, consts } from "config";
 
 /**
  * @param {Date} date - date
  * @param {string} [format="%d.%m.%y %h:%i:%s"] - format for return string
  * @returns {string}
  */
-const formatDate = (date, format) => {
+export const formatDate = (date, format) => {
     const formattedDate = format || "DD.MM.YY hh:mm:ss A";
     if (!(date instanceof Date)) {
         throw new Error(exceptions.DATE_INSTANCE);
@@ -22,7 +22,7 @@ const formatDate = (date, format) => {
  * @param {number} num
  * @returns {string}
  */
-const noExponents = (num) => {
+export const noExponents = (num) => {
     const sign = num < 0 ? "-" : "";
     const data = String(num).split(/[eE]/);
     if (data.length === 1) {
@@ -54,7 +54,7 @@ const noExponents = (num) => {
  * @returns {boolean}
  */
 /* istanbul ignore next */
-const hasSelection = () => {
+export const hasSelection = () => {
     const selection = window.getSelection();
     return selection.type === "Range";
 };
@@ -64,7 +64,7 @@ const hasSelection = () => {
  * @returns {*}
  */
 /* istanbul ignore next */
-const formatMultilineText = (text) => {
+export const formatMultilineText = (text) => {
     if (text instanceof Array) {
         return text.map((i, k) => <span key={k}>{i}<br /></span>); // eslint-disable-line
     }
@@ -77,7 +77,7 @@ const formatMultilineText = (text) => {
  * @returns {*}
  */
 /* istanbul ignore next */
-const formatNotificationMessage =
+export const formatNotificationMessage =
     (
         error,
         helper = false,
@@ -100,12 +100,13 @@ const formatNotificationMessage =
     );
 
 /**
- * @param {number} time
+ * @param time
+ * @param removeQuantity
  * @returns {*}
  */
-const formatTimeRange = (time, removeQuantity = true) => {
+export const formatTimeRange = (time, removeQuantity = true) => {
     let index = -1;
-    TIME_RANGE_MEASURE.forEach((item, key) => {
+    consts.TIME_RANGE_MEASURE.forEach((item, key) => {
         if (time % item.range === 0) {
             index = key;
         }
@@ -113,29 +114,17 @@ const formatTimeRange = (time, removeQuantity = true) => {
     if (index === -1) {
         return null;
     }
-    const count = Math.round(time / TIME_RANGE_MEASURE[index].range);
-    let response = `${count} ${TIME_RANGE_MEASURE[index].measure}`;
+    const count = Math.round(time / consts.TIME_RANGE_MEASURE[index].range);
+    let response = `${count} ${consts.TIME_RANGE_MEASURE[index].measure}`;
     if (removeQuantity && count === 1) {
         response = response.slice(0, -1);
     }
     return response;
 };
 
-const isStreamOrRecurring = ({ memo = "" }) => (
-    memo.includes(STREAM_MEMO_PREFIX) || memo.includes(RECURRING_MEMO_PREFIX)
+export const isStreamOrRecurring = ({ memo = "" }) => (
+    memo.includes(consts.STREAM_MEMO_PREFIX) || memo.includes(consts.RECURRING_MEMO_PREFIX)
 );
 
-const hash = data =>
+export const hash = data =>
     crypto.createHash("sha256").update(data).digest("hex");
-
-
-export {
-    formatDate,
-    formatTimeRange,
-    formatMultilineText,
-    hasSelection,
-    noExponents,
-    formatNotificationMessage,
-    isStreamOrRecurring,
-    hash,
-};

@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
 
-import { analytics } from "additional";
+import { analytics, tooltips } from "additional";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
-import { tooltips, routes } from "config";
+import { routes } from "config";
 
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";

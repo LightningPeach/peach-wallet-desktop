@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
 
-import { analytics, helpers } from "additional";
+import { analytics, helpers, tooltips } from "additional";
 import { lightningOperations as operations } from "modules/lightning";
 import { channelsOperations, channelsSelectors } from "modules/channels";
 import {
@@ -14,7 +14,7 @@ import {
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
 import { accountTypes } from "modules/account";
-import { consts, tooltips } from "config";
+import { consts } from "config";
 
 import RecordsTable from "components/records/table";
 import BalanceWithMeasure from "components/common/balance-with-measure";

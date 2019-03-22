@@ -2,12 +2,11 @@ import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 
-import { analytics, helpers } from "additional";
+import { analytics, helpers, tooltips } from "additional";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
 import { accountActions } from "modules/account";
-import { tooltips } from "config";
 
 class SeedDisplay extends PureComponent {
     submitSeedView = (e) => {

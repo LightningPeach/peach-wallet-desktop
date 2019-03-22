@@ -2,11 +2,11 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
-import { analytics, validators, helpers } from "additional";
+import { analytics, validators, helpers, tooltips } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { exceptions, tooltips, nodeSettings, consts, routes } from "config";
+import { exceptions, nodeSettings, consts, routes } from "config";
 
 import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";

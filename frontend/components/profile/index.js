@@ -5,10 +5,10 @@ import Select from "react-select";
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import Tooltip from "rc-tooltip";
 
-import { analytics, helpers } from "additional";
+import { analytics, helpers, tooltips } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { appOperations, appTypes, appActions } from "modules/app";
-import { exceptions, consts, tooltips, routes } from "config";
+import { exceptions, consts, routes } from "config";
 import { lightningOperations } from "modules/lightning";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";

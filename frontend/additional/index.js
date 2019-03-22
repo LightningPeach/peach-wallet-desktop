@@ -1,22 +1,23 @@
 import React from "react";
-import { NODE_ENV } from "config/node-settings";
-import { SUCCESS_RESPONSE, UNSUCCESS_RESPONSE, PENDING_RESPONSE, TIMEOUT_PART } from "config/consts";
-import * as validators from "./validators";
-import * as helpers from "./helpers";
-import * as analytics from "./analytics";
-import * as db from "./db";
+import { consts, nodeSettings } from "config";
+
+export * as validators from "./validators";
+export * as helpers from "./helpers";
+export * as analytics from "./analytics";
+export * as db from "./db";
+export * as tooltips from "./tooltips";
 
 const timeoutsList = {};
 const resolversList = {};
 
 export const logger = {
     error: (...args) => {
-        if (NODE_ENV !== "test") {
+        if (nodeSettings.NODE_ENV !== "test") {
             console.error(...args);
         }
     },
     log: (...args) => {
-        if (NODE_ENV !== "test") {
+        if (nodeSettings.NODE_ENV !== "test") {
             console.log(...args);
         }
     },
@@ -45,9 +46,9 @@ export const setTimeoutLong = (func, interval, id = "*", initialCall = true) => 
         logger.error(`setTimeoutLong: id ${id} is already used`);
         return;
     }
-    const diff = Math.max((interval - TIMEOUT_PART), 0);
-    if (diff > TIMEOUT_PART) {
-        timeoutsList[id] = setTimeout(() => { setTimeoutLong(func, diff, id, false) }, TIMEOUT_PART);
+    const diff = Math.max((interval - consts.TIMEOUT_PART), 0);
+    if (diff > consts.TIMEOUT_PART) {
+        timeoutsList[id] = setTimeout(() => { setTimeoutLong(func, diff, id, false) }, consts.TIMEOUT_PART);
     } else {
         timeoutsList[id] = setTimeout(func, interval);
     }
@@ -127,7 +128,7 @@ export const getCookie = (name) => {
 export const successPromise = (params = null) => {
     const response = {
         ok: true,
-        type: SUCCESS_RESPONSE,
+        type: consts.SUCCESS_RESPONSE,
     };
     if (params) {
         response.response = params;
@@ -137,13 +138,13 @@ export const successPromise = (params = null) => {
 
 export const pendingPromise = () => Promise.resolve({
     ok: false,
-    type: PENDING_RESPONSE,
+    type: consts.PENDING_RESPONSE,
 });
 
 export const unsuccessPromise = f => Promise.resolve({
     f: f.name,
     ok: false,
-    type: UNSUCCESS_RESPONSE,
+    type: consts.UNSUCCESS_RESPONSE,
 });
 
 export const errorPromise = (error, f) => {
@@ -153,7 +154,7 @@ export const errorPromise = (error, f) => {
         error,
         f: f.name,
         ok: false,
-        type: UNSUCCESS_RESPONSE,
+        type: consts.UNSUCCESS_RESPONSE,
     });
 };
 
@@ -193,11 +194,4 @@ export const subscribeOpenLinkExternal = (target) => {
             subscribed = false;
         },
     });
-};
-
-export {
-    analytics,
-    db,
-    helpers,
-    validators,
 };

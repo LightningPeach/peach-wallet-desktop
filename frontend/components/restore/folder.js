@@ -4,9 +4,9 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import { error } from "modules/notifications";
-import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
+import { analytics, togglePasswordVisibility, validators, helpers, tooltips } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { exceptions, tooltips } from "config";
+import { exceptions } from "config";
 
 import File from "components/ui/file";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";

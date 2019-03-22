@@ -2,8 +2,7 @@ import React, { PureComponent, Fragment } from "react";
 import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 
-import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
-import { tooltips } from "config";
+import { analytics, togglePasswordVisibility, validators, helpers, tooltips } from "additional";
 import { error } from "modules/notifications";
 import { connect } from "react-redux";
 import {

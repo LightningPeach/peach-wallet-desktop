@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
-import { analytics } from "additional";
-import { tooltips, routes } from "config";
+import { analytics, tooltips } from "additional";
+import { routes } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { onChainOperations as operations } from "modules/onchain";
 

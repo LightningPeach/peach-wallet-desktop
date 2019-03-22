@@ -1,6 +1,6 @@
 import React, { Fragment } from "react";
 
-import { helpers } from "additional";
+import * as helpers from "./helpers";
 
 /**
  * FLOATING TOOLTIPS

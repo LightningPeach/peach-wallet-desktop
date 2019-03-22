@@ -3,9 +3,8 @@ import PropTypes from "prop-types";
 import Tooltip from "rc-tooltip";
 import { connect } from "react-redux";
 
-import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
+import { analytics, tooltips, togglePasswordVisibility, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { tooltips } from "config";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Checkbox from "components/ui/checkbox";

@@ -3,7 +3,7 @@ import Tooltip from "rc-tooltip";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 
-import { tooltips } from "config";
+import { tooltips } from "additional";
 
 import BtcToUsd from "components/common/btc-to-usd";
 

@@ -4,10 +4,10 @@ import Tooltip from "rc-tooltip";
 import { push } from "react-router-redux";
 import { connect } from "react-redux";
 
-import { analytics, validators, helpers } from "additional";
+import { analytics, validators, helpers, tooltips } from "additional";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { nodeSettings, tooltips, routes } from "config";
+import { nodeSettings, routes } from "config";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
