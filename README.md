@@ -9,11 +9,9 @@ Peach Wallet is a free cross-platform desktop Lightning Network wallet. It simpl
 ### Technical details
 The Peach Wallet is the Lightning Network wallet that uses **lnd** (Lightning Network Daemon). 
 
-GUI is implemented with [Electron](https://electronjs.org) + [React](https://reactjs.org) + [Redux](https://github.com/reactjs/redux). In future this will allow to implement mobile or web version of the wallet.
+GUI is implemented with [Electron](https://electronjs.org) + [React](https://reactjs.org) + [Redux](https://github.com/reactjs/redux).
 
 ### Before using the wallet
-
-:warning: Currently doesn't work in mainnet. Works in simnet, regtest or testnet. 
 
 :construction: Development of the Peach Wallet is still in progress. It means that different issues can occur during wallet usage. Using real coins may be risky.
 
@@ -28,7 +26,7 @@ The Peach Wallet supports the following features, which have already become comm
 
 ### Unique features
 - Sending & receiving payments within the Lightning Network using Lightning ID. Works only between Peach Wallet users.
-- Stream payments between Peach Wallet users. Stream payments can be useful in cases when per second charges are more appropriate than regular payments (for example, pay-per-view services, voice and video calls with per second charge). Works only between LightningPeach users.
+- Recurring payments between Peach Wallet users. Recurring payments can be useful in cases when periodic charges are more appropriate than regular payments (for example, online streaming services, voice and video calls with per second charge).
 - Address book. With the help of address book you can specify clear and convenient contact names, which is very useful as later you can select them on the Lightning Payment page, thus no need to copy & paste, remember or keep Lightning ID somewhere on paper or PC.
 
 ### Installation
@@ -44,4 +42,4 @@ You can read the Contributing guide [here](CONTRIBUTING.md).
 
 Should you have any questions or suggestions, please do not hesitate to contact us:
 
-Email: contact@lightningpeach.com
+Email: hello@lightningpeach.com
