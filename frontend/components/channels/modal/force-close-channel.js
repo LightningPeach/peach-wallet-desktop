@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { ChannelsFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ForceCloseChannel extends Component {
@@ -15,7 +17,7 @@ class ForceCloseChannel extends Component {
             processing: false,
         };
 
-        analytics.pageview(`${ChannelsFullPath}/force-close-channel`, "Force Close Channel");
+        analytics.pageview(`${routes.ChannelsFullPath}/force-close-channel`, "Force Close Channel");
     }
 
     closeModal = () => {

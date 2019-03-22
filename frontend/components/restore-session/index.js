@@ -1,15 +1,15 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { push } from "react-router-redux";
+
 import { analytics, togglePasswordVisibility, validators, helpers, logger } from "additional";
 import { appOperations } from "modules/app";
 import { authActions, authTypes } from "modules/auth";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { push } from "react-router-redux";
-import { WalletPath } from "routes";
 import { error } from "modules/notifications";
-import { exceptions } from "config";
-import { SESSION_EXPIRE_TIMEOUT } from "config/consts";
+import { exceptions, routes, consts } from "config";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 const spinner = <div className="spinner" />;
 
@@ -57,7 +57,7 @@ class RestoreSession extends Component {
         }
         this.setState({ passwordError });
         dispatch(authActions.setSessionStatus(authTypes.SESSION_ACTIVE));
-        dispatch(push(WalletPath));
+        dispatch(push(routes.WalletPath));
     };
 
     render() {
@@ -72,7 +72,7 @@ class RestoreSession extends Component {
                 <div className="block__row-lg row--no-col justify-center-xs">
                     <div className="block__subheader">
                         You haven&apos;t performed any action for&nbsp;
-                        {helpers.formatTimeRange(SESSION_EXPIRE_TIMEOUT)}.<br />
+                        {helpers.formatTimeRange(consts.SESSION_EXPIRE_TIMEOUT)}.<br />
                         Due to security reasons, you need to enter your password again.
                     </div>
                 </div>

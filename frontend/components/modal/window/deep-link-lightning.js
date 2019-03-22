@@ -1,16 +1,18 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations, appActions } from "modules/app";
-import { HomePath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class DeepLinkLightning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${HomePath}/set-default-lighning-app`, "Set default lightning app");
+        analytics.pageview(`${routes.HomePath}/set-default-lighning-app`, "Set default lightning app");
     }
 
     closeModal = () => {

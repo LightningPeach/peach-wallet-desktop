@@ -6,8 +6,7 @@ import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { exceptions, tooltips, nodeSettings, consts } from "config";
-import { ChannelsFullPath, MerchantsFullPath } from "routes";
+import { exceptions, tooltips, nodeSettings, consts, routes } from "config";
 
 import Checkbox from "components/ui/checkbox";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
@@ -27,7 +26,9 @@ class CreateChannel extends Component {
             processing: false,
         };
 
-        const basePath = this.props.page && this.props.page === "merchants" ? MerchantsFullPath : ChannelsFullPath;
+        const basePath = this.props.page && this.props.page === "merchants" ?
+            routes.MerchantsFullPath :
+            routes.ChannelsFullPath;
         analytics.pageview(`${basePath}/create-channel`, "Create Channel");
     }
 

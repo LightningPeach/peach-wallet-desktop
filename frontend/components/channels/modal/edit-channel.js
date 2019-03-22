@@ -1,16 +1,15 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import { channelsOperations as operations, channelsSelectors as selectors } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { MAX_CHANNEL_SIZE, ELEMENT_NAME_MAX_LENGTH, MIN_CHANNEL_SIZE } from "config/consts";
-import { exceptions } from "config";
-import { PEACH } from "config/node-settings";
-import { ChannelsFullPath } from "routes";
+import { exceptions, routes, consts, nodeSettings } from "config";
+
 import Modal from "components/modal";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 class EditChannel extends Component {
     constructor(props) {
@@ -22,7 +21,7 @@ class EditChannel extends Component {
             nameError: null,
         };
 
-        analytics.pageview(`${ChannelsFullPath}/edit-channel`, "Edit Channel");
+        analytics.pageview(`${routes.ChannelsFullPath}/edit-channel`, "Edit Channel");
     }
 
     showErrorNotification = (text) => {
@@ -107,8 +106,8 @@ class EditChannel extends Component {
                                     this.channel__name = ref;
                                 }}
                                 defaultValue={currentChannel.name}
-                                max={ELEMENT_NAME_MAX_LENGTH}
-                                maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
                                 onChange={() => { this.setState({ nameError: null }) }}
                             />
                             <ErrorFieldTooltip text={this.state.nameError} />

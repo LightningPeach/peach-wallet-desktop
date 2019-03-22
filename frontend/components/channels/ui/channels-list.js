@@ -7,7 +7,7 @@ import { analytics, helpers, logger } from "additional";
 import { channelsTypes as types, channelsOperations as operations, channelsActions as actions } from "modules/channels";
 import { streamPaymentSelectors } from "modules/streamPayments";
 import { appOperations } from "modules/app";
-import { WalletPath } from "routes";
+import { routes } from "config";
 
 import Informer from "components/common/informer";
 import PendingChannel from "./pending-channel";
@@ -130,7 +130,8 @@ class ChannelsList extends Component {
                     <Informer key="channelInformer">
                         To receive Lightning payment you need to have open channel with non-zero &quot;Available to
                         receive&quot;. To increase amount of the &quot;Available to receive&quot; send
-                        &nbsp;<Link className="link" to={WalletPath}>Lightning payment</Link>&nbsp;via the channel.
+                        &nbsp;<Link className="link" to={routes.WalletPath}>Lightning payment</Link>&nbsp;via the
+                        channel.
                     </Informer>
                 }
                 <div className="page channels">

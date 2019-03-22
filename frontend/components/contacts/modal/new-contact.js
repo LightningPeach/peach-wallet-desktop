@@ -1,17 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { exceptions } from "config";
-import { LIGHTNING_ID_LENGTH, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
-import {
-    contactsActions as actions,
-    contactsOperations as operations,
-} from "modules/contacts";
+import { exceptions, consts, routes } from "config";
+import { contactsActions as actions, contactsOperations as operations } from "modules/contacts";
 import { error, info } from "modules/notifications";
-import { AddressBookFullPath, LightningFullPath } from "routes";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Modal from "components/modal";
 
 class NewContact extends Component {
@@ -22,7 +19,9 @@ class NewContact extends Component {
             nameError: null,
         };
 
-        const basePath = this.props.page && this.props.page === "lightning" ? LightningFullPath : AddressBookFullPath;
+        const basePath = this.props.page && this.props.page === "lightning"
+            ? routes.LightningFullPath
+            : routes.AddressBookFullPath;
         analytics.pageview(`${basePath}/new-contact`, "New contact");
     }
 
@@ -110,8 +109,8 @@ class NewContact extends Component {
                                     this.contact__name = input;
                                 }}
                                 defaultValue={newContactDetails ? newContactDetails.name : null}
-                                max={ELEMENT_NAME_MAX_LENGTH}
-                                maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
                                 onChange={() => { this.setState({ nameError: null }) }}
                             />
                             <ErrorFieldTooltip text={this.state.nameError} />
@@ -135,8 +134,8 @@ class NewContact extends Component {
                                     this.contact__lightning = input;
                                 }}
                                 defaultValue={newContactDetails ? newContactDetails.lightningID : null}
-                                max={LIGHTNING_ID_LENGTH}
-                                maxLength={LIGHTNING_ID_LENGTH}
+                                max={consts.LIGHTNING_ID_LENGTH}
+                                maxLength={consts.LIGHTNING_ID_LENGTH}
                                 onChange={() => { this.setState({ lightningIDError: null }) }}
                             />
                             <ErrorFieldTooltip text={this.state.lightningIDError} />

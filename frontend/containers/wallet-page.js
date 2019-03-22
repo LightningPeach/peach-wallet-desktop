@@ -3,30 +3,18 @@ import PropTypes from "prop-types";
 import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
+
 import { logger, debounce, clearIntervalLong, setAsyncIntervalLong } from "additional";
+import { routes } from "config";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { authActions, authTypes } from "modules/auth";
 import { appOperations, appTypes } from "modules/app";
 import { serverOperations } from "modules/server";
 import { lndOperations } from "modules/lnd";
+
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
-import {
-    WalletPath,
-    OnchainFullPath,
-    ChannelsFullPath,
-    AddressBookFullPath,
-    ProfileFullPath,
-    MerchantsFullPath,
-    HomeFullPath,
-    LightningPanel,
-    OnchainPanel,
-    ChannelsPanel,
-    AddressBookPanel,
-    ProfilePanel,
-    MerchantsPanel,
-} from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
@@ -57,28 +45,28 @@ class WalletPage extends Component {
             pageAddressIndex: 0,
             pageAddressList: [
                 {
-                    fullPath: WalletPath,
-                    panel: LightningPanel,
+                    fullPath: routes.WalletPath,
+                    panel: routes.LightningPanel,
                 },
                 {
-                    fullPath: OnchainFullPath,
-                    panel: OnchainPanel,
+                    fullPath: routes.OnchainFullPath,
+                    panel: routes.OnchainPanel,
                 },
                 {
-                    fullPath: ChannelsFullPath,
-                    panel: ChannelsPanel,
+                    fullPath: routes.ChannelsFullPath,
+                    panel: routes.ChannelsPanel,
                 },
                 {
-                    fullPath: AddressBookFullPath,
-                    panel: AddressBookPanel,
+                    fullPath: routes.AddressBookFullPath,
+                    panel: routes.AddressBookPanel,
                 },
                 {
-                    fullPath: MerchantsFullPath,
-                    panel: MerchantsPanel,
+                    fullPath: routes.MerchantsFullPath,
+                    panel: routes.MerchantsPanel,
                 },
                 {
-                    fullPath: ProfileFullPath,
-                    panel: ProfilePanel,
+                    fullPath: routes.ProfileFullPath,
+                    panel: routes.ProfilePanel,
                 },
             ],
         };
@@ -95,7 +83,7 @@ class WalletPage extends Component {
     componentDidMount() {
         const { dispatch, sessionStatus } = this.props;
         if (sessionStatus === authTypes.SESSION_EXPIRED) {
-            dispatch(push(HomeFullPath));
+            dispatch(push(routes.HomeFullPath));
             return;
         }
         this.continueSession();
@@ -174,7 +162,7 @@ class WalletPage extends Component {
         const { dispatch } = this.props;
         dispatch(authActions.setCurrentForm(authTypes.RESTORE_SESSION_FORM));
         dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
-        dispatch(push(HomeFullPath));
+        dispatch(push(routes.HomeFullPath));
     }, SESSION_EXPIRE_TIMEOUT);
 
     render() {

@@ -3,12 +3,12 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Slider from "react-slick";
 import { push } from "react-router-redux";
-import { WalletPath } from "routes";
+
+import { routes } from "config";
 import { accountOperations } from "modules/account";
 import { appTypes, appActions, appOperations } from "modules/app";
-import ForceLogout from "components/modal/window/force-logout";
 
-const background = <div className="tourgide__background" />;
+import ForceLogout from "components/modal/window/force-logout";
 
 class GuidePage extends Component {
     constructor(props) {
@@ -44,7 +44,7 @@ class GuidePage extends Component {
                 <button
                     className="tourgide__top-btn"
                     onClick={() => {
-                        dispatch(push(WalletPath));
+                        dispatch(push(routes.WalletPath));
                     }}
                 >
                     Open wallet
@@ -82,7 +82,7 @@ class GuidePage extends Component {
                         </div>
                     </nav>
                     <div className="s-channels__header">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-channels__btc">1BTC ~ $6,934.98</div>
                         <div className="s-channels__btn button button__solid">CREATE CHANNEL</div>
                     </div>
@@ -106,7 +106,7 @@ class GuidePage extends Component {
                 <div className="s-regular">
                     <h4 className="s-regular__title">History</h4>
                     <div className="s-regular__table">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-regular__column s-regular__column--5">
                             <div className="s-regular__row text-semibold">
                                 Description
@@ -208,7 +208,7 @@ class GuidePage extends Component {
                         <div className="s-stream__row-50">
                             <div className="s-stream__label">Time limit in seconds</div>
                             <div className="s-stream__input s-stream__input--active">
-                                {background}
+                                <div className="tourgide__background" />
                                 <span>3600|</span>
                             </div>
                         </div>
@@ -232,7 +232,7 @@ class GuidePage extends Component {
             <div className="guide__img">
                 <div className="s-profile">
                     <div className="s-profile__block">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-profile__head">
                             <img src={`${window.STATIC_FILES}public/assets/images/user-white.svg`} alt="" />
                             <h3 className="s-profile__title">Your Name</h3>
@@ -256,7 +256,7 @@ class GuidePage extends Component {
                         </div>
                     </div>
                     <div className="s-profile__block">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-profile__head">
                             <img src={`${window.STATIC_FILES}public/assets/images/payment-request-white.svg`} alt="" />
                             <h3 className="s-profile__title">Payment Request</h3>
@@ -304,7 +304,7 @@ class GuidePage extends Component {
         if (this.state.slideIndex === 3) {
             btnText = "OPEN WALLET";
             btnFunc = () => {
-                dispatch(push(WalletPath));
+                dispatch(push(routes.WalletPath));
             };
         }
         return (

@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { lightningOperations } from "modules/lightning";
+import { routes } from "config";
+
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { LightningFullPath } from "routes";
 import Modal from "components/modal";
 import Ellipsis from "components/common/ellipsis";
 
@@ -19,7 +21,7 @@ class LightningDetails extends Component {
             processing: false,
         };
 
-        analytics.pageview(`${LightningFullPath}/regular/details`, "Lightning / Regular Payment / Details");
+        analytics.pageview(`${routes.LightningFullPath}/regular/details`, "Lightning / Regular Payment / Details");
     }
 
     closeModal = () => {

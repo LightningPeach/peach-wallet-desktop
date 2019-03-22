@@ -2,16 +2,18 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { push } from "react-router-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
-import { ChannelsFullPath, LightningFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ChannelWarning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${LightningFullPath}/channel-warning`, "Attention. Create Channel");
+        analytics.pageview(`${routes.LightningFullPath}/channel-warning`, "Attention. Create Channel");
     }
 
     closeModal = () => {
@@ -24,7 +26,7 @@ class ChannelWarning extends Component {
         const { dispatch } = this.props;
         analytics.event({ action: "Channel Warning Modal", category: "Lightning", label: "Create Channel" });
         dispatch(appOperations.closeModal());
-        dispatch(push(ChannelsFullPath));
+        dispatch(push(routes.ChannelsFullPath));
     };
 
     render() {

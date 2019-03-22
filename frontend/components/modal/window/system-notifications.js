@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
-import { HomePath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 import Checkbox from "components/ui/checkbox";
 
@@ -16,7 +18,7 @@ class SystemNotifications extends Component {
             showAgain: true,
         };
 
-        analytics.pageview(`${HomePath}/enable-system-notifications`, "Set system notifications status");
+        analytics.pageview(`${routes.HomePath}/enable-system-notifications`, "Set system notifications status");
     }
 
     closeModal = () => {

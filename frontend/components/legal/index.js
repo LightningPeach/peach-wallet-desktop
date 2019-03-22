@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { TabContent, TabLink, Tabs } from "react-tabs-redux";
+
 import { analytics, subscribeOpenLinkExternal } from "additional";
-import { ProfileFullPath } from "routes";
+import { routes } from "config";
+
 import License from "./license";
 import Terms from "./terms";
 
@@ -16,7 +18,7 @@ class Legal extends Component {
         this.openLinks = subscribeOpenLinkExternal(".license");
 
         if (props.fromProfile) {
-            analytics.pageview(`${ProfileFullPath}/license`, "License agreement");
+            analytics.pageview(`${routes.ProfileFullPath}/license`, "License agreement");
         }
     }
 
@@ -37,10 +39,10 @@ class Legal extends Component {
             let path;
             let title;
             if (tab === "license") {
-                path = `${ProfileFullPath}/license`;
+                path = `${routes.ProfileFullPath}/license`;
                 title = "License agreement";
             } else if (tab === "terms") {
-                path = `${ProfileFullPath}/terms`;
+                path = `${routes.ProfileFullPath}/terms`;
                 title = "Terms and conditions";
             }
             analytics.pageview(path, title);

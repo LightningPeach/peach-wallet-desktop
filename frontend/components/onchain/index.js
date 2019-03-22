@@ -2,26 +2,20 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import bitcoin from "bitcoinjs-lib";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+
 import { analytics, helpers, validators } from "additional";
-import { exceptions } from "config";
+import { exceptions, consts, routes, nodeSettings } from "config";
+import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
+import { filterTypes } from "modules/filter";
+import { appOperations, appTypes } from "modules/app";
+import { accountOperations } from "modules/account";
+
 import SubHeader from "components/subheader";
-import {
-    MODAL_ANIMATION_TIMEOUT,
-    ELEMENT_NAME_MAX_LENGTH,
-    LIGHTNING_ID_LENGTH,
-    SIMNET_NETWORK,
-} from "config/consts";
-import { BITCOIN_SETTINGS } from "config/node-settings";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import SuccessPayment from "components/common/success-payment";
 import UnSuccessPayment from "components/common/unsuccess-payment";
-import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
 import BtcToUsd from "components/common/btc-to-usd";
-import { filterTypes } from "modules/filter";
-import { appOperations, appTypes } from "modules/app";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { OnchainFullPath } from "routes";
-import { accountOperations } from "modules/account";
 import DigitsField from "components/ui/digits-field";
 import OnChainDetails from "./modal/details";
 import OnchainWarning from "./modal/warning";
@@ -36,7 +30,7 @@ class Onchain extends Component {
             nameError: null,
             toError: null,
         };
-        analytics.pageview(OnchainFullPath, "On-chain");
+        analytics.pageview(routes.OnchainFullPath, "On-chain");
     }
 
     componentWillMount() {
@@ -45,7 +39,7 @@ class Onchain extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(OnchainFullPath, "On-chain");
+            analytics.pageview(routes.OnchainFullPath, "On-chain");
         }
     }
 
@@ -72,7 +66,7 @@ class Onchain extends Component {
             this.setState({ amountError: response.error });
             return;
         }
-        if (to.length === LIGHTNING_ID_LENGTH) {
+        if (to.length === consts.LIGHTNING_ID_LENGTH) {
             dispatch(operations.openWarningModal());
             return;
         }
@@ -80,10 +74,10 @@ class Onchain extends Component {
     };
 
     getNetwork = () => {
-        if (BITCOIN_SETTINGS.network === "testnet") {
+        if (nodeSettings.BITCOIN_SETTINGS.network === "testnet") {
             return bitcoin.networks.testnet;
-        } else if (BITCOIN_SETTINGS.network === "simnet") {
-            return SIMNET_NETWORK;
+        } else if (nodeSettings.BITCOIN_SETTINGS.network === "simnet") {
+            return consts.SIMNET_NETWORK;
         }
         return bitcoin.networks.bitcoin;
     };
@@ -141,8 +135,8 @@ class Onchain extends Component {
                                             this.name = ref;
                                         }}
                                         onChange={() => this.setState({ nameError: null })}
-                                        max={ELEMENT_NAME_MAX_LENGTH}
-                                        maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                        max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                        maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
                                     />
                                     <ErrorFieldTooltip text={this.state.nameError} />
                                 </div>
@@ -269,8 +263,8 @@ class Onchain extends Component {
                 </div>
                 <ReactCSSTransitionGroup
                     transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
                 >
                     {modal}
                 </ReactCSSTransitionGroup>,

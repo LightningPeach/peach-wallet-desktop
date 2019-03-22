@@ -1,17 +1,19 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
-import { ChannelsFullPath, WalletPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class StreamWarning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${ChannelsFullPath}/stream-warning`, "Attention. Recurring payment");
+        analytics.pageview(`${routes.ChannelsFullPath}/stream-warning`, "Attention. Recurring payment");
     }
 
     closeModal = () => {

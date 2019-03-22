@@ -1,19 +1,13 @@
 import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
-import { exceptions } from "config";
-import {
-    USD_PER_BTC_URL,
-    LIGHTNING_ID_LENGTH,
-    ONLY_LETTERS_AND_NUMBERS,
-    BTC_MEASURE,
-} from "config/consts";
+
+import { exceptions, consts, routes } from "config";
 import { store } from "store/configure-store";
 import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
 import { lightningActions } from "modules/lightning";
 import { authTypes } from "modules/auth";
-import { WalletPath } from "routes";
 import * as actions from "./actions";
 import * as types from "./types";
 
@@ -63,7 +57,7 @@ function usdBtcRate() {
     return async (dispatch, getState) => {
         let response;
         try {
-            response = await fetch(USD_PER_BTC_URL, { method: "GET" });
+            response = await fetch(consts.USD_PER_BTC_URL, { method: "GET" });
             response = await response.json();
         } catch (e) {
             dispatch(actions.setUsdPerBtc(0));
@@ -113,7 +107,7 @@ function convertSatoshiToCurrentMeasure(value) {
 function convertUsdToSatoshi(amount) {
     return (dispatch, getState) => {
         const { usdPerBtc } = getState().app;
-        return Math.round(parseFloat(amount) / (BTC_MEASURE.multiplier * usdPerBtc));
+        return Math.round(parseFloat(amount) / (consts.BTC_MEASURE.multiplier * usdPerBtc));
     };
 }
 
@@ -129,11 +123,11 @@ function convertUsdToCurrentMeasure(amount) {
 const validateLightning = lightningId => (dispatch, getState) => {
     if (!lightningId) {
         return exceptions.FIELD_IS_REQUIRED;
-    } else if (lightningId.length !== LIGHTNING_ID_LENGTH) {
+    } else if (lightningId.length !== consts.LIGHTNING_ID_LENGTH) {
         return exceptions.LIGHTNING_ID_WRONG_LENGTH;
     } else if (lightningId === getState().account.lightningID) {
         return exceptions.LIGHTNING_ID_WRONG_SELF;
-    } else if (!ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
+    } else if (!consts.ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
         return exceptions.LIGHTNING_ID_WRONG;
     }
     return null;
@@ -200,7 +194,7 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
     }
     store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));
     if (store.getState().account.isLogined && store.getState().auth.sessionStatus === authTypes.SESSION_ACTIVE) {
-        store.dispatch(push(WalletPath));
+        store.dispatch(push(routes.WalletPath));
     }
 });
 

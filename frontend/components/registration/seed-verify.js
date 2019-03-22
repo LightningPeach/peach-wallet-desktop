@@ -6,9 +6,8 @@ import { connect } from "react-redux";
 
 import { analytics, validators, helpers } from "additional";
 import { error } from "modules/notifications";
-import { GuidePath } from "routes";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { nodeSettings, tooltips } from "config";
+import { nodeSettings, tooltips, routes } from "config";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
@@ -60,7 +59,7 @@ class SeedVerify extends PureComponent {
             dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
-        dispatch(push(GuidePath));
+        dispatch(push(routes.GuidePath));
     };
 
     handleSeedPaste = (e) => {

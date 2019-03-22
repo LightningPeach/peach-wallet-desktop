@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import { analytics } from "additional";
-import { WalletPath } from "routes";
+import { routes } from "config";
 import { appOperations } from "modules/app";
 import { accountTypes } from "modules/account";
 
@@ -14,7 +14,7 @@ class WalletMode extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${WalletPath}/update-wallet-mode`, "Wallet mode choose window");
+        analytics.pageview(`${routes.WalletPath}/update-wallet-mode`, "Wallet mode choose window");
     }
 
     onClose = () => {

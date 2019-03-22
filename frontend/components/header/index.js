@@ -2,23 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { Link } from "react-router";
+
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsActions, channelsTypes } from "modules/channels";
-import {
-    WalletPath,
-    OnchainFullPath,
-    ChannelsFullPath,
-    AddressBookFullPath,
-    ProfileFullPath,
-    LightningPanel,
-    OnchainPanel,
-    ChannelsPanel,
-    AddressBookPanel,
-    ProfilePanel,
-    HomeFullPath,
-    MerchantsFullPath,
-    MerchantsPanel,
-} from "routes";
+import { routes } from "config";
 
 class Header extends Component {
     constructor(props) {
@@ -26,12 +13,12 @@ class Header extends Component {
         this.state = {
             menuState: "close",
             pageAddressList: [
-                { fullPath: WalletPath, name: "lightning" },
-                { fullPath: OnchainFullPath, name: "onchain" },
-                { fullPath: ChannelsFullPath, name: "channels" },
-                { fullPath: AddressBookFullPath, name: "address" },
-                { fullPath: MerchantsFullPath, name: "merchants" },
-                { fullPath: ProfileFullPath, name: "profile" },
+                { fullPath: routes.WalletPath, name: "lightning" },
+                { fullPath: routes.OnchainFullPath, name: "onchain" },
+                { fullPath: routes.ChannelsFullPath, name: "channels" },
+                { fullPath: routes.AddressBookFullPath, name: "address" },
+                { fullPath: routes.MerchantsFullPath, name: "merchants" },
+                { fullPath: routes.ProfileFullPath, name: "profile" },
             ],
         };
     }
@@ -70,7 +57,7 @@ class Header extends Component {
                     <div className="header__row row row--no-col align-center-xs justify-between-xs">
                         <div className="row row--no-col align-center-xs logo-wrapper">
                             <Link
-                                to={WalletPath}
+                                to={routes.WalletPath}
                                 className={`logo${lndSyncedToChain ? "" : " logo--unsynced"}`}
                             />
                             {walletMode !== accountTypes.WALLET_MODE.PENDING &&
@@ -92,8 +79,8 @@ class Header extends Component {
                             ref={(ref) => { this.wrapper = ref }}
                         >
                             <Link
-                                to={WalletPath}
-                                className={`nav__link ${LightningPanel.includes(path) ? "active" : ""}`}
+                                to={routes.WalletPath}
+                                className={`nav__link ${routes.LightningPanel.includes(path) ? "active" : ""}`}
                                 onClick={() => {
                                     this.hideBurger();
                                 }}
@@ -101,42 +88,42 @@ class Header extends Component {
                                 Lightning
                             </Link>
                             <Link
-                                to={OnchainFullPath}
-                                className={`nav__link ${OnchainPanel.includes(path) ? "active" : ""}`}
+                                to={routes.OnchainFullPath}
+                                className={`nav__link ${routes.OnchainPanel.includes(path) ? "active" : ""}`}
                                 onClick={this.hideBurger}
                             >
                                 On-chain
                             </Link>
                             <Link
-                                to={ChannelsFullPath}
-                                className={`nav__link ${ChannelsPanel.includes(path) ? "active" : ""}`}
+                                to={routes.ChannelsFullPath}
+                                className={`nav__link ${routes.ChannelsPanel.includes(path) ? "active" : ""}`}
                                 onClick={this.hideBurger}
                             >
                                 Channels
                             </Link>
                             <Link
-                                to={AddressBookFullPath}
+                                to={routes.AddressBookFullPath}
                                 className={`nav__link ${
                                     walletMode !== accountTypes.WALLET_MODE.EXTENDED
                                         ? "locked"
                                         : ""
-                                } ${AddressBookPanel.includes(path) ? "active" : ""}`}
+                                } ${routes.AddressBookPanel.includes(path) ? "active" : ""}`}
                                 onClick={this.hideBurger}
                             >
                                 Contacts
                             </Link>
                             <Link
-                                to={MerchantsFullPath}
-                                className={`nav__link ${MerchantsPanel.includes(path) ? "active" : ""}`}
+                                to={routes.MerchantsFullPath}
+                                className={`nav__link ${routes.MerchantsPanel.includes(path) ? "active" : ""}`}
                                 onClick={this.hideBurger}
                             >
                                 Merchants
                             </Link>
                             <span className="separator" />
                             <Link
-                                to={ProfileFullPath}
+                                to={routes.ProfileFullPath}
                                 className={`nav__link nav__link--profile ${
-                                    ProfilePanel.includes(path) ? "active" : ""
+                                    routes.ProfilePanel.includes(path) ? "active" : ""
                                 }`}
                                 onClick={this.hideBurger}
                             >

@@ -1,24 +1,18 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+
 import { analytics, helpers } from "additional";
-import SubHeader from "components/subheader";
-import {
-    lightningOperations as operations,
-    lightningTypes,
-} from "modules/lightning";
-import {
-    contactsTypes,
-    contactsOperations,
-    contactsActions,
-} from "modules/contacts";
+import { lightningOperations, lightningTypes } from "modules/lightning";
+import { contactsTypes, contactsOperations, contactsActions } from "modules/contacts";
 import { accountTypes } from "modules/account";
 import { channelsOperations, channelsSelectors } from "modules/channels";
-import NewContact from "components/contacts/modal/new-contact";
 import { appTypes } from "modules/app";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { LightningFullPath } from "routes";
+import { consts, routes } from "config";
+
+import NewContact from "components/contacts/modal/new-contact";
+import SubHeader from "components/subheader";
 import { ChannelWarning } from "./modal";
 import RegularPayment from "./regular";
 import RecurringPayment from "./recurring";
@@ -29,12 +23,12 @@ class Lightning extends Component {
         this.state = {
             activeTab: "regular",
         };
-        analytics.pageview(`${LightningFullPath}/regular`, "Lightning / Regular Payment");
+        analytics.pageview(`${routes.LightningFullPath}/regular`, "Lightning / Regular Payment");
     }
 
     componentWillMount() {
         const { dispatch } = this.props;
-        dispatch(operations.getHistory());
+        dispatch(lightningOperations.getHistory());
         dispatch(channelsOperations.getChannels());
     }
 
@@ -49,16 +43,7 @@ class Lightning extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            let path;
-            let title;
-            if (this.state.activeTab === "regular") {
-                path = `${LightningFullPath}/regular`;
-                title = "Lightning / Regular Payment";
-            } else if (this.state.activeTab === "recurring") {
-                path = `${LightningFullPath}/recurring`;
-                title = "Lightning / Recurring Payment";
-            }
-            analytics.pageview(path, title);
+            this.setTabAnalytics();
         }
     }
 
@@ -68,18 +53,22 @@ class Lightning extends Component {
         dispatch(contactsOperations.setContactsSearch(null));
     }
 
+    setTabAnalytics = () => {
+        let path;
+        let title;
+        if (this.state.activeTab === "regular") {
+            path = `${routes.LightningFullPath}/regular`;
+            title = "Lightning / Regular Payment";
+        } else if (this.state.activeTab === "recurring") {
+            path = `${routes.LightningFullPath}/recurring`;
+            title = "Lightning / Recurring Payment";
+        }
+        analytics.pageview(path, title);
+    };
+
     handleTabClick = (tab) => {
         if (this.state.activeTab !== tab) {
-            let path;
-            let title;
-            if (tab === "regular") {
-                path = `${LightningFullPath}/regular`;
-                title = "Lightning / Regular Payment";
-            } else if (tab === "recurring") {
-                path = `${LightningFullPath}/recurring`;
-                title = "Lightning / Recurring Payment";
-            }
-            analytics.pageview(path, title);
+            this.setTabAnalytics();
         }
         this.setState({ activeTab: tab });
     };
@@ -140,8 +129,8 @@ class Lightning extends Component {
                 </div>
                 <ReactCSSTransitionGroup
                     transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
                 >
                     {modal}
                 </ReactCSSTransitionGroup>

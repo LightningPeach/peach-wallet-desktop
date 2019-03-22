@@ -5,10 +5,9 @@ import Tooltip from "rc-tooltip";
 import { push } from "react-router-redux";
 
 import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
-import { WalletPath } from "routes";
 import { error } from "modules/notifications";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { exceptions, tooltips } from "config";
+import { exceptions, tooltips, routes } from "config";
 import { WALLET_NAME_MAX_LENGTH } from "config/consts";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
@@ -66,7 +65,7 @@ class Login extends Component {
             return;
         }
         dispatch(operations.setHashedPassword(password));
-        dispatch(push(WalletPath));
+        dispatch(push(routes.WalletPath));
     };
 
     showStatus = () => {

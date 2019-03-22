@@ -1,6 +1,9 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+import { push } from "react-router-redux";
+
 import { analytics, logger } from "additional";
 import {
     contactsActions as actions,
@@ -8,23 +11,21 @@ import {
     contactsTypes as types,
 } from "modules/contacts";
 import { accountOperations, accountTypes } from "modules/account";
+import { consts, routes } from "config";
+import { appOperations, appTypes } from "modules/app";
+import { filterTypes, filterOperations } from "modules/filter";
+
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
 import RecordsTable from "components/records/table";
 import Ellipsis from "components/common/ellipsis";
-import { WalletPath, AddressBookFullPath } from "routes";
-import { push } from "react-router-redux";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
-import { appOperations, appTypes } from "modules/app";
-import { filterTypes, filterOperations } from "modules/filter";
 import { DeleteContact, NewContact, EditContact } from "./modal";
 
 class ContactsPage extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(AddressBookFullPath, "Address Book");
+        analytics.pageview(routes.AddressBookFullPath, "Address Book");
     }
 
     componentWillMount() {
@@ -33,7 +34,7 @@ class ContactsPage extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(AddressBookFullPath, "Address Book");
+            analytics.pageview(routes.AddressBookFullPath, "Address Book");
         }
     }
 
@@ -110,7 +111,7 @@ class ContactsPage extends Component {
         analytics.event({ action: "Pay contact", category: "Address Book", label: "Pay" });
         const { dispatch } = this.props;
         dispatch(operations.setContactsSearch(contact.name));
-        dispatch(push(WalletPath));
+        dispatch(push(routes.WalletPath));
     };
 
     handleCopy = (address) => {
@@ -203,8 +204,8 @@ class ContactsPage extends Component {
                 </div>
                 <ReactCSSTransitionGroup
                     transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
                 >
                     {modal}
                 </ReactCSSTransitionGroup>

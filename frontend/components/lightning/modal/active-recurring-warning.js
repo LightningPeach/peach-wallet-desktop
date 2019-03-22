@@ -1,17 +1,22 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
-import { LightningFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ActiveRecurringWarning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${LightningFullPath}/active-recurring-warning`, "Attention. Active recurring payment");
+        analytics.pageview(
+            `${routes.LightningFullPath}/active-recurring-warning`,
+            "Attention. Active recurring payment",
+        );
     }
 
     closeModal = () => {

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
@@ -8,11 +9,10 @@ import {
     contactsOperations as operations,
 } from "modules/contacts";
 import { error, info } from "modules/notifications";
-import { AddressBookFullPath } from "routes";
+import { exceptions, routes, consts } from "config";
+
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { exceptions } from "config";
-import { ELEMENT_NAME_MAX_LENGTH } from "config/consts";
 
 class EditContact extends Component {
     constructor(props) {
@@ -21,7 +21,7 @@ class EditContact extends Component {
             nameError: null,
         };
 
-        analytics.pageview(`${AddressBookFullPath}/update-contact`, "Update contact");
+        analytics.pageview(`${routes.AddressBookFullPath}/update-contact`, "Update contact");
     }
 
     showErrorNotification = (text) => {
@@ -120,8 +120,8 @@ class EditContact extends Component {
                                     this.contactName = ref;
                                 }}
                                 defaultValue={currentContact.name}
-                                max={ELEMENT_NAME_MAX_LENGTH}
-                                maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
                                 onChange={() => { this.setState({ nameError: null }) }}
                             />
                             <ErrorFieldTooltip text={this.state.nameError} />

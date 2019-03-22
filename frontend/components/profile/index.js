@@ -8,9 +8,8 @@ import Tooltip from "rc-tooltip";
 import { analytics, helpers } from "additional";
 import { accountOperations, accountTypes } from "modules/account";
 import { appOperations, appTypes, appActions } from "modules/app";
-import { exceptions, consts, tooltips } from "config";
+import { exceptions, consts, tooltips, routes } from "config";
 import { lightningOperations } from "modules/lightning";
-import { ProfileFullPath } from "routes";
 
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Footer from "components/footer";
@@ -29,7 +28,7 @@ class Profile extends Component {
             sound: (props.systemNotifications >> 1) & 1, // eslint-disable-line
         };
 
-        analytics.pageview(ProfileFullPath, "Profile");
+        analytics.pageview(routes.ProfileFullPath, "Profile");
     }
 
     componentWillMount() {
@@ -44,7 +43,7 @@ class Profile extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(ProfileFullPath, "Profile");
+            analytics.pageview(routes.ProfileFullPath, "Profile");
         }
     }
 

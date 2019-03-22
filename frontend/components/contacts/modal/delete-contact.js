@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
@@ -8,14 +9,15 @@ import {
     contactsOperations as operations,
 } from "modules/contacts";
 import { error, info } from "modules/notifications";
-import { AddressBookFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class DeleteContact extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${AddressBookFullPath}/delete-contact`, "Delete contact");
+        analytics.pageview(`${routes.AddressBookFullPath}/delete-contact`, "Delete contact");
     }
 
     closeModal = () => {

@@ -7,8 +7,7 @@ import { analytics } from "additional";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
-import { LightningFullPath } from "routes";
-import { tooltips } from "config";
+import { tooltips, routes } from "config";
 
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
@@ -18,7 +17,7 @@ import Ellipsis from "components/common/ellipsis";
 class StreamDetails extends Component {
     constructor(props) {
         super(props);
-        analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Details");
+        analytics.pageview(`${routes.LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Details");
     }
 
     closeModal = () => {

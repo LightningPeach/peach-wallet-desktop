@@ -3,10 +3,9 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 import { analytics } from "additional";
-import { tooltips } from "config";
+import { tooltips, routes } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { onChainOperations as operations } from "modules/onchain";
-import { OnchainFullPath } from "routes";
 
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
@@ -22,7 +21,7 @@ class OnChainDetails extends Component {
             processing: false,
         };
 
-        analytics.pageview(`${OnchainFullPath}/details`, "Payment details");
+        analytics.pageview(`${routes.OnchainFullPath}/details`, "Payment details");
     }
 
     closeModal = () => {
@@ -42,11 +41,11 @@ class OnChainDetails extends Component {
         dispatch(operations.getOnchainHistory());
         this.setState({ processing: false });
         if (!response.ok) {
-            analytics.pageview(`${OnchainFullPath}/unsuccess`, "Unsuccess Payment details");
+            analytics.pageview(`${routes.OnchainFullPath}/unsuccess`, "Unsuccess Payment details");
             dispatch(appActions.setModalState(appTypes.FAIL_SEND_PAYMENT));
             return;
         }
-        analytics.pageview(`${OnchainFullPath}/success`, "Success Payment details");
+        analytics.pageview(`${routes.OnchainFullPath}/success`, "Success Payment details");
         dispatch(appActions.setModalState(appTypes.SUCCESS_SEND_PAYMENT));
     };
 

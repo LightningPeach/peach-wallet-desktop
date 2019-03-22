@@ -1,17 +1,19 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
-import { OnchainFullPath } from "routes";
-import Modal from "components/modal";
+import { routes } from "config";
 import { onChainOperations as operations } from "modules/onchain";
+
+import Modal from "components/modal";
 
 class OnchainWarning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${OnchainFullPath}/address-warning`, "Attention. Address Warning");
+        analytics.pageview(`${routes.OnchainFullPath}/address-warning`, "Attention. Address Warning");
     }
 
     closeModal = () => {

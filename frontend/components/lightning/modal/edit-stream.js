@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Select from "react-select";
+
 import { analytics, validators, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
@@ -12,21 +13,10 @@ import {
     streamPaymentOperations as operations,
 } from "modules/streamPayments";
 import { error, info } from "modules/notifications";
-import { LightningFullPath } from "routes";
+import { exceptions, consts, routes } from "config";
+
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { exceptions } from "config";
-import {
-    LIGHTNING_ID_LENGTH,
-    MODAL_ANIMATION_TIMEOUT,
-    ELEMENT_NAME_MAX_LENGTH,
-    STREAM_INFINITE_TIME_VALUE,
-    BTC_MEASURE,
-    MBTC_MEASURE,
-    SATOSHI_MEASURE,
-    TIME_RANGE_MEASURE,
-    MAX_INTERVAL_FREUENCY,
-} from "config/consts";
 import DigitsField from "components/ui/digits-field";
 import Checkbox from "components/ui/checkbox";
 
@@ -38,7 +28,7 @@ class EditStream extends Component {
             amountError: null,
             frequency: helpers.formatTimeRange(props.currentStream.delay, false).split(" ")[0],
             frequencyError: null,
-            isInfinite: props.currentStream.totalParts === STREAM_INFINITE_TIME_VALUE,
+            isInfinite: props.currentStream.totalParts === consts.STREAM_INFINITE_TIME_VALUE,
             nameError: null,
             timeCurrency: helpers.formatTimeRange(props.currentStream.delay, false).split(" ")[1],
             timeError: null,
@@ -47,7 +37,7 @@ class EditStream extends Component {
                 : props.currentStream.currency,
         };
 
-        analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Edit");
+        analytics.pageview(`${routes.LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Edit");
     }
 
     setAmount = () => {
@@ -94,7 +84,7 @@ class EditStream extends Component {
     _validateFrequency = (frequency, measuredMax, measure) => {
         if (!frequency) {
             return exceptions.FIELD_IS_REQUIRED;
-        } else if (frequency > MAX_INTERVAL_FREUENCY) {
+        } else if (frequency > consts.MAX_INTERVAL_FREUENCY) {
             return exceptions.RECURRING_MORE_MAX_FREQUENCY(measuredMax, measure);
         }
         return null;
@@ -106,7 +96,7 @@ class EditStream extends Component {
             (currentStream.status !== types.STREAM_PAYMENT_FINISHED
                 ? currentStream.partsPending : 0
             ) + currentStream.partsPaid;
-        if (time === STREAM_INFINITE_TIME_VALUE) {
+        if (time === consts.STREAM_INFINITE_TIME_VALUE) {
             return null;
         } else if (!time) {
             return exceptions.FIELD_IS_REQUIRED;
@@ -134,12 +124,12 @@ class EditStream extends Component {
         const name = this.name.value.trim();
         let amount = parseFloat(this.amount.value.trim());
         const time = this.state.isInfinite
-            ? STREAM_INFINITE_TIME_VALUE
+            ? consts.STREAM_INFINITE_TIME_VALUE
             : Math.round(parseInt(this.time.value.trim(), 10)) || 0;
         const frequency = Math.round(parseInt(this.frequency.value.trim(), 10)) || 0;
         const { currency } = currentStream;
         let delayRange = 1000;
-        TIME_RANGE_MEASURE.forEach((item) => {
+        consts.TIME_RANGE_MEASURE.forEach((item) => {
             if (this.state.timeCurrency === item.measure) {
                 delayRange = item.range;
             }
@@ -153,7 +143,7 @@ class EditStream extends Component {
         const timeError = this._validateTime(time);
         const frequencyError = this._validateFrequency(
             delay,
-            Math.floor(MAX_INTERVAL_FREUENCY / delayRange),
+            Math.floor(consts.MAX_INTERVAL_FREUENCY / delayRange),
             this.state.timeCurrency,
         );
 
@@ -230,8 +220,8 @@ class EditStream extends Component {
                                         }}
                                         onChange={this.setName}
                                         disabled={this.state.processing}
-                                        max={ELEMENT_NAME_MAX_LENGTH}
-                                        maxLength={ELEMENT_NAME_MAX_LENGTH}
+                                        max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                        maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
                                     />
                                 </div>
                             </div>
@@ -312,7 +302,7 @@ class EditStream extends Component {
                                                 id="stream__frequency--currency"
                                                 value={this.state.timeCurrency}
                                                 searchable={false}
-                                                options={TIME_RANGE_MEASURE.map(item => ({
+                                                options={consts.TIME_RANGE_MEASURE.map(item => ({
                                                     label: item.measure,
                                                     value: item.measure,
                                                 }))}
@@ -377,7 +367,8 @@ class EditStream extends Component {
                                                 placeholder={this.state.valueCurrency === "Satoshi"
                                                     ? "0"
                                                     : "0.0"}
-                                                value={dispatch(appOperations.convertSatoshiToCurrentMeasure(currentStream.price))} // eslint-disable-line
+                                                value={dispatch(appOperations
+                                                    .convertSatoshiToCurrentMeasure(currentStream.price))}
                                                 ref={(ref) => {
                                                     this.amountComponent = ref;
                                                 }}

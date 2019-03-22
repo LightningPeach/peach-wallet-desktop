@@ -1,9 +1,11 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { accountOperations } from "modules/account";
-import { WalletPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ForceLogout extends Component {
@@ -13,7 +15,7 @@ class ForceLogout extends Component {
             processing: this.props.isLogouting || false,
         };
 
-        analytics.pageview(`${WalletPath}/force-logout`, "Error. Force logout");
+        analytics.pageview(`${routes.WalletPath}/force-logout`, "Error. Force logout");
     }
 
     componentWillReceiveProps(nextProps) {

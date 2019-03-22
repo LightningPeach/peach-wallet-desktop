@@ -1,17 +1,18 @@
 import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+
 import { analytics, logger } from "additional";
-import SubHeader from "components/subheader";
 import Button from "components/ui/button";
 import {
     channelsOperations as operations,
     channelsTypes as types,
 } from "modules/channels";
 import { appTypes } from "modules/app";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
-import { ChannelsFullPath } from "routes";
+import { consts, routes } from "config";
+
+import SubHeader from "components/subheader";
 import { CreateChannel, EditChannel, CloseChannel, StreamWarning } from "./modal";
 import ChannelsList from "./ui/channels-list";
 
@@ -19,12 +20,12 @@ class ChannelsPage extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(ChannelsFullPath, "Channels");
+        analytics.pageview(routes.ChannelsFullPath, "Channels");
     }
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(ChannelsFullPath, "Channels");
+            analytics.pageview(routes.ChannelsFullPath, "Channels");
         }
     }
 
@@ -76,8 +77,8 @@ class ChannelsPage extends Component {
                 <ChannelsList />
                 <ReactCSSTransitionGroup
                     transitionName="modal-transition"
-                    transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                    transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
                 >
                     {modal}
                 </ReactCSSTransitionGroup>

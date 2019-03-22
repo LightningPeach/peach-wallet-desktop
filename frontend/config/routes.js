@@ -1,18 +1,3 @@
-import React from "react";
-import App from "containers/app";
-import HomePage from "containers/home-page";
-import WalletPage from "containers/wallet-page";
-import GuidePage from "containers/guide-page";
-
-import Lightning from "components/lightning";
-import Onchain from "components/onchain";
-import ChannelsPage from "components/channels";
-import ContactsPage from "components/contacts";
-import ProfilePage from "components/profile";
-import MerchantsPage from "components/merchants";
-
-import { Route, IndexRoute, IndexRedirect } from "react-router";
-
 export const LoginPath = "login";
 export const CreatePath = "create";
 export const HomePath = "/home";
@@ -55,20 +40,3 @@ export const OnchainPanel = [OnchainFullPath];
 export const ChannelsPanel = [ChannelsFullPath];
 export const AddressBookPanel = [AddressBookFullPath];
 export const MerchantsPanel = [MerchantsFullPath];
-
-export default (
-    <Route path="/" component={App}>
-        <IndexRedirect to={HomePath} />
-        <Route path={WalletPath} component={WalletPage}>
-            <IndexRoute component={Lightning} />
-            <Route path={LightningPath} component={Lightning} />
-            <Route path={OnchainPath} component={Onchain} />
-            <Route path={ChannelsPath} component={ChannelsPage} />
-            <Route path={AddressBookPath} component={ContactsPage} />
-            <Route path={ProfilePath} component={ProfilePage} />
-            <Route path={MerchantsPath} components={MerchantsPage} />
-        </Route>
-        <Route path={HomePath} component={HomePage} />
-        <Route path={GuidePath} component={GuidePage} />
-    </Route>
-);

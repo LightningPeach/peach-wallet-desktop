@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { push } from "react-router-redux";
 
-import { WalletPath } from "routes";
+import { routes } from "config";
 import { accountActions, accountTypes } from "modules/account";
 import { authOperations as operations, authTypes as types } from "modules/auth";
 import { lndOperations } from "modules/lnd";
@@ -16,7 +16,7 @@ class Terms extends Component {
         if (method === types.RESTORE_TYPE_SEED) {
             dispatch(operations.setAuthStep(types.RESTORE_STEP_SEED));
         } else {
-            dispatch(push(WalletPath));
+            dispatch(push(routes.WalletPath));
         }
     };
 

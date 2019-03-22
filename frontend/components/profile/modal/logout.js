@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
-import { ProfileFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ConfirmLogout extends Component {
@@ -14,7 +16,7 @@ class ConfirmLogout extends Component {
             processing: this.props.isLogouting || false,
         };
 
-        analytics.pageview(`${ProfileFullPath}/logout`, "Logout");
+        analytics.pageview(`${routes.ProfileFullPath}/logout`, "Logout");
     }
 
     componentWillReceiveProps(nextProps) {

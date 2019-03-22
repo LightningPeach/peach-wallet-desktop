@@ -3,15 +3,13 @@ import thunk from "redux-thunk";
 import nock from "nock";
 import omit from "lodash/omit";
 
-import { exceptions } from "config";
-import { USD_PER_BTC_HOST, USD_PER_BTC_QUERY, MBTC_MEASURE } from "config/consts";
+import { exceptions, consts, routes } from "config";
 import { appActions as actions, appTypes as types, appOperations as operations } from "modules/app";
 import appReducer, { initStateApp } from "modules/app/reducers";
 import { initStateAuth } from "modules/auth/reducers";
 import { notificationsTypes } from "modules/notifications";
 import { lightningTypes } from "modules/lightning";
 import { accountTypes } from "modules/account";
-import { WalletPath } from "routes";
 import { errorPromise, successPromise, unsuccessPromise, db } from "additional";
 import { store as defaultStore } from "store/configure-store";
 
@@ -82,8 +80,8 @@ describe("App Unit Tests", () => {
             data = {};
             initState = {
                 account: {
-                    bitcoinMeasureMultiplier: MBTC_MEASURE.multiplier,
-                    toFixedMeasure: MBTC_MEASURE.toFixed,
+                    bitcoinMeasureMultiplier: consts.MBTC_MEASURE.multiplier,
+                    toFixedMeasure: consts.MBTC_MEASURE.toFixed,
                 },
                 auth: { ...initStateAuth },
                 app: { ...initStateApp },
@@ -217,7 +215,7 @@ describe("App Unit Tests", () => {
                     },
                     {
                         payload: {
-                            args: [WalletPath],
+                            args: [routes.WalletPath],
                             method: "push",
                         },
                         type: "@@router/CALL_HISTORY_METHOD",
@@ -322,7 +320,9 @@ describe("App Unit Tests", () => {
             it("error response", async () => {
                 data.code = 404;
                 data.rate = 0;
-                nock(USD_PER_BTC_HOST).get(USD_PER_BTC_QUERY).reply(data.code);
+                nock(consts.USD_PER_BTC_HOST)
+                    .get(consts.USD_PER_BTC_QUERY)
+                    .reply(data.code);
                 expectedActions = [{ payload: data.rate, type: types.USD_PER_BTC }];
                 expect(await store.dispatch(operations.usdBtcRate())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -331,7 +331,9 @@ describe("App Unit Tests", () => {
             it("success", async () => {
                 data.code = 200;
                 data.rate = 9000;
-                nock(USD_PER_BTC_HOST).get(USD_PER_BTC_QUERY).reply(data.code, { USD: { last: data.rate } });
+                nock(consts.USD_PER_BTC_HOST)
+                    .get(consts.USD_PER_BTC_QUERY)
+                    .reply(data.code, { USD: { last: data.rate } });
                 expectedActions = [{ payload: data.rate, type: types.USD_PER_BTC }];
                 expect(await store.dispatch(operations.usdBtcRate())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
