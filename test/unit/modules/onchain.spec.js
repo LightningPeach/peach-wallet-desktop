@@ -145,7 +145,6 @@ describe("OnChain Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let fakeDB;
         let data;
         let store;
@@ -169,13 +168,12 @@ describe("OnChain Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeApp = sandbox.stub(appOperations);
-            fakeDB = sandbox.stub(db);
-            fakeStore = sandbox.stub(defaultStore);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeApp = sinon.stub(appOperations);
+            fakeDB = sinon.stub(db);
+            fakeStore = sinon.stub(defaultStore);
             data = {
                 onchainBuilder: {
                     update: sinon.stub(),
@@ -201,7 +199,7 @@ describe("OnChain Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer()", () => {

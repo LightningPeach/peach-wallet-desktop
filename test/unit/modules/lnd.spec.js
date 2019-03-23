@@ -66,7 +66,6 @@ describe("Lnd Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -88,11 +87,10 @@ describe("Lnd Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
-            fakeStore = sandbox.stub(defaultStore);
-            fakeApp = sandbox.stub(appOperations);
+            fakeStore = sinon.stub(defaultStore);
+            fakeApp = sinon.stub(appOperations);
             data = {};
             initState = {
                 lnd: { ...initStateLnd },
@@ -105,7 +103,7 @@ describe("Lnd Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer", () => {

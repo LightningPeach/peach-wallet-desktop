@@ -126,7 +126,6 @@ describe("Filter Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -145,8 +144,7 @@ describe("Filter Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             listActions = [];
-            sandbox = sinon.sandbox.create();
-            fakeApp = sandbox.stub(appOperations);
+            fakeApp = sinon.stub(appOperations);
             data = {};
             initState = JSON.parse(JSON.stringify(persistedState));
             store = configureStore(initState);
@@ -156,7 +154,7 @@ describe("Filter Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("filter()", () => {

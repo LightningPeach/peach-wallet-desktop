@@ -334,7 +334,6 @@ describe("Account Unit Tests", () => {
 
     describe("Operations tests", () => {
         const lightningId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -363,8 +362,7 @@ describe("Account Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
-            sandbox = sinon.sandbox.create();
-            fakeDB = sandbox.stub(db);
+            fakeDB = sinon.stub(db);
             window.ipcClient.reset();
             window.ipcRenderer.send.resetHistory();
             data = {
@@ -394,13 +392,13 @@ describe("Account Unit Tests", () => {
                 },
             };
             store = mockStore(initState);
-            fakeStore = sandbox.stub(defaultStore);
+            fakeStore = sinon.stub(defaultStore);
             fakeStore.dispatch = store.dispatch;
             fakeStore.getState = store.getState;
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer", () => {
@@ -765,26 +763,26 @@ describe("Account Unit Tests", () => {
         describe("initAccount()", () => {
             beforeEach(() => {
                 data.login = "test_acc";
-                fakeLnd = sandbox.stub(lndOperations);
+                fakeLnd = sinon.stub(lndOperations);
                 fakeLnd.waitLndSync.returns(fakeDispatchReturnSuccess);
-                fakeApp = sandbox.stub(appOperations);
+                fakeApp = sinon.stub(appOperations);
                 fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
                 fakeApp.closeModal.returns(fakeDispatchReturnSuccess);
                 fakeApp.usdBtcRate.returns(fakeDispatchReturnSuccess);
-                fakeStreamOperations = sandbox.stub(streamPaymentOperations);
+                fakeStreamOperations = sinon.stub(streamPaymentOperations);
                 fakeStreamOperations.pauseAllStreams.returns(fakeDispatchReturnSuccess);
                 fakeStreamOperations.loadStreams.returns(fakeDispatchReturnSuccess);
-                fakeLightning = sandbox.stub(lightningOperations);
+                fakeLightning = sinon.stub(lightningOperations);
                 fakeLightning.getHistory.returns(fakeDispatchReturnSuccess);
                 fakeLightning.subscribeInvoices.returns(fakeDispatchReturnSuccess);
                 fakeLightning.unSubscribeInvoices.returns(fakeDispatchReturnSuccess);
-                fakeChannels = sandbox.stub(channelsOperations);
+                fakeChannels = sinon.stub(channelsOperations);
                 fakeChannels.getChannels.returns(fakeDispatchReturnSuccess);
                 fakeChannels.shouldShowCreateTutorial.returns(fakeDispatchReturnSuccess);
-                fakeOnchain = sandbox.stub(onChainOperations);
+                fakeOnchain = sinon.stub(onChainOperations);
                 fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
-                fakeServer = sandbox.stub(serverOperations);
+                fakeServer = sinon.stub(serverOperations);
                 fakeServer.getBlocksHeight.returns(fakeDispatchReturnSuccess);
                 fakeServer.getMerchants.returns(fakeDispatchReturnSuccess);
                 window.ipcClient

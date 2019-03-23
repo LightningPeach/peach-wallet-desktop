@@ -253,7 +253,6 @@ describe("Stream Payment Unit Tests", () => {
 
     describe("Operations tests", () => {
         const lightningID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-        let sandbox;
         let fakeDB;
         let data;
         let store;
@@ -276,12 +275,11 @@ describe("Stream Payment Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             listActions = [];
-            sandbox = sinon.sandbox.create();
-            fakeDB = sandbox.stub(db);
-            fakeApp = sandbox.stub(appOperations);
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeLightning = sandbox.stub(lightningOperations);
-            fakeChannels = sandbox.stub(channelsOperations);
+            fakeDB = sinon.stub(db);
+            fakeApp = sinon.stub(appOperations);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeLightning = sinon.stub(lightningOperations);
+            fakeChannels = sinon.stub(channelsOperations);
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
             data = {
@@ -309,7 +307,7 @@ describe("Stream Payment Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("Modal windows", () => {

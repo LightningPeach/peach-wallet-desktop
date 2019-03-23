@@ -83,7 +83,6 @@ describe("App Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -99,11 +98,10 @@ describe("App Unit Tests", () => {
             errorResp = await errorPromise(undefined, { name: undefined });
             successResp = await successPromise();
             unsuccessResp = await unsuccessPromise({ name: undefined });
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
-            fakeDB = sandbox.stub(db);
-            fakeStore = sandbox.stub(defaultStore);
+            fakeDB = sinon.stub(db);
+            fakeStore = sinon.stub(defaultStore);
             data = {};
             initState = {
                 account: {
@@ -121,7 +119,7 @@ describe("App Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer", () => {

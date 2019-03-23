@@ -120,7 +120,6 @@ describe("Channels Unit Tests", () => {
     describe("Operations tests", () => {
         const txId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         const name = "waldo";
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -139,10 +138,9 @@ describe("Channels Unit Tests", () => {
             successResp = await successPromise();
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
-            fakeOnchain = sandbox.stub(onChainOperations);
-            fakeApp = sandbox.stub(appOperations);
-            fakeDB = sandbox.stub(db);
+            fakeOnchain = sinon.stub(onChainOperations);
+            fakeApp = sinon.stub(appOperations);
+            fakeDB = sinon.stub(db);
             window.ipcClient.resetHistory();
             data = {
                 configBuilder: {
@@ -183,7 +181,7 @@ describe("Channels Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("Modal windows", () => {

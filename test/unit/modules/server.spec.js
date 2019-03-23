@@ -69,7 +69,6 @@ describe("Server Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let expectedActions;
@@ -81,8 +80,7 @@ describe("Server Unit Tests", () => {
         beforeEach(async () => {
             errorResp = await errorPromise(undefined, { name: undefined });
             successResp = await successPromise();
-            sandbox = sinon.sandbox.create();
-            fakeStore = sandbox.stub(defaultStore);
+            fakeStore = sinon.stub(defaultStore);
             expectedActions = [];
             expectedData = undefined;
             store = mockStore(initStateServer);
@@ -91,7 +89,7 @@ describe("Server Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("getMerchants()", () => {

@@ -217,7 +217,6 @@ describe("Lightning Unit Tests", () => {
     describe("Operations tests", () => {
         const lightningID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         const amount = 500;
-        let sandbox;
         let fakeDB;
         let fakeAccount;
         let data;
@@ -236,12 +235,11 @@ describe("Lightning Unit Tests", () => {
             successResp = await successPromise();
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
-            fakeDB = sandbox.stub(db);
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeStore = sandbox.stub(defaultStore);
+            fakeDB = sinon.stub(db);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeStore = sinon.stub(defaultStore);
             data = {
                 lightningBuilder: {
                     getMany: sinon.stub(),
@@ -271,7 +269,7 @@ describe("Lightning Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer()", () => {

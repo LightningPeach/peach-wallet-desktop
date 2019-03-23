@@ -52,7 +52,6 @@ describe("Auth Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -73,13 +72,12 @@ describe("Auth Unit Tests", () => {
             unsuccessResp = await unsuccessPromise({ name: undefined });
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
-            fakeApp = sandbox.stub(appOperations);
+            fakeApp = sinon.stub(appOperations);
             fakeApp.openDb.returns(fakeDispatchReturnSuccess);
             fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeLnd = sandbox.stub(lndOperations);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeLnd = sinon.stub(lndOperations);
             data = {
                 walletName: "testWalletName",
                 password: "testPassword",
@@ -114,7 +112,7 @@ describe("Auth Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         it("setForm()", async () => {
