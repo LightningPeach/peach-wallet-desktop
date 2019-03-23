@@ -330,6 +330,21 @@ describe("Account Unit Tests", () => {
             expectedData.type = types.SET_SYSTEM_NOTIFICATIONS_STATUS;
             expect(actions.setSystemNotificationsStatus(data)).to.deep.equal(expectedData);
         });
+
+        it("should create an action to set analytics mode", () => {
+            expectedData.type = types.SET_ANALYTICS_MODE;
+            expect(actions.setAnalyticsMode(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set wallet mode", () => {
+            expectedData.type = types.SET_WALLET_MODE;
+            expect(actions.setWalletMode(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set terms mode", () => {
+            expectedData.type = types.SET_TERMS_MODE;
+            expect(actions.setTermsMode(data)).to.deep.equal(expectedData);
+        });
     });
 
     describe("Operations tests", () => {
@@ -2046,6 +2061,24 @@ describe("Account Unit Tests", () => {
         it("should handle SET_SYSTEM_NOTIFICATIONS_STATUS action", () => {
             action.type = types.SET_SYSTEM_NOTIFICATIONS_STATUS;
             expectedData.systemNotifications = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_ANALYTICS_MODE action", () => {
+            action.type = types.SET_ANALYTICS_MODE;
+            expectedData.analyticsMode = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_TERMS_MODE action", () => {
+            action.type = types.SET_TERMS_MODE;
+            expectedData.termsMode = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_WALLET_MODE action", () => {
+            action.type = types.SET_WALLET_MODE;
+            expectedData.termsMode = data;
             expect(accountReducer(state, action)).to.deep.equal(expectedData);
         });
     });
