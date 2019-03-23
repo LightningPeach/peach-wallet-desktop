@@ -34,6 +34,33 @@ describe("App Unit Tests", () => {
             expect(actions.setModalState(data)).to.deep.equal(expectedData);
         });
 
+        it("should create an action to add modal to flow - single value", () => {
+            expectedData = {
+                payload: [data],
+                type: types.ADD_MODAL_TO_FLOW,
+            };
+            expect(actions.addModalToFlow(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to add modal to flow - array value", () => {
+            data = ["foo"];
+            expectedData = {
+                payload: data,
+                type: types.ADD_MODAL_TO_FLOW,
+            };
+            expect(actions.addModalToFlow(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to pop first modal into flow", () => {
+            expectedData = { type: types.MODAL_FLOW_POP_FIRST };
+            expect(actions.modalFlowPopFirst()).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set app status as default", () => {
+            expectedData.type = types.SET_APP_AS_DEFAULT_STATUS;
+            expect(actions.setAppAsDefaultStatus(data)).to.deep.equal(expectedData);
+        });
+
         it("should create an action to set app status as default", () => {
             expectedData.type = types.SET_APP_AS_DEFAULT_STATUS;
             expect(actions.setAppAsDefaultStatus(data)).to.deep.equal(expectedData);
@@ -606,6 +633,36 @@ describe("App Unit Tests", () => {
         it("should handle SET_PEER_PORT action", () => {
             action.type = types.SET_PEER_PORT;
             expectedData.peerPort = data;
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle ADD_MODAL_TO_FLOW action - empty", () => {
+            action.type = types.ADD_MODAL_TO_FLOW;
+            action.payload = ["foo"];
+            expectedData.modalFlow = action.payload;
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle ADD_MODAL_TO_FLOW action - pre-filled", () => {
+            action.type = types.ADD_MODAL_TO_FLOW;
+            action.payload = ["foo"];
+            state = JSON.parse(JSON.stringify(initStateApp));
+            state.modalFlow = ["bar"];
+            expectedData.modalFlow = [...state.modalFlow, ...action.payload];
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle MODAL_FLOW_POP_FIRST action - empty", () => {
+            state = JSON.parse(JSON.stringify(initStateApp));
+            action = { type: types.MODAL_FLOW_POP_FIRST };
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle MODAL_FLOW_POP_FIRST action - pre-filled", () => {
+            state = JSON.parse(JSON.stringify(initStateApp));
+            state.modalFlow = ["foo", "bar"];
+            action = { type: types.MODAL_FLOW_POP_FIRST };
+            expectedData.modalFlow = ["bar"];
             expect(appReducer(state, action)).to.deep.equal(expectedData);
         });
     });
