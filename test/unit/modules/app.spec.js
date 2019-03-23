@@ -255,13 +255,6 @@ describe("App Unit Tests", () => {
                 expectedData = { type: types.SET_MODAL_STATE };
             });
 
-            it("closeModal()", async () => {
-                expectedData.payload = types.CLOSE_MODAL_STATE;
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.closeModal())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
             it("openLogoutModal()", async () => {
                 expectedData.payload = types.LOGOUT_MODAL_STATE;
                 expectedActions = [expectedData];
@@ -296,6 +289,69 @@ describe("App Unit Tests", () => {
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openLegalModal())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+        });
+
+        describe("startModalFlow", () => {
+            it("empty modal flow", async () => {
+                expect(await store.dispatch(operations.startModalFlow(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+
+            it("modal flow filled with two values", async () => {
+                initState = {
+                    app: {
+                        modalFlow: ["foo", "bar"],
+                    },
+                };
+                store = mockStore(initState);
+                expectedActions = [
+                    {
+                        type: types.MODAL_FLOW_POP_FIRST,
+                    },
+                    {
+                        payload: "foo",
+                        type: types.SET_MODAL_STATE,
+                    },
+                ];
+                expect(await store.dispatch(operations.startModalFlow(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+        });
+
+        describe("closeModal()", () => {
+            it("empty modal flow", async () => {
+                expectedActions = [
+                    {
+                        payload: types.CLOSE_MODAL_STATE,
+                        type: types.SET_MODAL_STATE,
+                    },
+                ];
+                expect(await store.dispatch(operations.closeModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("modal flow filled", async () => {
+                initState = {
+                    app: {
+                        modalFlow: ["foo"],
+                    },
+                };
+                store = mockStore(initState);
+                expectedActions = [
+                    {
+                        type: types.MODAL_FLOW_POP_FIRST,
+                    },
+                    {
+                        payload: "foo",
+                        type: types.SET_MODAL_STATE,
+                    },
+                ];
+                expect(await store.dispatch(operations.closeModal(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
             });
         });
 
@@ -345,7 +401,7 @@ describe("App Unit Tests", () => {
             it("error response", async () => {
                 data.code = 404;
                 data.rate = 0;
-                nock(consts.USD_PER_BTC_HOST)
+                nock(consts.BLOCKCHAIN_INFO_HOST)
                     .get(consts.USD_PER_BTC_QUERY)
                     .reply(data.code);
                 expectedActions = [{ payload: data.rate, type: types.USD_PER_BTC }];
@@ -356,7 +412,7 @@ describe("App Unit Tests", () => {
             it("success", async () => {
                 data.code = 200;
                 data.rate = 9000;
-                nock(consts.USD_PER_BTC_HOST)
+                nock(consts.BLOCKCHAIN_INFO_HOST)
                     .get(consts.USD_PER_BTC_QUERY)
                     .reply(data.code, { USD: { last: data.rate } });
                 expectedActions = [{ payload: data.rate, type: types.USD_PER_BTC }];
