@@ -154,6 +154,10 @@
             padding-right: 40px;
         }
 
+        &--qr-password {
+            margin-bottom: 10px;
+        }
+
         & + .form-text__icon {
             opacity: 0.3;
             pointer-events: none;

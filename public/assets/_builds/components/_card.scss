@@ -67,3 +67,73 @@
     }
   }
 }
+
+
+.card__qr {
+  padding: 0;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border $default-transition, box-shadow $default-transition;
+
+  &-container {
+    line-height: 0;
+
+    &-image {
+      padding: 0;
+      width: 320px;
+      height: 320px;
+    }
+  }
+
+  &-right {
+    padding: 30px;
+  }
+
+  &-description {
+    margin-bottom: 20px;
+
+    &-list {
+      margin-bottom: 10px;
+      line-height: 20px;
+
+      &-item {
+        margin-top: 10px;
+
+        &-icon {
+          position: relative;
+          padding-left: 20px;
+
+          &::before {
+            content: "";
+            position: absolute;
+            display: block;
+            top: 8px;
+            transform: translateY(-50%);
+            left: 0;
+            width: 8px;
+            height: 8px;
+            background-color: $yellow;
+            background-size: contain;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
+
+  &-title {
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  &-row {
+    margin-left: -20px;
+    margin-right: -20px;
+    max-width: calc(100% + 40px);
+  }
+}

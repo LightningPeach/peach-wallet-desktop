@@ -61,6 +61,7 @@ function checkLndSync() {
                 return errorPromise(response.error, checkLndSync);
             }
         }
+
         return successPromise();
     };
 }
@@ -87,6 +88,7 @@ function startLnd(walletName, toCheckUser = true) {
             return errorPromise(response.error, startLnd);
         }
         dispatch(actions.lndInitingSuccess());
+
         return successPromise();
     };
 }

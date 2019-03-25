@@ -17,6 +17,8 @@ import SubHeader from "components/subheader";
 import DigitsField from "components/ui/digits-field";
 import ConfirmLogout from "./modal/logout";
 import Legal from "./modal/law";
+import ConnectRemoteQR from "./modal/connect-remote-qr";
+import PasswordRemoteQR from "./modal/password-remote-qr";
 
 class Profile extends Component {
     constructor(props) {
@@ -568,9 +570,44 @@ class Profile extends Component {
                                 Switch to another wallet
                             </button>
                         </div>
+                        </div>
+                </div>
+                <div className="profile__row">
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label">
+                                Mobile app access
+                            </div>
+                            <div className="profile__value profile__value--start">
+                                <button
+                                    className="profile__button-label link"
+                                    onClick={() => {
+                                        analytics.event({
+                                            action: "RemoteAccess",
+                                            category: "Profile",
+                                        });
+                                        dispatch(appOperations.openConnectRemoteQRModal());
+                                    }}
+                                >
+                                    Show QR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-xs-12">
+                        <div className="profile__line">
+                            <div className="profile__label" />
+                            <div className="profile__value">
+                                <span className="text-grey">
+                                    Using QR code you can control your wallet remotely using the Peach Wallet mobile app.
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                </div>
+
         );
     };
 
@@ -582,6 +619,12 @@ class Profile extends Component {
                 break;
             case appTypes.MODAL_STATE_LEGAL:
                 modal = <Legal />;
+                break;
+            case appTypes.MODAL_STATE_CONNECT_REMOTE_QR:
+                modal = <ConnectRemoteQR />;
+                break;
+            case appTypes.MODAL_STATE_PASSWORD_REMOTE_QR:
+                modal = <PasswordRemoteQR />;
                 break;
             default:
                 modal = null;

@@ -108,7 +108,6 @@ function login(walletName, password) {
         logger.log("Unlock lnd");
         const params = { password };
         response = await window.ipcClient("unlockLnd", params);
-        logger.log(response);
         if (!response.ok) {
             const error = exceptions.WALLET_NAME_PASSWORD_WRONG;
             dispatch(accountActions.finishInitAccount());

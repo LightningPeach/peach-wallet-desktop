@@ -17,3 +17,5 @@ export const SET_APP_AS_DEFAULT_STATUS = `${$prefix}SET_APP_AS_DEFAULT_STATUS`;
 export const SET_PEER_PORT = `${$prefix}SET_PEER_PORT`;
 export const ADD_MODAL_TO_FLOW = `${$prefix}ADD_MODAL_TO_FLOW`;
 export const MODAL_FLOW_POP_FIRST = `${$prefix}MODAL_FLOW_POP_FIRST`;
+export const MODAL_STATE_CONNECT_REMOTE_QR = `${$prefix}MODAL_STATE_CONNECT_REMOTE_QR`;
+export const MODAL_STATE_PASSWORD_REMOTE_QR = `${$prefix}MODAL_STATE_PASSWORD_REMOTE_QR`;

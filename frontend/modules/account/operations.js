@@ -615,6 +615,34 @@ function checkAmount(amount, type = "lightning") {
     };
 }
 
+/**
+ * @return ${host}/n${macaroonsHex}/n${port}
+ */
+function getRemoteAccressString() {
+    return async (dispatch, getState) => {
+        const response = await window.ipcClient("generateRemoteAccessString", { username: getState().account.login });
+        if (!response.ok) {
+            logger.error("Error on getRemoteAccressString", response.error);
+            return errorPromise(response.error, getRemoteAccressString);
+        }
+
+        return successPromise({
+            remoteAccessString: response.remoteAccessString,
+        });
+    };
+}
+
+function rebuildCertificate() {
+    return async (dispatch, getState) => {
+        const response = await window.ipcClient("rebuildLndCerts", { username: getState().account.login });
+        if (!response.ok) {
+            logger.error("Error on rebuildCertificate", response.error);
+            return errorPromise(response.error, rebuildCertificate);
+        }
+        return successPromise();
+    };
+}
+
 export {
     setInitConfig,
     loadAccountSettings,
@@ -640,4 +668,6 @@ export {
     setAnalyticsMode,
     setTermsMode,
     setWalletMode,
+    getRemoteAccressString,
+    rebuildCertificate,
 };
