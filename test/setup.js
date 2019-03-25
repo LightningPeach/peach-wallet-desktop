@@ -22,10 +22,14 @@ window.DB.Entities.LightningTxns = require("../server/db/model/LightningTxns").L
 window.DB.Entities.Stream = require("../server/db/model/Stream").Stream;
 window.DB.Entities.StreamPart = require("../server/db/model/StreamPart").StreamPart;
 window.DB.Entities.Config = require("../server/db/model/Config").Config;
+window.VERSION = {
+    Legal: "Legalized",
+};
 
 // Functions
 const ipcClient = sinon.stub();
 window.ipcClient = ipcClient;
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const matchMedia = () => ({
     matches: false,
@@ -37,7 +41,7 @@ window.matchMedia = window.matchMedia || matchMedia;
 // Base implementation of electron ipc. For test some code like window.ipcRenderer.on("lnd-down")
 let channels = {};
 const ipcRenderer = {
-    send: sinon.spy((channel, ...arg) => {
+    send: sinon.spy(async (channel, ...arg) => {
         if (channel in channels) {
             channels[channel].callbacks.forEach((callback) => {
                 if (arg.length) {
@@ -47,6 +51,7 @@ const ipcRenderer = {
                 }
             });
         }
+        return Promise.resolve();
     }),
     on: sinon.spy((channel, callback) => {
         if (channel in channels) {
@@ -69,4 +74,4 @@ global.navigator = {
 global.document = window.document;
 global.expect = expect;
 global.sinon = sinon;
-global.nap = ms => new Promise(resolve => setTimeout(resolve, ms));
+global.sleep = sleep;

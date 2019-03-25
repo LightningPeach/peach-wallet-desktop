@@ -621,6 +621,7 @@ export {
     connectKernel,
     connectServerLnd,
     startLis,
+    shutDownLis,
     getLightningID,
     initAccount,
     logout,

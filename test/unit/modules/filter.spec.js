@@ -148,7 +148,6 @@ describe("Filter Unit Tests", () => {
             data = {};
             initState = JSON.parse(JSON.stringify(persistedState));
             store = configureStore(initState);
-            store.subscribe(() => listActions.push(store.getState().lastAction));
             expectedData = undefined;
             expectedActions = [];
         });

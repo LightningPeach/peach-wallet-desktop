@@ -301,7 +301,6 @@ describe("Stream Payment Unit Tests", () => {
             initState = JSON.parse(JSON.stringify(persistedState));
             initState.account.kernelConnectIndicator = accountTypes.KERNEL_CONNECTED;
             store = configureStore(initState);
-            store.subscribe(() => listActions.push(store.getState().lastAction));
             expectedData = undefined;
             expectedActions = [];
         });
@@ -319,21 +318,21 @@ describe("Stream Payment Unit Tests", () => {
                 expectedData.payload = types.MODAL_STATE_STREAM_PAYMENT_DETAILS;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openStreamPaymentDetailsModal())).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
 
             it("openActiveRecurringWarningModal()", async () => {
                 expectedData.payload = types.MODAL_STATE_ACTIVE_RECURRING_WARNING;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openActiveRecurringWarningModal())).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
 
             it("openEditStreamModal()", async () => {
                 expectedData.payload = types.MODAL_STATE_EDIT_STREAM_PAYMENT;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openEditStreamModal())).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
         });
 
@@ -345,7 +344,7 @@ describe("Stream Payment Unit Tests", () => {
                 },
             ];
             expect(await store.dispatch(operations.clearPrepareStreamPayment())).to.deep.equal(expectedData);
-            expect(listActions).to.deep.equal(expectedActions);
+            expect(store.getState().listActions).to.deep.equal(expectedActions);
         });
 
         describe("prepareStreamPayment()", () => {
@@ -367,7 +366,6 @@ describe("Stream Payment Unit Tests", () => {
             it("kernel disconnected", async () => {
                 initState.account.kernelConnectIndicator = accountTypes.KERNEL_DISCONNECTED;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
                     ...errorResp,
                     error: exceptions.ACCOUNT_NO_KERNEL,
@@ -377,7 +375,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.lightningID,
                     data.price,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).not.to.be.called;
             });
 
@@ -391,7 +389,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.lightningID,
                     data.price,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
             });
 
@@ -421,6 +419,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.lightningID,
                     data.price,
                 ))).to.deep.equal(expectedData);
+                ({ listActions } = store.getState());
                 listActions[0].payload = omit(listActions[0].payload, ["date", "memo", "id"]);
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
@@ -458,6 +457,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.contact_name,
                     data.currency,
                 ))).to.deep.equal(expectedData);
+                ({ listActions } = store.getState());
                 listActions[0].payload = omit(listActions[0].payload, ["date", "memo", "id"]);
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
@@ -493,7 +493,6 @@ describe("Stream Payment Unit Tests", () => {
             it("kernel disconnected", async () => {
                 initState.account.kernelConnectIndicator = accountTypes.KERNEL_DISCONNECTED;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
                     ...errorResp,
                     error: exceptions.ACCOUNT_NO_KERNEL,
@@ -509,7 +508,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.paymentName,
                     data.currency,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).not.to.be.called;
                 expect(fakeDB.streamBuilder).not.to.be.called;
             });
@@ -518,7 +517,6 @@ describe("Stream Payment Unit Tests", () => {
                 data.status = types.STREAM_PAYMENT_PAUSED;
                 initState.streamPayment.streams = [{ id: "foo" }];
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = {
                     ...errorResp,
                     error: exceptions.RECURRING_NOT_IN_STORE,
@@ -534,7 +532,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.paymentName,
                     data.currency,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).not.to.be.called;
                 expect(fakeDB.streamBuilder).not.to.be.called;
             });
@@ -555,7 +553,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.paymentName,
                     data.currency,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.streamBuilder).not.to.be.called;
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
             });
@@ -587,7 +585,7 @@ describe("Stream Payment Unit Tests", () => {
                     data.paymentName,
                     data.currency,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
@@ -638,8 +636,8 @@ describe("Stream Payment Unit Tests", () => {
                     data.paymentName,
                     data.currency,
                 ))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeLightning.getLightningFee).to.be.calledOnce;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
@@ -679,14 +677,14 @@ describe("Stream Payment Unit Tests", () => {
             it("db error", async () => {
                 fakeDB.streamBuilder.throws(new Error("foo"));
                 expect(await operations.pauseDbStreams()).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).not.to.be.called;
             });
 
             it("success", async () => {
                 expect(await operations.pauseDbStreams()).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
@@ -721,7 +719,7 @@ describe("Stream Payment Unit Tests", () => {
 
             it("empty streams list", async () => {
                 expect(await store.dispatch(operations.pauseStreamPayment(data.streamId))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).not.to.be.called;
             });
@@ -740,7 +738,6 @@ describe("Stream Payment Unit Tests", () => {
                     },
                 ];
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -753,7 +750,7 @@ describe("Stream Payment Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.pauseStreamPayment(data.streamId))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
@@ -786,7 +783,7 @@ describe("Stream Payment Unit Tests", () => {
 
             it("empty streams list", async () => {
                 expect(await store.dispatch(operations.pauseAllStreams(data.streamId))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).not.to.be.called;
             });
@@ -805,7 +802,6 @@ describe("Stream Payment Unit Tests", () => {
                     },
                 ];
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -818,7 +814,7 @@ describe("Stream Payment Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.pauseAllStreams(data.streamId))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
@@ -863,7 +859,6 @@ describe("Stream Payment Unit Tests", () => {
             ];
             initState.streamPayment.streams = streams;
             store = configureStore(initState);
-            store.subscribe(() => listActions.push(store.getState().lastAction));
             fakeDB.streamBuilder.returns({
                 getMany: data.streamBuilder.getMany.returns(streams),
             });
@@ -895,7 +890,7 @@ describe("Stream Payment Unit Tests", () => {
                 },
             ];
             expect(await store.dispatch(operations.loadStreams())).to.deep.equal(expectedData);
-            expect(listActions).to.deep.equal(expectedActions);
+            expect(store.getState().listActions).to.deep.equal(expectedActions);
             expect(window.ipcRenderer.send).not.to.be.called;
             expect(fakeDB.streamBuilder).to.be.calledOnce;
             expect(data.streamBuilder.getMany).to.be.calledOnce;
@@ -920,7 +915,7 @@ describe("Stream Payment Unit Tests", () => {
                     f: "addStreamPaymentToList",
                 };
                 expect(await store.dispatch(operations.addStreamPaymentToList())).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).not.to.be.called;
             });
@@ -929,7 +924,6 @@ describe("Stream Payment Unit Tests", () => {
                 const details = {};
                 initState.streamPayment.streamDetails = details;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
@@ -937,7 +931,7 @@ describe("Stream Payment Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.addStreamPaymentToList())).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.insert).to.be.calledOnce;
@@ -964,7 +958,7 @@ describe("Stream Payment Unit Tests", () => {
 
             it("no payment", async () => {
                 expect(await store.dispatch(operations.finishStreamPayment(0))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
             });
 
@@ -980,7 +974,6 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 initState.streamPayment.streams = streams;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -993,7 +986,7 @@ describe("Stream Payment Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.finishStreamPayment("baz"))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
                 expect(fakeDB.streamBuilder).to.be.calledOnce;
                 expect(data.streamBuilder.update).to.be.calledOnce;
@@ -1047,12 +1040,11 @@ describe("Stream Payment Unit Tests", () => {
                 initState.account.isLogined = true;
                 initState.account.lightningBalance = Number.MAX_SAFE_INTEGER;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
             });
 
             it("no payment", async () => {
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
-                expect(listActions).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).not.to.be.called;
                 expect(fakeDB.streamBuilder).not.to.be.called;
             });
@@ -1074,7 +1066,6 @@ describe("Stream Payment Unit Tests", () => {
                 initState.streamPayment.streams = streams;
                 initState.account.lightningBalance = 50;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -1100,6 +1091,7 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
                 await delay(100);
+                ({ listActions } = store.getState());
                 listActions[2] = omit(listActions[2], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
@@ -1140,7 +1132,6 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 initState.streamPayment.streams = streams;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -1180,6 +1171,7 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
                 await delay(100);
+                ({ listActions } = store.getState());
                 listActions[4] = omit(listActions[4], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
@@ -1227,7 +1219,6 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 initState.streamPayment.streams = streams;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -1267,6 +1258,7 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
                 await delay(100);
+                ({ listActions } = store.getState());
                 listActions[4] = omit(listActions[4], "payload");
                 expect(listActions).to.deep.equal(expectedActions);
                 expect(window.ipcRenderer.send).not.to.be.called;
@@ -1320,7 +1312,6 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 initState.streamPayment.streams = streams;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -1408,6 +1399,7 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
                 await delay(200);
+                ({ listActions } = store.getState());
                 listActions[4].payload.details = omit(listActions[4].payload.details, "lastPayment");
                 listActions[8].payload.details = omit(listActions[8].payload.details, "lastPayment");
                 listActions[10] = omit(listActions[10], "payload");
@@ -1471,7 +1463,6 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 initState.streamPayment.streams = streams;
                 store = configureStore(initState);
-                store.subscribe(() => listActions.push(store.getState().lastAction));
                 expectedActions = [
                     {
                         payload: {
@@ -1528,6 +1519,7 @@ describe("Stream Payment Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.startStreamPayment("foo"))).to.deep.equal(expectedData);
                 await delay(100);
+                ({ listActions } = store.getState());
                 listActions[4].payload.details = omit(listActions[4].payload.details, "lastPayment");
                 listActions[6] = omit(listActions[6], "payload");
                 expect(listActions).to.deep.equal(expectedActions);

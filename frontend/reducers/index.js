@@ -15,7 +15,9 @@ import serverReducer from "modules/server/reducers";
 import filterReducer from "modules/filter/reducers";
 
 const testReducer = NODE_ENV === "test"
-    ? { lastAction: (state = null, action) => action }
+    ? {
+        listActions: (state = [], action) => action.type.includes("@@redux") ? state : [...state, action],
+    }
     : {};
 
 const combinedReducer = {
