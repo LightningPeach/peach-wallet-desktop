@@ -28,6 +28,7 @@ The Peach Wallet supports the following features, which have already become comm
 - Sending & receiving payments within the Lightning Network using Lightning ID. Works only between Peach Wallet users.
 - Recurring payments between Peach Wallet users. Recurring payments can be useful in cases when periodic charges are more appropriate than regular payments (for example, online streaming services, voice and video calls with per second charge).
 - Address book. With the help of address book you can specify clear and convenient contact names, which is very useful as later you can select them on the Lightning Payment page, thus no need to copy & paste, remember or keep Lightning ID somewhere on paper or PC.
+- QR codes for connecting from the Peach mobile wallet. If you have public IP address, then you can keep your desktop node active and connect to it from your Peach mobile wallet with the help of generated QR code.
 
 ### Installation
 You can [install the wallet from source](docs/installation.md).
