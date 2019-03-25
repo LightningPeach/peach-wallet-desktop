@@ -33,22 +33,22 @@ import {
 } from "config/consts";
 import { exceptions } from "config";
 
-window.ipcRenderer.on("lnd-down", () => {
+window.ipcRenderer.on("lnd-down", /* istanbul ignore next */ () => {
     store.dispatch(actions.setDisconnectedKernelConnectIndicator());
 });
 
-window.ipcRenderer.on("lnd-up", () => {
+window.ipcRenderer.on("lnd-up", /* istanbul ignore next */ () => {
     store.dispatch(actions.setConnectedKernelConnectIndicator());
 });
 
-window.ipcRenderer.on("lis-up", () => {
+window.ipcRenderer.on("lis-up", /* istanbul ignore next */ () => {
     if (store.getState().account.lisStatus === types.LIS_UP) {
         return;
     }
     store.dispatch(actions.setLisStatus(types.LIS_UP));
 });
 
-window.ipcRenderer.on("lis-down", () => {
+window.ipcRenderer.on("lis-down", /* istanbul ignore next */ () => {
     if (store.getState().account.lisStatus === types.LIS_DOWN) {
         return;
     }

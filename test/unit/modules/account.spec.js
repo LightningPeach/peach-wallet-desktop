@@ -2115,6 +2115,73 @@ describe("Account Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith("walletBalance");
             });
         });
+
+        describe("getRemoteAccressString()", () => {
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("generateRemoteAccessString")
+                    .returns({ ok: false });
+                expectedData = {
+                    ...errorResp,
+                    error: undefined,
+                    f: "getRemoteAccressString",
+                };
+                expect(await store.dispatch(operations.getRemoteAccressString())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("generateRemoteAccessString", { username: "" });
+            });
+
+            it("success", async () => {
+                window.ipcClient
+                    .withArgs("generateRemoteAccessString")
+                    .returns({
+                        ok: true,
+                        remoteAccessString: "foo",
+                    });
+                expectedData = {
+                    ...successResp,
+                    response: {
+                        remoteAccessString: "foo",
+                    },
+                };
+                expect(await store.dispatch(operations.getRemoteAccressString())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("generateRemoteAccessString", { username: "" });
+            });
+        });
+
+        describe("rebuildCertificate()", () => {
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("rebuildLndCerts")
+                    .returns({ ok: false });
+                expectedData = {
+                    ...errorResp,
+                    error: undefined,
+                    f: "rebuildCertificate",
+                };
+                expect(await store.dispatch(operations.rebuildCertificate())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("rebuildLndCerts", { username: "" });
+            });
+
+            it("success", async () => {
+                window.ipcClient
+                    .withArgs("rebuildLndCerts")
+                    .returns({
+                        ok: true,
+                        remoteAccessString: "foo",
+                    });
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.rebuildCertificate())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("rebuildLndCerts", { username: "" });
+            });
+        });
     });
 
     describe("Reducer actions", () => {
