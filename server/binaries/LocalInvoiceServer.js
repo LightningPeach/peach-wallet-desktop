@@ -168,8 +168,6 @@ const onMessage = async (message) => {
             if (!checked.ok) {
                 break;
             }
-            logger.debug("Checked");
-
             const pubkey = ec.keyFromPublic(msg.data.pubkey, "hex");
             // remember shared key for particular id
 
@@ -191,7 +189,6 @@ const onMessage = async (message) => {
                 },
             };
             // sign message with lnd private key
-            logger.debug("Signing message");
             const response = await lnd.call("signMessage", { msg: Buffer.from(socketResponse.data.toString()) });
             socketResponse.sign = response.response.signature;
 
@@ -200,13 +197,11 @@ const onMessage = async (message) => {
             break;
         }
         case types.SOCKET_PUBKEY_RESPONSE: {
-            logger.debug("Will check auth", invoiceStorage[msg.data.id]);
             logger.debug("PUBKEY RESPONSE", invoiceStorage[msg.data.id]);
             const checked = await checkAuthority(msg, data.sender);
             if (!checked.ok || data.sender !== invoiceStorage[msg.data.id].lightningId) {
                 break;
             }
-            logger.debug("Checked");
 
             // remember shared key for particular id
             const pubkey = ec.keyFromPublic(msg.data.pubkey, "hex");
@@ -221,11 +216,9 @@ const onMessage = async (message) => {
 
             const shared = invoiceStorage[msg.data.id].sharedKey;
             const aesCtr = new Aesjs.ModeOfOperation.ctr(shared.toArray()); // eslint-disable-line new-cap
-            logger.debug("Invoice:", JSON.stringify(invoiceRequest));
             const msgBytes = Aesjs.utils.utf8.toBytes(JSON.stringify(invoiceRequest));
             const encryptedSendedBytes = aesCtr.encrypt(msgBytes);
             const encryptedHex = Aesjs.utils.hex.fromBytes(encryptedSendedBytes);
-            logger.debug("Msg:", encryptedHex);
 
             const socketResponse = {
                 data: {
@@ -244,24 +237,18 @@ const onMessage = async (message) => {
             break;
         }
         case types.SOCKET_ADD_INVOICE_ENCRYPTED_REMOTE_REQUEST: {
-            logger.debug("Response from request invoice:", msg);
             logger.debug("INVOICE REQUEST", invoiceStorage[msg.data.id]);
             const checked = await checkAuthority(msg, data.sender);
             if (!checked.ok || data.sender !== invoiceStorage[msg.data.id].lightningId) {
                 break;
             }
 
-            logger.debug("Checked");
             const shared = invoiceStorage[msg.data.id].sharedKey;
-            logger.debug(shared);
             const encryptedReceivedBytes = Aesjs.utils.hex.toBytes(msg.data.msg);
-            logger.debug(encryptedReceivedBytes);
             let aesCtr = new Aesjs.ModeOfOperation.ctr(shared.toArray()); // eslint-disable-line new-cap
             const decryptedBytes = aesCtr.decrypt(encryptedReceivedBytes);
             const decryptedRequest = Aesjs.utils.utf8.fromBytes(decryptedBytes);
-            logger.debug("Will generate invoice for data: ", decryptedRequest);
             const invData = JSON.parse(decryptedRequest);
-            logger.debug("Will generate invoice for data: ", invData);
 
             const amount = parseInt(invData.amount, 10);
             const invoiceData = {
@@ -270,7 +257,6 @@ const onMessage = async (message) => {
             if ("memo" in invData) {
                 invoiceData.memo = invData.memo;
             }
-            logger.debug("Will generate invoice for data: ", invoiceData);
             const invoice = await lnd.call("addInvoice", invoiceData);
             if (!invoice.ok) {
                 logger.error("SOCKET_ADD_INVOICE_REMOTE_REQUEST LND.addInvoice:", invoice);
@@ -302,7 +288,6 @@ const onMessage = async (message) => {
         }
         case types.SOCKET_ADD_INVOICE_ENCRYPTED_REMOTE_RESPONSE: {
             logger.debug("INVOICE RESPONSE", invoiceStorage[msg.data.id]);
-            logger.debug("Response from request invoice:", msg);
             const checked = await checkAuthority(msg, data.sender);
             if (!checked.ok || data.sender !== invoiceStorage[msg.data.id].lightningId) {
                 break;
@@ -313,10 +298,8 @@ const onMessage = async (message) => {
             const aesCtr = new Aesjs.ModeOfOperation.ctr(shared.toArray()); // eslint-disable-line new-cap
             const decryptedBytes = aesCtr.decrypt(encryptedBytes);
             const decryptedInvoiceResponse = Aesjs.utils.utf8.fromBytes(decryptedBytes);
-            logger.debug("DECRYPTED INVOICE RESPONSE", decryptedInvoiceResponse);
 
             invoiceStorage[msg.data.id].invoice = JSON.parse(decryptedInvoiceResponse);
-            logger.debug("INVOICE", invoiceStorage[msg.data.id]);
             break;
         }
         case types.SOCKET_ERROR:
@@ -351,11 +334,7 @@ const requestInvoice = async (amount, lightningId, memo) => {
     const id = `${Date.now()}${crypto.randomBytes(5).toString("hex")}`;
 
     let defParams;
-    logger.debug("Will create an invoice");
-    // send without encryption if we send on server because there is no need, ssl encryption is used for mitm
-    logger.debug(lightningId === settings.get.peach.pubKey);
     if (lightningId === settings.get.peach.pubKey) {
-        logger.debug("Inside if statement");
         defParams = {
             _key: id,
             action: types.ADD_INVOICE_REMOTE_REQUEST,
@@ -406,7 +385,6 @@ const requestInvoice = async (amount, lightningId, memo) => {
                 logger.debug("Will check invoice:", invoiceStorage[id]);
                 if (invoiceStorage[id] && invoiceStorage[id].invoice) {
                     clearInterval(intervalId);
-                    logger.debug("Invoice received:", id, invoiceStorage[id]);
                     const payReq = await lnd.call("decodePayReq", {
                         pay_req: invoiceStorage[id].invoice.payment_request,
                     });
@@ -415,7 +393,6 @@ const requestInvoice = async (amount, lightningId, memo) => {
                         reject(new Error(payReq.error));
                         return;
                     }
-                    logger.debug("Invoice decoded:", payReq.response);
                     const eqLightning = payReq.response.destination === lightningId;
                     const eqAmount = parseInt(payReq.response.num_satoshis, 10) === value;
                     if (!eqLightning || !eqAmount) {
