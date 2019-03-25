@@ -19,7 +19,7 @@ import { initStateFilter } from "modules/filter/reducers";
 import { initStateServer } from "modules/server/reducers";
 
 const testStore = NODE_ENV === "test"
-    ? { lastAction: null }
+    ? { listActions: [] }
     : null;
 
 export const persistedState = {

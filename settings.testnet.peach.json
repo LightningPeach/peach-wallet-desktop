@@ -1,4 +1,7 @@
 {
+  "version": {
+    "legal": "03/25/2019"
+  },
   "analytics": {
     "trackingID": "UA-117106160-2",
     "appUrl": "https://peach-wallet.local.com"

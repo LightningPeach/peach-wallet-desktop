@@ -21,5 +21,21 @@ module.exports = new EntitySchema({
             type: "integer",
             default: "0",
         },
+        analytics: {
+            type: "varchar",
+            default: "",
+        },
+        terms: {
+            type: "integer",
+            default: 0,
+        },
+        walletMode: {
+            type: "varchar",
+            default: "",
+        },
+        legalVersion: {
+            type: "varchar",
+            default: "",
+        },
     },
 });

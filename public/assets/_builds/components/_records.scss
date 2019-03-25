@@ -1,16 +1,10 @@
 .records {
     &__title {
         font-size: 16px;
-        line-height: 1.13;
-        margin-top: 57px;
-        margin-bottom: 24px;
+        line-height: 18px;
+        margin-top: 60px;
+        margin-bottom: 30px;
         text-transform: uppercase;
-        letter-spacing: -0.5px;
-    }
-
-    .separator {
-        margin-top: 21px;
-        margin-bottom: 22px;
     }
 
     .placeholder_text {
@@ -18,6 +12,5 @@
         font-size: 12px;
         padding-bottom: 50px;
         text-transform: uppercase;
-        letter-spacing: -0.6px;
     }
 }

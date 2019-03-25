@@ -2,6 +2,7 @@ import omit from "lodash/omit";
 import nock from "nock";
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
+
 import {
     serverActions as actions,
     serverTypes as types,
@@ -11,7 +12,7 @@ import { errorPromise, successPromise } from "additional";
 import serverReducer, { initStateServer } from "modules/server/reducers";
 import { notificationsTypes } from "modules/notifications";
 import { PEACH_API_HOST } from "config/node-settings";
-import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
+import { exceptions } from "config";
 import { accountTypes } from "modules/account";
 import { store as defaultStore } from "store/configure-store";
 
@@ -24,7 +25,7 @@ describe("Server Unit Tests", () => {
         let expectedData;
 
         beforeEach(() => {
-            data = EXCEPTION_SERVER_UNAVAILABLE;
+            data = exceptions.SERVER_UNAVAILABLE;
             expectedData = {
                 payload: data,
                 type: undefined,
@@ -68,7 +69,6 @@ describe("Server Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let expectedActions;
@@ -80,8 +80,7 @@ describe("Server Unit Tests", () => {
         beforeEach(async () => {
             errorResp = await errorPromise(undefined, { name: undefined });
             successResp = await successPromise();
-            sandbox = sinon.sandbox.create();
-            fakeStore = sandbox.stub(defaultStore);
+            fakeStore = sinon.stub(defaultStore);
             expectedActions = [];
             expectedData = undefined;
             store = mockStore(initStateServer);
@@ -90,7 +89,7 @@ describe("Server Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("getMerchants()", () => {
@@ -101,14 +100,14 @@ describe("Server Unit Tests", () => {
                         type: types.MERCHANTS_REQUEST,
                     },
                     {
-                        payload: EXCEPTION_SERVER_UNAVAILABLE,
+                        payload: exceptions.SERVER_UNAVAILABLE,
                         type: types.MERCHANTS_FAIL,
                     },
                     {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            message: exceptions.SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
@@ -127,14 +126,14 @@ describe("Server Unit Tests", () => {
                         type: types.MERCHANTS_REQUEST,
                     },
                     {
-                        payload: EXCEPTION_SERVER_UNAVAILABLE,
+                        payload: exceptions.SERVER_UNAVAILABLE,
                         type: types.MERCHANTS_FAIL,
                     },
                     {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            message: exceptions.SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
@@ -151,7 +150,7 @@ describe("Server Unit Tests", () => {
                     {
                         foo: "foo",
                         bar: "bar",
-                        logo: "/logo",
+                        logo: "/logo1",
                     },
                     {
                         foo: "foo",
@@ -164,12 +163,12 @@ describe("Server Unit Tests", () => {
                     {
                         foo: "foo",
                         bar: "bar",
-                        logo: `${PEACH_API_HOST}/logo`,
+                        logo: "/logo1",
                     },
                     {
                         foo: "foo",
                         bar: "bar",
-                        logo: `${PEACH_API_HOST}/logo`,
+                        logo: "/logo",
                     },
                 ];
                 expectedActions = [
@@ -198,7 +197,7 @@ describe("Server Unit Tests", () => {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: EXCEPTION_SERVER_UNAVAILABLE,
+                            message: exceptions.SERVER_UNAVAILABLE,
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,

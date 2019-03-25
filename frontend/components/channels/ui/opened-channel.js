@@ -41,12 +41,12 @@ const OpenedChannel = ({ channel, contacts, isDeleting, clickCopy, clickClose, c
             className={channelClass}
             onClick={clickCopy}
         >
-            <div className="row">
-                <div className="col-xs-10 channel__name">
+            <div className="row row--no-col justify-between-xs">
+                <div className="channel__name">
                     {name}{subName}
                 </div>
                 {!deleting &&
-                <div className="col-xs-2 channel__buttons">
+                <div className="channel__buttons">
                     <button
                         type="button"
                         className="pull-right channel__button channel__button--close"

@@ -5,9 +5,9 @@ const setCurrentForm = payload => ({
     type: types.SET_CURRENT_FORM,
 });
 
-const setTempUsername = payload => ({
+const setTempWalletName = payload => ({
     payload,
-    type: types.SET_TEMP_USERNAME,
+    type: types.SET_TEMP_WALLET_NAME,
 });
 
 const setPassword = payload => ({
@@ -29,6 +29,6 @@ export {
     setCurrentForm,
     setAuthStep,
     setPassword,
-    setTempUsername,
+    setTempWalletName,
     setSessionStatus,
 };

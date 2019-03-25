@@ -8,17 +8,17 @@
     }
 
     &--time {
-      background: url(../images/time.svg) no-repeat 11px 7px;
+      background: url(../images/time.svg) no-repeat 11px 9px;
       background-size: 20px 20px;
     }
 
     &--price {
-      background: url(../images/price.svg) no-repeat 11px 7px;
+      background: url(../images/price.svg) no-repeat 11px 9px;
       background-size: 20px 20px;
     }
 
     &--date {
-      background: url(../images/calendar.svg) no-repeat 11px 7px;
+      background: url(../images/calendar.svg) no-repeat 11px 9px;
       background-size: 20px 20px;
     }
 
@@ -44,8 +44,6 @@
 
   &__row {
     padding: 0 24px;
-    width: 100%;
-    display: flex;
     align-items: flex-end;
     justify-content: space-between;
 
@@ -73,7 +71,7 @@
         color: rgba(0, 0, 0, 0.6);
 
         &.active {
-          color: $pumpkin-orange;
+          color: $yellow;
         }
 
         &:hover,
@@ -99,11 +97,11 @@
         text-transform: uppercase;
         height: 16px;
         line-height: 16px;
-        font-weight: 500;
+        font-weight: 600;
         color: rgba(0, 0, 0, 0.6);
 
         &.active {
-          color: $pumpkin-orange;
+          color: $yellow;
         }
 
         &:hover,
@@ -119,7 +117,7 @@
   }
 
   &__label {
-    font-weight: 500;
+    font-weight: 600;
     width: 40px;
     font-size: 12px;
   }

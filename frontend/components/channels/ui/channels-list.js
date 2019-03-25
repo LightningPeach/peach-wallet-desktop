@@ -1,12 +1,14 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
-import { analytics, helpers, logger } from "additional";
 import { connect } from "react-redux";
 import { Link } from "react-router";
+
+import { analytics, helpers, logger } from "additional";
 import { channelsTypes as types, channelsOperations as operations, channelsActions as actions } from "modules/channels";
 import { streamPaymentSelectors } from "modules/streamPayments";
 import { appOperations } from "modules/app";
-import { WalletPath } from "routes";
+import { routes } from "config";
+
 import Informer from "components/common/informer";
 import PendingChannel from "./pending-channel";
 import AwaitingResponseChannel from "./awaiting-response-channel";
@@ -112,52 +114,41 @@ class ChannelsList extends Component {
     };
 
     renderEmptyList = () => (
-        <div className="empty-placeholder">
-            <span className="placeholder_text">Here all your open channels will be displayed</span>
+        <div className="page__placeholder page__placeholder--list">
+            <span className="page__placeholder-text">Here all your open channels will be displayed</span>
         </div>
     );
 
     render() {
-        logger.log("CHANNELS LIST RENDERING");
         const {
-            dispatch, channels, skipCreateTutorial, skipLightningTutorial, creatingNewChannel,
+            dispatch, channels, skipCreateTutorial, creatingNewChannel,
         } = this.props;
-        let overlay;
-        if (skipLightningTutorial === types.SHOW) {
-            overlay = (<OverlayWithHole
-                key={3}
-                class="overlay__lightning"
-                title="Make payment"
-                content="Make fast payments with minimal commission"
-                onClose={() => dispatch(actions.updateLightningTutorialStatus(types.HIDE))}
-                closeOnWrapper={false}
-            />);
-        }
-        if (skipCreateTutorial === types.SHOW) {
-            overlay = (<OverlayWithHole
-                key={3}
-                class="overlay__create"
-                title="Create channel"
-                content="Create channel for making payments with BTC"
-                onClose={() => dispatch(operations.hideShowCreateTutorial())}
-                closeOnWrapper={false}
-            />);
-        }
         return (
-            <div className="channels-page">
+            <Fragment>
                 {
                     !this.state.hideInformer &&
                     <Informer key="channelInformer">
                         To receive Lightning payment you need to have open channel with non-zero &quot;Available to
                         receive&quot;. To increase amount of the &quot;Available to receive&quot; send
-                        &nbsp;<Link to={WalletPath}>Lightning payment</Link>&nbsp;via the channel.
+                        &nbsp;<Link className="link" to={routes.WalletPath}>Lightning payment</Link>&nbsp;via the
+                        channel.
                     </Informer>
                 }
-                <div className="container">
-                    {!channels.length && !creatingNewChannel ? this.renderEmptyList() : this.renderChannels()}
-                    {overlay}
+                <div className="page channels">
+                    <div className="container">
+                        {!channels.length && !creatingNewChannel ? this.renderEmptyList() : this.renderChannels()}
+                        {skipCreateTutorial === types.SHOW && (
+                            <OverlayWithHole
+                                class="overlay--create-channel"
+                                title="Create channel"
+                                content="Create channel for making payments with BTC"
+                                onClose={() => dispatch(operations.hideShowCreateTutorial())}
+                                closeOnWrapper={false}
+                            />
+                        )}
+                    </div>
                 </div>
-            </div>
+            </Fragment>
         );
     }
 }
@@ -183,7 +174,6 @@ ChannelsList.propTypes = {
         lightningID: PropTypes.string.isRequired,
     }),
     skipCreateTutorial: PropTypes.string,
-    skipLightningTutorial: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
@@ -194,7 +184,6 @@ const mapStateToProps = state => ({
     isActiveStreamRunning: streamPaymentSelectors.isActiveStreamRunning(state),
     prepareNewChannel: state.channels.prepareNewChannel,
     skipCreateTutorial: state.channels.skipCreateTutorial,
-    skipLightningTutorial: state.channels.skipLightningTutorial,
 });
 
 export default connect(mapStateToProps)(ChannelsList);

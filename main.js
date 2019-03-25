@@ -19,7 +19,6 @@ const logger = baseLogger.child("electron");
 const updater = updaterManager();
 
 let mainWindow = null;
-let agreementWindow = null;
 let notification = null;
 
 let deepLinkUrl;
@@ -106,7 +105,7 @@ if (!gotInstanceLock) {
     app.quit();
 }
 
-function createWindow() {
+function createMainWindow() {
     mainWindow = new BrowserWindow(defaultWindowSettings);
     mainWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
     mainWindow.loadURL(url.format({
@@ -139,40 +138,15 @@ function createWindow() {
     Menu.setApplicationMenu(menu);
 }
 
-const checkAgreement = async () => {
-    if (settings.get.agreement.eula) {
-        createWindow();
-        return;
-    }
-    agreementWindow = new BrowserWindow(defaultWindowSettings);
-    agreementWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
-
-    agreementWindow.loadURL(url.format({
-        pathname: path.join(__dirname, "agreement.html"),
-        protocol: "file:",
-        slashes: true,
-    }));
-    devTools(agreementWindow);
-    agreementWindow.setMenu(null);
-    agreementWindow.maximize();
-    agreementWindow.show();
-
-    agreementWindow.webContents.on("close", () => {
-        if (settings.get.agreement.eula) {
-            createWindow();
-        }
-    });
-};
-
-app.on("ready", checkAgreement);
+app.on("ready", createMainWindow);
 
 app.on("window-all-closed", () => {
     app.quit();
 });
 
 app.on("activate", () => {
-    if (!mainWindow && !agreementWindow) {
-        checkAgreement();
+    if (!mainWindow) {
+        createMainWindow();
     }
 });
 

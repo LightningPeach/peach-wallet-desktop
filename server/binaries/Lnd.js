@@ -1,4 +1,6 @@
 const fs = require("fs");
+const publicIp = require("public-ip");
+const { Certificate } = require("@fidm/x509");
 const protoLoader = require("@grpc/proto-loader");
 const grpc = require("grpc");
 const path = require("path");
@@ -41,6 +43,7 @@ const LND_CERT_FILE = "tls.cert";
 const LND_KEY_FILE = "tls.key";
 const MACAROON_FILE = "admin.macaroon";
 const READONLY_MACAROON_FILE = "readonly.macaroon";
+const INVOICE_MACAROON_FILE = "invoice.macaroon";
 const BLOCK_HEADERS_FILE = "block_headers.bin";
 const NEUTRINO_FILE = "neutrino.db";
 const REG_FILTER_HEADERS_FILE = "reg_filter_headers.bin";
@@ -81,6 +84,7 @@ const getRpcService = async (name, service) => new Promise((resolve, reject) => 
     logger.info({ func: getRpcService }, `Will start waiting for grpc connection with params: ${name}, ${service}`);
     ipcSend("setLndInitStatus", `Wait for ${service} service in LND`);
     grpc.waitForClientReady(client, Infinity, (err) => {
+        logger.debug({ func: getRpcService }, `Error while waiting: ${err}`);
         if (err) {
             logger.error({ func: getRpcService }, err);
             reject(err);
@@ -108,6 +112,15 @@ const awaitTlsGen = async name => new Promise((resolve) => {
     }, 500);
 });
 
+const awaitMacaroonsGen = async name => new Promise((resolve) => {
+    const intervalId = setInterval(() => {
+        if (fs.existsSync(path.join(settings.get.lndPath, name, MACAROON_FILE))) {
+            clearInterval(intervalId);
+            resolve();
+        }
+    }, 500);
+});
+
 const isLndPortsAvailable = async (peerPort) => {
     const rpcPort = settings.get.lnd.rpclisten ? settings.get.lnd.rpclisten : LND_DEFAULT_RPC_PORT;
     const restPort = settings.get.lnd.restlisten ? settings.get.lnd.restlisten : LND_DEFAULT_REST_PORT;
@@ -125,8 +138,9 @@ const isLndPortsAvailable = async (peerPort) => {
         if (!restPortListen) {
             portErrors.push(restPort);
         }
-        const error = `${portErrors.join(", ")} 
-        ${portErrors.length > 1 ? "ports" : "port"} is used by some app. Free it before using wallet`;
+        const error = `${portErrors.join(", ")} ${
+            portErrors.length > 1 ? "ports are" : "port is"
+        } used by some app. Free ${portErrors.length > 1 ? "them" : "it"} before using wallet`;
         return { ok: peerPortListen && rpcPortListen && restPortListen, error, type: "port" };
     } catch (e) {
         return { ok: false, error: e.message, type: "internal" };
@@ -266,6 +280,7 @@ class Lnd extends Exec {
      * @return {undefined|Object|Promise<any>}
      */
     call(method, args = {}, deadLine = GRPC_DEADLINE, cb = null) {
+        logger.debug("Checking current pid while calling", this.pid);
         if (this.pid === -1) {
             return { ok: false, error: "Lnd stopped" };
         }
@@ -342,7 +357,7 @@ class Lnd extends Exec {
      * Options for lnd starting
      * @return {*[]}
      */
-    getOptions() {
+    async getOptions() {
         const options = [
             "--lnddir", path.join(settings.get.lndPath, this.name),
             "--configfile", path.join(settings.get.lndPath, this.name, LND_CONF_FILE),
@@ -351,15 +366,18 @@ class Lnd extends Exec {
             "--tlskeypath", path.join(settings.get.lndPath, this.name, LND_KEY_FILE),
             "--logdir", path.join(settings.get.lndPath, this.name, "log"),
             "--debuglevel", getLogLevel(),
+            "--tlsextraip", "0.0.0.0",
+            "--tlsextraip", (await settings.get.getLndIP(this.name)).split(":")[0],
             "--bitcoin.node", settings.get.bitcoin.node,
             "--listen", `0.0.0.0:${this._peerPort}`,
+            // "--nat",
         ];
         if (settings.get.lnd) {
             if (settings.get.lnd.rpclisten) {
-                options.push("--rpclisten", `127.0.0.1:${settings.get.lnd.rpclisten}`);
+                options.push("--rpclisten", `0.0.0.0:${settings.get.lnd.rpclisten}`);
             }
             if (settings.get.lnd.restlisten) {
-                options.push("--restlisten", `127.0.0.1:${settings.get.lnd.restlisten}`);
+                options.push("--restlisten", `0.0.0.0:${settings.get.lnd.restlisten}`);
             }
             options.push("--maxpendingchannels", settings.get.lnd.maxpendingchannels || 1);
         }
@@ -367,6 +385,7 @@ class Lnd extends Exec {
             options.push(
                 "--adminmacaroonpath", path.join(settings.get.lndPath, this.name, MACAROON_FILE),
                 "--readonlymacaroonpath", path.join(settings.get.lndPath, this.name, READONLY_MACAROON_FILE),
+                "--invoicemacaroonpath", path.join(settings.get.lndPath, this.name, INVOICE_MACAROON_FILE),
             );
         } else {
             options.push("--no-macaroons");
@@ -399,6 +418,14 @@ class Lnd extends Exec {
         return options;
     }
 
+    getMacaroonsHex() {
+        return fs.readFileSync(path.join(settings.get.lndPath, this.name, MACAROON_FILE)).toString("hex");
+    }
+
+    getCert() {
+        return fs.readFileSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE)).toString();
+    }
+
     /**
      * Start lnd
      * @param {string} name
@@ -418,7 +445,9 @@ class Lnd extends Exec {
         this.name = name;
         this.manualStopped = false;
         this._peerPort = settings.get.listenPort(this.name);
+        logger.debug("Checking current pid while starting", this.pid);
         if (this.pid !== -1) {
+            logger.debug("Will call stop from start function");
             this.stop();
         }
 
@@ -449,6 +478,45 @@ class Lnd extends Exec {
         });
     }
 
+    _deleteCerts() {
+        return new Promise((resolve) => {
+            if (!this.name) {
+                const error = "No name for LND given";
+                logger.error({ func: this.clearData }, error);
+                resolve({ ok: false, error });
+                return;
+            }
+
+            rmrf(path.join(settings.get.lndPath, this.name, LND_CERT_FILE), (errCert) => {
+                if (errCert) {
+                    logger.error({ func: this.clearData }, errCert);
+                    resolve({ ok: false, error: errCert.message });
+                }
+                rmrf(path.join(settings.get.lndPath, this.name, LND_KEY_FILE), (errKey) => {
+                    if (errKey) {
+                        logger.error({ func: this.clearData }, errKey);
+                        resolve({ ok: false, error: errKey.message });
+                    }
+
+                    resolve({ ok: true });
+                });
+            });
+        });
+    }
+
+    async rebuildCerts(username) {
+        this._deleteCerts();
+        const ip = `${await publicIp.v4()}:${settings.get.lnd.restlisten}`;
+        settings.get.saveLndIP(username, ip);
+
+        return {
+            ok: true,
+        };
+        // certificate need custom certificate
+        // let { stdout, stderr } = await exec("openssl ecparam -name prime256v1 -genkey -noout -out tls.key");
+        // out = await exec(`openssl req -new -key tls.key -x509 -nodes -days 365
+        // -config openssl.cnf -subj "/O=Lightning Peach desktop wallet" -out tls.cert`);
+    }
     /**
      * Run lnd, set WalletUnlocker rpc service
      * @return {Promise<*>}
@@ -465,19 +533,49 @@ class Lnd extends Exec {
         if (!injectPreload.ok) {
             logger.error("Preload injection failed:", injectPreload);
         }
-        logger.info("Will start lnd with params: \n", this.getOptions().join(" "));
+        // check if lnd cert is available for external (0.0.0.0) usage
+        if (fs.existsSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE))) {
+            const tlsCert = fs.readFileSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE)).toString();
+            const issuer = Certificate.fromPEM(tlsCert);
+            const { extensions } = issuer;
+            let ips = null;
+            extensions.forEach((el) => {
+                if (el.name === "subjectAltName") {
+                    ips = el.altNames;
+                }
+            });
+            console.log(ips);
+            let certIsForExternalUsage = false;
+            if (ips != null) {
+                ips.forEach((el) => {
+                    if (el.ip === "0.0.0.0") {
+                        certIsForExternalUsage = true;
+                    }
+                });
+            }
+            if (!certIsForExternalUsage) {
+                await this.rebuildCerts();
+            }
+        }
+        logger.info("Will start lnd with params: \n", (await this.getOptions()).join(" "));
         ipcSend("setLndInitStatus", "Lnd prepare to start");
         try {
+            // trying to remove old tls.cert / tls.key
+            // await this._clearCerts();
             // Start Lnd
-            const lnd = spawn(settings.get.binariesLndPath, this.getOptions(), { detached: true });
+            const lnd = spawn(settings.get.binariesLndPath, await this.getOptions(), { detached: true });
             lnd.stdout.on("data", (data) => {
                 console.log(`LND stdout: ${data}`);
             });
             lnd.stderr.on("data", (data) => {
+                logger.debug("Got an error and will close", data.toString());
                 logger.error({ func: this._startLnd }, "LND stderr: ", data.toString());
                 lastError = data.toString();
             });
             lnd.on("exit", (code, signal) => {
+                logger.debug("Triggered exit lnd: code", code);
+                logger.debug("Triggered exit lnd: signal", signal);
+                logger.debug("Last error", lastError);
                 ipcSend("lnd-down", lastError);
                 if (lastError) {
                     ipcSend("setLndInitStatus", lastError);
@@ -536,6 +634,7 @@ class Lnd extends Exec {
     async unlockWallet(password) {
         ipcSend("setLndInitStatus", "Unlocking wallet in LND");
         let response = await this.call("unlockWallet", { wallet_password: Buffer.from(password, "binary") });
+        // logger.dedug("Got response from unlocking", response);
         if (!response.ok) {
             logger.error(response.message);
             ipcSend("setLndInitStatus", "");
@@ -548,6 +647,15 @@ class Lnd extends Exec {
     async _initWallet() {
         // Get Lightning rpc service
         logger.debug("[LND] Init grpc Lightning");
+        // macaroons are not created immediately so we need to wait
+        if (!settings.get.lnd.no_macaroons) {
+            await awaitMacaroonsGen(this.name);
+            logger.debug("[LND] Macaroons are created");
+        }
+        logger.debug(
+            "[LND] Macaroons existance",
+            fs.existsSync(path.join(settings.get.lndPath, this.name, MACAROON_FILE)),
+        );
         const service = await getRpcService(this.name, "Lightning");
         if (!settings.get.lnd.no_macaroons) {
             this._client = service.client;

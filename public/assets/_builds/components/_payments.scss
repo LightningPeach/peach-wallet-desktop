@@ -118,7 +118,7 @@
 
 .pay-header {
     color: black;
-    font-weight: 500;
+    font-weight: 600;
     font-size: rem(20px);
     display: block;
     margin: 0 0 rem(25px);
@@ -256,7 +256,7 @@
 
         &.active {
             color: #333;
-            font-weight: 600;
+            font-weight: bold;
         }
     }
 }
@@ -300,7 +300,7 @@
 
             &__history--mobile {
                 color: #2675cc;
-                font-weight: 500;
+                font-weight: 600;
                 font-size: rem(16px);
                 display: inline-block;
                 position: relative;

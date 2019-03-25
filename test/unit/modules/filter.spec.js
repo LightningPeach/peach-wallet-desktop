@@ -1,4 +1,5 @@
 import moment from "moment";
+
 import {
     filterActions as actions,
     filterTypes as types,
@@ -125,7 +126,6 @@ describe("Filter Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -144,18 +144,16 @@ describe("Filter Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             listActions = [];
-            sandbox = sinon.sandbox.create();
-            fakeApp = sandbox.stub(appOperations);
+            fakeApp = sinon.stub(appOperations);
             data = {};
             initState = JSON.parse(JSON.stringify(persistedState));
             store = configureStore(initState);
-            store.subscribe(() => listActions.push(store.getState().lastAction));
             expectedData = undefined;
             expectedActions = [];
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("filter()", () => {

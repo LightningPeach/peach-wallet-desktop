@@ -1,102 +1,46 @@
 .modal {
-    font-size: 14px;
     width: 660px;
-    padding: 0;
-    box-shadow: 0 2px 4px 0 rgba(176, 176, 176, 0.5);
-    outline: none;
     max-width: calc(100% - 40px);
     z-index: 5;
-    border-radius: $border-radius / 2;
-    position: fixed;
-    top: 160px;
-    background: #fff;
-    margin-bottom: 60px;
+    position: relative;
+    border-radius: $border-radius;
+    background: $white;
+    padding: 50px;
+    outline: none;
+    overflow: hidden;
 
-    &__wide {
-        width: 740px;
-    }
-
-    &-payment_result {
-        width: 334px;
-        padding: 50px;
-
-        &__success {
-            padding: 50px 70px 57px 70px;
-            background: transparent url(../images/rectangle.svg) no-repeat center bottom;
-            box-shadow: 0 -3px 4px 0 rgba(176, 176, 176, 0.5);
-
-            .payment_result__btn-row {
-                padding-top: 35px;
-            }
-        }
-
-        &__fail {
-            width: 368px;
-            padding: 50px 40px;
-        }
-    }
-
-    &-wrapper {
+    &__spinner {
         position: absolute;
-        width: 100%;
+        top: 17px;
+        right: 17px;
+        transform: none;
+    }
+
+    &__wrapper {
+        position: fixed;
+        background-color: $black30;
+        width: 100vw;
+        height: 100vh;
         top: 0;
         left: 0;
         z-index: 10;
         display: flex;
         justify-content: center;
         align-items: center;
-
-        .spinner {
-            position: absolute;
-            top: 17px;
-            right: 17px;
-        }
     }
 
-    &-layout {
-        position: fixed;
+    &__layout {
+        position: absolute;
         top: 0;
         left: 0;
-        z-index: 3;
         width: 100%;
-        height: 100vh;
-        background: rgba(00, 00, 00, 0.3);
+        height: 100%;
     }
 
-    &-header {
-        color: $orange;
-        font-size: 18px;
-        line-height: 0.9;
-        padding: 20px;
-        text-transform: uppercase;
-        letter-spacing: -0.8px;
-
-        &__label {
-            position: relative;
-        }
-    }
-
-    &-body {
-        padding: 6px 45px 40px 40px;
-
-        &-bottom30 {
-            padding-bottom: 30px;
-        }
-
-        &__error-message {
-            color: $scarlet-two;
-            margin-bottom: 10px;
-        }
-    }
-
-    &-footer {
-        padding: 0 20px 30px 40px;
-    }
-
-    & .close-modal {
+    &__close {
         background: none;
-        top: 19px;
-        right: 20px;
+        top: 10px;
+        right: 10px;
         width: 20px;
         height: 20px;
         font-size: 0;
@@ -110,12 +54,12 @@
         &:before,
         &:after {
             content: '';
-            height: 25px;
-            width: 2px;
+            height: 20px;
+            width: 1px;
             display: block;
-            background: #cdcfd1;
+            background: $grey-light;
             left: 45%;
-            top: -12%;
+            top: 0;
             position: absolute;
         }
 
@@ -128,10 +72,114 @@
         }
     }
 
-    &__error {
+    &__header {
+        & + .modal__body {
+            padding-top: 40px;
+        }
+    }
 
-        .modal-header {
-            color: $scarlet;
+    &__footer {
+        padding-top: 30px;
+    }
+
+    &--payment_result {
+        width: 334px;
+        padding: 50px;
+
+        &-success {
+            padding-bottom: 60px;
+            background: transparent url(../images/rectangle.svg) no-repeat center bottom;
+            box-shadow: 0 -3px 4px 0 rgba(176, 176, 176, 0.5);
+
+            .modal {
+                &__icon {
+                    background: url(../images/success.svg) no-repeat center top;
+                    background-size: 68px 68px;
+                    height: 68px;
+                }
+            }
+        }
+
+        &-error {
+            width: 368px;
+
+            .modal {
+                &__icon {
+                    background: url(../images/failed.svg) no-repeat center top;
+                    background-size: 68px 68px;
+                    height: 68px;
+                }
+            }
+
+            .helper {
+                &__header {
+                    color: $yellow;
+                }
+
+                &__list {
+                    list-style-type: disc;
+                    -webkit-padding-start: 16px;
+
+                    li {
+                        margin-top: 4px;
+                    }
+                }
+            }
+        }
+    }
+
+    &--small {
+        width: 300px;
+        padding: 40px 30px 20px;
+        text-align: center;
+
+        .modal {
+            &__header {
+                & + .modal__body {
+                    padding-top: 20px;
+                }
+            }
+
+            &__footer {
+                padding-top: 20px;
+            }
+        }
+    }
+
+    &--wide {
+        width: 740px;
+    }
+
+    &--body-20 {
+        .modal {
+            &__header {
+                & + .modal__body {
+                    padding-top: 20px;
+                }
+            }
+
+        }
+    }
+
+    &--body-0 {
+        .modal {
+            &__header {
+                & + .modal__body {
+                    padding-top: 0px;
+                }
+            }
+
+        }
+    }
+
+    &--wallet-mode {
+        width: 780px;
+    }
+
+    &--legal {
+        .license {
+            margin: -40px -40px -8px;
+            background-color: $white;
         }
     }
 }
@@ -161,71 +209,5 @@
             opacity: 0;
             transition: transform .2s ease-in-out, opacity .2s ease-in-out;
         }
-    }
-}
-
-.payment_result {
-    &__icon {
-        margin: 0 auto;
-        display: block;
-    }
-
-    &__title {
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        line-height: 0.75;
-        color: $orange;
-        padding-top: 20px;
-        padding-bottom: 30px;
-    }
-
-    &__btn-row {
-        padding-top: 25px;
-        text-align: center;
-    }
-
-    &__info {
-        line-height: 1;
-        padding-top: 5px;
-        padding-bottom: 5px;
-        font-size: 14px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-
-        &:first-letter {
-            text-transform: uppercase;
-        }
-
-        &:first-child {
-            padding-top: 0;
-        }
-
-        &--error {
-            max-height: 62px;
-            text-overflow: ellipsis;
-        }
-
-        &--helper {
-            margin-top: 20px;
-            line-height: 1.2;
-
-            .helper {
-                &__header {
-                    color: $pumpkin-orange;
-                }
-
-                &__list {
-                    margin-top: 5px;
-                    -webkit-padding-start: 20px;
-                }
-            }
-        }
-    }
-}
-
-@media screen and (max-width: 581px) {
-    .modal {
-        top: 100px;
     }
 }

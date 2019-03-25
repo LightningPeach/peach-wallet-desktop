@@ -1,4 +1,4 @@
-import { statusCodes, consts } from "config";
+import { exceptions, consts } from "config";
 import { appOperations, appActions } from "modules/app";
 import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
@@ -53,6 +53,7 @@ export function preparePayment(
     amount,
     comment,
     pay_req = null,
+    pay_req_decoded = null,
     paymentName = null,
     contact_name = null,
 ) {
@@ -67,6 +68,7 @@ export function preparePayment(
             amount,
             comment,
             pay_req,
+            pay_req_decoded,
             name,
             contact_name,
             fees.response.fee,
@@ -198,7 +200,7 @@ async function getPayments() {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
         }
     });
@@ -231,7 +233,7 @@ function addInvoiceRemote(lightningID, amount, memo = "") {
         if (!response.ok) {
             let error;
             if (response.error.indexOf("invalid json response body") !== -1) {
-                error = statusCodes.EXCEPTION_REMOTE_OFFLINE;
+                error = exceptions.REMOTE_OFFLINE;
             } else {
                 error = response.error; // eslint-disable-line
             }
@@ -243,9 +245,25 @@ function addInvoiceRemote(lightningID, amount, memo = "") {
 
 function pay(details) {
     return async (dispatch, getState) => {
-        logger.log("Will try to send payments with details", details);
-        const response = await window.ipcClient("sendPayment", { payment_request: details.pay_req });
-        logger.log("Got response", response);
+        let paymentDetails;
+        let isPayReqPayment = true;
+        if (details.pay_req_decoded && details.pay_req_decoded.num_satoshis !== details.amount) {
+            isPayReqPayment = false;
+            paymentDetails = {
+                amt: details.amount,
+                dest_string: details.pay_req_decoded.destination,
+                final_cltv_delta: details.pay_req_decoded.cltv_expiry,
+                payment_hash_string: details.pay_req_decoded.payment_hash,
+            };
+        } else {
+            paymentDetails = {
+                payment_request: details.pay_req,
+            };
+        }
+        const response = await window.ipcClient("sendPayment", {
+            details: paymentDetails,
+            isPayReq: isPayReqPayment,
+        });
         if (!response.ok) {
             dispatch(actions.errorPayment(response.error));
             return errorPromise(response.error, pay);
@@ -257,7 +275,7 @@ function pay(details) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         dispatch(actions.successPayment());
         dispatch(accountOperations.checkBalance());
@@ -273,6 +291,7 @@ function makePayment() {
         logger.log("Will send payment");
         dispatch(pendingPayment());
         let payReq = getState().lightning.paymentDetails[0].pay_req || null;
+        const payReqDecoded = getState().lightning.paymentDetails[0].pay_req_decoded || null;
         const details = {
             amount: getState().lightning.paymentDetails[0].amount,
             comment: getState().lightning.paymentDetails[0].comment,
@@ -296,6 +315,7 @@ function makePayment() {
             lightningID: details.lightningID,
             name: details.name,
             pay_req: payReq,
+            pay_req_decoded: payReqDecoded,
         }));
     };
 }

@@ -1,30 +1,43 @@
 .lightning {
-    .container {
-        padding-top: 37px;
-    }
+    .connected-field {
+        & > :not(:last-child) {
+            padding-right: 0;
 
-    .send {
-        padding-top: 23px;
-
-        &--no-pt {
-            padding-top: 0;
+            .connected-field__input,
+            .Select-control {
+                border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
+                border: 1px solid rgba(74,74,74,0.3);
+                border-right: 0;
+            }
         }
 
-        &.narrow {
-            width: 420px;
-            max-width: 100%;
+        & > :not(:first-child) {
+            padding-left: 0;
+
+            .connected-field__input,
+            .Select-control {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                border: 1px solid rgba(74,74,74,0.3);
+                border-left: 1px dashed rgba(74,74,74,0.3);
+            }
         }
 
-        .connected-field {
+        .connected-field__input,
+        .Select-control {
+            &:disabled {
+                opacity: 1;
+                color: transparentize($black, 0.7);
+            }
+        }
 
+        &--filled {
             & > :not(:last-child) {
-                padding-right: 0;
 
                 .connected-field__input,
                 .Select-control {
-                    border-bottom-right-radius: 0;
-                    border-top-right-radius: 0;
-                    border: 1px solid rgba(74,74,74,0.3);
+                    border: 1px solid $black;
                     border-right: 0;
                 }
             }
@@ -34,87 +47,29 @@
 
                 .connected-field__input,
                 .Select-control {
-                    border-bottom-left-radius: 0;
-                    border-top-left-radius: 0;
-                    border: 1px solid rgba(74,74,74,0.3);
-                    border-left: 1px dashed rgba(74,74,74,0.3);
+                    border: 1px solid $black;
+                    border-left: 1px dashed $black;
                 }
             }
+        }
+
+        &--disabled {
+            opacity: 0.3;
 
             .connected-field__input,
             .Select-control {
                 &:disabled {
                     opacity: 1;
-                    color: transparentize($black, 0.7);
-                }
-            }
-
-            &--filled {
-                & > :not(:last-child) {
-
-                    .connected-field__input,
-                    .Select-control {
-                        border: 1px solid $black;
-                        border-right: 0;
-                    }
-                }
-
-                & > :not(:first-child) {
-                    padding-left: 0;
-
-                    .connected-field__input,
-                    .Select-control {
-                        border: 1px solid $black;
-                        border-left: 1px dashed $black;
-                    }
-                }
-            }
-
-            &--disabled {
-                opacity: 0.3;
-                
-                .connected-field__input,
-                .Select-control {
-                    &:disabled {
-                        opacity: 1;
-                        color: $black;
-                    }
+                    color: $black;
                 }
             }
         }
-    }
-
-    .tabs {
-        &__wrapper {
-            min-height: 27px;
-        }
-        &__container {
-            transition: right .2s ease-in-out, margin .2s ease-in-out;
-            max-width: 390px;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-
-            &--end {
-                justify-content: flex-end;
-            }
-
-            &:after {
-                content: "";
-                clear: both;
-                display: inline-block;
-            }
-        }
-    }
-
-    .tab-content {
-        position: relative;
     }
 
     .start,
     .pause,
     .stop {
+        @extend .button;
         display: inline-block;
         width: 14px;
         height: 14px;
@@ -122,11 +77,18 @@
         cursor: pointer;
         margin-left: 9px;
         float: left;
+
+        &[disabled],
+        &.disabled {
+            opacity: 1;
+            filter: grayscale(100%);
+            cursor: default;
+        }
     }
 
     .start {
         background: url(../images/play.svg) no-repeat center;
-        margin-left: -3px;
+        margin-left: 0;
     }
 
     .pause {
@@ -190,7 +152,7 @@
                     pointer-events: all;
                     font-size: 12px;
                     background:
-                            linear-gradient(to right, transparent 0%, transparentize($orange, 0.9) 20%, transparentize($orange, 0.9) 100%),
+                            linear-gradient(to right, transparent 0%, $yellow10 20%, $yellow10 100%),
                             linear-gradient(to right, transparent 0%, $white 20%, $white 100%);
                 }
             }

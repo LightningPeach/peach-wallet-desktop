@@ -13,8 +13,8 @@
 @import "ui/typography";
 @import "ui/buttons";
 @import "ui/progress";
-@import "ui/blocks";
 @import "ui/file";
+@import "ui/block";
 @import "modules/react-select";
 @import "modules/rem";
 @import "modules/mixins";
@@ -24,6 +24,8 @@
 @import "modules/lightning-select";
 @import "modules/tabs";
 @import "modules/react-table";
+@import "components/confirmation";
+@import "components/overlay";
 @import "components/popper";
 @import "components/header";
 @import "components/subheader";
@@ -46,3 +48,7 @@
 @import "components/filter";
 @import "components/picker";
 @import "components/datepicker";
+@import "components/card";
+@import "components/legal";
+@import "components/privacy";
+@import "components/page";

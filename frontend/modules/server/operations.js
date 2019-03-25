@@ -1,6 +1,6 @@
 import fetch from "isomorphic-fetch";
 import { PEACH_API_HOST, BLOCK_HEIGHT_URL } from "config/node-settings";
-import { EXCEPTION_SERVER_UNAVAILABLE } from "config/status-codes";
+import { exceptions } from "config";
 import { error } from "modules/notifications";
 import { successPromise, logger } from "additional";
 import * as actions from "./actions";
@@ -15,7 +15,7 @@ function getBlocksHeight() {
             response = await response.json();
         } catch (e) {
             logger.error(e.message);
-            dispatch(error({ message: EXCEPTION_SERVER_UNAVAILABLE }));
+            dispatch(error({ message: exceptions.SERVER_UNAVAILABLE }));
             return dispatch(actions.setNetworkBlocksHeight(0));
         }
         dispatch(actions.setNetworkBlocksHeight(response.height));
@@ -31,12 +31,12 @@ function getMerchants() {
         try {
             response = await fetch(url);
             response = await response.json();
-            response = response.map(m => ({ ...m, logo: PEACH_API_HOST + m.logo }));
+            response = response.map(item => ({ ...item, logo: item.logo.replace("http://", "https://") }));
             dispatch(actions.merchantsSuccess(response));
         } catch (e) {
             logger.error(e.message);
-            dispatch(actions.merchantsFail(EXCEPTION_SERVER_UNAVAILABLE));
-            dispatch(error({ message: EXCEPTION_SERVER_UNAVAILABLE }));
+            dispatch(actions.merchantsFail(exceptions.SERVER_UNAVAILABLE));
+            dispatch(error({ message: exceptions.SERVER_UNAVAILABLE }));
         }
     };
 }

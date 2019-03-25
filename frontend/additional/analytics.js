@@ -1,16 +1,14 @@
-// Currently use GOOGLE ANALYTICS, rewrite methods for another metrics
 import ReactGA from "react-ga";
 import ElectronCookies from "@exponent/electron-cookies/cookies";
-import { AGREEMENT, ANALYTICS } from "config/node-settings";
-
-let disabled;
+import { ANALYTICS } from "config/node-settings";
+import { store } from "store/configure-store";
+import { accountTypes } from "modules/account";
 
 /**
  * Init analytics
  */
 function init() {
-    disabled = !AGREEMENT.sendStatistics || !ANALYTICS.trackingID;
-    if (disabled) {
+    if (store.getState().account.analyticsMode !== accountTypes.ANALYTICS_MODE.ENABLED) {
         return;
     }
     const testMode = ANALYTICS.trackingID === "UA-XXXXXXXX-X";
@@ -27,7 +25,7 @@ function init() {
  * @param {array} [trackerNames] - Some additional params. trackerNames for ga
  */
 function pageview(path, title = "", trackerNames = []) {
-    if (disabled) {
+    if (store.getState().account.analyticsMode !== accountTypes.ANALYTICS_MODE.ENABLED) {
         return;
     }
     ReactGA.set({ page: path, title });
@@ -39,7 +37,7 @@ function pageview(path, title = "", trackerNames = []) {
  * @param {object} params - Params of event
  */
 function event(params) {
-    if (disabled) {
+    if (store.getState().account.analyticsMode !== accountTypes.ANALYTICS_MODE.ENABLED) {
         return;
     }
     ReactGA.event(params);
