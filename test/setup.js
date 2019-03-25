@@ -13,6 +13,9 @@ const { window } = jsdom;
 window.env = process.env;
 window.PEACH = { replenishUrl: "replenishurl" };
 window.DB = { Connection: {}, Entities: {} };
+window.VERSION = {
+    Legal: "Legalized",
+};
 window.DB.databasePath = sinon.stub();
 window.DB.Connection = require("../server/db");
 window.DB.Entities.Contacts = require("../server/db/model/Contacts").Contacts;
@@ -22,9 +25,6 @@ window.DB.Entities.LightningTxns = require("../server/db/model/LightningTxns").L
 window.DB.Entities.Stream = require("../server/db/model/Stream").Stream;
 window.DB.Entities.StreamPart = require("../server/db/model/StreamPart").StreamPart;
 window.DB.Entities.Config = require("../server/db/model/Config").Config;
-window.VERSION = {
-    Legal: "Legalized",
-};
 
 // Functions
 const ipcClient = sinon.stub();

@@ -53,8 +53,8 @@ export const noExponents = (num) => {
 /**
  * @returns {boolean}
  */
-/* istanbul ignore next */
-export const hasSelection = () => {
+
+export const hasSelection = /* istanbul ignore next */ () => {
     const selection = window.getSelection();
     return selection.type === "Range";
 };
@@ -63,8 +63,7 @@ export const hasSelection = () => {
  * @param {*} text
  * @returns {*}
  */
-/* istanbul ignore next */
-export const formatMultilineText = (text) => {
+export const formatMultilineText = /* istanbul ignore next */ (text) => {
     if (text instanceof Array) {
         return text.map((i, k) => <span key={k}>{i}<br /></span>); // eslint-disable-line
     }
