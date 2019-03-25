@@ -544,7 +544,6 @@ class Lnd extends Exec {
                     ips = el.altNames;
                 }
             });
-            console.log(ips);
             let certIsForExternalUsage = false;
             if (ips != null) {
                 ips.forEach((el) => {
@@ -634,7 +633,6 @@ class Lnd extends Exec {
     async unlockWallet(password) {
         ipcSend("setLndInitStatus", "Unlocking wallet in LND");
         let response = await this.call("unlockWallet", { wallet_password: Buffer.from(password, "binary") });
-        // logger.dedug("Got response from unlocking", response);
         if (!response.ok) {
             logger.error(response.message);
             ipcSend("setLndInitStatus", "");

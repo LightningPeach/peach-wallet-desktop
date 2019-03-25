@@ -126,6 +126,11 @@ registerIpc("signMessage", async (event, arg) => lnd.call("SignMessage", {
     msg: Buffer.from(arg.message, "hex"),
 }));
 
+registerIpc("verifyMessage", async (event, arg) => lnd.call("VerifyMessage", {
+    signature: arg.signature,
+    msg: arg.message,
+}));
+
 registerIpc("genSeed", async () => lnd.call("GenSeed"));
 
 // Peers
