@@ -262,7 +262,7 @@ describe("App Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
-            it("openDeepLinkLighningModal()", async () => {
+            it("openDeepLinkLightningModal()", async () => {
                 expectedData.payload = types.DEEP_LINK_LIGHTNING_MODAL_STATE;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openDeepLinkLightningModal())).to.deep.equal(expectedData);
@@ -288,6 +288,20 @@ describe("App Unit Tests", () => {
                 expectedData.payload = types.MODAL_STATE_LEGAL;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openLegalModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("openConnectRemoteQRModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_CONNECT_REMOTE_QR;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openConnectRemoteQRModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("openPasswordRemoteQRModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_PASSWORD_REMOTE_QR;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openPasswordRemoteQRModal())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
         });
