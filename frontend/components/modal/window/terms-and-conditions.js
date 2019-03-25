@@ -14,12 +14,23 @@ class Law extends Component {
 
         this.state = {
             analytics: props.analytics || false,
+            processing: false,
             terms: props.terms || false,
         };
     }
 
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.checked });
+    };
+    handleLogout = () => {
+        const { dispatch } = this.props;
+        if (this.state.processing) {
+            return;
+        }
+        this.setState({
+            processing: true,
+        });
+        dispatch(accountOperations.logout());
     };
 
     handleConfirm = () => {
@@ -56,6 +67,7 @@ class Law extends Component {
                                         type="checkbox"
                                         checked={this.state.terms}
                                         onChange={this.onChange}
+                                        disabled={this.state.processing}
                                     />
                                     <span className="form-checkbox__label">I accept the agreement</span>
                                 </label>
@@ -70,6 +82,7 @@ class Law extends Component {
                                     type="checkbox"
                                     checked={this.state.analytics}
                                     onChange={this.onChange}
+                                    disabled={this.state.processing}
                                 />
                                 <span className="form-checkbox__label">I agree to the personal data processing</span>
                             </label>
@@ -81,11 +94,12 @@ class Law extends Component {
                             type="button"
                             className="link link--red link--logout"
                             onClick={this.handleLogout}
+                            disabled={this.state.processing}
                         >
                             Switch to another wallet
                         </button>
                         <button
-                            disabled={!this.state.terms}
+                            disabled={!this.state.terms || this.state.processing}
                             className="button button__solid"
                             onClick={this.handleConfirm}
                         >
