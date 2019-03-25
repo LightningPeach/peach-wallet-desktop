@@ -1,6 +1,6 @@
 const fs = require("fs");
 const publicIp = require("public-ip");
-const { Certificate } = require('@fidm/x509');
+const { Certificate } = require("@fidm/x509");
 const protoLoader = require("@grpc/proto-loader");
 const grpc = require("grpc");
 const path = require("path");
@@ -120,8 +120,6 @@ const awaitMacaroonsGen = async name => new Promise((resolve) => {
         }
     }, 500);
 });
-
-
 
 const isLndPortsAvailable = async (peerPort) => {
     const rpcPort = settings.get.lnd.rpclisten ? settings.get.lnd.rpclisten : LND_DEFAULT_RPC_PORT;
@@ -515,7 +513,7 @@ class Lnd extends Exec {
             ok: true,
         };
         // certificate need custom certificate
-        // let { stdout, stderr } = await exec('openssl ecparam -name prime256v1 -genkey -noout -out tls.key');
+        // let { stdout, stderr } = await exec("openssl ecparam -name prime256v1 -genkey -noout -out tls.key");
         // out = await exec(`openssl req -new -key tls.key -x509 -nodes -days 365
         // -config openssl.cnf -subj "/O=Lightning Peach desktop wallet" -out tls.cert`);
     }
@@ -539,7 +537,7 @@ class Lnd extends Exec {
         if (fs.existsSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE))) {
             const tlsCert = fs.readFileSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE)).toString();
             const issuer = Certificate.fromPEM(tlsCert);
-            const extensions = issuer.extensions;
+            const { extensions } = issuer;
             let ips = null;
             extensions.forEach((el) => {
                 if (el.name === "subjectAltName") {
@@ -654,7 +652,10 @@ class Lnd extends Exec {
             await awaitMacaroonsGen(this.name);
             logger.debug("[LND] Macaroons are created");
         }
-        logger.debug("[LND] Macaroons existance", fs.existsSync(path.join(settings.get.lndPath, this.name, MACAROON_FILE)));
+        logger.debug(
+            "[LND] Macaroons existance",
+            fs.existsSync(path.join(settings.get.lndPath, this.name, MACAROON_FILE)),
+        );
         const service = await getRpcService(this.name, "Lightning");
         if (!settings.get.lnd.no_macaroons) {
             this._client = service.client;

@@ -12,7 +12,7 @@ class PasswordRemoteQR extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            // not in store for more security
+            // Not in store for more security
             passwordError: null,
             rebuilding: false,
         };
@@ -48,7 +48,7 @@ class PasswordRemoteQR extends Component {
             });
             return;
         }
-        // delete old certs and change ip
+        // Delete old certs and change ip
         await dispatch(accountOperations.rebuildCertificate());
 
         await window.ipcClient("loadLndPath", { login });
@@ -70,73 +70,72 @@ class PasswordRemoteQR extends Component {
         const spinner = this.state.rebuilding ? <div className="spinner" /> : null;
 
         return (
-        <Modal
-            title="Enter your password"
-            theme="small"
-            onClose={this.closeModal}
-            showCloseButton
-        >
-            <div className="modal__body">
-                <div className="row">
+            <Modal
+                title="Enter your password"
+                theme="small"
+                onClose={this.closeModal}
+                showCloseButton
+            >
+                <div className="modal__body">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            To generate a new QR code, you will need to restart the wallet node
+                        </div>
+                    </div>
+                </div>
+                <div className="modal__footer">
+                    <form onSubmit={this.handleLogin}>
+                        <div className="row">
+                            <div className="col-xs-12">
+                                <input
+                                    id="password"
+                                    className={`form-text form-text--icon_eye form-text--qr-password ${
+                                        this.state.passwordError ? "form-text__error" : ""}`}
+                                    name="password"
+                                    type="password"
+                                    placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                                    ref={(ref) => {
+                                        this.password = ref;
+                                    }}
+                                    onChange={() => { this.setState({ passwordError: null }) }}
+                                    disabled={this.state.processing}
+                                />
+                                <i
+                                    className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
+                                    onClick={togglePasswordVisibility}
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-xs-12">
+                                <span className="button__spinner">
+                                    <button
+                                        type="button"
+                                        className="button button__solid button--fullwide"
+                                        onClick={this.rebuildCerts}
+                                        disabled={this.state.rebuilding}
+                                    >
+                                        Wallet restart
+                                    </button>
+                                    {this.state.rebuilding && <div className="spinner" />}
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div className="block__row-xs">
                     <div className="col-xs-12">
-                        To generate a new QR code, you will need to restart the wallet node
+                        <button
+                            type="button"
+                            className="button button__solid button__solid--transparent button--fullwide"
+                            onClick={this.closeModal}
+                            disabled={this.state.processing}
+                        >
+                            Cancel
+                        </button>
                     </div>
                 </div>
-            </div>
-            <div className="modal__footer">
-                <form onSubmit={this.handleLogin}>
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <input
-                                id="password"
-                                className={`form-text form-text--icon_eye form-text--qr-password ${this.state.passwordError ?
-                                    "form-text__error" :
-                                    ""}`}
-                                name="password"
-                                type="password"
-                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                                ref={(ref) => {
-                                    this.password = ref;
-                                }}
-                                onChange={() => { this.setState({ passwordError: null }) }}
-                                disabled={this.state.processing}
-                            />
-                            <i
-                                className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
-                                onClick={togglePasswordVisibility}
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <span className="button__spinner">
-                                <button
-                                    type="button"
-                                    className="button button__solid button--fullwide"
-                                    onClick={this.rebuildCerts}
-                                    disabled={this.state.rebuilding}
-                                >
-                                    Wallet restart
-                                </button>
-                                {this.state.rebuilding && <div className="spinner" />}
-                            </span>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div className="block__row-xs">
-                <div className="col-xs-12">
-                    <button
-                        type="button"
-                        className="button button__solid button__solid--transparent button--fullwide"
-                        onClick={this.closeModal}
-                        disabled={this.state.processing}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
-        </Modal>
+            </Modal>
         );
     }
 }
