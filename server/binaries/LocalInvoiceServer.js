@@ -32,8 +32,6 @@ const types = {
     ERROR_MALFORMED_INVOICE: "Invoice returned with wrong data",
 };
 let ws;
-// for old invoices
-const invoiceResponse = {};
 // here will be keys for encryption, invoice response and memo for invoice
 const invoiceStorage = {};
 const lnd = new Lnd();
@@ -42,8 +40,6 @@ const lnd = new Lnd();
 const secret = ec.genKeyPair();
 // timout for saving shared keys - 1 hour
 const KEY_SAVE_TIMEOUT = 60 * 60 * 1000;
-// local storage for shared keys
-// let keyStorage = {};
 
 const closeConnection = () => {
     if (ws) {
@@ -168,7 +164,6 @@ const onMessage = async (message) => {
         case types.SOCKET_PUBKEY_REQUEST: {
             logger.debug("PUBKEY REQUEST", invoiceStorage[msg.data.id]);
             // check authority
-            logger.debug("Will check auth");
             const checked = await checkAuthority(msg, data.sender);
             if (!checked.ok) {
                 break;
@@ -178,7 +173,6 @@ const onMessage = async (message) => {
             const pubkey = ec.keyFromPublic(msg.data.pubkey, "hex");
             // remember shared key for particular id
 
-            // for test
             if (!invoiceStorage[msg.data.id]) {
                 invoiceStorage[msg.data.id] = {
                     lightningId: data.sender,
