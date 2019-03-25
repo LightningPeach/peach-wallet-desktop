@@ -86,7 +86,7 @@ describe("Settings tests", () => {
         });
 
         it("correct legal version", () => {
-            expect(settings.version.legal).to.deep.equal("01/30/2019");
+            expect(settings.version.legal).to.deep.equal("03/25/2019");
         });
 
         it("correct analytics trackingID", () => {
@@ -198,7 +198,7 @@ describe("Settings tests", () => {
         });
 
         it("correct legal version", () => {
-            expect(settings.version.legal).to.deep.equal("01/30/2019");
+            expect(settings.version.legal).to.deep.equal("03/25/2019");
         });
 
         it("correct analytics trackingID", () => {
