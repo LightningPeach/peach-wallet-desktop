@@ -2,7 +2,7 @@ import configureStore from "redux-mock-store";
 import omit from "lodash/omit";
 import thunk from "redux-thunk";
 
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import {
     channelsActions as actions,
     channelsTypes as types,
@@ -106,11 +106,6 @@ describe("Channels Unit Tests", () => {
             expect(actions.updateCreateTutorialStatus(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to update lightning tutorial status", () => {
-            expectedData.type = types.UPDATE_LIGHTNING_TUTORIAL_STATUS;
-            expect(actions.updateLightningTutorialStatus(data)).to.deep.equal(expectedData);
-        });
-
         it("should create an action for adding to delete", () => {
             expectedData.type = types.ADD_TO_DELETE;
             expect(actions.addToDelete(data)).to.deep.equal(expectedData);
@@ -125,7 +120,6 @@ describe("Channels Unit Tests", () => {
     describe("Operations tests", () => {
         const txId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         const name = "waldo";
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -144,10 +138,9 @@ describe("Channels Unit Tests", () => {
             successResp = await successPromise();
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
-            fakeOnchain = sandbox.stub(onChainOperations);
-            fakeApp = sandbox.stub(appOperations);
-            fakeDB = sandbox.stub(db);
+            fakeOnchain = sinon.stub(onChainOperations);
+            fakeApp = sinon.stub(appOperations);
+            fakeDB = sinon.stub(db);
             window.ipcClient.resetHistory();
             data = {
                 configBuilder: {
@@ -188,7 +181,7 @@ describe("Channels Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("Modal windows", () => {
@@ -914,7 +907,7 @@ describe("Channels Unit Tests", () => {
                 expectedData = {
                     ...errorResp,
                     f: "prepareNewChannel",
-                    error: statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL,
+                    error: exceptions.ACCOUNT_NO_KERNEL,
                 };
                 expect(await store.dispatch(operations.prepareNewChannel(
                     data.channelLightningID,
@@ -986,7 +979,7 @@ describe("Channels Unit Tests", () => {
                 expectedData = {
                     ...errorResp,
                     f: "setCurrentChannel",
-                    error: statusCodes.EXCEPTION_CHANNEL_ABSENT,
+                    error: exceptions.CHANNEL_ABSENT,
                 };
                 expect(await store.dispatch(operations.setCurrentChannel(1))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -1543,47 +1536,6 @@ describe("Channels Unit Tests", () => {
                 expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
             });
         });
-
-        describe("shouldShowLightningTutorial()", () => {
-            beforeEach(() => {
-                initState.channels.channels = [];
-                store = mockStore(initState);
-            });
-
-            it("should hide tutorial", async () => {
-                initState.channels.channels = [{ status: types.CHANNEL_STATUS_ACTIVE }];
-                store = mockStore(initState);
-                expectedData = { ...successResp };
-                expectedActions = [{
-                    payload: types.HIDE,
-                    type: types.UPDATE_LIGHTNING_TUTORIAL_STATUS,
-                }];
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("should no touch tutorial with no channels", async () => {
-                expectedData = { ...successResp };
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("should no touch tutorial with no active channels", async () => {
-                initState.channels.channels = [{ status: types.CHANNEL_STATUS_NOT_ACTIVE }];
-                store = mockStore(initState);
-                expectedData = { ...successResp };
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("should no touch tutorial with pending channels", async () => {
-                initState.channels.channels = [{ status: types.CHANNEL_STATUS_PENDING }];
-                store = mockStore(initState);
-                expectedData = { ...successResp };
-                expect(await store.dispatch(operations.shouldShowLightningTutorial())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-        });
     });
 
     describe("Reducer actions", () => {
@@ -1675,12 +1627,6 @@ describe("Channels Unit Tests", () => {
         it("should handle UPDATE_CREATE_TUTORIAL_STATUS action", () => {
             action.type = types.UPDATE_CREATE_TUTORIAL_STATUS;
             expectedData.skipCreateTutorial = data;
-            expect(channelsReducer(state, action)).to.deep.equal(expectedData);
-        });
-
-        it("should handle UPDATE_LIGHTNING_TUTORIAL_STATUS action", () => {
-            action.type = types.UPDATE_LIGHTNING_TUTORIAL_STATUS;
-            expectedData.skipLightningTutorial = data;
             expect(channelsReducer(state, action)).to.deep.equal(expectedData);
         });
 

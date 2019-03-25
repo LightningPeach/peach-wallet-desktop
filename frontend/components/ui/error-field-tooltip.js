@@ -1,12 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import Ellipsis from "components/common/ellipsis";
+
 const ErrorFieldTooltip = (props) => {
     if (!props.text) {
         return null;
     }
     return (
-        <div className={`form-error ${props.class || ""}`}>{props.text}</div>
+        <div className={`form-error ${props.class || ""}`}>
+            <Ellipsis>{props.text}</Ellipsis>
+        </div>
     );
 };
 

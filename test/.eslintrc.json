@@ -4,7 +4,8 @@
     "expect": true,
     "window": true,
     "document": true,
-    "sinon": false
+    "sinon": false,
+    "sleep": false
   },
   "env": {
     "mocha": true

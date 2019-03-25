@@ -2,29 +2,22 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
-import { analytics, helpers } from "additional";
+
+import { analytics, tooltips } from "additional";
 import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
+import { routes } from "config";
+
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { LightningFullPath } from "routes";
 import Modal from "components/modal";
 import Ellipsis from "components/common/ellipsis";
 
 class StreamDetails extends Component {
     constructor(props) {
         super(props);
-
-        this.state = {
-            tooltips: {
-                fee: [
-                    "Fee is relevant only as of today.",
-                    "In future it may change.",
-                ],
-            },
-        };
-        analytics.pageview(`${LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Details");
+        analytics.pageview(`${routes.LightningFullPath}/recurring/details`, "Lightning / Recurring Payment / Details");
     }
 
     closeModal = () => {
@@ -55,12 +48,12 @@ class StreamDetails extends Component {
         const totalAmount = amount + fee;
         return (
             <Modal title="Check your data" onClose={this.closeModal}>
-                <div className="modal-body send-form">
+                <div className="modal__body">
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
                                 <span className="send-form__label--text">
-                                    Name of payment
+                                    Description
                                 </span>
                             </div>
                             <div className="send-form__value">
@@ -90,7 +83,7 @@ class StreamDetails extends Component {
                                     Transaction fee
                                     <Tooltip
                                         placement="right"
-                                        overlay={helpers.formatMultilineText(this.state.tooltips.fee)}
+                                        overlay={tooltips.RECURRING_FEE}
                                         trigger="hover"
                                         arrowContent={
                                             <div className="rc-tooltip-arrow-inner" />
@@ -99,7 +92,7 @@ class StreamDetails extends Component {
                                         mouseLeaveDelay={0}
                                     >
                                         <i
-                                            className="form-label__icon form-label__icon--info"
+                                            className="tooltip tooltip--info"
                                         />
                                     </Tooltip>
                                 </span>
@@ -121,7 +114,7 @@ class StreamDetails extends Component {
                             </div>
                             <div className="send-form__value send-form__value--no-overflow">
                                 {streamDetails.contact_name ?
-                                    <Ellipsis classList="send-form__contact_name">
+                                    <Ellipsis className="send-form__contact_name">
                                         {streamDetails.contact_name}
                                     </Ellipsis>
                                     : ""}
@@ -145,11 +138,11 @@ class StreamDetails extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                             >
@@ -157,7 +150,7 @@ class StreamDetails extends Component {
                             </button>
                             <button
                                 type="button"
-                                className="button button__orange button__close button__side-padding45"
+                                className="button button__solid"
                                 onClick={this.addToList}
                             >
                                 Create

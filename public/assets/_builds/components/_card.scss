@@ -1,0 +1,139 @@
+.card {
+  font-size: 12px;
+  line-height: 16px;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border $default-transition, box-shadow $default-transition;
+
+  &__row {
+    margin-left: -20px;
+    margin-right: -20px;
+    max-width: calc(100% + 40px);
+  }
+
+  &__col {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  &__title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  &__footer {
+    padding-top: 30px;
+  }
+
+  &__description {
+    margin-bottom: 20px;
+  }
+
+  &__list {
+    &-item {
+      margin-top: 8px;
+    }
+  }
+
+  &__icon {
+    height: 40px;
+    width: 40px;
+    margin-bottom: 10px;
+
+    &--extended {
+      background: url(../images/icons/mode-extended.svg);
+      background-size: contain;
+    }
+
+    &--standard {
+      background: url(../images/icons/mode-standard.svg);
+      background-size: contain;
+    }
+  }
+
+  &--wallet-mode {
+    border: 1px solid $grey-extralight;
+    border-radius: $border-radius-sm;
+    height: 100%;
+    box-shadow: none;
+
+    &:hover {
+      border-color: transparent;
+      box-shadow: $box-shadow-big;
+    }
+  }
+}
+
+
+.card__qr {
+  padding: 0;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: border $default-transition, box-shadow $default-transition;
+
+  &-container {
+    line-height: 0;
+
+    &-image {
+      padding: 0;
+      width: 320px;
+      height: 320px;
+    }
+  }
+
+  &-right {
+    padding: 30px;
+  }
+
+  &-description {
+    margin-bottom: 20px;
+
+    &-list {
+      margin-bottom: 10px;
+      line-height: 20px;
+
+      &-item {
+        margin-top: 10px;
+
+        &-icon {
+          position: relative;
+          padding-left: 20px;
+
+          &::before {
+            content: "";
+            position: absolute;
+            display: block;
+            top: 8px;
+            transform: translateY(-50%);
+            left: 0;
+            width: 8px;
+            height: 8px;
+            background-color: $yellow;
+            background-size: contain;
+            border-radius: 50%;
+          }
+        }
+      }
+    }
+  }
+
+  &-title {
+    font-size: 22px;
+    line-height: 30px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  &-row {
+    margin-left: -20px;
+    margin-right: -20px;
+    max-width: calc(100% + 40px);
+  }
+}

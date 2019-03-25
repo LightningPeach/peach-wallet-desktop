@@ -1,4 +1,4 @@
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
@@ -20,7 +20,7 @@ function openWarningModal() {
 }
 
 async function getChainTxns() {
-    logger.log("LND ONCHAIN TRANSACTIONS");
+    logger.log("LND ON-CHAIN TRANSACTIONS");
     const response = await window.ipcClient("getTransactions");
     if (!response.ok) {
         logger.error(response);
@@ -70,7 +70,7 @@ function getOnchainHistory() {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
-                                title: "Incoming Onchain transaction",
+                                title: "Incoming On-chain transaction",
                             }));
                         }
                         db.onchainBuilder()
@@ -110,7 +110,7 @@ function getOnchainHistory() {
                             const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
-                                title: "Incoming Onchain transaction",
+                                title: "Incoming On-chain transaction",
                             }));
                         }
                         db.onchainBuilder()
@@ -179,7 +179,7 @@ function clearSendCoinsDetails() {
 function sendCoins() {
     return async (dispatch, getState) => {
         if (!getState().onchain.sendCoinsDetails) {
-            return errorPromise(statusCodes.EXCEPTION_SEND_COINS_DETAILS_REQUIRED, sendCoins);
+            return errorPromise(exceptions.SEND_COINS_DETAILS_REQUIRED, sendCoins);
         }
         const { name, recepient, amount } = getState().onchain.sendCoinsDetails;
         const response = await window.ipcClient("sendCoins", {
@@ -207,7 +207,7 @@ function sendCoins() {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
             return successPromise({ amount, tx_hash: txHash });
         }

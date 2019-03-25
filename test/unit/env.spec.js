@@ -49,7 +49,7 @@ describe("Settings tests", () => {
         });
 
         it("lnd.no_macaroons set to true", () => {
-            expect(settings.lnd.no_macaroons).to.deep.equal(true);
+            expect(settings.lnd.no_macaroons).to.deep.equal(false);
         });
 
         it("lnd.address_look_ahead in [100..1000]", () => {
@@ -86,7 +86,7 @@ describe("Settings tests", () => {
         });
 
         it("correct legal version", () => {
-            expect(settings.version.legal).to.deep.equal("01/30/2019");
+            expect(settings.version.legal).to.deep.equal("03/25/2019");
         });
 
         it("correct analytics trackingID", () => {
@@ -161,7 +161,7 @@ describe("Settings tests", () => {
         });
 
         it("lnd.no_macaroons set to true", () => {
-            expect(settings.lnd.no_macaroons).to.deep.equal(true);
+            expect(settings.lnd.no_macaroons).to.deep.equal(false);
         });
 
         it("lnd.address_look_ahead in [100..1000]", () => {
@@ -193,12 +193,12 @@ describe("Settings tests", () => {
             expect(settings.autopilot.active).to.deep.equal(false);
         });
 
-        it("wallet logger level set to info", () => {
-            expect(settings.logger.level).to.deep.equal("INFO");
+        it("wallet logger level set to debug", () => {
+            expect(settings.logger.level).to.deep.equal("DEBUG");
         });
 
         it("correct legal version", () => {
-            expect(settings.version.legal).to.deep.equal("01/30/2019");
+            expect(settings.version.legal).to.deep.equal("03/25/2019");
         });
 
         it("correct analytics trackingID", () => {

@@ -1,31 +1,31 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+import { push } from "react-router-redux";
+
 import { analytics, logger } from "additional";
 import {
     contactsActions as actions,
     contactsOperations as operations,
     contactsTypes as types,
 } from "modules/contacts";
+import { accountOperations, accountTypes } from "modules/account";
+import { consts, routes } from "config";
+import { appOperations, appTypes } from "modules/app";
+import { filterTypes, filterOperations } from "modules/filter";
+
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
 import RecordsTable from "components/records/table";
 import Ellipsis from "components/common/ellipsis";
-import { WalletPath, AddressBookFullPath } from "routes";
-import { push } from "react-router-redux";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
-import { appOperations, appTypes } from "modules/app";
-import { filterTypes, filterOperations } from "modules/filter";
-import DeleteContact from "./modal/delete-contact";
-import NewContact from "./modal/new-contact";
-import EditContact from "./modal/edit-contact";
+import { DeleteContact, NewContact, EditContact } from "./modal";
 
 class ContactsPage extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(AddressBookFullPath, "Address Book");
+        analytics.pageview(routes.AddressBookFullPath, "Address Book");
     }
 
     componentWillMount() {
@@ -34,7 +34,7 @@ class ContactsPage extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(AddressBookFullPath, "Address Book");
+            analytics.pageview(routes.AddressBookFullPath, "Address Book");
         }
     }
 
@@ -48,7 +48,7 @@ class ContactsPage extends Component {
     getHistoryHeader = () => (
         [
             {
-                Header: <span className="sortable">Name of contact</span>,
+                Header: <span className="sortable">Name</span>,
                 accessor: "name",
                 maxWidth: 201,
                 minWidth: 142,
@@ -111,7 +111,7 @@ class ContactsPage extends Component {
         analytics.event({ action: "Pay contact", category: "Address Book", label: "Pay" });
         const { dispatch } = this.props;
         dispatch(operations.setContactsSearch(contact.name));
-        dispatch(push(WalletPath));
+        dispatch(push(routes.WalletPath));
     };
 
     handleCopy = (address) => {
@@ -126,18 +126,39 @@ class ContactsPage extends Component {
         dispatch(operations.openNewContactModal());
     };
 
-    renderEmptyList = () => (
-        <div className="empty-placeholder">
-            <span className="placeholder_text">Here all your contacts will be displayed</span>
-        </div>
-    );
+    renderEmptyList = (isStandard = false) => {
+        const { dispatch } = this.props;
+        return (
+            <div className="page__placeholder page__placeholder--book">
+                {isStandard
+                    ? (
+                        <Fragment>
+                            <div className="row">
+                                <div className="col-xs-12">
+                                    <span className="page__placeholder-text">
+                                        Contact list is available only in the&nbsp;
+                                        <button
+                                            className="link"
+                                            onClick={() => dispatch(accountOperations.openWalletModeModal())}
+                                        >
+                                            Extended Mode
+                                        </button>.
+                                    </span>
+                                </div>
+                            </div>
+                        </Fragment>
+                    )
+                    : <span className="page__placeholder-text">Here all your contacts will be displayed</span>
+                }
+            </div>
+        );
+    };
 
     renderContacts = () => (
         <div className="container">
             <div className="row">
                 <div className="col-xs-12 table">
                     <RecordsTable
-                        key={3}
                         data={this.getContactsData()}
                         columns={this.getHistoryHeader()}
                         source={filterTypes.FILTER_CONTACTS}
@@ -154,7 +175,7 @@ class ContactsPage extends Component {
     );
 
     render() {
-        const { contacts, modalState } = this.props;
+        const { contacts, modalState, walletMode } = this.props;
         let modal;
         switch (modalState) {
             case types.MODAL_STATE_NEW_CONTACT:
@@ -169,22 +190,27 @@ class ContactsPage extends Component {
             default:
                 modal = null;
         }
-        const headerBtn = <Button class="button__orange" onClick={this.headerBtnClick} text="ADD CONTACT" />;
+        const headerBtn = walletMode === accountTypes.WALLET_MODE.EXTENDED
+            ? <Button class="button__solid" onClick={this.headerBtnClick} text="ADD CONTACT" />
+            : null;
 
-        return [
-            <SubHeader key={1} button={headerBtn} />,
-            <div key={2} className="contacts-page">
-                {!contacts.length ? this.renderEmptyList() : this.renderContacts()}
-            </div>,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={3}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+        return (
+            <Fragment>
+                <SubHeader button={headerBtn} />
+                <div className="page contacts">
+                    {!contacts.length || walletMode !== accountTypes.WALLET_MODE.EXTENDED
+                        ? this.renderEmptyList(walletMode === accountTypes.WALLET_MODE.STANDARD)
+                        : this.renderContacts()}
+                </div>
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
@@ -196,12 +222,14 @@ ContactsPage.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape().isRequired,
     modalState: PropTypes.string.isRequired,
+    walletMode: PropTypes.oneOf(accountTypes.WALLET_MODES_LIST),
 };
 
 const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
     filter: state.filter.contacts,
     modalState: state.app.modalState,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(ContactsPage);

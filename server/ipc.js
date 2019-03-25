@@ -20,43 +20,31 @@ registerIpc("selectFolder", () => {
     return { ok: true, response: { folder: folder ? folder[0] : null } };
 });
 
-/**
- * User agreed the eula.txt
- */
-ipcMain.on("agreement-checked", async (event, arg) => {
-    console.log("Agreement checked", arg);
-    try {
-        await settings.set("agreement", [arg.gaChecked]);
-        event.sender.send("agreement-wrote");
-    } catch (err) {
-        logger.error({ func: "agreement-checker" }, err);
-        event.sender.send("error", err);
-    }
-});
-
 ipcMain.on("setDefaultLightningApp", () => {
     app.setAsDefaultProtocolClient("lightning");
 });
 
-
-registerIpc("startLnd", async (event, arg) => {
+async function _startLndIpc(arg) {
     console.log("Stating lnd");
-    const response = await lnd.start(arg.username);
+    const response = await lnd.start(arg.walletName);
     logger.info(response);
     if (!response.ok) {
+        logger.debug("Will call stop from _startLndIpc");
         await lnd.stop();
         logger.info({ func: "startLnd" }, response);
     }
     logger.info({ func: "startLnd" }, response);
 
     return response;
-});
+}
+
+registerIpc("startLnd", async (event, arg) => _startLndIpc(arg));
 
 registerIpc("unlockLnd", async (event, arg) => {
+    logger.debug("Will unlock lnd");
     const response = await lnd.unlockWallet(arg.password);
     if (!response.ok) {
         await lnd.stop();
-        logger.error({ func: "unlockLnd" }, response);
     }
     logger.info({ func: "unlockLnd" }, response);
 
@@ -66,20 +54,26 @@ registerIpc("unlockLnd", async (event, arg) => {
 registerIpc("createLndWallet", async (event, arg) => lnd.createWallet(arg.password, arg.seed, arg.recovery));
 
 /**
- * Start localInvoiceServer
+ * Manage localInvoiceServer connection
  */
 registerIpc("startLis", async (event, arg) => {
     console.log("Starting local invoice server");
-    await localInvoiceServer.openConnection(arg.username);
+    await localInvoiceServer.openConnection(arg.walletName);
+    return { ok: true };
+});
+
+registerIpc("shutDownLis", async (event, arg) => {
+    console.log("Shutting down local invoice server");
+    await localInvoiceServer.closeConnection(arg.walletName);
     return { ok: true };
 });
 
 registerIpc("logout", async () => shutdown()); // eslint-disable-line no-use-before-define
 
-registerIpc("checkUsername", async (event, arg) => {
-    const usernames = await settings.get.getCustomPathLndUsernames();
+registerIpc("checkWalletName", async (event, arg) => {
+    const walletNames = await settings.get.getCustomPathLndWalletNames();
     const response = { ok: true };
-    if (arg.username in usernames) {
+    if (arg.walletName in walletNames) {
         response.ok = false;
         response.error = "User exist.";
     }
@@ -87,7 +81,7 @@ registerIpc("checkUsername", async (event, arg) => {
 });
 
 registerIpc("checkUser", async (event, arg) => {
-    const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.username, "data"));
+    const exists = await helpers.checkAccess(path.join(settings.get.lndPath, arg.walletName, "data"));
     if (!exists.ok) {
         exists.error = "User doesn't exist.";
     }
@@ -100,7 +94,7 @@ registerIpc("setLndPath", async (event, arg) => {
 });
 
 registerIpc("loadLndPath", async (event, arg) => {
-    const loadedPath = await settings.get.loadLndPath(arg.username);
+    const loadedPath = await settings.get.loadLndPath(arg.walletName);
     settings.set("lndPath", loadedPath);
 });
 
@@ -204,54 +198,6 @@ registerIpc("openChannel", async (event, arg) => {
     };
 });
 
-// wtf lnd? why you create channel but not return response
-registerIpc("openChannelStream", async (event, arg) => {
-    const response = await new Promise((resolve) => {
-        const status = lnd.streamCall("OpenChannel", {
-            node_pubkey: Buffer.from(arg.node_pubkey_string, "hex"),
-            local_funding_amount: arg.local_funding_amount,
-        });
-        if (status.ok) {
-            let updated;
-            status.stream.on("data", (data) => {
-                logger.info({ func: "openChannel" }, "stream data", data);
-                if (data.update !== "chan_pending") {
-                    return;
-                }
-                if (!updated) {
-                    updated = true;
-                    status.stream.cancel();
-                    resolve({
-                        ok: true,
-                        response: {
-                            funding_txid_bytes: data.chan_pending.txid,
-                            output_index: data.chan_pending.output_index,
-                        },
-                    });
-                }
-            });
-            status.stream.on("error", (data) => {
-                if (data.code === grpcStatus.CANCELLED) {
-                    return;
-                }
-                logger.error({ func: "openChannel" }, data);
-                resolve({ ok: false, error: lnd.prettifyMessage(data.toString()) });
-            });
-        }
-    });
-    if (!response.ok) {
-        return response;
-    }
-    const txid = Buffer.from(response.response.funding_txid_bytes.reverse()).toString("hex");
-    const info = await lnd.call("GetInfo");
-    return {
-        ok: true,
-        funding_txid_str: txid,
-        output_index: response.response.output_index,
-        block_height: info.response.block_height,
-    };
-});
-
 registerIpc("closeChannel", async (event, arg) => {
     const response = await new Promise((resolve) => {
         const deleteStatus = lnd.streamCall("CloseChannel", arg);
@@ -296,7 +242,7 @@ registerIpc("sendPayment", async (event, arg) => {
         return { ok: false, error: lnd.prettifyMessage(payment.response.payment_error) };
     }
     if (arg.isPayReq) {
-        const payReq = await lnd.call("DecodePayReq", { pay_req: arg.payment_request });
+        const payReq = await lnd.call("DecodePayReq", { pay_req: arg.details.payment_request });
         return { ok: true, payment_hash: payReq.response.payment_hash };
     }
     return { ok: true, payment_hash: arg.details.payment_hash_string };
@@ -378,7 +324,43 @@ registerIpc("unsubscribeInvoices", async () => {
  */
 registerIpc("clearLndData", async () => {
     lnd.shoudClearData = true;
+    logger.debug("Will call stop from clearLndData");
     await lnd.stop();
+});
+
+
+registerIpc("rebuildLndCerts", async (event, arg) => {
+    logger.debug("Inside rebuildLndCerts");
+    const stopResp = await lnd.stop();
+    const response = await lnd.rebuildCerts(arg.username);
+    if (response.ok) {
+        return {
+            ok: true,
+        };
+    }
+    return {
+        ok: false,
+        error: response.error,
+    };
+});
+
+registerIpc("generateRemoteAccessString", async (event, arg) => {
+    try {
+        const lndIP = await settings.get.getLndIP(arg.username);
+        const macaroons = lnd.getMacaroonsHex();
+        const cert = lnd.getCert();
+
+        return {
+            ok: true,
+            remoteAccessString: `https://${lndIP}\n${macaroons}\n${cert}`,
+        };
+    } catch (err) {
+        logger.error("ipc generateRemoteAccessString", err);
+        return {
+            ok: false,
+            error: err,
+        };
+    }
 });
 
 /**
@@ -394,6 +376,7 @@ const shutdown = async () => {
             subscribeInvoicesCall.stream.cancel();
         }
         await localInvoiceServer.closeConnection();
+        logger.debug("Will call stop from shutdown");
         await lnd.stop();
         return {
             ok: true,
@@ -403,4 +386,5 @@ const shutdown = async () => {
         return { ok: false };
     }
 };
+
 module.exports.shutdown = shutdown;

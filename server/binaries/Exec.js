@@ -26,6 +26,7 @@ class Exec {
         this.starting = false;
         if (!this.manualStopped) {
             try {
+                logger.debug("Inside handle exit will save pid -1");
                 this._savePid(-1);
             } catch (e) {
                 logger.error({ func: this.handleExit }, `${this.process_name}`, e);
@@ -40,10 +41,12 @@ class Exec {
         try {
             this.manualStopped = true;
             process.kill(this.pid);
+            logger.debug("Inside stop will save pid -1");
             this._savePid(-1);
             if (this.shoudClearData && typeof this._clearData === "function") {
                 await this._clearData();
             }
+            logger.debug("Finished stop function");
             return { ok: true };
         } catch (error) {
             return { ok: false, error };

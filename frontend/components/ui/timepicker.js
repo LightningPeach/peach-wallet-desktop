@@ -172,7 +172,7 @@ class Timepicker extends Component {
                         verticalDiff={46}
                         horizontalDiff={130}
                     >
-                        <div className="picker__row mt-14">
+                        <div className="block__row-sm picker__row">
                             <div className="picker__label">
                                 From
                             </div>
@@ -228,7 +228,7 @@ class Timepicker extends Component {
                                 </button>
                             </div>
                         </div>
-                        <div className="picker__row mt-14">
+                        <div className="block__row-sm picker__row">
                             <div className="picker__label">
                                 To
                             </div>

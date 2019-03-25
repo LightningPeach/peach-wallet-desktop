@@ -1,24 +1,41 @@
 @font-face {
-    font-family: 'Geometria';
-    src: url('../fonts/geometria/Geometria.woff2') format('woff2'),
-    url('../fonts/geometria/Geometria.woff') format('woff'),
-    url('../fonts/geometria/Geometria.ttf') format('truetype');
+    font-family: "BioSans";
+    src: url("../fonts/biosans/biosans-extralight.otf");
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BioSans";
+    src: url("../fonts/biosans/biosans-light.otf");
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BioSans";
+    src: url("../fonts/biosans/biosans-regular.otf");
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
-    font-family: 'Geometria';
-    src: url('../fonts/geometria/Geometria-Medium.woff2') format('woff2'),
-    url('../fonts/geometria/Geometria-Medium.woff') format('woff'),
-    url('../fonts/geometria/Geometria-Medium.ttf') format('truetype');
-    font-weight: 500;
+    font-family: "BioSans";
+    src: url("../fonts/biosans/biosans-semibold.otf");
+    font-weight: 600;
+    font-style: normal;
 }
 
 @font-face {
-    font-family: 'Geometria';
-    src: url('../fonts/geometria/Geometria-Bold.woff2') format('woff2'),
-    url('../fonts/geometria/Geometria-Bold.woff') format('woff'),
-    url('../fonts/geometria/Geometria-Bold.ttf') format('truetype');
-    font-weight: 600;
+    font-family: "BioSans";
+    src: url("../fonts/biosans/biosans-bold.otf");
+    font-weight: 700;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "BioSans";
+    src: url("../fonts/biosans/biosans-extrabold.otf");
+    font-weight: 900;
+    font-style: normal;
 }

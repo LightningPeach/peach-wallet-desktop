@@ -2,8 +2,7 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
-import "../../utils";
-import { statusCodes, consts } from "config";
+import { exceptions, consts } from "config";
 import {
     lightningActions as actions,
     lightningTypes as types,
@@ -218,7 +217,6 @@ describe("Lightning Unit Tests", () => {
     describe("Operations tests", () => {
         const lightningID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         const amount = 500;
-        let sandbox;
         let fakeDB;
         let fakeAccount;
         let data;
@@ -237,12 +235,11 @@ describe("Lightning Unit Tests", () => {
             successResp = await successPromise();
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
-            fakeDB = sandbox.stub(db);
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeStore = sandbox.stub(defaultStore);
+            fakeDB = sinon.stub(db);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeStore = sinon.stub(defaultStore);
             data = {
                 lightningBuilder: {
                     getMany: sinon.stub(),
@@ -272,7 +269,7 @@ describe("Lightning Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer()", () => {
@@ -836,7 +833,7 @@ describe("Lightning Unit Tests", () => {
                     });
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_REMOTE_OFFLINE,
+                    error: exceptions.REMOTE_OFFLINE,
                     f: "addInvoiceRemote",
                 };
                 expect(await store.dispatch(operations.addInvoiceRemote(

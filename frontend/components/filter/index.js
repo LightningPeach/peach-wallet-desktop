@@ -187,7 +187,7 @@ class Filter extends Component {
                 }
                 <div className="filter__item">
                     <button
-                        className="button button__hollow button__hollow--scarlett-two"
+                        className="button button__hollow button__hollow--red"
                         onClick={this.handleFilterReset}
                     >
                         Reset All

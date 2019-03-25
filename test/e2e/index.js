@@ -1,6 +1,6 @@
 /* eslint-env node, mocha */
 /* eslint-disable prefer-arrow-callback */
-require("babel-polyfill");
+require("@babel/polyfill");
 const { Application } = require("spectron");
 const path = require("path");
 const assert = require("assert");
@@ -26,7 +26,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         await utils.beforeTestPrepare(testParams);
         await app.start();
         const userDataPath = await app.electron.remote.app.getPath("userData");
-        testParams.userPath = path.join(userDataPath, ".lnd", config.username);
+        testParams.userPath = path.join(userDataPath, ".lnd", config.walletName);
         rimraf.sync(testParams.userPath);
     });
 
@@ -65,12 +65,12 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
     describe("Login form", () => {
         it("Change to registration window", async () => {
-            await app.client.setValue("#username", config.username);
+            await app.client.setValue("#wallet-name", config.walletName);
             await app.client.setValue("#password", config.password);
             await app.client.click("button=Sign in");
             await app.client.waitForVisible(".notification-message");
             const loginError = await app.client.getText(".notification-message");
-            assert.equal(loginError, "Incorrect username or password", "should show error for not exists user");
+            assert.equal(loginError, "Incorrect wallet name or password", "should show error for not exists user");
         });
     });
 
@@ -79,7 +79,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
 
         it("Step 1", async () => {
             await app.client.click("button=Sign up");
-            await app.client.setValue("#username", config.username);
+            await app.client.setValue("#wallet-name", config.walletName);
             await app.client.setValue("#password", config.password);
             await app.client.setValue("#conf_password", config.password);
             await app.client.click("button=Next");
@@ -120,7 +120,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         it("Step 3 should proceed to tourgide", async () => {
             await app.client.setValue("#verify-seed", seed);
             await app.client.click("button=Sign up");
-            const disabled = await app.client.getAttribute(".button__orange", "disabled") === "true";
+            const disabled = await app.client.getAttribute(".button__solid", "disabled") === "true";
             assert.equal(disabled, true, "should have disabled button");
         });
     });
@@ -272,7 +272,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should success payment", async () => {
-            await app.client.click(".modal-footer .button__close");
+            await app.client.click(".modal__footer .button__close");
             await app.client.waitUntil(
                 async () => app.client.isExisting(".modal-payment_result__success"),
                 config.timeoutForElementChecks,
@@ -311,7 +311,7 @@ describe("Application launch", function () { // eslint-disable-line func-names
         });
 
         it("should close channel", async () => {
-            await app.client.click(".modal-footer .button__close");
+            await app.client.click(".modal__footer .button__close");
             await utils.btcctlGenerate(3);
             await app.client.waitUntil(
                 async () => await app.client.isExisting(".channel__deleting") || await app.client.isExisting(".empty-placeholder"), // eslint-disable-line

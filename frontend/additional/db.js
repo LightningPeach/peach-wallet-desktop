@@ -1,5 +1,5 @@
 import { DB } from "config/node-settings";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { errorPromise, successPromise } from "./index";
 
 const {
@@ -16,8 +16,8 @@ const connection = DB.Connection;
 // TODO implement over dispatch
 let tempClose = false;
 
-async function dbStart(username, dbPass) {
-    const dbPath = DB.databasePath(username);
+async function dbStart(walletName, dbPass) {
+    const dbPath = DB.databasePath(walletName);
     try {
         await connection.init({ dbPass, dbPath });
         tempClose = false;
@@ -34,7 +34,7 @@ async function dbClose() {
 
 function getBuilder(repository, alias) {
     if (tempClose) {
-        throw new Error(`${alias}: ${statusCodes.EXCEPTION_DB_NOT_OPENED}`);
+        throw new Error(`${alias}: ${exceptions.DB_NOT_OPENED}`);
     }
     return connection.get()
         .createQueryBuilder(repository, alias);

@@ -1,4 +1,4 @@
-import { statusCodes, consts } from "config";
+import { exceptions, consts } from "config";
 import { appOperations, appActions } from "modules/app";
 import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
@@ -200,7 +200,7 @@ async function getPayments() {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
         }
     });
@@ -233,7 +233,7 @@ function addInvoiceRemote(lightningID, amount, memo = "") {
         if (!response.ok) {
             let error;
             if (response.error.indexOf("invalid json response body") !== -1) {
-                error = statusCodes.EXCEPTION_REMOTE_OFFLINE;
+                error = exceptions.REMOTE_OFFLINE;
             } else {
                 error = response.error; // eslint-disable-line
             }
@@ -275,7 +275,7 @@ function pay(details) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         dispatch(actions.successPayment());
         dispatch(accountOperations.checkBalance());

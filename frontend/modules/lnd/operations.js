@@ -1,4 +1,4 @@
-import { statusCodes } from "config";
+import { exceptions, statuses } from "config";
 import { delay, successPromise, errorPromise, logger } from "additional";
 import { store } from "store/configure-store";
 import { LND_SYNC_TIMEOUT } from "config/consts";
@@ -29,10 +29,10 @@ function waitLndSync(restoreConnection = false) {
                         title: "Synchronization is lost",
                     }));
                 }
-                dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_SYNCING));
+                dispatch(actions.setLndInitStatus(statuses.LND_SYNCING));
                 await delay(LND_SYNC_TIMEOUT); // eslint-disable-line
             } else if (!restoreConnection || tickNumber > 1) {
-                dispatch(actions.setLndInitStatus(statusCodes.STATUS_LND_FULLY_SYNCED));
+                dispatch(actions.setLndInitStatus(statuses.LND_FULLY_SYNCED));
             }
         }
         if (tickNumber > 1 && restoreConnection) {
@@ -61,16 +61,17 @@ function checkLndSync() {
                 return errorPromise(response.error, checkLndSync);
             }
         }
+
         return successPromise();
     };
 }
 
-function startLnd(username, toCheckUser = true) {
+function startLnd(walletName, toCheckUser = true) {
     return async (dispatch) => {
         logger.log("Check user existance");
         let response;
         if (toCheckUser) {
-            response = await window.ipcClient("checkUser", { username });
+            response = await window.ipcClient("checkUser", { walletName });
             logger.log(response);
             if (!response.ok) {
                 dispatch(actions.setLndInitStatus(""));
@@ -79,7 +80,7 @@ function startLnd(username, toCheckUser = true) {
         }
         dispatch(actions.startInitLnd());
         logger.log("Lnd start resp");
-        response = await window.ipcClient("startLnd", { username });
+        response = await window.ipcClient("startLnd", { walletName });
         logger.log(response);
         if (!response.ok) {
             dispatch(actions.setLndInitStatus(""));
@@ -87,6 +88,7 @@ function startLnd(username, toCheckUser = true) {
             return errorPromise(response.error, startLnd);
         }
         dispatch(actions.lndInitingSuccess());
+
         return successPromise();
     };
 }

@@ -1,0 +1,26 @@
+.confirmation {
+    &__wrapper {
+        display: flex;
+        justify-content: flex-start;
+        height: 10px;
+        width: 100%;
+    }
+
+    &__cell {
+        flex-grow: 1;
+        margin-right: 1px;
+        border-radius: 4px;
+        overflow: hidden;
+        position: relative;
+        background-color: #d8d8d8;
+
+        &--active {
+            background-color: #7ed321;
+            transition: background .3s ease-in-out;
+        }
+
+        &:last-child {
+            margin-right: 0 !important;
+        }
+    }
+}

@@ -6,7 +6,7 @@ export const initStateAuth = {
     currentForm: types.LOGIN_FORM,
     password: null,
     sessionStatus: types.SESSION_ACTIVE,
-    tempUsername: null,
+    tempWalletName: null,
 };
 
 const defaultState = JSON.parse(JSON.stringify(initStateAuth));
@@ -19,8 +19,8 @@ const authReducer = (state = defaultState, action) => {
             return { ...state, currentForm: action.payload };
         case types.SET_REGISTRATION_STEP:
             return { ...state, authStep: action.payload };
-        case types.SET_TEMP_USERNAME:
-            return { ...state, tempUsername: action.payload };
+        case types.SET_TEMP_WALLET_NAME:
+            return { ...state, tempWalletName: action.payload };
         case types.SET_PASSWORD:
             return { ...state, password: action.payload };
         case types.SET_SESSION_STATUS:

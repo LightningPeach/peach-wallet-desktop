@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+
+import { analytics, tooltips } from "additional";
+import { routes } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { onChainOperations as operations } from "modules/onchain";
+
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { OnchainFullPath } from "routes";
 import Modal from "components/modal";
 import Ellipsis from "components/common/ellipsis";
 
@@ -17,16 +19,9 @@ class OnChainDetails extends Component {
         super(props);
         this.state = {
             processing: false,
-            tooltips: {
-                processing: [
-                    "You need to wait for transaction processing.",
-                    "Your payment will be processed when it is",
-                    "confirmed on the Bitcoin blockchain",
-                ],
-            },
         };
 
-        analytics.pageview(`${OnchainFullPath}/details`, "Payment details");
+        analytics.pageview(`${routes.OnchainFullPath}/details`, "Payment details");
     }
 
     closeModal = () => {
@@ -34,36 +29,36 @@ class OnChainDetails extends Component {
         if (this.state.processing) {
             return;
         }
-        analytics.event({ action: "Details Modal", category: "Onchain", label: "Cancel" });
+        analytics.event({ action: "Details Modal", category: "On-chain", label: "Cancel" });
         dispatch(appOperations.closeModal());
     };
 
     sendCoins = async () => {
         const { dispatch } = this.props;
         this.setState({ processing: true });
-        analytics.event({ action: "Details Modal", category: "Onchain", label: "Pay" });
+        analytics.event({ action: "Details Modal", category: "On-chain", label: "Pay" });
         const response = await dispatch(operations.sendCoins());
         dispatch(operations.getOnchainHistory());
         this.setState({ processing: false });
         if (!response.ok) {
-            analytics.pageview(`${OnchainFullPath}/unsuccess`, "Unsuccess Payment details");
+            analytics.pageview(`${routes.OnchainFullPath}/unsuccess`, "Unsuccess Payment details");
             dispatch(appActions.setModalState(appTypes.FAIL_SEND_PAYMENT));
             return;
         }
-        analytics.pageview(`${OnchainFullPath}/success`, "Success Payment details");
+        analytics.pageview(`${routes.OnchainFullPath}/success`, "Success Payment details");
         dispatch(appActions.setModalState(appTypes.SUCCESS_SEND_PAYMENT));
     };
 
     render() {
         const { sendCoinsDetails } = this.props;
         return (
-            <Modal title="Check your data" onClose={this.closeModal} titleTooltip={this.state.tooltips.processing}>
-                <div className="modal-body send-form">
+            <Modal title="Check your data" onClose={this.closeModal} titleTooltip={tooltips.TRANSACTION_PROCESSING}>
+                <div className="modal__body">
                     {sendCoinsDetails.name ?
                         <div className="row send-form__row">
                             <div className="col-xs-12">
                                 <div className="send-form__label">
-                                    Name of payment
+                                    Description
                                 </div>
                                 <div className="send-form__value">
                                     {sendCoinsDetails.name}
@@ -113,21 +108,21 @@ class OnChainDetails extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
                             >
                                 Cancel
                             </button>
-                            <span className="button_with_spinner">
+                            <span className="button__spinner">
                                 <button
                                     type="button"
-                                    className="button button__orange button__close button__side-padding45"
+                                    className="button button__solid"
                                     onClick={this.sendCoins}
                                     disabled={this.state.processing}
                                 >

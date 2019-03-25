@@ -3,30 +3,18 @@ import PropTypes from "prop-types";
 import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
+
 import { logger, debounce, clearIntervalLong, setAsyncIntervalLong } from "additional";
+import { routes } from "config";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
 import { authActions, authTypes } from "modules/auth";
 import { appOperations, appTypes } from "modules/app";
 import { serverOperations } from "modules/server";
 import { lndOperations } from "modules/lnd";
+
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
-import {
-    WalletPath,
-    OnchainFullPath,
-    ChannelsFullPath,
-    AddressBookFullPath,
-    ProfileFullPath,
-    MerchantsFullPath,
-    HomeFullPath,
-    LightningPanel,
-    OnchainPanel,
-    ChannelsPanel,
-    AddressBookPanel,
-    ProfilePanel,
-    MerchantsPanel,
-} from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
@@ -34,9 +22,11 @@ import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
 import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
-import ForceCloseChannel from "components/channels/modal/force-close-channel";
-import ForceLogout from "components/modal/force-logout";
-import SystemNotifications from "components/modal/system-notifications";
+import ForceCloseChannelModal from "components/channels/modal/force-close-channel";
+import ForceLogoutModal from "components/modal/window/force-logout";
+import SystemNotificationsModal from "components/modal/window/system-notifications";
+import WalletModeModal from "components/modal/window/wallet-mode";
+import TermsAndConditionsModal from "components/modal/window/terms-and-conditions";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
@@ -55,28 +45,28 @@ class WalletPage extends Component {
             pageAddressIndex: 0,
             pageAddressList: [
                 {
-                    fullPath: WalletPath,
-                    panel: LightningPanel,
+                    fullPath: routes.WalletPath,
+                    panel: routes.LightningPanel,
                 },
                 {
-                    fullPath: OnchainFullPath,
-                    panel: OnchainPanel,
+                    fullPath: routes.OnchainFullPath,
+                    panel: routes.OnchainPanel,
                 },
                 {
-                    fullPath: ChannelsFullPath,
-                    panel: ChannelsPanel,
+                    fullPath: routes.ChannelsFullPath,
+                    panel: routes.ChannelsPanel,
                 },
                 {
-                    fullPath: AddressBookFullPath,
-                    panel: AddressBookPanel,
+                    fullPath: routes.AddressBookFullPath,
+                    panel: routes.AddressBookPanel,
                 },
                 {
-                    fullPath: MerchantsFullPath,
-                    panel: MerchantsPanel,
+                    fullPath: routes.MerchantsFullPath,
+                    panel: routes.MerchantsPanel,
                 },
                 {
-                    fullPath: ProfileFullPath,
-                    panel: ProfilePanel,
+                    fullPath: routes.ProfileFullPath,
+                    panel: routes.ProfilePanel,
                 },
             ],
         };
@@ -93,7 +83,7 @@ class WalletPage extends Component {
     componentDidMount() {
         const { dispatch, sessionStatus } = this.props;
         if (sessionStatus === authTypes.SESSION_EXPIRED) {
-            dispatch(push(HomeFullPath));
+            dispatch(push(routes.HomeFullPath));
             return;
         }
         this.continueSession();
@@ -172,7 +162,7 @@ class WalletPage extends Component {
         const { dispatch } = this.props;
         dispatch(authActions.setCurrentForm(authTypes.RESTORE_SESSION_FORM));
         dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
-        dispatch(push(HomeFullPath));
+        dispatch(push(routes.HomeFullPath));
     }, SESSION_EXPIRE_TIMEOUT);
 
     render() {
@@ -186,13 +176,19 @@ class WalletPage extends Component {
         let modal;
         switch (modalState) {
             case channelsTypes.MODAL_STATE_FORCE_DELETE_CHANNEL:
-                modal = <ForceCloseChannel />;
+                modal = <ForceCloseChannelModal />;
                 break;
             case appTypes.MODAL_STATE_FORCE_LOGOUT:
-                modal = <ForceLogout />;
+                modal = <ForceLogoutModal />;
                 break;
             case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
-                modal = <SystemNotifications />;
+                modal = <SystemNotificationsModal />;
+                break;
+            case accountTypes.MODAL_STATE_WALLET_MODE:
+                modal = <WalletModeModal />;
+                break;
+            case accountTypes.MODAL_STATE_TERMS_AND_CONDITIONS:
+                modal = <TermsAndConditionsModal />;
                 break;
             default:
                 modal = null;

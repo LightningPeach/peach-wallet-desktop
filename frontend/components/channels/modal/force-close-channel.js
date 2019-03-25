@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { ChannelsFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ForceCloseChannel extends Component {
@@ -15,7 +17,7 @@ class ForceCloseChannel extends Component {
             processing: false,
         };
 
-        analytics.pageview(`${ChannelsFullPath}/force-close-channel`, "Force Close Channel");
+        analytics.pageview(`${routes.ChannelsFullPath}/force-close-channel`, "Force Close Channel");
     }
 
     closeModal = () => {
@@ -53,7 +55,7 @@ class ForceCloseChannel extends Component {
         const title = currentChannel.name || currentChannel.remote_pubkey;
         return (
             <Modal title="Force Close Channel" onClose={this.closeModal}>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Cooperative close of <strong title={title}>{title}</strong> is failed. You can close channel
@@ -61,11 +63,11 @@ class ForceCloseChannel extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
@@ -74,7 +76,7 @@ class ForceCloseChannel extends Component {
                             </button>
                             <button
                                 type="button"
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 onClick={this.closeChannel}
                                 disabled={this.state.processing}
                             >
