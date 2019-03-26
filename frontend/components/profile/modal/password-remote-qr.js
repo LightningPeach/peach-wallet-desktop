@@ -88,7 +88,7 @@ class PasswordRemoteQR extends Component {
                     </div>
                 </div>
                 <div className="modal__footer">
-                    <form onSubmit={this.handleLogin}>
+                    <form onSubmit={this.rebuildCerts}>
                         <div className="row">
                             <div className="col-xs-12">
                                 <input
