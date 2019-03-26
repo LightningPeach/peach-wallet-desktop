@@ -25,7 +25,7 @@ export const logger = {
 
 export const debounce = (func, interval) => {
     let timeout;
-    return () => {
+    const debounced = () => {
         const call = () => {
             timeout = null;
             func();
@@ -33,6 +33,8 @@ export const debounce = (func, interval) => {
         clearTimeout(timeout);
         timeout = setTimeout(call, interval);
     };
+    debounced.cancel = () => clearTimeout(timeout);
+    return debounced;
 };
 
 // Wrappers around native JS functions for proper handling big passed numbers by separation into smaller parts

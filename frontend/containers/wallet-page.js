@@ -138,6 +138,7 @@ class WalletPage extends Component {
         document.removeEventListener("scroll", this.continueSession);
         document.removeEventListener("resize", this.continueSession);
         document.removeEventListener("keydown", this.onKeyClick, false);
+        this.continueSession.cancel();
     }
 
     onKeyDown = (e) => {
