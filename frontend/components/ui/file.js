@@ -20,7 +20,7 @@ const File = ({
         }}
     >
         <span className="file__value">{value || placeholder}</span>
-        <button className="button button__solid file__button">{buttonPlaceholder}</button>
+        <button type="button" className="button button__solid file__button">{buttonPlaceholder}</button>
     </div>
 );
 

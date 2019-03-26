@@ -125,12 +125,7 @@ class WalletPage extends Component {
             });
         }
 
-        const isKernelDisconnected = nextProps.kernelConnectIndicator === accountTypes.KERNEL_DISCONNECTED;
-        if (isKernelDisconnected) {
-            pageBlockerHelper(true);
-        } else {
-            pageBlockerHelper();
-        }
+        pageBlockerHelper(nextProps.kernelConnectIndicator === accountTypes.KERNEL_DISCONNECTED);
     }
 
     componentWillUnmount() {
@@ -143,6 +138,7 @@ class WalletPage extends Component {
         document.removeEventListener("scroll", this.continueSession);
         document.removeEventListener("resize", this.continueSession);
         document.removeEventListener("keydown", this.onKeyClick, false);
+        this.continueSession.cancel();
     }
 
     onKeyDown = (e) => {
