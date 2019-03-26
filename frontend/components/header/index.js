@@ -39,9 +39,8 @@ class Header extends Component {
         }
     }
 
-    toggleClass = (e) => {
-        const state = e.currentTarget.className.contains("burger__open") ? "close" : "open";
-        this.setState({ menuState: state });
+    toggleClass = () => {
+        this.setState({ menuState: this.state.menuState === "close" ? "open" : "close" });
     };
 
     hideBurger = () => {
