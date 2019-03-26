@@ -79,6 +79,9 @@ class LightningDetails extends Component {
                             </div>
                             <div className="send-form__value">
                                 ~ <BalanceWithMeasure satoshi={paymentDetails[0].fee.max} />
+                                &nbsp;({
+                                    Math.round((paymentDetails[0].fee.max * 10000) / paymentDetails[0].amount) / 100
+                                }%)
                             </div>
                         </div>
                     </div>
