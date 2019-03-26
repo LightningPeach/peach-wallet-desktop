@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { push } from "react-router-redux";
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
 import { helpers, logger, togglePasswordVisibility } from "additional";
@@ -20,14 +21,15 @@ class PasswordRemoteQR extends Component {
 
     _validatePassword = (restorePass) => {
         const { password } = this.props;
+        const hashedPassword = helpers.hash(restorePass);
         if (!password) {
             logger.error("User password not found in store");
-            return exceptions.EXCEPTION_PASSWORD_MISMATCH;
+            return exceptions.PASSWORD_MISMATCH;
         }
         if (!restorePass) {
-            return exceptions.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (helpers.hash(restorePass) !== password) {
-            return exceptions.EXCEPTION_PASSWORD_MISMATCH;
+            return exceptions.PASSWORD_MISMATCH;
         }
         return null;
     };
@@ -50,7 +52,6 @@ class PasswordRemoteQR extends Component {
         }
         // Delete old certs and change ip
         await dispatch(accountOperations.rebuildCertificate());
-
         await window.ipcClient("loadLndPath", { login });
         const init = await dispatch(authOperations.login(savedLogin, password));
         this.setState({
@@ -67,8 +68,6 @@ class PasswordRemoteQR extends Component {
     };
 
     render() {
-        const spinner = this.state.rebuilding ? <div className="spinner" /> : null;
-
         return (
             <Modal
                 title="Enter your password"
