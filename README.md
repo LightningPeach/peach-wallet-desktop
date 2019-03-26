@@ -1,4 +1,4 @@
-<img src="https://circleci.com/gh/LightningPeach/lightning-peach-wallet/tree/master.svg?style=svg">
+<img src="https://circleci.com/gh/LightningPeach/peach-wallet-desktop/tree/master.svg?style=svg">
 
 <h1 align="center">
   <img src="docs/peach_logo.png" alt="peach logo" />
