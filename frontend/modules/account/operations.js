@@ -332,7 +332,7 @@ function finishIntervalStatusChecks() {
     clearIntervalLong(types.GET_MERCHANTS_INTERVAL_ID);
 }
 
-function logout(keepModalState = false) {
+function logout(keepModalState = false, rebuilding = false) {
     return async (dispatch, getState) => {
         if (getState().account.isLogouting) {
             return unsuccessPromise(logout);
@@ -358,8 +358,10 @@ function logout(keepModalState = false) {
         await delay(LOGOUT_ACCOUNT_TIMEOUT);
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
-        dispatch(actions.logoutAcount(keepModalState));
-        hashHistory.push("/");
+        if (!rebuilding) {
+            dispatch(actions.logoutAcount(keepModalState));
+            hashHistory.push("/");
+        }
         dispatch(actions.finishLogout());
         dispatch(notificationsActions.removeAllNotifications());
         return successPromise();
@@ -634,6 +636,7 @@ function getRemoteAccressString() {
 
 function rebuildCertificate() {
     return async (dispatch, getState) => {
+        await dispatch(logout(true, true));
         const response = await window.ipcClient("rebuildLndCerts", { username: getState().account.login });
         if (!response.ok) {
             logger.error("Error on rebuildCertificate", response.error);

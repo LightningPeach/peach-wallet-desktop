@@ -2153,6 +2153,24 @@ describe("Account Unit Tests", () => {
         });
 
         describe("rebuildCertificate()", () => {
+            beforeEach(() => {
+                data.closeServerSocket = sinon.stub();
+                initState = {
+                    account: {
+                        ...initStateAccount,
+                        serverSocket: {
+                            close: data.closeServerSocket,
+                        },
+                    },
+                    streamPayment: { streams: [] },
+                };
+                store = configureStore(initState);
+                fakeStreamPayment.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+                fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
+                fakeLightning.unSubscribeInvoices.returns(fakeDispatchReturnSuccess);
+                fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
+            });
+
             it("ipc error", async () => {
                 window.ipcClient
                     .withArgs("rebuildLndCerts")
@@ -2162,9 +2180,20 @@ describe("Account Unit Tests", () => {
                     error: undefined,
                     f: "rebuildCertificate",
                 };
+                expectedActions = [
+                    {
+                        type: types.START_LOGOUT,
+                    },
+                    {
+                        type: types.FINISH_LOGOUT,
+                    },
+                    {
+                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
+                    },
+                ];
                 expect(await store.dispatch(operations.rebuildCertificate())).to.deep.equal(expectedData);
                 expect(store.getState().listActions).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("rebuildLndCerts", { username: "" });
             });
 
@@ -2175,10 +2204,21 @@ describe("Account Unit Tests", () => {
                         ok: true,
                         remoteAccessString: "foo",
                     });
+                expectedActions = [
+                    {
+                        type: types.START_LOGOUT,
+                    },
+                    {
+                        type: types.FINISH_LOGOUT,
+                    },
+                    {
+                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
+                    },
+                ];
                 expectedData = { ...successResp };
                 expect(await store.dispatch(operations.rebuildCertificate())).to.deep.equal(expectedData);
                 expect(store.getState().listActions).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("rebuildLndCerts", { username: "" });
             });
         });

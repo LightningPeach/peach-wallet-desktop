@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import { push } from "react-router-redux";
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
 import { helpers, logger, togglePasswordVisibility } from "additional";
 import { authOperations } from "modules/auth";
 import { exceptions } from "config";
 import Modal from "components/modal";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 class PasswordRemoteQR extends Component {
     constructor(props) {
@@ -20,14 +22,15 @@ class PasswordRemoteQR extends Component {
 
     _validatePassword = (restorePass) => {
         const { password } = this.props;
+        const hashedPassword = helpers.hash(restorePass);
         if (!password) {
             logger.error("User password not found in store");
-            return exceptions.EXCEPTION_PASSWORD_MISMATCH;
+            return exceptions.PASSWORD_MISMATCH;
         }
         if (!restorePass) {
-            return exceptions.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (helpers.hash(restorePass) !== password) {
-            return exceptions.EXCEPTION_PASSWORD_MISMATCH;
+            return exceptions.PASSWORD_MISMATCH;
         }
         return null;
     };
@@ -49,14 +52,17 @@ class PasswordRemoteQR extends Component {
             return;
         }
         // Delete old certs and change ip
-        await dispatch(accountOperations.rebuildCertificate());
-
-        await window.ipcClient("loadLndPath", { login });
-        const init = await dispatch(authOperations.login(savedLogin, password));
-        this.setState({
-            rebuilding: false,
-        });
-        dispatch(appOperations.openConnectRemoteQRModal());
+        const response = await dispatch(accountOperations.rebuildCertificate());
+        if (response.ok) {
+            await window.ipcClient("loadLndPath", { login });
+            const init = await dispatch(authOperations.login(savedLogin, password));
+            this.setState({
+                rebuilding: false,
+            });
+            dispatch(appOperations.openConnectRemoteQRModal());
+        } else {
+            await dispatch(accountOperations.logout());
+        }
     };
 
     closeModal = () => {
@@ -67,8 +73,6 @@ class PasswordRemoteQR extends Component {
     };
 
     render() {
-        const spinner = this.state.rebuilding ? <div className="spinner" /> : null;
-
         return (
             <Modal
                 title="Enter your password"
@@ -84,12 +88,12 @@ class PasswordRemoteQR extends Component {
                     </div>
                 </div>
                 <div className="modal__footer">
-                    <form onSubmit={this.handleLogin}>
+                    <form onSubmit={this.rebuildCerts}>
                         <div className="row">
                             <div className="col-xs-12">
                                 <input
                                     id="password"
-                                    className={`form-text form-text--icon_eye form-text--qr-password ${
+                                    className={`form-text form-text--icon_eye ${
                                         this.state.passwordError ? "form-text__error" : ""}`}
                                     name="password"
                                     type="password"
@@ -104,9 +108,10 @@ class PasswordRemoteQR extends Component {
                                     className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
                                     onClick={togglePasswordVisibility}
                                 />
+                                <ErrorFieldTooltip text={this.state.passwordError} />
                             </div>
                         </div>
-                        <div className="row">
+                        <div className="block__row-lg">
                             <div className="col-xs-12">
                                 <span className="button__spinner">
                                     <button
