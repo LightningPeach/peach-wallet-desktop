@@ -417,15 +417,11 @@ class Profile extends Component {
                 </div>
                 <div className="profile__row">
                     <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="profile__currency">
+                        <div className="profile__line-center">
+                            <div className="profile__label">
                                 Change unit
-                            </label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <div className="prifile__line">
-                            <div className="profile__label profile__label--normal">
+                            </div>
+                            <div className="profile__value">
                                 <Select
                                     id="profile__currency"
                                     value={this.state.measureValue}
