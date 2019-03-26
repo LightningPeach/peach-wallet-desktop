@@ -44,4 +44,5 @@ You can read the Contributing guide [here](CONTRIBUTING.md).
 Should you have any questions or suggestions, please do not hesitate to contact us:
 
 Email: hello@lightningpeach.com
+
 [Slack](https://join.slack.com/t/lightningpeach/shared_invite/enQtMzk2MTA1NjYyODQ4LTU2ZDYwMjZkYWNiMDhlOWIzN2RmNGE1MGE4Nzk2Yzk4YzU5MWJmMWJmMmYxZjA5N2MzNDI0YzgyZDYwMDc0YTg)
