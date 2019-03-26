@@ -8,6 +8,7 @@ import { helpers, logger, togglePasswordVisibility } from "additional";
 import { authOperations } from "modules/auth";
 import { exceptions } from "config";
 import Modal from "components/modal";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 class PasswordRemoteQR extends Component {
     constructor(props) {
@@ -92,7 +93,7 @@ class PasswordRemoteQR extends Component {
                             <div className="col-xs-12">
                                 <input
                                     id="password"
-                                    className={`form-text form-text--icon_eye form-text--qr-password ${
+                                    className={`form-text form-text--icon_eye ${
                                         this.state.passwordError ? "form-text__error" : ""}`}
                                     name="password"
                                     type="password"
@@ -107,9 +108,10 @@ class PasswordRemoteQR extends Component {
                                     className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
                                     onClick={togglePasswordVisibility}
                                 />
+                                <ErrorFieldTooltip text={this.state.passwordError} />
                             </div>
                         </div>
-                        <div className="row">
+                        <div className="block__row-lg">
                             <div className="col-xs-12">
                                 <span className="button__spinner">
                                     <button
