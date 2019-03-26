@@ -44,31 +44,43 @@ class ConnectRemoteQR extends Component {
     render() {
         return (
             <Modal
+                title="Mobile wallet access"
                 onClose={this.closeModal}
                 showCloseButton
                 theme="wallet-mode"
             >
                 <div className="modal-body">
+                    <div className="raw qr-raw">
+                        <div className="col-xs-12 text-center">
+                            You can connect the Peach mobile wallet to this desktop
+                            node by scanning the QR code on this screen.
+                        </div>
+                    </div>
                     <div className="row card__row align-stretch-xs">
                         <div className="col-xs-12 col-md-6 card__col">
-                            <div className="card__qr card__qr-container">
+                            <div className="card__qr card__qr-container card__qr-description">
                                 <img
                                     className="card__qr-container-image"
                                     src={this.state.qrRemoteAccessString}
                                     alt="QR"
                                 />
                             </div>
+                            <div className="raw">
+                                <div className="col-xs-12 text-center">
+                                    <button
+                                        type="button"
+                                        className="profile__button-label link"
+                                        onClick={this.generateNewQR}
+                                    >
+                                        Generate new QR
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div className="card__col col-xs-12 col-md-6">
                             <div className="card__qr">
-                                <div className="card__qr-title">
-                                    Mobile wallet access
-                                </div>
                                 <div className="card__qr-description">
-                                    Using this QR code you can control your wallet remotely using the Peach Wallet
-                                    mobile app.<br />
-                                    If your external IP changes on the desktop, you will need to reconnect the mobile
-                                    app using a new QR code.
+                                    Please follow these 3 steps to connect:
                                     <ul className="card__qr-description-list">
                                         <li className="card__qr-description-list-item">
                                             <div className="card__qr-description-list-item-icon">
@@ -77,31 +89,25 @@ class ConnectRemoteQR extends Component {
                                         </li>
                                         <li className="card__qr-description-list-item">
                                             <div className="card__qr-description-list-item-icon">
-                                                Set up router for forwarding from external port 10014 to internal
-                                                one 10014
+                                                You need to set up port forwarding on your<br />
+                                                router for port 10014. Keep the same port<br />
+                                                number both externally and internally
                                             </div>
                                         </li>
                                         <li className="card__qr-description-list-item">
                                             <div className="card__qr-description-list-item-icon">
-                                                After that you need to regenerate certificate locating within the same
-                                                network with router
+                                                Finally, you need to generate new QR<br />
+                                                code being located on the same network with the router
                                             </div>
                                         </li>
                                     </ul>
-                                    A node will be available as long as wallet is active and PC is online.
+                                    The desktop node will be available as long as the<br />
+                                    wallet application is active and the computer is<br />
+                                    online. If your external IP changes on the desktop,<br />
+                                    you will need to reconnect the mobile application<br />
+                                    using a new QR code.
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="raw">
-                        <div className="col-xs-12 text-left">
-                            <button
-                                type="button"
-                                className="profile__button-label link"
-                                onClick={this.generateNewQR}
-                            >
-                                Generate new QR
-                            </button>
                         </div>
                     </div>
                 </div>
