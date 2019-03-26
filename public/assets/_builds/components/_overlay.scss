@@ -87,13 +87,21 @@
     width: 184px;
     height: 60px;
     top: 90px;
-    right: 13px;
+    right: calc(50vw - 485px);
     z-index: 5;
     border-radius: $border-radius;
 
     .overlay__tooltip {
       width: 204px;
       left: -20px;
+    }
+  }
+}
+
+@media screen and (max-width: 1020px) {
+  .overlay {
+    &--create-channel {
+      right: 5px;
     }
   }
 }
