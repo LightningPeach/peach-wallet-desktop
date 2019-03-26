@@ -51,13 +51,17 @@ class PasswordRemoteQR extends Component {
             return;
         }
         // Delete old certs and change ip
-        await dispatch(accountOperations.rebuildCertificate());
-        await window.ipcClient("loadLndPath", { login });
-        const init = await dispatch(authOperations.login(savedLogin, password));
-        this.setState({
-            rebuilding: false,
-        });
-        dispatch(appOperations.openConnectRemoteQRModal());
+        const response = await dispatch(accountOperations.rebuildCertificate());
+        if (response.ok) {
+            await window.ipcClient("loadLndPath", { login });
+            const init = await dispatch(authOperations.login(savedLogin, password));
+            this.setState({
+                rebuilding: false,
+            });
+            dispatch(appOperations.openConnectRemoteQRModal());
+        } else {
+            await dispatch(accountOperations.logout());
+        }
     };
 
     closeModal = () => {
