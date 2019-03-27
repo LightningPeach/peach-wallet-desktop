@@ -44,3 +44,7 @@ ul {
 [disabled] {
     opacity: 0.3;
 }
+
+::-webkit-input-placeholder {
+    opacity: 0.5;
+}
