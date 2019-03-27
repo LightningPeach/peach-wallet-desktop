@@ -21,7 +21,10 @@ class ConnectRemoteQR extends Component {
         analytics.pageview(`${routes.ProfileFullPath}/connect-remote-qr`, "QR for remote connect");
     }
 
-    componentWillMount = async () => {
+    componentDidMount() {
+        this.getRemoteAccressString();
+    }
+    getRemoteAccressString = async () => {
         const response = await this.props.dispatch(accountOperations.getRemoteAccressString());
         if (response.ok) {
             const qrRemoteAccessString = await QRCode.toDataURL(response.response.remoteAccessString);

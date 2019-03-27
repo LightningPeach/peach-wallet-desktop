@@ -42,7 +42,7 @@ class PasswordRemoteQR extends Component {
         analytics.event({
             action: "Rebuilding certs",
             category: "Profile",
-            label: "Start"
+            label: "Start",
         });
         this.setState({
             rebuilding: true,
