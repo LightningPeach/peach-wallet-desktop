@@ -28,6 +28,8 @@ import HomePage from "containers/home-page";
 import Lightning from "components/lightning";
 import ProfilePage from "components/profile";
 
+analytics.init();
+
 const history = syncHistoryWithStore(hashHistory, store);
 
 render(

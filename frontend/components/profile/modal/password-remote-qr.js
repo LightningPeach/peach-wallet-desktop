@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { push } from "react-router-redux";
+
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
-import { helpers, logger, togglePasswordVisibility } from "additional";
+import { helpers, logger, togglePasswordVisibility, analytics } from "additional";
 import { authOperations } from "modules/auth";
-import { exceptions } from "config";
+import { exceptions, routes } from "config";
+
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
@@ -18,6 +19,7 @@ class PasswordRemoteQR extends Component {
             passwordError: null,
             processing: false,
         };
+        analytics.pageview(`${routes.ProfileFullPath}/password-remote-qr`, "Password for remote connect");
     }
 
     _validatePassword = (restorePass) => {
@@ -37,6 +39,11 @@ class PasswordRemoteQR extends Component {
 
     rebuildCerts = async (e) => {
         e.preventDefault();
+        analytics.event({
+            action: "Rebuilding certs",
+            category: "Profile",
+            label: "Start",
+        });
         this.setState({
             processing: true,
         });
@@ -45,6 +52,11 @@ class PasswordRemoteQR extends Component {
         const password = this.password.value.trim();
         const passwordError = this._validatePassword(password);
         if (passwordError) {
+            analytics.event({
+                action: "Rebuilding certs",
+                category: "Profile",
+                label: "Password error",
+            });
             this.setState({
                 passwordError,
                 processing: false,
@@ -59,8 +71,18 @@ class PasswordRemoteQR extends Component {
             this.setState({
                 processing: false,
             });
+            analytics.event({
+                action: "Rebuilding certs",
+                category: "Profile",
+                label: "Success",
+            });
             dispatch(appOperations.openConnectRemoteQRModal());
         } else {
+            analytics.event({
+                action: "Rebuilding certs",
+                category: "Profile",
+                label: "Error",
+            });
             await dispatch(accountOperations.logout());
         }
     };

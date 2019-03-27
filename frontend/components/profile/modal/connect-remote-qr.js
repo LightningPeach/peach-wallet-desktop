@@ -2,12 +2,14 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import QRCode from "qrcode";
+
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
 import { helpers, logger, analytics } from "additional";
 import { authOperations } from "modules/auth";
+import { statusCodes, routes } from "config";
+
 import Modal from "components/modal";
-import { statusCodes } from "config";
 
 class ConnectRemoteQR extends Component {
     constructor(props) {
@@ -16,9 +18,13 @@ class ConnectRemoteQR extends Component {
             // not in store for more security
             qrRemoteAccessString: null,
         };
+        analytics.pageview(`${routes.ProfileFullPath}/connect-remote-qr`, "QR for remote connect");
     }
 
-    componentWillMount = async () => {
+    componentDidMount() {
+        this.getRemoteAccressString();
+    }
+    getRemoteAccressString = async () => {
         const response = await this.props.dispatch(accountOperations.getRemoteAccressString());
         if (response.ok) {
             const qrRemoteAccessString = await QRCode.toDataURL(response.response.remoteAccessString);
