@@ -8,9 +8,6 @@ import { accountTypes } from "modules/account";
  * Init analytics
  */
 function init() {
-    if (store.getState().account.analyticsMode !== accountTypes.ANALYTICS_MODE.ENABLED) {
-        return;
-    }
     const testMode = ANALYTICS.trackingID === "UA-XXXXXXXX-X";
     ElectronCookies.enable({ origin: ANALYTICS.appUrl });
     ReactGA.initialize(ANALYTICS.trackingID, { testMode });
