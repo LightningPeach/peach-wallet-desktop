@@ -89,6 +89,7 @@
         &-success {
             padding-bottom: 60px;
             background: transparent url(../images/rectangle.svg) no-repeat center bottom;
+            background-size: 100% 100%;
             box-shadow: 0 -3px 4px 0 rgba(176, 176, 176, 0.5);
 
             .modal {
