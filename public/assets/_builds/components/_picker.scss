@@ -43,9 +43,12 @@
   }
 
   &__row {
-    padding: 0 24px;
+    @extend .row;
+    padding-left: 24px;
+    padding-right: 24px;
     align-items: flex-end;
     justify-content: space-between;
+    flex-wrap: nowrap;
 
     &--controls {
       padding: 0 24px;
