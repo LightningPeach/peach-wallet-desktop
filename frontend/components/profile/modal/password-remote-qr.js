@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { push } from "react-router-redux";
+
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
-import { helpers, logger, togglePasswordVisibility } from "additional";
+import { helpers, logger, togglePasswordVisibility, analytics } from "additional";
 import { authOperations } from "modules/auth";
-import { exceptions } from "config";
+import { exceptions, routes } from "config";
+
 import Modal from "components/modal";
 import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
@@ -16,8 +17,9 @@ class PasswordRemoteQR extends Component {
         this.state = {
             // Not in store for more security
             passwordError: null,
-            rebuilding: false,
+            processing: false,
         };
+        analytics.pageview(`${routes.ProfileFullPath}/password-remote-qr`, "Password for remote connect");
     }
 
     _validatePassword = (restorePass) => {
@@ -29,7 +31,7 @@ class PasswordRemoteQR extends Component {
         }
         if (!restorePass) {
             return exceptions.FIELD_IS_REQUIRED;
-        } else if (helpers.hash(restorePass) !== password) {
+        } else if (hashedPassword !== password) {
             return exceptions.PASSWORD_MISMATCH;
         }
         return null;
@@ -37,17 +39,27 @@ class PasswordRemoteQR extends Component {
 
     rebuildCerts = async (e) => {
         e.preventDefault();
+        analytics.event({
+            action: "Rebuilding certs",
+            category: "Profile",
+            label: "Start",
+        });
         this.setState({
-            rebuilding: true,
+            processing: true,
         });
         const { dispatch, login } = this.props;
         const savedLogin = login.toString();
         const password = this.password.value.trim();
         const passwordError = this._validatePassword(password);
         if (passwordError) {
+            analytics.event({
+                action: "Rebuilding certs",
+                category: "Profile",
+                label: "Password error",
+            });
             this.setState({
                 passwordError,
-                rebuilding: false,
+                processing: false,
             });
             return;
         }
@@ -55,19 +67,29 @@ class PasswordRemoteQR extends Component {
         const response = await dispatch(accountOperations.rebuildCertificate());
         if (response.ok) {
             await window.ipcClient("loadLndPath", { login });
-            const init = await dispatch(authOperations.login(savedLogin, password));
+            await dispatch(authOperations.login(savedLogin, password));
             this.setState({
-                rebuilding: false,
+                processing: false,
+            });
+            analytics.event({
+                action: "Rebuilding certs",
+                category: "Profile",
+                label: "Success",
             });
             dispatch(appOperations.openConnectRemoteQRModal());
         } else {
+            analytics.event({
+                action: "Rebuilding certs",
+                category: "Profile",
+                label: "Error",
+            });
             await dispatch(accountOperations.logout());
         }
     };
 
     closeModal = () => {
         const { dispatch } = this.props;
-        if (!this.state.rebuilding) {
+        if (!this.state.processing) {
             dispatch(appOperations.closeModal());
         }
     };
@@ -79,6 +101,7 @@ class PasswordRemoteQR extends Component {
                 theme="small"
                 onClose={this.closeModal}
                 showCloseButton
+                disabled={this.state.processing}
             >
                 <div className="modal__body">
                     <div className="row">
@@ -86,58 +109,56 @@ class PasswordRemoteQR extends Component {
                             To generate a new QR code, you will need to restart the wallet node
                         </div>
                     </div>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <input
+                                id="password"
+                                className={`form-text form-text--icon_eye ${
+                                    this.state.passwordError ? "form-text__error" : ""}`}
+                                name="password"
+                                type="password"
+                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                                ref={(ref) => {
+                                    this.password = ref;
+                                }}
+                                onChange={() => { this.setState({ passwordError: null }) }}
+                                disabled={this.state.processing}
+                            />
+                            <i
+                                className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
+                                onClick={togglePasswordVisibility}
+                            />
+                            <ErrorFieldTooltip text={this.state.passwordError} />
+                        </div>
+                    </div>
                 </div>
                 <div className="modal__footer">
-                    <form onSubmit={this.rebuildCerts}>
-                        <div className="row">
-                            <div className="col-xs-12">
-                                <input
-                                    id="password"
-                                    className={`form-text form-text--icon_eye ${
-                                        this.state.passwordError ? "form-text__error" : ""}`}
-                                    name="password"
-                                    type="password"
-                                    placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                                    ref={(ref) => {
-                                        this.password = ref;
-                                    }}
-                                    onChange={() => { this.setState({ passwordError: null }) }}
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <span className="button__spinner">
+                                <button
+                                    type="button"
+                                    className="button button__solid button--fullwide"
+                                    onClick={this.rebuildCerts}
                                     disabled={this.state.processing}
-                                />
-                                <i
-                                    className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
-                                    onClick={togglePasswordVisibility}
-                                />
-                                <ErrorFieldTooltip text={this.state.passwordError} />
-                            </div>
+                                >
+                                    Wallet restart
+                                </button>
+                                {this.state.processing && <div className="spinner" />}
+                            </span>
                         </div>
-                        <div className="block__row-lg">
-                            <div className="col-xs-12">
-                                <span className="button__spinner">
-                                    <button
-                                        type="button"
-                                        className="button button__solid button--fullwide"
-                                        onClick={this.rebuildCerts}
-                                        disabled={this.state.rebuilding}
-                                    >
-                                        Wallet restart
-                                    </button>
-                                    {this.state.rebuilding && <div className="spinner" />}
-                                </span>
-                            </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.closeModal}
+                                disabled={this.state.processing}
+                            >
+                                Cancel
+                            </button>
                         </div>
-                    </form>
-                </div>
-                <div className="block__row-xs">
-                    <div className="col-xs-12">
-                        <button
-                            type="button"
-                            className="button button__solid button__solid--transparent button--fullwide"
-                            onClick={this.closeModal}
-                            disabled={this.state.processing}
-                        >
-                            Cancel
-                        </button>
                     </div>
                 </div>
             </Modal>

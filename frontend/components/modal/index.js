@@ -75,16 +75,12 @@ class Modal extends Component {
                 >
                     {this.renderHeader()}
                     {children}
-                    {disabled
-                        ? spinner
-                        : showCloseButton &&
-                            <button
-                                className="modal__close"
-                                onClick={onClose}
-                                disabled={disabled}
-                            >
-                                Close
-                            </button>
+                    {showCloseButton && !disabled &&
+                        <button
+                            className="modal__close"
+                            onClick={onClose}
+                            disabled={disabled}
+                        />
                     }
                 </div>
             </div>
