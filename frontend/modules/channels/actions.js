@@ -54,11 +54,6 @@ const updateCreateTutorialStatus = skipCreateTutorial => ({
     type: types.UPDATE_CREATE_TUTORIAL_STATUS,
 });
 
-const updateLightningTutorialStatus = skipLightningTutorial => ({
-    payload: skipLightningTutorial,
-    type: types.UPDATE_LIGHTNING_TUTORIAL_STATUS,
-});
-
 const addToDelete = id => ({
     payload: id,
     type: types.ADD_TO_DELETE,
@@ -81,7 +76,6 @@ export {
     setCurrentChannel,
     clearCurrentChannel,
     updateCreateTutorialStatus,
-    updateLightningTutorialStatus,
     addToDelete,
     removeFromDelete,
 };

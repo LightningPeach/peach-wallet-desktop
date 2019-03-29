@@ -1,17 +1,22 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
 import { streamPaymentOperations } from "modules/streamPayments";
-import { LightningFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ActiveRecurringWarning extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${LightningFullPath}/active-recurring-warning`, "Attention. Active recurring payment");
+        analytics.pageview(
+            `${routes.LightningFullPath}/active-recurring-warning`,
+            "Attention. Active recurring payment",
+        );
     }
 
     closeModal = () => {
@@ -30,18 +35,18 @@ class ActiveRecurringWarning extends Component {
     render() {
         return (
             <Modal title="Attention!" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body text-center text-16">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12">
                             Recurring payment must be paused before making any changes.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                             >
@@ -49,7 +54,7 @@ class ActiveRecurringWarning extends Component {
                             </button>
                             <button
                                 type="button"
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 onClick={this.handlePause}
                             >
                                 Pause

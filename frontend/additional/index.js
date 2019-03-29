@@ -1,86 +1,115 @@
 import React from "react";
-import { NODE_ENV } from "config/node-settings";
-import { SUCCESS_RESPONSE, UNSUCCESS_RESPONSE, PENDING_RESPONSE, TIMEOUT_PART } from "config/consts";
-import * as validators from "./validators";
-import * as helpers from "./helpers";
-import * as analytics from "./analytics";
-import * as db from "./db";
+import { consts, nodeSettings } from "config";
 
-const timeoutID = {};
+export * as validators from "./validators";
+export * as helpers from "./helpers";
+export * as analytics from "./analytics";
+export * as db from "./db";
+export * as tooltips from "./tooltips";
+
+const timeoutsList = {};
+const resolversList = {};
 
 export const logger = {
     error: (...args) => {
-        if (NODE_ENV !== "test") {
+        if (nodeSettings.NODE_ENV !== "test") {
             console.error(...args);
         }
     },
     log: (...args) => {
-        if (NODE_ENV !== "test") {
+        if (nodeSettings.NODE_ENV !== "test") {
             console.log(...args);
         }
     },
 };
 
+export const debounce = (func, interval) => {
+    let timeout;
+    const debounced = () => {
+        const call = () => {
+            timeout = null;
+            func();
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(call, interval);
+    };
+    debounced.cancel = () => clearTimeout(timeout);
+    return debounced;
+};
+
 // Wrappers around native JS functions for proper handling big passed numbers by separation into smaller parts
-export const setTimeoutLong = (id = "*", func, interval, initialCall = true) => {
-    if (initialCall && id !== "*" && timeoutID[id]) {
-        logger.error(`Timeout with id ${id} is already set`);
+export const clearTimeoutLong = (id) => {
+    clearTimeout(timeoutsList[id]);
+    timeoutsList[id] = null;
+};
+
+export const setTimeoutLong = (func, interval, id = "*", initialCall = true) => {
+    if (initialCall && id !== "*" && timeoutsList[id]) {
+        logger.error(`setTimeoutLong: id ${id} is already used`);
         return;
     }
-    const diff = Math.max((interval - TIMEOUT_PART), 0);
-    if (diff > TIMEOUT_PART) {
-        timeoutID[id] = setTimeout(() => { setTimeoutLong(id, func, diff, false) }, TIMEOUT_PART);
+    const diff = Math.max((interval - consts.TIMEOUT_PART), 0);
+    if (diff > consts.TIMEOUT_PART) {
+        timeoutsList[id] = setTimeout(() => { setTimeoutLong(func, diff, id, false) }, consts.TIMEOUT_PART);
     } else {
-        timeoutID[id] = setTimeout(func, interval);
+        timeoutsList[id] = setTimeout(func, interval);
+    }
+};
+
+export const clearDelay = (id) => {
+    clearTimeout(timeoutsList[id]);
+    timeoutsList[id] = null;
+    if (resolversList[id]) {
+        resolversList[id]();
+        resolversList[id] = null;
     }
 };
 
 export const delay = (interval, id) =>
     new Promise((resolve, reject) => {
-        if (id && timeoutID[id]) {
-            logger.error(`Timeout with id ${id} is already set`);
+        const response = () => {
+            if (timeoutsList[id]) {
+                timeoutsList[id] = null;
+            }
+            resolve();
+        };
+        if (id && (timeoutsList[id] || resolversList[id])) {
+            logger.error(`delay: id ${id} is already used`);
             reject();
         }
-        setTimeoutLong(id, resolve, interval);
+        if (id) {
+            resolversList[id] = resolve;
+        }
+        setTimeoutLong(response, interval, id);
     });
 
-export const setIntervalLong = (id, func, interval, initialCall = true) => {
-    if (initialCall && timeoutID[id]) {
-        logger.error(`Timeout with id ${id} is already set`);
+export const clearIntervalLong = (id) => {
+    clearTimeout(timeoutsList[id]);
+    timeoutsList[id] = null;
+};
+
+export const setIntervalLong = (func, interval, id, initialCall = true) => {
+    if (initialCall && timeoutsList[id]) {
+        logger.error(`setIntervalLong: id ${id} is already used`);
         return;
     }
     const intervalTick = () => {
-        setTimeoutLong(id, intervalTick, interval, false);
+        setTimeoutLong(intervalTick, interval, id, false);
         func();
     };
-    setTimeoutLong(id, intervalTick, interval, false);
+    setTimeoutLong(intervalTick, interval, id, false);
 };
 
-export const setAsyncIntervalLong = (id, func, interval, initialCall = true) => {
-    if (initialCall && timeoutID[id]) {
-        logger.error(`Timeout with id ${id} is already set`);
+export const setAsyncIntervalLong = (func, interval, id, initialCall = true) => {
+    if (initialCall && timeoutsList[id]) {
+        logger.error(`setAsyncIntervalLong: id ${id} is already used`);
         return;
     }
     const intervalTick = async () => {
         await func();
-        setTimeoutLong(id, intervalTick, interval, false);
+        setTimeoutLong(intervalTick, interval, id, false);
     };
-    setTimeoutLong(id, intervalTick, interval, false);
-};
-
-export const clearTimeoutLong = (id) => {
-    clearTimeout(timeoutID[id]);
-    timeoutID[id] = null;
-};
-
-export const clearIntervalLong = (id) => {
-    clearTimeout(timeoutID[id]);
-    timeoutID[id] = null;
-};
-
-export const clearDelay = (id) => {
-    clearTimeout(timeoutID[id]);
-    timeoutID[id] = null;
+    setTimeoutLong(intervalTick, interval, id, false);
 };
 
 export const getCookie = (name) => {
@@ -101,7 +130,7 @@ export const getCookie = (name) => {
 export const successPromise = (params = null) => {
     const response = {
         ok: true,
-        type: SUCCESS_RESPONSE,
+        type: consts.SUCCESS_RESPONSE,
     };
     if (params) {
         response.response = params;
@@ -111,13 +140,13 @@ export const successPromise = (params = null) => {
 
 export const pendingPromise = () => Promise.resolve({
     ok: false,
-    type: PENDING_RESPONSE,
+    type: consts.PENDING_RESPONSE,
 });
 
 export const unsuccessPromise = f => Promise.resolve({
     f: f.name,
     ok: false,
-    type: UNSUCCESS_RESPONSE,
+    type: consts.UNSUCCESS_RESPONSE,
 });
 
 export const errorPromise = (error, f) => {
@@ -127,7 +156,7 @@ export const errorPromise = (error, f) => {
         error,
         f: f.name,
         ok: false,
-        type: UNSUCCESS_RESPONSE,
+        type: consts.UNSUCCESS_RESPONSE,
     });
 };
 
@@ -143,18 +172,6 @@ export function togglePasswordVisibility() {
         eyeIcon.className = eyeIcon.className.replace("form-text__icon--eye_open", "");
     }
 }
-
-export const subscribeToWatchHoverOnEllipsis = () => {
-    $(document)
-        .on("mouseenter mouseleave", ".js-ellipsis", (e) => {
-            const $this = $(e.currentTarget);
-            if (e.type === "mouseenter" && $this.first()[0].scrollWidth > $this.width()) {
-                $this.addClass("hovered");
-            } else {
-                $this.removeClass("hovered");
-            }
-        });
-};
 
 export const subscribeOpenLinkExternal = (target) => {
     let subscribed = false;
@@ -179,11 +196,4 @@ export const subscribeOpenLinkExternal = (target) => {
             subscribed = false;
         },
     });
-};
-
-export {
-    analytics,
-    db,
-    helpers,
-    validators,
 };

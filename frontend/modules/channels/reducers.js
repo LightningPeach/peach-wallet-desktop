@@ -11,7 +11,6 @@ export const initStateChannels = {
     newChannelStatusDetails: "",
     prepareNewChannel: null,
     skipCreateTutorial: types.PENDING,
-    skipLightningTutorial: types.PENDING,
 };
 
 const defaultState = JSON.parse(JSON.stringify(initStateChannels));
@@ -36,8 +35,6 @@ const channelsReducer = (state = defaultState, action) => {
             return { ...state, currentChannel: null };
         case types.UPDATE_CREATE_TUTORIAL_STATUS:
             return { ...state, skipCreateTutorial: action.payload };
-        case types.UPDATE_LIGHTNING_TUTORIAL_STATUS:
-            return { ...state, skipLightningTutorial: action.payload };
         case types.START_CREATE_NEW_CHANNEL:
             return { ...state, creatingNewChannel: true };
         case types.END_CREATE_NEW_CHANNEL:

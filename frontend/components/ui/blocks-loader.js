@@ -7,17 +7,17 @@ const BlocksLoader = (props) => {
     const { countBlocks } = props;
     const blocks = [];
     for (let i = 0; i < blockCount; i += 1) {
-        const className = ["block__cell"];
+        const className = ["confirmation__cell"];
         if (i < countBlocks) {
-            className.push("block__cell--active");
+            className.push("confirmation__cell--active");
         }
         if (i === countBlocks || (i === blockCount - 1 && countBlocks >= i)) {
-            className.push("block__cell--last");
+            className.push("confirmation__cell--last");
         }
         blocks.push(<div className={className.join(" ")} key={i} />);
     }
     return (
-        <div className={`block__wrapper ${props.class || ""}`}>
+        <div className={`confirmation__wrapper ${props.class || ""}`}>
             {blocks}
         </div>
     );

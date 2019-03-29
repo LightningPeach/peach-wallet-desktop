@@ -8,7 +8,6 @@ export const initStateLnd = {
     lndInitError: null,
     lndIniting: false,
     lndSyncedToChain: false,
-    networkBlocks: 0,
 };
 
 const defaultState = JSON.parse(JSON.stringify(initStateLnd));
@@ -27,8 +26,6 @@ const lndReducer = (state = defaultState, action) => {
             return { ...state, lndInitError: null, lndIniting: false };
         case types.SET_LND_INIT_STATUS:
             return { ...state, initStatus: action.payload };
-        case types.SET_NETWORK_BLOCKS:
-            return { ...state, networkBlocks: parseInt(action.payload, 10) };
         case types.SET_LND_BLOCKS_HEIGHT:
             return { ...state, lndBlocks: parseInt(action.payload, 10) };
         case types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN:

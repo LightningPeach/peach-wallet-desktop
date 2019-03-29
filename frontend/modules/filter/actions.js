@@ -20,6 +20,11 @@ const setContactsFilterPart = payload => ({
     type: types.SET_CONTACTS_FILTER_PART,
 });
 
+const setMerchantsFilterPart = payload => ({
+    payload,
+    type: types.SET_MERCHANTS_FILTER_PART,
+});
+
 const clearAllFilters = () => ({
     type: types.CLEAR_ALL_FILTERS,
 });
@@ -29,5 +34,6 @@ export {
     setRegularFilterPart,
     setOnchainFilterPart,
     setContactsFilterPart,
+    setMerchantsFilterPart,
     clearAllFilters,
 };

@@ -1,6 +1,8 @@
-import { statusCodes } from "config";
-import { helpers } from "additional";
+import crypto from "crypto";
 import moment from "moment";
+
+import { exceptions } from "config";
+import { helpers } from "additional";
 
 describe("Helpers Unit Tests", () => {
     describe("formatDate()", () => {
@@ -17,11 +19,11 @@ describe("Helpers Unit Tests", () => {
             expect(valid).to.equal(moment(time).format(format));
         });
         it("should return error if wrong date passed", () => {
-            expect(() => helpers.formatDate(34, null, false)).to.throw(statusCodes.EXCEPTION_DATE_INSTANCE);
+            expect(() => helpers.formatDate(34, null, false)).to.throw(exceptions.DATE_INSTANCE);
         });
     });
 
-    describe("noExponents", () => {
+    describe("noExponents()", () => {
         it("should return 1e-7 without exponent", () => {
             const valid = helpers.noExponents(1e-7);
             expect(valid).to.equal("0.0000001");
@@ -76,7 +78,7 @@ describe("Helpers Unit Tests", () => {
         });
     });
 
-    describe("formatTimeRange", () => {
+    describe("formatTimeRange()", () => {
         it("should return null for incorrect number (1000 is not divider)", () => {
             expect(helpers.formatTimeRange(999)).to.equal(null);
         });
@@ -88,5 +90,11 @@ describe("Helpers Unit Tests", () => {
         it("should return correct for multiple count of measure", () => {
             expect(helpers.formatTimeRange(1000 * 2600 * 24)).to.equal("1040 minutes");
         });
+    });
+
+    describe("hash()", () => {
+        const data = "Qwer1234";
+        const valid = crypto.createHash("sha256").update(data).digest("hex");
+        expect(helpers.hash(data)).to.equal(valid);
     });
 });

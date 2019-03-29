@@ -1,8 +1,10 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { TabContent, TabLink, Tabs } from "react-tabs-redux";
+
 import { analytics, subscribeOpenLinkExternal } from "additional";
-import { ProfileFullPath } from "routes";
+import { routes } from "config";
+
 import License from "./license";
 import Terms from "./terms";
 
@@ -13,10 +15,10 @@ class Legal extends Component {
         this.state = {
             activeTab: "license",
         };
-        this.openLinks = subscribeOpenLinkExternal(".license__wrapper");
+        this.openLinks = subscribeOpenLinkExternal(".license");
 
         if (props.fromProfile) {
-            analytics.pageview(`${ProfileFullPath}/license`, "License agreement");
+            analytics.pageview(`${routes.ProfileFullPath}/license`, "License agreement");
         }
     }
 
@@ -37,10 +39,10 @@ class Legal extends Component {
             let path;
             let title;
             if (tab === "license") {
-                path = `${ProfileFullPath}/license`;
+                path = `${routes.ProfileFullPath}/license`;
                 title = "License agreement";
             } else if (tab === "terms") {
-                path = `${ProfileFullPath}/terms`;
+                path = `${routes.ProfileFullPath}/terms`;
                 title = "Terms and conditions";
             }
             analytics.pageview(path, title);
@@ -49,17 +51,19 @@ class Legal extends Component {
 
     render() {
         return (
-            <div className="license__wrapper">
+            <div className="license">
                 <Tabs name="legal">
                     <div className="row">
-                        <div className="col-xs-12 tabs__wrapper">
-                            <div className="tabs__container">
-                                <TabLink to="terms-tab-container" onClick={() => this.handleTabClick("terms")}>
-                                    Terms and conditions
-                                </TabLink>
-                                <TabLink to="license-tab-container" onClick={() => this.handleTabClick("license")}>
-                                    Privacy policy
-                                </TabLink>
+                        <div className="col-xs-12">
+                            <div className="tabs">
+                                <div className="tabs__row">
+                                    <TabLink to="terms-tab-container" onClick={() => this.handleTabClick("terms")}>
+                                        Terms and conditions
+                                    </TabLink>
+                                    <TabLink to="license-tab-container" onClick={() => this.handleTabClick("license")}>
+                                        Privacy policy
+                                    </TabLink>
+                                </div>
                             </div>
                         </div>
                     </div>

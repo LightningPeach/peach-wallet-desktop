@@ -1,4 +1,5 @@
 import moment from "moment";
+
 import {
     filterActions as actions,
     filterTypes as types,
@@ -41,6 +42,11 @@ describe("Filter Unit Tests", () => {
         it("should create an action to set contacts filter part", () => {
             expectedData.type = types.SET_CONTACTS_FILTER_PART;
             expect(actions.setContactsFilterPart(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set merchants filter part", () => {
+            expectedData.type = types.SET_MERCHANTS_FILTER_PART;
+            expect(actions.setMerchantsFilterPart(data)).to.deep.equal(expectedData);
         });
 
         it("should create an action to clear all filters", () => {
@@ -106,6 +112,12 @@ describe("Filter Unit Tests", () => {
             expect(filterReducer(state, action)).to.deep.equal(expectedData);
         });
 
+        it("should handle SET_MERCHANTS_FILTER_PART action", () => {
+            action.type = types.SET_MERCHANTS_FILTER_PART;
+            expectedData.merchants = { ...expectedData.merchants, ...data };
+            expect(filterReducer(state, action)).to.deep.equal(expectedData);
+        });
+
         it("should handle SET_ONCHAIN_FILTER_PART action", () => {
             action.type = types.SET_ONCHAIN_FILTER_PART;
             expectedData.onchain = { ...expectedData.onchain, ...data };
@@ -114,7 +126,6 @@ describe("Filter Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -133,18 +144,16 @@ describe("Filter Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             listActions = [];
-            sandbox = sinon.sandbox.create();
-            fakeApp = sandbox.stub(appOperations);
+            fakeApp = sinon.stub(appOperations);
             data = {};
             initState = JSON.parse(JSON.stringify(persistedState));
             store = configureStore(initState);
-            store.subscribe(() => listActions.push(store.getState().lastAction));
             expectedData = undefined;
             expectedActions = [];
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("filter()", () => {

@@ -1,177 +1,132 @@
 .profile {
     &__block {
-        margin-top: 30px;
-        box-shadow: 0 3px 6px 0 #e5e5e5;
-        padding: 18px 30px 27px 20px;
-
-        &:nth-child(2) {
-            padding-bottom: 29px;
-        }
-
-        &:last-child {
-            padding-bottom: 20px;
-        }
+        padding: 40px 0 40px 60px;
+        border-bottom: 1px solid $grey50;
 
         .Select.has-value .Select-control{
-            border: 1px solid rgba(74, 74, 74, 0.3);
+            border: 1px solid $grey30;
         }
     }
 
     &__title {
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1.13;
-        color: $pumpkin-orange;
-        padding-bottom: 15px;
+        @extend .block__title;
+        color: $yellow;
+        margin-left: -60px;
+        padding-left: 60px;
 
-        img {
-            margin-right: 10px;
+        &--wallet-name {
+            background: url(../images/icons/wallet.svg) no-repeat center left;
+            background-size: 30px 30px;
+        }
+
+        &--pay_req {
+            background: url(../images/payment-request.svg) no-repeat center left;
+            background-size: 30px 30px;
+        }
+
+        &--settings {
+            background: url(../images/settings.svg) no-repeat center left;
+            background-size: 30px 30px;
         }
     }
 
     &__row {
-        padding-top: 14px;
-        padding-bottom: 11px;
-        font-size: 14px;
-        line-height: 1;
-        letter-spacing: 0.1px;
-
-        &--top-double {
-            padding-top: 31px;
-        }
-
-        &:last-child {
-            padding-bottom: 0;
-        }
-
-        &--wrap {
-            .profile {
-                &__flex {
-                    flex-wrap: wrap;
-                    justify-content: space-between;
-                    align-items: center;
-                }
-            }
-        }
+        @extend .row;
+        padding-top: 20px;
     }
 
-    &__flex {
-        display: flex;
-    }
+    &__line {
+        @extend .row;
+        @extend .row--no-col;
+        flex-wrap: nowrap;
+        align-items: flex-start;
 
-    &__utils_btns {
-        float: right;
-
-        span + span {
-            margin-left: 20px;
+        &-center {
+            @extend .row;
+            @extend .row--no-col;
+            flex-wrap: nowrap;
+            align-items: center;
         }
     }
 
     &__label {
-        width: 192px;
+        width: 180px;
+        flex: 0 0 180px;
+        font-weight: bold;
+        padding-right: 10px;
+
+        &--normal {
+            font-weight: normal;
+        }
     }
 
     &__value {
+        @extend .row;
+        @extend .row--no-col;
         margin: 0;
-        letter-spacing: 0.2px;
-        flex: 1;
-        display: inline-flex;
+        flex: 1 1 auto;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        max-width: calc(100% - 180px);
 
-        &_value {
+        &--start {
+            justify-content: flex-start;
+        }
+
+        &_ellipsis {
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 10px;
+        }
+
+        &_utils {
+            margin-left: 10px;
+            @extend .center-content;
+
+            span + span {
+                margin-left: 20px;
+            }
+        }
+
+        .Select {
+            min-width: 140px;
+        }
+    }
+
+    &__button {
+        &-label {
+            text-transform: capitalize;
+
+            & + .button,
+            & + .link {
+                margin-left: 40px;
+            }
         }
     }
 
     &__app-status {
-        font-size: 14px;
         margin-right: 20px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        white-space: normal;
-        line-height: 20px;
-        text-align: left;
 
         &.button + .button {
             margin-left: 0;
         }
     }
+}
 
-    &__switcher {
-        margin-top: 8px;
-    }
-
-    .pay_req {
-        &__row {
-            position: relative;
+@media screen and (max-width: $phablet-width) {
+    .profile {
+        &__line {
+            flex-wrap: wrap;
         }
 
         &__label {
-            padding-right: 20px;
+            width: 100%;
+            flex-basis: 100%;
         }
 
         &__value {
-            padding-right: 25px;
-            line-height: 1.1;
-            display: block;
-        }
-
-        &__button {
-            position: absolute;
-            right: 20px;
-            top: 0;
-        }
-    }
-
-    #pay_req_amount {
-        width: 140px;
-        margin-right: 10px;
-    }
-
-    .placeholder_text {
-        color: rgba(00, 00, 00, .1);
-    }
-
-    .Select {
-        width: 140px;
-    }
-
-    .Select-control {
-        height: 40px;
-    }
-
-    .Select--single > .Select-control .Select-value,
-    .Select-placeholder {
-        line-height: 40px;
-    }
-}
-
-@media screen and (max-width: 890px) {
-    .profile {
-        &__label {
-            width: 123px;
-        }
-
-        &__value {
-            width: calc(100% - 123px);
-        }
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .profile {
-        &__block {
-            padding-right: 10px;
-        }
-
-        .pay_req__label {
-            max-width: 40%;
-        }
-
-        .col-small-right-padding {
-            padding-right: 10px;
+            max-width: 100%;
         }
     }
 }

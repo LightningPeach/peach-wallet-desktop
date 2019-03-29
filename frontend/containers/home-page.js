@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { authTypes } from "modules/auth";
@@ -6,18 +6,23 @@ import Notifications from "components/notifications";
 import Login from "components/login";
 import Restore from "components/restore";
 import Registration from "components/registration";
-import DeepLinkLightning from "components/modal/deep-link-lightning";
+import RestoreSession from "components/restore-session";
+import DeepLinkLightningModal from "components/modal/window/deep-link-lightning";
+import ConfirmLogoutModal from "components/profile/modal/logout";
 import { appTypes } from "modules/app";
 
 const HomePage = (props) => {
     const { currentForm, modalState, notifications } = props;
     let form;
     switch (currentForm) {
-        case authTypes.RESTORE_FORM:
+        case authTypes.RESTORE_WALLET_FORM:
             form = <Restore />;
             break;
         case authTypes.REGISTRATION_FORM:
             form = <Registration />;
+            break;
+        case authTypes.RESTORE_SESSION_FORM:
+            form = <RestoreSession />;
             break;
         case authTypes.LOGIN_FORM:
         default:
@@ -27,7 +32,10 @@ const HomePage = (props) => {
     let modal;
     switch (modalState) {
         case appTypes.DEEP_LINK_LIGHTNING_MODAL_STATE:
-            modal = <DeepLinkLightning />;
+            modal = <DeepLinkLightningModal />;
+            break;
+        case appTypes.LOGOUT_MODAL_STATE:
+            modal = <ConfirmLogoutModal />;
             break;
         default:
             modal = null;
@@ -35,13 +43,13 @@ const HomePage = (props) => {
 
     return (
         <section className="home">
-            <div className="container home__container">
-                <div className="row">
-                    <div className="col-xs-12 home__logo">
-                        <img src="public/assets/images/logo-black.svg" alt="" />
+            <div className="container">
+                <div className="column align-center-xs home__content">
+                    <div className="home__logo" />
+                    <div className="home__body">
+                        {form}
                     </div>
                 </div>
-                {form}
                 <Notifications
                     notifications={notifications}
                     style={false} // eslint-disable-line

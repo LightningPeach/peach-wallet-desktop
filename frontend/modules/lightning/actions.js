@@ -9,7 +9,7 @@ const clearSinglePaymentDetails = () => ({
     type: types.CLEAR_SINGLE_PAYMENT_DETAILS,
 });
 
-const paymentPreparing = (lightningID, amount, comment, payReq, name, contactName, fee) => ({
+const paymentPreparing = (lightningID, amount, comment, payReq, payReqDecoded, name, contactName, fee) => ({
     payload: {
         amount,
         comment,
@@ -18,6 +18,7 @@ const paymentPreparing = (lightningID, amount, comment, payReq, name, contactNam
         lightningID,
         name,
         pay_req: payReq,
+        pay_req_decoded: payReqDecoded,
     },
     type: types.PAYMENT_PREPARING,
 });

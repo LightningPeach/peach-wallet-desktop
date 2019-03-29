@@ -1,42 +1,40 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { push } from "react-router-redux";
 import { connect } from "react-redux";
 import { hashHistory } from "react-router";
-import { logger, setAsyncIntervalLong, clearIntervalLong } from "additional";
+
+import { logger, debounce, clearIntervalLong, setAsyncIntervalLong } from "additional";
+import { routes } from "config";
 import { accountOperations, accountTypes } from "modules/account";
 import { channelsOperations, channelsTypes } from "modules/channels";
+import { authActions, authTypes } from "modules/auth";
 import { appOperations, appTypes } from "modules/app";
+import { serverOperations } from "modules/server";
 import { lndOperations } from "modules/lnd";
+
 import { pageBlockerHelper } from "components/common/page-blocker";
 import Header from "components/header";
-import {
-    WalletPath,
-    OnchainFullPath,
-    ChannelsFullPath,
-    AddressBookFullPath,
-    ProfileFullPath,
-    LightningPanel,
-    OnchainPanel,
-    ChannelsPanel,
-    AddressBookPanel,
-    ProfilePanel,
-    HomeFullPath,
-} from "routes";
 import Lightning from "components/lightning";
 import Onchain from "components/onchain";
 import ChannelsPage from "components/channels";
 import ContactsPage from "components/contacts";
 import ProfilePage from "components/profile";
+import MerchantsPage from "components/merchants";
 import Notifications from "components/notifications";
-import ForceCloseChannel from "components/channels/modal/force-close-channel";
-import ForceLogout from "components/modal/force-logout";
-import SystemNotifications from "components/modal/system-notifications";
+import ForceCloseChannelModal from "components/channels/modal/force-close-channel";
+import ForceLogoutModal from "components/modal/window/force-logout";
+import SystemNotificationsModal from "components/modal/window/system-notifications";
+import WalletModeModal from "components/modal/window/wallet-mode";
+import TermsAndConditionsModal from "components/modal/window/terms-and-conditions";
 
 import {
     BALANCE_INTERVAL_TIMEOUT,
     CHANNELS_INTERVAL_TIMEOUT,
     USD_PER_BTC_INTERVAL_TIMEOUT,
     LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+    GET_MERCHANTS_INTERVAL_TIMEOUT,
+    SESSION_EXPIRE_TIMEOUT,
 } from "config/consts";
 
 class WalletPage extends Component {
@@ -47,24 +45,28 @@ class WalletPage extends Component {
             pageAddressIndex: 0,
             pageAddressList: [
                 {
-                    fullPath: WalletPath,
-                    panel: LightningPanel,
+                    fullPath: routes.WalletPath,
+                    panel: routes.LightningPanel,
                 },
                 {
-                    fullPath: OnchainFullPath,
-                    panel: OnchainPanel,
+                    fullPath: routes.OnchainFullPath,
+                    panel: routes.OnchainPanel,
                 },
                 {
-                    fullPath: ChannelsFullPath,
-                    panel: ChannelsPanel,
+                    fullPath: routes.ChannelsFullPath,
+                    panel: routes.ChannelsPanel,
                 },
                 {
-                    fullPath: AddressBookFullPath,
-                    panel: AddressBookPanel,
+                    fullPath: routes.AddressBookFullPath,
+                    panel: routes.AddressBookPanel,
                 },
                 {
-                    fullPath: ProfileFullPath,
-                    panel: ProfilePanel,
+                    fullPath: routes.MerchantsFullPath,
+                    panel: routes.MerchantsPanel,
+                },
+                {
+                    fullPath: routes.ProfileFullPath,
+                    panel: routes.ProfilePanel,
                 },
             ],
         };
@@ -79,23 +81,35 @@ class WalletPage extends Component {
     }
 
     componentDidMount() {
+        const { dispatch, sessionStatus } = this.props;
+        if (sessionStatus === authTypes.SESSION_EXPIRED) {
+            dispatch(push(routes.HomeFullPath));
+            return;
+        }
+        this.continueSession();
+        document.addEventListener("keydown", this.onKeyDown);
+        document.addEventListener("keydown", this.continueSession);
+        document.addEventListener("mousemove", this.continueSession);
+        document.addEventListener("click", this.continueSession);
+        document.addEventListener("touchmove", this.continueSession);
+        document.addEventListener("touchstart", this.continueSession);
+        document.addEventListener("scroll", this.continueSession);
+        document.addEventListener("resize", this.continueSession);
         document.addEventListener("keydown", this.onKeyClick, false);
-        setAsyncIntervalLong("channelsIntervalId", this.checkChannels, CHANNELS_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("balanceIntervalId", this.checkYourBalance, BALANCE_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("usdPerBtcIntervalId", this.checkUsdBtcRate, USD_PER_BTC_INTERVAL_TIMEOUT);
-        setAsyncIntervalLong("lndSyncStatusIntervalId", this.checkLndSyncStatus, LND_SYNC_STATUS_INTERVAL_TIMEOUT);
     }
 
     componentWillReceiveProps(nextProps) {
-        const { dispatch, isIniting } = this.props;
+        const { dispatch, isIniting, isLogined } = this.props;
         const { location } = nextProps;
         const { pageAddressList } = this.state;
         if (!nextProps.isLogined && !isIniting && !this.props.isLogouting) {
             dispatch(accountOperations.logout());
             return;
         }
-        this.checkYourBalance();
-        this.checkChannels();
+        if (isLogined) {
+            dispatch(accountOperations.checkBalance());
+            dispatch(channelsOperations.getChannels());
+        }
 
         if (location !== this.props.location) {
             const path = location.pathname;
@@ -111,23 +125,23 @@ class WalletPage extends Component {
             });
         }
 
-        const isKernelDisconnected = nextProps.kernelConnectIndicator === accountTypes.KERNEL_DISCONNECTED;
-        if (isKernelDisconnected) {
-            pageBlockerHelper(true);
-        } else {
-            pageBlockerHelper();
-        }
+        pageBlockerHelper(nextProps.kernelConnectIndicator === accountTypes.KERNEL_DISCONNECTED);
     }
 
     componentWillUnmount() {
+        document.removeEventListener("keydown", this.onKeyDown);
+        document.removeEventListener("keydown", this.continueSession);
+        document.removeEventListener("mousemove", this.continueSession);
+        document.removeEventListener("click", this.continueSession);
+        document.removeEventListener("touchmove", this.continueSession);
+        document.removeEventListener("touchstart", this.continueSession);
+        document.removeEventListener("scroll", this.continueSession);
+        document.removeEventListener("resize", this.continueSession);
         document.removeEventListener("keydown", this.onKeyClick, false);
-        clearIntervalLong("balanceIntervalId");
-        clearIntervalLong("channelsIntervalId");
-        clearIntervalLong("usdPerBtcIntervalId");
-        clearIntervalLong("lndSyncStatusIntervalId");
+        this.continueSession.cancel();
     }
 
-    onKeyClick = (e) => {
+    onKeyDown = (e) => {
         if (e.ctrlKey && e.key === "Tab") {
             const { pageAddressIndex, pageAddressList } = this.state;
             const index = e.shiftKey
@@ -140,33 +154,12 @@ class WalletPage extends Component {
         }
     };
 
-    checkUsdBtcRate = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(appOperations.usdBtcRate());
-        }
-    };
-
-    checkYourBalance = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(accountOperations.checkBalance());
-        }
-    };
-
-    checkChannels = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(channelsOperations.getChannels());
-        }
-    };
-
-    checkLndSyncStatus = async () => {
-        const { dispatch, isLogined } = this.props;
-        if (isLogined) {
-            await dispatch(lndOperations.checkLndSync());
-        }
-    };
+    continueSession = debounce(() => {
+        const { dispatch } = this.props;
+        dispatch(authActions.setCurrentForm(authTypes.RESTORE_SESSION_FORM));
+        dispatch(authActions.setSessionStatus(authTypes.SESSION_EXPIRED));
+        dispatch(push(routes.HomeFullPath));
+    }, SESSION_EXPIRE_TIMEOUT);
 
     render() {
         const {
@@ -179,13 +172,19 @@ class WalletPage extends Component {
         let modal;
         switch (modalState) {
             case channelsTypes.MODAL_STATE_FORCE_DELETE_CHANNEL:
-                modal = <ForceCloseChannel />;
+                modal = <ForceCloseChannelModal />;
                 break;
             case appTypes.MODAL_STATE_FORCE_LOGOUT:
-                modal = <ForceLogout />;
+                modal = <ForceLogoutModal />;
                 break;
             case accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS:
-                modal = <SystemNotifications />;
+                modal = <SystemNotificationsModal />;
+                break;
+            case accountTypes.MODAL_STATE_WALLET_MODE:
+                modal = <WalletModeModal />;
+                break;
+            case accountTypes.MODAL_STATE_TERMS_AND_CONDITIONS:
+                modal = <TermsAndConditionsModal />;
                 break;
             default:
                 modal = null;
@@ -205,11 +204,15 @@ class WalletPage extends Component {
                 Panel = <ContactsPage />;
                 break;
             case 4:
+                Panel = <MerchantsPage />;
+                break;
+            case 5:
                 Panel = <ProfilePage />;
                 break;
             default:
                 break;
         }
+
         return (
             <div id="wallet-page">
                 <Header />
@@ -247,6 +250,7 @@ WalletPage.propTypes = {
         position: PropTypes.string.isRequired,
         uid: PropTypes.any.isRequired,
     })),
+    sessionStatus: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -256,6 +260,7 @@ const mapStateToProps = state => ({
     kernelConnectIndicator: state.account.kernelConnectIndicator,
     modalState: state.app.modalState,
     notifications: state.notifications,
+    sessionStatus: state.auth.sessionStatus,
 });
 
 export default connect(mapStateToProps)(WalletPage);

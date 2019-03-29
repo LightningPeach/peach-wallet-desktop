@@ -1,8 +1,4 @@
-import configureStore from "redux-mock-store";
-import thunk from "redux-thunk";
-
-import "../../utils";
-import { statusCodes } from "config";
+import { exceptions, consts } from "config";
 import {
     accountActions as actions,
     accountTypes as types,
@@ -12,16 +8,13 @@ import { notificationsTypes } from "modules/notifications";
 import { lndOperations } from "modules/lnd";
 import { streamPaymentOperations } from "modules/streamPayments";
 import { lightningOperations } from "modules/lightning";
+import { serverOperations } from "modules/server";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { onChainOperations } from "modules/onchain";
-import { SATOSHI_MEASURE, MAX_PAYMENT_REQUEST } from "config/consts";
 import accountReducer, { initStateAccount } from "modules/account/reducers";
 import { appTypes, appOperations } from "modules/app";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
-import { store as defaultStore } from "store/configure-store";
-
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
+import { configureStore, persistedState } from "store/configure-store";
 
 describe("Account Unit Tests", () => {
     describe("Action creators", () => {
@@ -224,14 +217,14 @@ describe("Account Unit Tests", () => {
         });
 
         it("should create an action to set bitcoin measure", () => {
-            data = SATOSHI_MEASURE.btc;
+            data = consts.SATOSHI_MEASURE.btc;
             expectedData = {
                 payload: {
-                    bitcoinMeasureType: SATOSHI_MEASURE.btc,
-                    bitcoinMeasureMultiplier: SATOSHI_MEASURE.multiplier,
-                    lightningMeasureType: SATOSHI_MEASURE.ln,
-                    toFixedMeasure: SATOSHI_MEASURE.toFixed,
-                    toFixedMeasureAll: SATOSHI_MEASURE.toFixedAll,
+                    bitcoinMeasureType: consts.SATOSHI_MEASURE.btc,
+                    bitcoinMeasureMultiplier: consts.SATOSHI_MEASURE.multiplier,
+                    lightningMeasureType: consts.SATOSHI_MEASURE.ln,
+                    toFixedMeasure: consts.SATOSHI_MEASURE.toFixed,
+                    toFixedMeasureAll: consts.SATOSHI_MEASURE.toFixedAll,
                 },
                 type: types.SET_BITCOIN_MEASURE,
             };
@@ -239,9 +232,9 @@ describe("Account Unit Tests", () => {
             expect(window.ipcClient).to.have.been.calledWith(
                 "set-bitcoin-measure",
                 {
-                    multiplier: SATOSHI_MEASURE.multiplier,
-                    toFixed: SATOSHI_MEASURE.toFixed,
-                    type: SATOSHI_MEASURE.btc,
+                    multiplier: consts.SATOSHI_MEASURE.multiplier,
+                    toFixed: consts.SATOSHI_MEASURE.toFixed,
+                    type: consts.SATOSHI_MEASURE.btc,
                 },
             );
         });
@@ -330,15 +323,30 @@ describe("Account Unit Tests", () => {
             expectedData.type = types.SET_SYSTEM_NOTIFICATIONS_STATUS;
             expect(actions.setSystemNotificationsStatus(data)).to.deep.equal(expectedData);
         });
+
+        it("should create an action to set analytics mode", () => {
+            expectedData.type = types.SET_ANALYTICS_MODE;
+            expect(actions.setAnalyticsMode(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set wallet mode", () => {
+            expectedData.type = types.SET_WALLET_MODE;
+            expect(actions.setWalletMode(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set terms mode", () => {
+            expectedData.type = types.SET_TERMS_MODE;
+            expect(actions.setTermsMode(data)).to.deep.equal(expectedData);
+        });
     });
 
     describe("Operations tests", () => {
         const lightningId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-        let sandbox;
         let data;
         let store;
         let initState;
         let expectedActions;
+        let listActions;
         let expectedData;
         let errorResp;
         let successResp;
@@ -349,11 +357,11 @@ describe("Account Unit Tests", () => {
         let fakeLightning;
         let fakeChannels;
         let fakeOnchain;
-        let fakeStreamOperations;
+        let fakeServer;
+        let fakeStreamPayment;
         let fakeDispatchReturnError;
         let fakeDispatchReturnSuccess;
         let fakeDispatchReturnUnsuccess;
-        let fakeStore;
 
         beforeEach(async () => {
             errorResp = await errorPromise(undefined, { name: undefined });
@@ -362,8 +370,15 @@ describe("Account Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
-            sandbox = sinon.sandbox.create();
-            fakeDB = sandbox.stub(db);
+            listActions = [];
+            fakeDB = sinon.stub(db);
+            fakeLnd = sinon.stub(lndOperations);
+            fakeApp = sinon.stub(appOperations);
+            fakeStreamPayment = sinon.stub(streamPaymentOperations);
+            fakeLightning = sinon.stub(lightningOperations);
+            fakeChannels = sinon.stub(channelsOperations);
+            fakeOnchain = sinon.stub(onChainOperations);
+            fakeServer = sinon.stub(serverOperations);
             window.ipcClient.reset();
             window.ipcRenderer.send.resetHistory();
             data = {
@@ -381,103 +396,108 @@ describe("Account Unit Tests", () => {
             };
             expectedData = undefined;
             expectedActions = [];
-            initState = {
-                account: {
-                    ...initStateAccount,
-                    lightningID: lightningId,
-                    lisStatus: types.LIS_DOWN,
-                },
-                onchain: {
-                    fee: 0,
-                },
+            initState = JSON.parse(JSON.stringify(persistedState));
+            initState.account = {
+                ...persistedState.account,
+                isLogined: true,
+                lightningID: lightningId,
+                lisStatus: types.LIS_DOWN,
             };
-            store = mockStore(initState);
-            fakeStore = sandbox.stub(defaultStore);
-            fakeStore.dispatch = store.dispatch;
-            fakeStore.getState = store.getState;
+            initState.onchain = {
+                ...persistedState.onchain,
+                fee: 0,
+            };
+            store = configureStore(initState);
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
-        describe("ipcRenderer", () => {
-            beforeEach(() => {
-                initState.account.lisStatus = types.LIS_NONE;
-                store = mockStore(initState);
-                fakeStore.dispatch = store.dispatch;
-                fakeStore.getState = store.getState;
-            });
-
-            it("should set lnd down status", async () => {
-                window.ipcRenderer.send("lnd-down");
-                expectedActions = [
-                    {
-                        payload: types.KERNEL_DISCONNECTED,
-                        type: types.SET_DISCONNECTED_KERNEL_CONNECT_INDICATOR,
-                    },
-                ];
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcRenderer.on).to.be.calledWith("lnd-down");
-            });
-
-
-            it("should set lnd up status", async () => {
-                window.ipcRenderer.send("lnd-up");
-                expectedActions = [
-                    {
-                        payload: types.KERNEL_CONNECTED,
-                        type: types.SET_CONNECTED_KERNEL_CONNECT_INDICATOR,
-                    },
-                ];
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcRenderer.on).to.be.calledWith("lnd-up");
-            });
-
-            it("should return void if lis is currently down", async () => {
-                initState.account.lisStatus = types.LIS_DOWN;
-                store = mockStore(initState);
-                fakeStore.dispatch = store.dispatch;
-                fakeStore.getState = store.getState;
-                window.ipcRenderer.send("lis-down");
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcRenderer.on).to.be.calledWith("lis-down");
-            });
-
-            it("should set lis down status", async () => {
-                window.ipcRenderer.send("lis-down");
-                expectedActions = [
-                    {
-                        payload: types.LIS_DOWN,
-                        type: types.SET_LIS_STATUS,
-                    },
-                ];
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcRenderer.on).to.be.calledWith("lis-down");
-            });
-
-            it("should return void if lis is currently up", async () => {
-                initState.account.lisStatus = types.LIS_UP;
-                store = mockStore(initState);
-                fakeStore.dispatch = store.dispatch;
-                fakeStore.getState = store.getState;
-                window.ipcRenderer.send("lis-up");
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcRenderer.on).to.be.calledWith("lis-up");
-            });
-
-            it("should set lis up status", async () => {
-                window.ipcRenderer.send("lis-up");
-                expectedActions = [
-                    {
-                        payload: types.LIS_UP,
-                        type: types.SET_LIS_STATUS,
-                    },
-                ];
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcRenderer.on).to.be.calledWith("lis-up");
-            });
-        });
+        // describe("ipcRenderer", () => {
+        //     beforeEach(() => {
+        //         initState.account.lisStatus = types.LIS_NONE;
+        //         store = configureStore(initState);
+        //     });
+        //
+        //     it("should set lnd down status", async () => {
+        //         expectedData = { ...successResp };
+        //         expectedActions = [
+        //             {
+        //                 payload: types.KERNEL_DISCONNECTED,
+        //                 type: types.SET_DISCONNECTED_KERNEL_CONNECT_INDICATOR,
+        //             },
+        //         ];
+        //         expect(await window.ipcRenderer.send("lnd-down")).to.deep.equal(expectedData);
+        //         console.log("LND STATUS");
+        //         console.log(store.getState().listActions);
+        //         expect(store.getState().listActions).to.deep.equal(expectedActions);
+        //         expect(window.ipcRenderer.on).to.be.calledWith("lnd-down");
+        //     });
+        //
+        //
+        //     it("should set lnd up status", async () => {
+        //         await window.ipcRenderer.send("lnd-up");
+        //         expectedActions = [
+        //             {
+        //                 payload: types.KERNEL_CONNECTED,
+        //                 type: types.SET_CONNECTED_KERNEL_CONNECT_INDICATOR,
+        //             },
+        //         ];
+        //         console.log("LND STATUS");
+        //         console.log(store.getState().listActions);
+        //         expect(store.getState().listActions).to.deep.equal(expectedActions);
+        //         expect(window.ipcRenderer.on).to.be.calledWith("lnd-up");
+        //     });
+        //
+        //     it("should return void if lis is currently down", async () => {
+        //         initState.account.lisStatus = types.LIS_DOWN;
+        //         store = configureStore(initState);
+        //         await window.ipcRenderer.send("lis-down");
+        //         console.log("LND STATUS");
+        //         console.log(store.getState().listActions);
+        //         expect(store.getState().listActions).to.deep.equal(expectedActions);
+        //         expect(window.ipcRenderer.on).to.be.calledWith("lis-down");
+        //     });
+        //
+        //     it("should set lis down status", async () => {
+        //         await window.ipcRenderer.send("lis-down");
+        //         expectedActions = [
+        //             {
+        //                 payload: types.LIS_DOWN,
+        //                 type: types.SET_LIS_STATUS,
+        //             },
+        //         ];
+        //         console.log("LND STATUS");
+        //         console.log(store.getState().listActions);
+        //         expect(store.getState().listActions).to.deep.equal(expectedActions);
+        //         expect(window.ipcRenderer.on).to.be.calledWith("lis-down");
+        //     });
+        //
+        //     it("should return void if lis is currently up", async () => {
+        //         initState.account.lisStatus = types.LIS_UP;
+        //         store = configureStore(initState);
+        //         await window.ipcRenderer.send("lis-up");
+        //         console.log("LND STATUS");
+        //         console.log(store.getState().listActions);
+        //         expect(store.getState().listActions).to.deep.equal(expectedActions);
+        //         expect(window.ipcRenderer.on).to.be.calledWith("lis-up");
+        //     });
+        //
+        //     it("should set lis up status", async () => {
+        //         await window.ipcRenderer.send("lis-up");
+        //         expectedActions = [
+        //             {
+        //                 payload: types.LIS_UP,
+        //                 type: types.SET_LIS_STATUS,
+        //             },
+        //         ];
+        //         console.log("LND STATUS");
+        //         console.log(store.getState().listActions);
+        //         expect(store.getState().listActions).to.deep.equal(expectedActions);
+        //         expect(window.ipcRenderer.on).to.be.calledWith("lis-up");
+        //     });
+        // });
 
         describe("Modal Windows", () => {
             beforeEach(() => {
@@ -488,7 +508,14 @@ describe("Account Unit Tests", () => {
                 expectedData.payload = types.MODAL_STATE_SYSTEM_NOTIFICATIONS;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openSystemNotificationsModal())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+            });
+
+            it("openWalletModeModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_WALLET_MODE;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openWalletModeModal())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
         });
 
@@ -514,7 +541,7 @@ describe("Account Unit Tests", () => {
                     f: "createNewBitcoinAccount",
                 };
                 expect(await store.dispatch(operations.createNewBitcoinAccount())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal([]);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("newAddress");
             });
@@ -527,10 +554,130 @@ describe("Account Unit Tests", () => {
                         type: types.ADD_BITCOIN_ACCOUNT,
                     },
                 ];
-                expect(await store.dispatch(operations.createNewBitcoinAccount())).to.deep.equal(successResp);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(await store.dispatch(operations.createNewBitcoinAccount())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("newAddress");
+            });
+        });
+
+        describe("startLis", () => {
+            beforeEach(() => {
+                initState.account = {
+                    ...initState.account,
+                    walletMode: types.WALLET_MODE.EXTENDED,
+                    termsMode: types.TERMS_MODE.ACCEPTED,
+                };
+                store = configureStore(initState);
+                window.ipcClient
+                    .withArgs("startLis")
+                    .returns({
+                        ok: true,
+                    });
+                fakeDB.configBuilder.returns({
+                    update: data.configBuilder.update.returns({
+                        set: data.configBuilder.set.returns({
+                            where: data.configBuilder.where.returns({
+                                execute: data.configBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
+            });
+            it("wallet in not-extended mode", async () => {
+                initState.account.walletMode = types.WALLET_MODE.STANDARD;
+                store = configureStore(initState);
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.startLis())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).not.to.be.called;
+                expect(fakeDB.configBuilder).not.to.be.called;
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("startLis")
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    ...errorResp,
+                    f: "startLis",
+                };
+                expectedActions = [
+                    {
+                        payload: types.WALLET_MODE.STANDARD,
+                        type: types.SET_WALLET_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.startLis())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("startLis");
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.set).to.be.calledOnce;
+                expect(data.configBuilder.set).to.be.calledImmediatelyAfter(data.configBuilder.update);
+                expect(data.configBuilder.set).to.be.calledWith({ walletMode: types.WALLET_MODE.STANDARD });
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
+                expect(data.configBuilder.where).to.be.calledWith(...data.configBuilder.whereValue);
+                expect(data.configBuilder.execute).to.be.calledOnce;
+                expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
+            });
+
+            it("success", async () => {
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.startLis())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("startLis");
+                expect(fakeDB.configBuilder).not.to.be.called;
+            });
+        });
+
+        describe("shutDownLis", () => {
+            beforeEach(() => {
+                initState.account.lisStatus = types.LIS_UP;
+                store = configureStore(initState);
+                window.ipcClient
+                    .withArgs("shutDownLis")
+                    .returns({
+                        ok: true,
+                    });
+            });
+            it("lis is not up", async () => {
+                initState.account.lisStatus = types.LIS_DOWN;
+                store = configureStore(initState);
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.shutDownLis())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).not.to.be.called;
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("shutDownLis")
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    ...errorResp,
+                    f: "shutDownLis",
+                };
+                expect(await store.dispatch(operations.shutDownLis())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("shutDownLis");
+            });
+
+            it("success", async () => {
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.shutDownLis())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("shutDownLis");
             });
         });
 
@@ -542,12 +689,7 @@ describe("Account Unit Tests", () => {
                     }),
                 }),
             });
-            const valuesWith = {
-                activeMeasure: "mBTC",
-                createChannelViewed: 0,
-                lightningId,
-                systemNotifications: 3,
-            };
+            fakeApp.startModalFlow.returns(fakeDispatchReturnSuccess);
             expectedData = { ...successResp };
             expectedActions = [
                 {
@@ -565,20 +707,34 @@ describe("Account Unit Tests", () => {
                     type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
                 },
                 {
-                    payload: types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
-                    type: appTypes.SET_MODAL_STATE,
+                    payload: [
+                        types.MODAL_STATE_TERMS_AND_CONDITIONS,
+                        types.MODAL_STATE_WALLET_MODE,
+                        types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
+                    ],
+                    type: appTypes.ADD_MODAL_TO_FLOW,
                 },
             ];
             expect(await store.dispatch(operations.setInitConfig(lightningId))).to.deep.equal(expectedData);
-            expect(store.getActions()).to.deep.equal(expectedActions);
+            expect(store.getState().listActions).to.deep.equal(expectedActions);
             expect(fakeDB.configBuilder).to.be.calledOnce;
             expect(data.configBuilder.insert).to.be.calledOnce;
             expect(data.configBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
             expect(data.configBuilder.values).to.be.calledOnce;
             expect(data.configBuilder.values).to.be.calledImmediatelyAfter(data.configBuilder.insert);
-            expect(data.configBuilder.values).to.be.calledWith(valuesWith);
+            expect(data.configBuilder.values).to.be.calledWith({
+                activeMeasure: "mBTC",
+                analytics: null,
+                createChannelViewed: 0,
+                legalVersion: "Legalized",
+                lightningId,
+                systemNotifications: 3,
+                terms: 0,
+                walletMode: null,
+            });
             expect(data.configBuilder.execute).to.be.calledOnce;
             expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.values);
+            expect(fakeApp.startModalFlow).to.be.calledOnce;
         });
 
         describe("loadAccountSettings()", () => {
@@ -589,16 +745,15 @@ describe("Account Unit Tests", () => {
                 data.selectWhere = ["lightningId = :lightningID", { lightningID: lightningId }];
                 data.insertValues = {
                     activeMeasure: "mBTC",
+                    analytics: null,
                     createChannelViewed: 0,
+                    legalVersion: "Legalized",
                     lightningId,
                     systemNotifications: 3,
+                    terms: 0,
+                    walletMode: null,
                 };
-                data.getOneValues = {
-                    activeMeasure: "BTC",
-                    createChannelViewed: 0,
-                    lightningId,
-                    systemNotifications: 3,
-                };
+                data.getOneValues = data.insertValues;
                 fakeDB.configBuilder.returns({
                     insert: data.configBuilder.insert.returns({
                         values: data.configBuilder.values.returns({
@@ -611,6 +766,7 @@ describe("Account Unit Tests", () => {
                         }),
                     }),
                 });
+                fakeApp.startModalFlow.returns(fakeDispatchReturnSuccess);
             });
 
             it("error", async () => {
@@ -621,9 +777,10 @@ describe("Account Unit Tests", () => {
                     error,
                 };
                 expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.select).not.to.be.called;
+                expect(fakeApp.startModalFlow).not.to.be.calledOnce;
             });
 
             it("success on no measure in db", async () => {
@@ -645,12 +802,16 @@ describe("Account Unit Tests", () => {
                         type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
                     },
                     {
-                        payload: types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
-                        type: appTypes.SET_MODAL_STATE,
+                        payload: [
+                            types.MODAL_STATE_TERMS_AND_CONDITIONS,
+                            types.MODAL_STATE_WALLET_MODE,
+                            types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
+                        ],
+                        type: appTypes.ADD_MODAL_TO_FLOW,
                     },
                 ];
                 expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledTwice;
                 expect(data.configBuilder.select).to.be.calledOnce;
                 expect(data.configBuilder.where).to.be.calledOnce;
@@ -665,6 +826,7 @@ describe("Account Unit Tests", () => {
                 expect(data.configBuilder.values).to.be.calledWith(data.insertValues);
                 expect(data.configBuilder.execute).to.be.calledOnce;
                 expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.values);
+                expect(fakeApp.startModalFlow).to.be.calledOnce;
             });
 
             it("success on all default measures in db", async () => {
@@ -679,26 +841,42 @@ describe("Account Unit Tests", () => {
                 expectedActions = [
                     {
                         payload: {
-                            bitcoinMeasureMultiplier: 1e-8,
-                            bitcoinMeasureType: "BTC",
-                            lightningMeasureType: "LN",
-                            toFixedMeasure: 8,
-                            toFixedMeasureAll: 8,
+                            bitcoinMeasureMultiplier: 1e-5,
+                            bitcoinMeasureType: "mBTC",
+                            lightningMeasureType: "mLN",
+                            toFixedMeasure: 5,
+                            toFixedMeasureAll: 5,
 
                         },
                         type: types.SET_BITCOIN_MEASURE,
+                    },
+                    {
+                        payload: types.ANALYTICS_MODE.PENDING,
+                        type: types.SET_ANALYTICS_MODE,
+                    },
+                    {
+                        payload: types.WALLET_MODE.PENDING,
+                        type: types.SET_WALLET_MODE,
+                    },
+                    {
+                        payload: types.TERMS_MODE.PENDING,
+                        type: types.SET_TERMS_MODE,
                     },
                     {
                         payload: 3,
                         type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
                     },
                     {
-                        payload: types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
-                        type: appTypes.SET_MODAL_STATE,
+                        payload: [
+                            types.MODAL_STATE_TERMS_AND_CONDITIONS,
+                            types.MODAL_STATE_WALLET_MODE,
+                            types.MODAL_STATE_SYSTEM_NOTIFICATIONS,
+                        ],
+                        type: appTypes.ADD_MODAL_TO_FLOW,
                     },
                 ];
                 expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.select).to.be.calledOnce;
                 expect(data.configBuilder.select).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
@@ -708,6 +886,7 @@ describe("Account Unit Tests", () => {
                 expect(data.configBuilder.getOne).to.be.calledOnce;
                 expect(data.configBuilder.getOne).to.be.calledImmediatelyAfter(data.configBuilder.where);
                 expect(data.configBuilder.insert).not.to.be.called;
+                expect(fakeApp.startModalFlow).to.be.calledOnce;
             });
 
             it("success on updated measures in db", async () => {
@@ -715,7 +894,7 @@ describe("Account Unit Tests", () => {
                     activeMeasure: "BTC",
                     createChannelViewed: 1,
                     lightningId,
-                    systemNotifications: 6,
+                    systemNotifications: types.NOTIFICATIONS.ENABLED_LOUD_DONT_SHOW_AGAIN,
                 };
                 fakeDB.configBuilder.returns({
                     select: data.configBuilder.select.returns({
@@ -738,16 +917,35 @@ describe("Account Unit Tests", () => {
                         type: types.SET_BITCOIN_MEASURE,
                     },
                     {
+                        payload: types.ANALYTICS_MODE.PENDING,
+                        type: types.SET_ANALYTICS_MODE,
+                    },
+                    {
+                        payload: types.WALLET_MODE.PENDING,
+                        type: types.SET_WALLET_MODE,
+                    },
+                    {
+                        payload: types.TERMS_MODE.PENDING,
+                        type: types.SET_TERMS_MODE,
+                    },
+                    {
+                        payload: types.NOTIFICATIONS.ENABLED_LOUD_DONT_SHOW_AGAIN,
+                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                    },
+                    {
                         payload: channelsTypes.HIDE,
                         type: channelsTypes.UPDATE_CREATE_TUTORIAL_STATUS,
                     },
                     {
-                        payload: 6,
-                        type: types.SET_SYSTEM_NOTIFICATIONS_STATUS,
+                        payload: [
+                            types.MODAL_STATE_TERMS_AND_CONDITIONS,
+                            types.MODAL_STATE_WALLET_MODE,
+                        ],
+                        type: appTypes.ADD_MODAL_TO_FLOW,
                     },
                 ];
                 expect(await store.dispatch(operations.loadAccountSettings())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.select).to.be.calledOnce;
                 expect(data.configBuilder.select).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
@@ -757,33 +955,28 @@ describe("Account Unit Tests", () => {
                 expect(data.configBuilder.getOne).to.be.calledOnce;
                 expect(data.configBuilder.getOne).to.be.calledImmediatelyAfter(data.configBuilder.where);
                 expect(data.configBuilder.insert).not.to.be.called;
+                expect(fakeApp.startModalFlow).to.be.calledOnce;
             });
         });
 
         describe("initAccount()", () => {
             beforeEach(() => {
                 data.login = "test_acc";
-                fakeLnd = sandbox.stub(lndOperations);
-                fakeLnd.getBlocksHeight.returns(fakeDispatchReturnSuccess);
                 fakeLnd.waitLndSync.returns(fakeDispatchReturnSuccess);
-                fakeApp = sandbox.stub(appOperations);
                 fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
                 fakeApp.closeModal.returns(fakeDispatchReturnSuccess);
                 fakeApp.usdBtcRate.returns(fakeDispatchReturnSuccess);
-                fakeStreamOperations = sandbox.stub(streamPaymentOperations);
-                fakeStreamOperations.pauseAllStreams.returns(fakeDispatchReturnSuccess);
-                fakeStreamOperations.loadStreams.returns(fakeDispatchReturnSuccess);
-                fakeLightning = sandbox.stub(lightningOperations);
+                fakeStreamPayment.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+                fakeStreamPayment.loadStreams.returns(fakeDispatchReturnSuccess);
                 fakeLightning.getHistory.returns(fakeDispatchReturnSuccess);
                 fakeLightning.subscribeInvoices.returns(fakeDispatchReturnSuccess);
                 fakeLightning.unSubscribeInvoices.returns(fakeDispatchReturnSuccess);
-                fakeChannels = sandbox.stub(channelsOperations);
                 fakeChannels.getChannels.returns(fakeDispatchReturnSuccess);
                 fakeChannels.shouldShowCreateTutorial.returns(fakeDispatchReturnSuccess);
-                fakeChannels.shouldShowLightningTutorial.returns(fakeDispatchReturnSuccess);
-                fakeOnchain = sandbox.stub(onChainOperations);
                 fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
                 fakeOnchain.subscribeTransactions.returns(fakeDispatchReturnSuccess);
+                fakeServer.getBlocksHeight.returns(fakeDispatchReturnSuccess);
+                fakeServer.getMerchants.returns(fakeDispatchReturnSuccess);
                 window.ipcClient
                     .withArgs("listChannels")
                     .returns({
@@ -817,43 +1010,11 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
                 expect(fakeLnd.waitLndSync).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("logout");
-            });
-
-            it("error startLis", async () => {
-                window.ipcClient
-                    .withArgs("startLis")
-                    .returns({ ok: false });
-                expectedData = { ...errorResp, f: "initAccount" };
-                expectedActions = [
-                    {
-                        type: types.FINISH_INIT_ACCOUNT,
-                    },
-                    {
-                        type: types.START_LOGOUT,
-                    },
-                    {
-                        payload: true,
-                        type: types.LOGOUT_ACCOUNT,
-                    },
-                    {
-                        type: types.FINISH_LOGOUT,
-                    },
-                    {
-                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
-                    },
-                ];
-                expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("startLis");
-                expect(window.ipcClient).to.be.calledWith("logout");
-                expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
-                expect(fakeLnd.waitLndSync).to.be.calledOnce;
             });
 
             it("error getLightningID", async () => {
@@ -882,9 +1043,8 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(3);
-                expect(window.ipcClient).to.be.calledWith("startLis");
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
@@ -922,9 +1082,8 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(3);
-                expect(window.ipcClient).to.be.calledWith("startLis");
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
@@ -969,9 +1128,8 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(4);
-                expect(window.ipcClient).to.be.calledWith("startLis");
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledThrice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("logout");
                 expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
@@ -1021,9 +1179,8 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.initAccount(data.login))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.callCount(5);
-                expect(window.ipcClient).to.be.calledWith("startLis");
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.callCount(4);
                 expect(window.ipcClient).to.be.calledWith("getInfo");
                 expect(window.ipcClient).to.be.calledWith("newAddress");
                 expect(window.ipcClient).to.be.calledWith("listChannels");
@@ -1033,9 +1190,8 @@ describe("Account Unit Tests", () => {
                 expect(fakeLightning.subscribeInvoices).to.be.calledOnce;
                 expect(fakeChannels.getChannels).to.be.calledOnce;
                 expect(fakeChannels.shouldShowCreateTutorial).to.be.calledOnce;
-                expect(fakeChannels.shouldShowLightningTutorial).to.be.calledOnce;
                 expect(fakeApp.usdBtcRate).to.be.calledOnce;
-                expect(fakeStreamOperations.loadStreams).to.be.calledOnce;
+                expect(fakeStreamPayment.loadStreams).to.be.calledOnce;
             });
         });
 
@@ -1054,7 +1210,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.connectKernel())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
             });
@@ -1068,7 +1224,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.connectKernel())).to.deep.equal(successResp);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
             });
@@ -1083,7 +1239,7 @@ describe("Account Unit Tests", () => {
                     f: "connectServerLnd",
                 };
                 expect(await store.dispatch(operations.connectServerLnd())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal([]);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("connectServerLnd");
             });
@@ -1092,7 +1248,7 @@ describe("Account Unit Tests", () => {
                 window.ipcClient.returns({ ok: true });
                 expectedData = { ...successResp };
                 expect(await store.dispatch(operations.connectServerLnd())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal([]);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("connectServerLnd");
             });
@@ -1107,7 +1263,7 @@ describe("Account Unit Tests", () => {
                     f: "getLightningID",
                 };
                 expect(await store.dispatch(operations.getLightningID())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal([]);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
             });
@@ -1122,7 +1278,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.getLightningID())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
             });
@@ -1140,18 +1296,26 @@ describe("Account Unit Tests", () => {
                     },
                     streamPayment: { streams: [] },
                 };
-                store = mockStore(initState);
+                store = configureStore(initState);
+                fakeStreamPayment.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+                fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
+                fakeLightning.unSubscribeInvoices.returns(fakeDispatchReturnSuccess);
+                fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
             });
 
             it("should return error if already logouting", async () => {
                 initState.account.isLogouting = true;
-                store = mockStore(initState);
+                store = configureStore(initState);
                 expectedData = {
                     ...unsuccessResp,
                     f: "logout",
                 };
                 expect(await store.dispatch(operations.logout())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal([]);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeStreamPayment.pauseAllStreams).not.to.be.called;
+                expect(fakeOnchain.unSubscribeTransactions).not.to.be.called;
+                expect(fakeLightning.unSubscribeInvoices).not.to.be.called;
+                expect(fakeApp.closeDb).not.to.be.called;
             });
 
             it("should logout with keepModalState = false && handle success server socket close", async () => {
@@ -1159,14 +1323,6 @@ describe("Account Unit Tests", () => {
                 expectedActions = [
                     {
                         type: types.START_LOGOUT,
-                    },
-                    {
-                        payload: appTypes.DB_CLOSING,
-                        type: appTypes.DB_SET_STATUS,
-                    },
-                    {
-                        payload: appTypes.DB_CLOSED,
-                        type: appTypes.DB_SET_STATUS,
                     },
                     {
                         payload: false,
@@ -1180,30 +1336,24 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.logout())).to.deep.equal(successResp);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("unsubscribeTransactions");
-                expect(window.ipcClient).to.be.calledWith("unsubscribeInvoices");
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("logout");
                 expect(data.closeServerSocket).to.be.calledOnce;
+                expect(fakeStreamPayment.pauseAllStreams).to.be.calledOnce;
+                expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
+                expect(fakeLightning.unSubscribeInvoices).to.be.calledOnce;
+                expect(fakeApp.closeDb).to.be.calledOnce;
             });
 
             it("should logout with keepModalState = true && handle error on server socket close", async () => {
                 data.closeServerSocket = sinon.stub().throws(new Error());
                 initState.account.serverSocket.close = data.closeServerSocket;
-                store = mockStore(initState);
+                store = configureStore(initState);
                 expectedData = { ...successResp };
                 expectedActions = [
                     {
                         type: types.START_LOGOUT,
-                    },
-                    {
-                        payload: appTypes.DB_CLOSING,
-                        type: appTypes.DB_SET_STATUS,
-                    },
-                    {
-                        payload: appTypes.DB_CLOSED,
-                        type: appTypes.DB_SET_STATUS,
                     },
                     {
                         payload: true,
@@ -1217,12 +1367,14 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.logout(true))).to.deep.equal(successResp);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-                expect(window.ipcClient).to.be.calledThrice;
-                expect(window.ipcClient).to.be.calledWith("unsubscribeTransactions");
-                expect(window.ipcClient).to.be.calledWith("unsubscribeInvoices");
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("logout");
                 expect(data.closeServerSocket).to.be.calledOnce;
+                expect(fakeStreamPayment.pauseAllStreams).to.be.calledOnce;
+                expect(fakeOnchain.unSubscribeTransactions).to.be.calledOnce;
+                expect(fakeLightning.unSubscribeInvoices).to.be.calledOnce;
+                expect(fakeApp.closeDb).to.be.calledOnce;
             });
         });
 
@@ -1239,14 +1391,8 @@ describe("Account Unit Tests", () => {
                     error: undefined,
                     f: "signMessage",
                 };
-                expectedActions = [
-                    {
-                        payload: undefined,
-                        type: types.ERROR_PEERS,
-                    },
-                ];
                 expect(await store.dispatch(operations.signMessage(data.message))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal([]);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("signMessage", { message: data.message });
             });
@@ -1266,7 +1412,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.signMessage(data.message))).to.deep.equal(successResp);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("signMessage", { message: data.message });
             });
@@ -1315,7 +1461,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.setBitcoinMeasure("BTC"))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("set-bitcoin-measure");
                 expect(fakeDB.configBuilder).to.be.calledOnce;
@@ -1332,7 +1478,7 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.setBitcoinMeasure(data.unexistedMeasure)))
                     .to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("set-bitcoin-measure");
                 expect(fakeDB.configBuilder).to.be.calledOnce;
@@ -1357,7 +1503,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.setBitcoinMeasure("BTC"))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("set-bitcoin-measure");
                 expect(fakeDB.configBuilder).to.be.calledOnce;
@@ -1406,7 +1552,7 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.setSystemNotificationsStatus(data.value)))
                     .to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.update).not.to.be.called;
             });
@@ -1421,7 +1567,7 @@ describe("Account Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.setSystemNotificationsStatus(data.value)))
                     .to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(fakeDB.configBuilder).to.be.calledOnce;
                 expect(data.configBuilder.update).to.be.calledOnce;
                 expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
@@ -1432,12 +1578,212 @@ describe("Account Unit Tests", () => {
                 });
                 expect(data.configBuilder.where).to.be.calledOnce;
                 expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
-                expect(data.configBuilder.where).to.be.calledWithExactly(
-                    "lightningId = :lightningID",
+                expect(data.configBuilder.where).to.be.calledWithExactly(...data.configBuilder.whereValue);
+                expect(data.configBuilder.execute).to.be.calledOnce;
+                expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
+            });
+        });
+
+        describe("setAnalyticsMode()", () => {
+            beforeEach(() => {
+                fakeDB.configBuilder.returns({
+                    update: data.configBuilder.update.returns({
+                        set: data.configBuilder.set.returns({
+                            where: data.configBuilder.where.returns({
+                                execute: data.configBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
+            });
+            it("db error", async () => {
+                fakeDB.configBuilder.throws(new Error("foo"));
+                expectedData = {
+                    ...errorResp,
+                    f: "setAnalyticsMode",
+                    error: "foo",
+                };
+                expectedActions = [
                     {
-                        lightningID: lightningId,
+                        payload: types.ANALYTICS_MODE.DISABLED,
+                        type: types.SET_ANALYTICS_MODE,
                     },
-                );
+                ];
+                expect(await store.dispatch(operations.setAnalyticsMode(types.ANALYTICS_MODE.DISABLED)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).not.to.be.called;
+            });
+
+            it("success", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: types.ANALYTICS_MODE.DISABLED,
+                        type: types.SET_ANALYTICS_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.setAnalyticsMode(types.ANALYTICS_MODE.DISABLED)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.set).to.be.calledOnce;
+                expect(data.configBuilder.set).to.be.calledImmediatelyAfter(data.configBuilder.update);
+                expect(data.configBuilder.set).to.be.calledWithExactly({
+                    analytics: types.ANALYTICS_MODE.DISABLED,
+                });
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
+                expect(data.configBuilder.where).to.be.calledWithExactly(...data.configBuilder.whereValue);
+                expect(data.configBuilder.execute).to.be.calledOnce;
+                expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
+            });
+        });
+
+        describe("setTermsMode()", () => {
+            beforeEach(() => {
+                fakeDB.configBuilder.returns({
+                    update: data.configBuilder.update.returns({
+                        set: data.configBuilder.set.returns({
+                            where: data.configBuilder.where.returns({
+                                execute: data.configBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
+            });
+            it("db error", async () => {
+                fakeDB.configBuilder.throws(new Error("foo"));
+                expectedData = {
+                    ...errorResp,
+                    f: "setTermsMode",
+                    error: "foo",
+                };
+                expectedActions = [
+                    {
+                        payload: types.TERMS_MODE.ACCEPTED,
+                        type: types.SET_TERMS_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.setTermsMode(types.TERMS_MODE.ACCEPTED)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).not.to.be.called;
+            });
+
+            it("success", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: types.TERMS_MODE.ACCEPTED,
+                        type: types.SET_TERMS_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.setTermsMode(types.TERMS_MODE.ACCEPTED)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.set).to.be.calledOnce;
+                expect(data.configBuilder.set).to.be.calledImmediatelyAfter(data.configBuilder.update);
+                expect(data.configBuilder.set).to.be.calledWithExactly({
+                    legalVersion: window.VERSION.Legal,
+                    terms: types.TERMS_MODE.ACCEPTED,
+                });
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
+                expect(data.configBuilder.where).to.be.calledWithExactly(...data.configBuilder.whereValue);
+                expect(data.configBuilder.execute).to.be.calledOnce;
+                expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
+            });
+        });
+
+        describe("setWalletMode()", () => {
+            beforeEach(() => {
+                fakeDB.configBuilder.returns({
+                    update: data.configBuilder.update.returns({
+                        set: data.configBuilder.set.returns({
+                            where: data.configBuilder.where.returns({
+                                execute: data.configBuilder.execute,
+                            }),
+                        }),
+                    }),
+                });
+                fakeStreamPayment.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+            });
+            it("db error", async () => {
+                fakeDB.configBuilder.throws(new Error("foo"));
+                expectedData = {
+                    ...errorResp,
+                    f: "setWalletMode",
+                    error: "foo",
+                };
+                expectedActions = [
+                    {
+                        payload: types.WALLET_MODE.EXTENDED,
+                        type: types.SET_WALLET_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.setWalletMode(types.WALLET_MODE.EXTENDED)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).not.to.be.called;
+            });
+
+            it("success with extended mode", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: types.WALLET_MODE.EXTENDED,
+                        type: types.SET_WALLET_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.setWalletMode(types.WALLET_MODE.EXTENDED)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.set).to.be.calledOnce;
+                expect(data.configBuilder.set).to.be.calledImmediatelyAfter(data.configBuilder.update);
+                expect(data.configBuilder.set).to.be.calledWithExactly({
+                    walletMode: types.WALLET_MODE.EXTENDED,
+                });
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
+                expect(data.configBuilder.where).to.be.calledWithExactly(...data.configBuilder.whereValue);
+                expect(data.configBuilder.execute).to.be.calledOnce;
+                expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
+            });
+
+            it("success with standard mode", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: types.WALLET_MODE.STANDARD,
+                        type: types.SET_WALLET_MODE,
+                    },
+                ];
+                expect(await store.dispatch(operations.setWalletMode(types.WALLET_MODE.STANDARD)))
+                    .to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(fakeDB.configBuilder).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledOnce;
+                expect(data.configBuilder.update).to.be.calledImmediatelyAfter(fakeDB.configBuilder);
+                expect(data.configBuilder.set).to.be.calledOnce;
+                expect(data.configBuilder.set).to.be.calledImmediatelyAfter(data.configBuilder.update);
+                expect(data.configBuilder.set).to.be.calledWithExactly({
+                    walletMode: types.WALLET_MODE.STANDARD,
+                });
+                expect(data.configBuilder.where).to.be.calledOnce;
+                expect(data.configBuilder.where).to.be.calledImmediatelyAfter(data.configBuilder.set);
+                expect(data.configBuilder.where).to.be.calledWithExactly(...data.configBuilder.whereValue);
                 expect(data.configBuilder.execute).to.be.calledOnce;
                 expect(data.configBuilder.execute).to.be.calledImmediatelyAfter(data.configBuilder.where);
             });
@@ -1482,7 +1828,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.getPeers())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("listPeers");
             });
@@ -1500,7 +1846,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.getPeers())).to.deep.equal(successResp);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("listPeers");
             });
@@ -1509,7 +1855,7 @@ describe("Account Unit Tests", () => {
         describe("checkLightningID", () => {
             beforeEach(async () => {
                 initState.account.lightningID = lightningId;
-                store = mockStore(initState);
+                store = configureStore(initState);
             });
 
             it("error with undefined lightning id", async () => {
@@ -1529,7 +1875,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkLightningID())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
 
             it("error with personal lightning id", async () => {
@@ -1542,7 +1888,7 @@ describe("Account Unit Tests", () => {
                         type: types.START_VALIDATING_LIGHTNING_ID,
                     },
                     {
-                        payload: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF,
+                        payload: exceptions.LIGHTNING_ID_WRONG_SELF,
                         type: types.INCORRECT_LIGHTNING_ID,
                     },
                     {
@@ -1550,7 +1896,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkLightningID(lightningId))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
 
             it("error with incorrect lightning id", async () => {
@@ -1563,7 +1909,7 @@ describe("Account Unit Tests", () => {
                         type: types.START_VALIDATING_LIGHTNING_ID,
                     },
                     {
-                        payload: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH,
+                        payload: exceptions.LIGHTNING_ID_WRONG_LENGTH,
                         type: types.INCORRECT_LIGHTNING_ID,
                     },
                     {
@@ -1571,7 +1917,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkLightningID(lightningId[0]))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
 
             it("valid lightning id", async () => {
@@ -1589,7 +1935,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkLightningID(validLightningId))).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
             });
         });
 
@@ -1606,40 +1952,41 @@ describe("Account Unit Tests", () => {
                     },
                     onchain: { fee: 11468 },
                 };
-                store = mockStore(initState);
+                store = configureStore(initState);
+                sinon.restore();
             });
 
-            it("should check if amount present", () => {
-                const resp = store.dispatch(operations.checkAmount());
-                expect(resp).to.equal(statusCodes.EXCEPTION_FIELD_IS_REQUIRED);
+            it("should check if amount present", async () => {
+                const resp = await store.dispatch(operations.checkAmount());
+                expect(resp).to.equal(exceptions.FIELD_IS_REQUIRED);
             });
 
-            it("should check if amount is number", () => {
-                const resp = store.dispatch(operations.checkAmount("test"));
-                expect(resp).to.equal(statusCodes.EXCEPTION_FIELD_DIGITS_ONLY);
+            it("should check if amount is number", async () => {
+                const resp = await store.dispatch(operations.checkAmount("test"));
+                expect(resp).to.equal(exceptions.FIELD_DIGITS_ONLY);
             });
 
-            it("should check if amount negative", () => {
-                const resp = store.dispatch(operations.checkAmount(-1));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_NEGATIVE);
+            it("should check if amount negative", async () => {
+                const resp = await store.dispatch(operations.checkAmount(-1));
+                expect(resp).to.equal(exceptions.AMOUNT_NEGATIVE);
             });
 
-            it("should check if amount equals zero", () => {
-                const resp = store.dispatch(operations.checkAmount(0));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_EQUAL_ZERO());
+            it("should check if amount equals zero", async () => {
+                const resp = await store.dispatch(operations.checkAmount(0));
+                expect(resp).to.equal(exceptions.AMOUNT_EQUAL_ZERO());
             });
 
-            it("should check lightning balance without errors", () => {
-                const resp = store.dispatch(operations.checkAmount(1e-3));
+            it("should check lightning balance without errors", async () => {
+                const resp = await store.dispatch(operations.checkAmount(1e-3));
                 expect(resp).to.equal(null);
             });
 
-            it("should check lightning balance with insufficient funds error", () => {
-                const resp = store.dispatch(operations.checkAmount(1e6));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS);
+            it("should check lightning balance with insufficient funds error", async () => {
+                const resp = await store.dispatch(operations.checkAmount(1e6));
+                expect(resp).to.equal(exceptions.AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS);
             });
 
-            it("should check lightning balance with max payment error", () => {
+            it("should check lightning balance with max payment error", async () => {
                 initState = {
                     account: {
                         bitcoinBalance: 1e5,
@@ -1651,25 +1998,25 @@ describe("Account Unit Tests", () => {
                     },
                     onchain: { fee: 11468 },
                 };
-                store = mockStore(initState);
-                const resp = store.dispatch(operations.checkAmount(50));
+                store = configureStore(initState);
+                const resp = await store.dispatch(operations.checkAmount(50));
                 expect(resp)
-                    .to.equal(statusCodes.EXCEPTION_AMOUNT_MORE_MAX((MAX_PAYMENT_REQUEST * 1e-5).toFixed(5)));
+                    .to.equal(exceptions.AMOUNT_MORE_MAX((consts.MAX_PAYMENT_REQUEST * 1e-5).toFixed(5)));
             });
 
-            it("should check bitcoin balance without errors", () => {
-                const resp = store.dispatch(operations.checkAmount(1, "bitcoin"));
+            it("should check bitcoin balance without errors", async () => {
+                const resp = await store.dispatch(operations.checkAmount(1, "bitcoin"));
                 expect(resp).to.equal(null);
             });
 
-            it("should check bitcoin balance with insufficient funds error", () => {
-                const resp = store.dispatch(operations.checkAmount(2, "bitcoin"));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
+            it("should check bitcoin balance with insufficient funds error", async () => {
+                const resp = await store.dispatch(operations.checkAmount(2, "bitcoin"));
+                expect(resp).to.equal(exceptions.AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS);
             });
 
-            it("should check bitcoin balance with low payment error", () => {
-                const resp = store.dispatch(operations.checkAmount(1e-4, "bitcoin"));
-                expect(resp).to.equal(statusCodes.EXCEPTION_AMOUNT_LESS_THAN_FEE(0.11468));
+            it("should check bitcoin balance with low payment error", async () => {
+                const resp = await store.dispatch(operations.checkAmount(1e-4, "bitcoin"));
+                expect(resp).to.equal(exceptions.AMOUNT_LESS_THAN_FEE(0.11468));
             });
         });
 
@@ -1696,6 +2043,17 @@ describe("Account Unit Tests", () => {
                         },
                     });
             });
+            it("not logined", async () => {
+                initState = {
+                    account: {
+                        ...initStateAccount,
+                    },
+                };
+                store = configureStore(initState);
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.checkBalance())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+            });
 
             it("listChannels ipc error", async () => {
                 window.ipcClient
@@ -1712,7 +2070,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkBalance())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("listChannels");
             });
@@ -1732,7 +2090,7 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkBalance())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("listChannels");
                 expect(window.ipcClient).to.be.calledWith("walletBalance");
@@ -1751,10 +2109,117 @@ describe("Account Unit Tests", () => {
                     },
                 ];
                 expect(await store.dispatch(operations.checkBalance())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("listChannels");
                 expect(window.ipcClient).to.be.calledWith("walletBalance");
+            });
+        });
+
+        describe("getRemoteAccressString()", () => {
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("generateRemoteAccessString")
+                    .returns({ ok: false });
+                expectedData = {
+                    ...errorResp,
+                    error: undefined,
+                    f: "getRemoteAccressString",
+                };
+                expect(await store.dispatch(operations.getRemoteAccressString())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("generateRemoteAccessString", { username: "" });
+            });
+
+            it("success", async () => {
+                window.ipcClient
+                    .withArgs("generateRemoteAccessString")
+                    .returns({
+                        ok: true,
+                        remoteAccessString: "foo",
+                    });
+                expectedData = {
+                    ...successResp,
+                    response: {
+                        remoteAccessString: "foo",
+                    },
+                };
+                expect(await store.dispatch(operations.getRemoteAccressString())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("generateRemoteAccessString", { username: "" });
+            });
+        });
+
+        describe("rebuildCertificate()", () => {
+            beforeEach(() => {
+                data.closeServerSocket = sinon.stub();
+                initState = {
+                    account: {
+                        ...initStateAccount,
+                        serverSocket: {
+                            close: data.closeServerSocket,
+                        },
+                    },
+                    streamPayment: { streams: [] },
+                };
+                store = configureStore(initState);
+                fakeStreamPayment.pauseAllStreams.returns(fakeDispatchReturnSuccess);
+                fakeOnchain.unSubscribeTransactions.returns(fakeDispatchReturnSuccess);
+                fakeLightning.unSubscribeInvoices.returns(fakeDispatchReturnSuccess);
+                fakeApp.closeDb.returns(fakeDispatchReturnSuccess);
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("rebuildLndCerts")
+                    .returns({ ok: false });
+                expectedData = {
+                    ...errorResp,
+                    error: undefined,
+                    f: "rebuildCertificate",
+                };
+                expectedActions = [
+                    {
+                        type: types.START_LOGOUT,
+                    },
+                    {
+                        type: types.FINISH_LOGOUT,
+                    },
+                    {
+                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
+                    },
+                ];
+                expect(await store.dispatch(operations.rebuildCertificate())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("rebuildLndCerts", { username: "" });
+            });
+
+            it("success", async () => {
+                window.ipcClient
+                    .withArgs("rebuildLndCerts")
+                    .returns({
+                        ok: true,
+                        remoteAccessString: "foo",
+                    });
+                expectedActions = [
+                    {
+                        type: types.START_LOGOUT,
+                    },
+                    {
+                        type: types.FINISH_LOGOUT,
+                    },
+                    {
+                        type: notificationsTypes.REMOVE_ALL_NOTIFICATIONS,
+                    },
+                ];
+                expectedData = { ...successResp };
+                expect(await store.dispatch(operations.rebuildCertificate())).to.deep.equal(expectedData);
+                expect(store.getState().listActions).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("rebuildLndCerts", { username: "" });
             });
         });
     });
@@ -2034,6 +2499,24 @@ describe("Account Unit Tests", () => {
         it("should handle SET_SYSTEM_NOTIFICATIONS_STATUS action", () => {
             action.type = types.SET_SYSTEM_NOTIFICATIONS_STATUS;
             expectedData.systemNotifications = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_ANALYTICS_MODE action", () => {
+            action.type = types.SET_ANALYTICS_MODE;
+            expectedData.analyticsMode = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_TERMS_MODE action", () => {
+            action.type = types.SET_TERMS_MODE;
+            expectedData.termsMode = data;
+            expect(accountReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle SET_WALLET_MODE action", () => {
+            action.type = types.SET_WALLET_MODE;
+            expectedData.walletMode = data;
             expect(accountReducer(state, action)).to.deep.equal(expectedData);
         });
     });

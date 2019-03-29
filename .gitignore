@@ -12,7 +12,6 @@ wallet-certs/
 executable/
 settings.local.ini
 settings.peach.local.json
-agreement.ini
 test/e2e/test_data/*
 .DS_Store
 *.testBackup

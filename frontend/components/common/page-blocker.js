@@ -11,12 +11,12 @@ export const pageBlockerHelper = (show = false) => {
 };
 
 export const PageBlocker = () => (
-    <div className="page-block__container">
-        <div className="page-block__wrapper">
+    <div className="page-confirmation__container">
+        <div className="page-confirmation__wrapper">
             <div className="progress">
                 <div className="indeterminate" />
             </div>
-            <h2 className="page-block__title text-center">Some errors appeared, we fixing it...</h2>
+            <h2 className="page-confirmation__title text-center">Some errors appeared, we fixing it...</h2>
         </div>
     </div>
 );

@@ -1,12 +1,14 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
+import { push } from "react-router-redux";
+
 import { analytics, validators, helpers } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import { push } from "react-router-redux";
 import { error } from "modules/notifications";
-import { WalletPath } from "routes";
+import { routes } from "config";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 const spinner = <div className="spinner" />;
 
@@ -23,7 +25,7 @@ class Seed extends Component {
     confirm = async (e) => {
         e.preventDefault();
         this.setState({ processing: true });
-        const { dispatch, password, username } = this.props;
+        const { dispatch, password, walletName } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Submit seed" });
         const seed = this.seed.value.trim().split(" ");
         const seedError = validators.validateSeed(seed);
@@ -31,7 +33,7 @@ class Seed extends Component {
             this.setState({ processing: false, seedError });
             return;
         }
-        const init = await dispatch(operations.restore(username, password, seed));
+        const init = await dispatch(operations.restore(walletName, password, seed));
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({
@@ -39,13 +41,13 @@ class Seed extends Component {
             }));
             return;
         }
-        dispatch(push(WalletPath));
+        dispatch(push(routes.WalletPath));
     };
 
     cancelRestore = () => {
         const { dispatch } = this.props;
         analytics.event({ action: "Restore Password", category: "Auth", label: "Cancel enter seed word" });
-        dispatch(operations.setAuthStep(types.RESTORE_STEP_USER_PASS));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_WALLET_MODE));
     };
 
     showStatus = () => {
@@ -78,51 +80,60 @@ class Seed extends Component {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.confirm}>
-                <div className="row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="seed">Enter your seed words</label>
+            <Fragment>
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Wallet recovery
+                    </div>
+                </div>
+                <form className="form form--home" onSubmit={this.confirm}>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="seed">Enter your seed words</label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <textarea
+                                className={`form-textarea ${this.state.seedError ? "form-textarea__error" : ""}`}
+                                id="seed"
+                                placeholder="Write here"
+                                ref={(ref) => {
+                                    this.seed = ref;
+                                }}
+                                disabled={disabled}
+                                onChange={() => { this.setState({ seedError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.seedError} />
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <textarea
-                            className={`form-textarea ${this.state.seedError ? "form-textarea__error" : ""}`}
-                            id="seed"
-                            placeholder="Write here"
-                            ref={(ref) => {
-                                this.seed = ref;
-                            }}
-                            disabled={disabled}
-                            onChange={() => { this.setState({ seedError: null }) }}
-                        />
-                        <ErrorFieldTooltip text={this.state.seedError} />
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                className="button button__solid button--fullwide"
+                                type="submit"
+                                disabled={disabled}
+                            >
+                                Confirm
+                            </button>
+                            {disabled ? spinner : null}
+                        </div>
                     </div>
-                </div>
-                <div className="row spinner__wrapper mt-30">
-                    <div className="col-xs-12">
-                        <button
-                            className="button button__orange button__fullwide"
-                            type="submit"
-                            disabled={disabled}
-                        >
-                            Confirm
-                        </button>
-                        {disabled ? spinner : null}
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.cancelRestore}
+                                disabled={disabled}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                    <div className="col-xs-12 text-center">
-                        <button
-                            type="button"
-                            className="button button__link button__under-button"
-                            onClick={this.cancelRestore}
-                            disabled={disabled}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-                {this.showStatus()}
-            </form>
+                    {this.showStatus()}
+                </form>
+            </Fragment>
         );
     }
 }
@@ -134,14 +145,14 @@ Seed.propTypes = {
     lndSyncedToChain: PropTypes.bool,
     networkBlocks: PropTypes.number.isRequired,
     password: PropTypes.string.isRequired,
-    username: PropTypes.string.isRequired,
+    walletName: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
     initStatus: state.lnd.initStatus,
     lndBlocks: state.lnd.lndBlocks,
     lndSyncedToChain: state.lnd.lndSyncedToChain,
-    networkBlocks: state.lnd.networkBlocks,
+    networkBlocks: state.server.networkBlocks,
 });
 
 export default connect(mapStateToProps)(Seed);

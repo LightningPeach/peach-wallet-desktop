@@ -1,19 +1,24 @@
 import React from "react";
 import orderBy from "lodash/orderBy";
 import pick from "lodash/pick";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { appActions, appOperations } from "modules/app";
 import { lightningOperations } from "modules/lightning";
 import { channelsOperations } from "modules/channels";
 import { store } from "store/configure-store";
 import {
     db, helpers, successPromise, errorPromise,
-    logger, delay as Timeout, setIntervalLong, clearIntervalLong,
+    logger, delay as Timeout, clearDelay, setIntervalLong,
+    clearIntervalLong,
 } from "additional";
 import { error, info } from "modules/notifications";
 import { accountOperations, accountTypes } from "modules/account";
 import { RECURRING_MEMO_PREFIX, STREAM_INFINITE_TIME_VALUE } from "config/consts";
 import { streamPaymentActions as actions, streamPaymentTypes as types } from "modules/streamPayments";
+
+const streamIdBorrowed = streamId => `${streamId}_borrowed`;
+
+const streamIdLend = streamId => `${streamId}_lend`;
 
 function pauseDbStreams() {
     try {
@@ -58,7 +63,7 @@ function prepareStreamPayment(
 ) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
-            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareStreamPayment);
+            return errorPromise(exceptions.ACCOUNT_NO_KERNEL, prepareStreamPayment);
         }
         const name = paymentName || "Recurring payment";
         const id = btoa(unescape(encodeURIComponent(`${name}_${Date.now()}`)));
@@ -111,12 +116,12 @@ function updateStreamPayment(
 ) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
-            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, updateStreamPayment);
+            return errorPromise(exceptions.ACCOUNT_NO_KERNEL, updateStreamPayment);
         }
         if (status !== types.STREAM_PAYMENT_FINISHED) {
             const payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0];
             if (!payment) {
-                return errorPromise(statusCodes.EXCEPTION_RECURRING_NOT_IN_STORE, updateStreamPayment);
+                return errorPromise(exceptions.RECURRING_NOT_IN_STORE, updateStreamPayment);
             }
         }
         const name = paymentName || "Recurring payment";
@@ -145,7 +150,7 @@ function updateStreamPayment(
                 .execute();
         } catch (err) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, err);
+            logger.error(exceptions.EXTRA, err);
         }
         return successPromise();
     };
@@ -155,7 +160,7 @@ function addStreamPaymentToList() {
     return async (dispatch, getState) => {
         const details = getState().streamPayment.streamDetails;
         if (!details) {
-            return errorPromise(statusCodes.EXCEPTION_RECURRING_DETAILS_REQUIRED, addStreamPaymentToList);
+            return errorPromise(exceptions.RECURRING_DETAILS_REQUIRED, addStreamPaymentToList);
         }
         dispatch(actions.addStreamPaymentToList());
         try {
@@ -179,7 +184,7 @@ function addStreamPaymentToList() {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         return successPromise();
     };
@@ -192,6 +197,8 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
             return;
         }
         clearIntervalLong(streamId);
+        clearDelay(streamIdBorrowed(streamId));
+        clearDelay(streamIdLend(streamId));
         if (payment.status === types.STREAM_PAYMENT_STREAMING) {
             dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_PAUSED }));
             if (pauseInDb) {
@@ -206,7 +213,7 @@ function pauseStreamPayment(streamId, pauseInDb = true) {
                         .execute();
                 } catch (e) {
                     /* istanbul ignore next */
-                    logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                    logger.error(exceptions.EXTRA, e);
                 }
             }
         }
@@ -233,6 +240,8 @@ function finishStreamPayment(streamId) {
             return;
         }
         clearIntervalLong(streamId);
+        clearDelay(streamIdBorrowed(streamId));
+        clearDelay(streamIdLend(streamId));
         if (payment.status !== types.STREAM_PAYMENT_FINISHED) {
             dispatch(actions.updateStreamPayment(payment.id, { status: types.STREAM_PAYMENT_FINISHED }));
             try {
@@ -243,7 +252,7 @@ function finishStreamPayment(streamId) {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
         }
     };
@@ -252,7 +261,7 @@ function finishStreamPayment(streamId) {
 function startStreamPayment(streamId, forceStart = false) {
     return async (dispatch, getState) => {
         let errorShowed = false;
-        const handleStreamError = (err = statusCodes.EXCEPTION_RECURRING_TIMEOUT, helper = true) => {
+        const handleStreamError = (err = exceptions.RECURRING_TIMEOUT, helper = true) => {
             dispatch(pauseStreamPayment(streamId));
             if (!errorShowed) {
                 const { isLogined, isLogouting } = getState().account;
@@ -297,7 +306,7 @@ function startStreamPayment(streamId, forceStart = false) {
             }
             const { lightningBalance } = getState().account;
             if (lightningBalance < amount) {
-                handleStreamError(statusCodes.EXCEPTION_RECURRING_NO_FUNDS, false);
+                handleStreamError(exceptions.RECURRING_NO_FUNDS, false);
                 return;
             }
             dispatch(actions.changeStreamPartsPending(streamId, 1));
@@ -309,11 +318,14 @@ function startStreamPayment(streamId, forceStart = false) {
             if (!response.ok) {
                 dispatch(actions.changeStreamPartsPending(streamId, -1));
                 handleStreamError(response.error.toLowerCase().indexOf("invalid json response") !== -1
-                    ? statusCodes.EXCEPTION_REMOTE_OFFLINE
+                    ? exceptions.REMOTE_OFFLINE
                     : response.error);
                 return;
             }
-            response = await window.ipcClient("sendPayment", { payment_request: response.response.payment_request });
+            response = await window.ipcClient("sendPayment", {
+                details: { payment_request: response.response.payment_request },
+                isPayReq: true,
+            });
             dispatch(actions.changeStreamPartsPending(streamId, -1));
             if (!response.ok) {
                 handleStreamError(response.error);
@@ -348,7 +360,7 @@ function startStreamPayment(streamId, forceStart = false) {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
             if (payment.status !== types.STREAM_PAYMENT_FINISHED
                 && payment.totalParts !== STREAM_INFINITE_TIME_VALUE
@@ -380,13 +392,13 @@ function startStreamPayment(streamId, forceStart = false) {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                logger.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
         }
         // If last payment was less time ago than the delay then wait for that time difference
         const timeSinceLastPayment = Date.now() - payment.lastPayment;
         if (payment.lastPayment !== 0 && timeSinceLastPayment < payment.delay) {
-            await Timeout(payment.delay - timeSinceLastPayment);
+            await Timeout(payment.delay - timeSinceLastPayment, streamIdLend(streamId));
         }
         // If last payment was in range from 1x to 2x delay then:
         // We count previos payment as "borrowed" and make that payment as it was on 1x delay mark,
@@ -399,7 +411,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 ? (payment.delay * 2) - timeSinceLastPayment : null;
         if (borrowTime) {
             makeStreamIteration(payment.lastPayment + payment.delay);
-            await Timeout(borrowTime);
+            await Timeout(borrowTime, streamIdBorrowed(streamId));
         }
         makeStreamIteration();
         payment = getState().streamPayment.streams.filter(item => item.id === streamId)[0]; // eslint-disable-line
@@ -408,7 +420,7 @@ function startStreamPayment(streamId, forceStart = false) {
                 || payment.partsPaid + payment.partsPending < payment.totalParts)
             && payment.status === types.STREAM_PAYMENT_STREAMING
         ) {
-            setIntervalLong(streamId, makeStreamIteration, payment.delay);
+            setIntervalLong(makeStreamIteration, payment.delay, streamId);
         }
     };
 }

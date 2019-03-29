@@ -11,10 +11,13 @@ import channelsReducer from "modules/channels/reducers";
 import contactsReducer from "modules/contacts/reducers";
 import onChainReducer from "modules/onchain/reducers";
 import notificationsReducer from "modules/notifications/reducers";
-import filterReducer from "modules/filter";
+import serverReducer from "modules/server/reducers";
+import filterReducer from "modules/filter/reducers";
 
 const testReducer = NODE_ENV === "test"
-    ? { lastAction: (state = null, action) => action }
+    ? {
+        listActions: (state = [], action) => action.type.includes("@@redux") ? state : [...state, action],
+    }
     : {};
 
 const combinedReducer = {
@@ -30,6 +33,7 @@ const combinedReducer = {
     notifications: notificationsReducer,
     onchain: onChainReducer,
     routing: routerReducer,
+    server: serverReducer,
     streamPayment: streamPaymentReducer,
 };
 

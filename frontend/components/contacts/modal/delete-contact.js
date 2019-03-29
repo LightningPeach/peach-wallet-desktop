@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import {
@@ -8,14 +9,15 @@ import {
     contactsOperations as operations,
 } from "modules/contacts";
 import { error, info } from "modules/notifications";
-import { AddressBookFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class DeleteContact extends Component {
     constructor(props) {
         super(props);
 
-        analytics.pageview(`${AddressBookFullPath}/delete-contact`, "Delete contact");
+        analytics.pageview(`${routes.AddressBookFullPath}/delete-contact`, "Delete contact");
     }
 
     closeModal = () => {
@@ -59,7 +61,7 @@ class DeleteContact extends Component {
         }
         return (
             <Modal title="Delete contact" onClose={this.closeModal} showCloseButton>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to
@@ -67,18 +69,18 @@ class DeleteContact extends Component {
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.editModal}
                             >
                                 Back
                             </button>
                             <button
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 type="button"
                                 onClick={this.deleteContact}
                             >

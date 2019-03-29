@@ -1,7 +1,9 @@
 import { hashHistory } from "react-router";
+
 import { appOperations, appActions } from "modules/app";
-import { accountActions, accountTypes } from "modules/account";
+import { accountActions as actions, accountTypes as types } from "modules/account";
 import { lndActions, lndOperations } from "modules/lnd";
+import { serverOperations } from "modules/server";
 import { notificationsActions } from "modules/notifications";
 import { channelsOperations, channelsActions, channelsTypes } from "modules/channels";
 import { lightningOperations } from "modules/lightning";
@@ -16,45 +18,60 @@ import {
     unsuccessPromise,
     logger,
     delay,
+    clearIntervalLong,
+    setAsyncIntervalLong,
 } from "additional";
 import {
     MAX_PAYMENT_REQUEST,
     ALL_MEASURES,
     LOGOUT_ACCOUNT_TIMEOUT,
+    CHANNELS_INTERVAL_TIMEOUT,
+    BALANCE_INTERVAL_TIMEOUT,
+    USD_PER_BTC_INTERVAL_TIMEOUT,
+    LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+    GET_MERCHANTS_INTERVAL_TIMEOUT,
 } from "config/consts";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 
-window.ipcRenderer.on("lnd-down", () => {
-    store.dispatch(accountActions.setDisconnectedKernelConnectIndicator());
+window.ipcRenderer.on("lnd-down", /* istanbul ignore next */ () => {
+    store.dispatch(actions.setDisconnectedKernelConnectIndicator());
 });
 
-window.ipcRenderer.on("lnd-up", () => {
-    store.dispatch(accountActions.setConnectedKernelConnectIndicator());
+window.ipcRenderer.on("lnd-up", /* istanbul ignore next */ () => {
+    store.dispatch(actions.setConnectedKernelConnectIndicator());
 });
 
-window.ipcRenderer.on("lis-up", () => {
-    if (store.getState().account.lisStatus === accountTypes.LIS_UP) {
+window.ipcRenderer.on("lis-up", /* istanbul ignore next */ () => {
+    if (store.getState().account.lisStatus === types.LIS_UP) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_UP));
+    store.dispatch(actions.setLisStatus(types.LIS_UP));
 });
 
-window.ipcRenderer.on("lis-down", () => {
-    if (store.getState().account.lisStatus === accountTypes.LIS_DOWN) {
+window.ipcRenderer.on("lis-down", /* istanbul ignore next */ () => {
+    if (store.getState().account.lisStatus === types.LIS_DOWN) {
         return;
     }
-    store.dispatch(accountActions.setLisStatus(accountTypes.LIS_DOWN));
+    store.dispatch(actions.setLisStatus(types.LIS_DOWN));
 });
 
 function openSystemNotificationsModal() {
-    return dispatch => dispatch(appActions.setModalState(accountTypes.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SYSTEM_NOTIFICATIONS));
+}
+
+function openWalletModeModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_WALLET_MODE));
 }
 
 function checkBalance() {
     return async (dispatch, getState) => {
+        const { isLogouting, isLogined } = getState().account;
+        if (isLogouting || !isLogined) {
+            return successPromise();
+        }
         const responseChannels = await window.ipcClient("listChannels");
         if (!responseChannels.ok) {
-            dispatch(accountActions.errorCheckBalance(responseChannels.error));
+            dispatch(actions.errorCheckBalance(responseChannels.error));
             return unsuccessPromise(checkBalance);
         }
         let lightningBalance = 0;
@@ -67,7 +84,7 @@ function checkBalance() {
         });
         const responseWallet = await window.ipcClient("walletBalance");
         if (!responseWallet.ok) {
-            dispatch(accountActions.errorCheckBalance(responseWallet.error));
+            dispatch(actions.errorCheckBalance(responseWallet.error));
             return unsuccessPromise(checkBalance);
         }
         const bitcoinBalance = parseInt(responseWallet.response.confirmed_balance, 10);
@@ -76,7 +93,7 @@ function checkBalance() {
         const bBalanceEqual = getState().account.bitcoinBalance === bitcoinBalance;
         const ubBalanceEqual = getState().account.unConfirmedBitcoinBalance === unConfirmedBitcoinBalance;
         if (!lBalanceEqual || !bBalanceEqual || !ubBalanceEqual) {
-            dispatch(accountActions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
+            dispatch(actions.successCheckBalance(bitcoinBalance, lightningBalance, unConfirmedBitcoinBalance));
         }
         return successPromise();
     };
@@ -86,27 +103,84 @@ function createNewBitcoinAccount() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("newAddress", { type: 1 });
         if (response.ok) {
-            dispatch(accountActions.addBitcoinAccount(response.response.address));
+            dispatch(actions.addBitcoinAccount(response.response.address));
             return successPromise();
         }
         return errorPromise(response.error, createNewBitcoinAccount);
     };
 }
 
+function startLis() {
+    return async (dispatch, getState) => {
+        const {
+            walletMode,
+            termsMode,
+            lisStatus,
+            lightningID,
+        } = getState().account;
+        if (
+            walletMode !== types.WALLET_MODE.EXTENDED
+            || termsMode !== types.TERMS_MODE.ACCEPTED
+            || lisStatus === types.LIS_UP
+        ) {
+            return successPromise();
+        }
+        const response = await window.ipcClient("startLis");
+        if (!response.ok) {
+            dispatch(actions.setWalletMode(types.WALLET_MODE.STANDARD));
+            db.configBuilder()
+                .update()
+                .set({ walletMode: types.WALLET_MODE.STANDARD })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return errorPromise(response.error, startLis);
+        }
+        return successPromise();
+    };
+}
+
+function shutDownLis() {
+    return async (dispatch, getState) => {
+        const { lisStatus } = getState().account;
+        if (lisStatus !== types.LIS_UP) {
+            return successPromise();
+        }
+        const response = await window.ipcClient("shutDownLis");
+        if (!response.ok) {
+            return errorPromise(response.error, shutDownLis);
+        }
+        return successPromise();
+    };
+}
+
 function setInitConfig(lightningId) {
-    return async (dispatch) => {
+    return async (dispatch, getState) => {
+        const { analyticsMode, termsMode, walletMode } = getState().account;
+        const modalFlow = [];
         await db.configBuilder()
             .insert()
             .values({
                 activeMeasure: ALL_MEASURES[0].btc,
+                analytics: analyticsMode,
                 createChannelViewed: 0,
+                legalVersion: window.VERSION.Legal,
                 lightningId,
-                systemNotifications: 3,
+                systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
+                terms: termsMode,
+                walletMode,
             })
             .execute();
-        dispatch(accountActions.setBitcoinMeasure(ALL_MEASURES[0].btc));
-        dispatch(accountActions.setSystemNotificationsStatus(accountTypes.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
-        dispatch(openSystemNotificationsModal());
+        dispatch(actions.setBitcoinMeasure(ALL_MEASURES[0].btc));
+        dispatch(actions.setSystemNotificationsStatus(types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN));
+        if (termsMode === types.TERMS_MODE.PENDING || analyticsMode === types.ANALYTICS_MODE.PENDING) {
+            modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
+        }
+        if (walletMode === types.WALLET_MODE.PENDING) {
+            modalFlow.push(types.MODAL_STATE_WALLET_MODE);
+        }
+        modalFlow.push(types.MODAL_STATE_SYSTEM_NOTIFICATIONS);
+        dispatch(appActions.addModalToFlow(modalFlow));
+        dispatch(appOperations.startModalFlow());
         return successPromise();
     };
 }
@@ -120,13 +194,33 @@ function loadAccountSettings() {
                 .where("lightningId = :lightningID", { lightningID })
                 .getOne();
             if (response) {
-                dispatch(accountActions.setBitcoinMeasure(response.activeMeasure));
+                const modalFlow = [];
+                dispatch(actions.setBitcoinMeasure(response.activeMeasure));
+                dispatch(actions.setAnalyticsMode(response.analytics || types.ANALYTICS_MODE.PENDING));
+                dispatch(actions.setWalletMode(response.walletMode || types.WALLET_MODE.PENDING));
+                dispatch(actions.setTermsMode(response.terms || types.TERMS_MODE.PENDING));
+                dispatch(actions.setSystemNotificationsStatus(response.systemNotifications));
+                if (
+                    !response.terms
+                    || response.terms === types.TERMS_MODE.PENDING
+                    || !response.analytics
+                    || response.analytics === types.ANALYTICS_MODE.PENDING
+                    || response.legalVersion !== window.VERSION.Legal
+                ) {
+                    modalFlow.push(types.MODAL_STATE_TERMS_AND_CONDITIONS);
+                }
+                if (!response.walletMode || response.walletMode === types.WALLET_MODE.PENDING) {
+                    modalFlow.push(types.MODAL_STATE_WALLET_MODE);
+                }
                 if (response.createChannelViewed) {
                     dispatch(channelsActions.updateCreateTutorialStatus(channelsTypes.HIDE));
                 }
-                dispatch(accountActions.setSystemNotificationsStatus(response.systemNotifications));
-                if (response.systemNotifications === 3) {
-                    dispatch(openSystemNotificationsModal());
+                if (response.systemNotifications === types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN) {
+                    modalFlow.push(types.MODAL_STATE_SYSTEM_NOTIFICATIONS);
+                }
+                if (modalFlow.length) {
+                    dispatch(appActions.addModalToFlow(modalFlow));
+                    dispatch(appOperations.startModalFlow());
                 }
             } else {
                 await dispatch(setInitConfig(lightningID));
@@ -142,11 +236,11 @@ function connectKernel() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("getInfo");
         if (!response.ok) {
-            dispatch(accountActions.errorConnectKernel(response.error));
+            dispatch(actions.errorConnectKernel(response.error));
             return errorPromise(response.error, connectKernel);
         }
 
-        dispatch(accountActions.successConnectKernel());
+        dispatch(actions.successConnectKernel());
         return successPromise();
     };
 }
@@ -173,18 +267,79 @@ function getLightningID() {
         if (!response.ok) {
             return errorPromise(response.error, getLightningID);
         }
-        dispatch(accountActions.setLightningID(response.response.identity_pubkey));
+        dispatch(actions.setLightningID(response.response.identity_pubkey));
         return successPromise();
     };
 }
 
-function logout(keepModalState = false) {
+/* istanbul ignore next */
+function startIntervalStatusChecks() {
+    return (dispatch, getState) => {
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(channelsOperations.getChannels());
+                }
+            },
+            CHANNELS_INTERVAL_TIMEOUT,
+            types.CHANNELS_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(checkBalance());
+                }
+            },
+            BALANCE_INTERVAL_TIMEOUT,
+            types.BALANCE_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(appOperations.usdBtcRate());
+                }
+            },
+            USD_PER_BTC_INTERVAL_TIMEOUT,
+            types.USD_PER_BTC_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(lndOperations.checkLndSync());
+                }
+            },
+            LND_SYNC_STATUS_INTERVAL_TIMEOUT,
+            types.LND_SYNC_STATUS_INTERVAL_ID,
+        );
+        setAsyncIntervalLong(
+            async () => {
+                if (getState().account.isLogined) {
+                    await dispatch(serverOperations.getMerchants());
+                }
+            },
+            GET_MERCHANTS_INTERVAL_TIMEOUT,
+            types.GET_MERCHANTS_INTERVAL_ID,
+        );
+    };
+}
+
+/* istanbul ignore next */
+function finishIntervalStatusChecks() {
+    clearIntervalLong(types.CHANNELS_INTERVAL_ID);
+    clearIntervalLong(types.BALANCE_INTERVAL_ID);
+    clearIntervalLong(types.USD_PER_BTC_INTERVAL_ID);
+    clearIntervalLong(types.LND_SYNC_STATUS_INTERVAL_ID);
+    clearIntervalLong(types.GET_MERCHANTS_INTERVAL_ID);
+}
+
+function logout(keepModalState = false, rebuilding = false) {
     return async (dispatch, getState) => {
         if (getState().account.isLogouting) {
             return unsuccessPromise(logout);
         }
-        dispatch(accountActions.startLogout());
+        dispatch(actions.startLogout());
         await dispatch(streamPaymentOperations.pauseAllStreams(false));
+        finishIntervalStatusChecks();
         if (getState().account.serverSocket) {
             try {
                 getState()
@@ -203,9 +358,11 @@ function logout(keepModalState = false) {
         await delay(LOGOUT_ACCOUNT_TIMEOUT);
         await window.ipcClient("logout");
         await dispatch(appOperations.closeDb());
-        dispatch(accountActions.logoutAcount(keepModalState));
-        hashHistory.push("/");
-        dispatch(accountActions.finishLogout());
+        if (!rebuilding) {
+            dispatch(actions.logoutAcount(keepModalState));
+            hashHistory.push("/");
+        }
+        dispatch(actions.finishLogout());
         dispatch(notificationsActions.removeAllNotifications());
         return successPromise();
     };
@@ -215,13 +372,13 @@ function initAccount(login, newAccount = false) {
     let tempNewAcc = newAccount;
     const handleError = async (dispatch, getState, error) => {
         if (!tempNewAcc) {
-            dispatch(accountActions.finishInitAccount());
+            dispatch(actions.finishInitAccount());
             await dispatch(logout(true));
         }
         return errorPromise(error, initAccount);
     };
     return async (dispatch, getState) => {
-        await dispatch(lndOperations.getBlocksHeight());
+        await dispatch(serverOperations.getBlocksHeight());
         logger.log("Check is LND synced to chain");
         let response = await dispatch(lndOperations.waitLndSync());
         if (!response.ok) {
@@ -229,11 +386,6 @@ function initAccount(login, newAccount = false) {
         }
         logger.log("LND synced succesfully");
         tempNewAcc = false;
-        response = await window.ipcClient("startLis");
-        logger.log("LIS start");
-        if (!response.ok) {
-            return handleError(dispatch, getState, response.error);
-        }
         response = await dispatch(getLightningID());
         logger.log("Have got lightning id");
         logger.log(response);
@@ -250,9 +402,9 @@ function initAccount(login, newAccount = false) {
         if (!response.ok) {
             return handleError(dispatch, getState, response.error);
         }
-        dispatch(accountActions.finishInitAccount());
-        dispatch(accountActions.loginAccount(login, ""));
-        dispatch(accountActions.setConnectedKernelConnectIndicator());
+        dispatch(actions.finishInitAccount());
+        dispatch(actions.loginAccount(login, ""));
+        dispatch(actions.setConnectedKernelConnectIndicator());
         dispatch(appOperations.closeModal());
         dispatch(notificationsActions.removeAllNotifications());
         dispatch(onChainOperations.subscribeTransactions());
@@ -261,13 +413,15 @@ function initAccount(login, newAccount = false) {
             dispatch(contactsOperations.getContacts()),
             dispatch(channelsOperations.getChannels(true)),
             dispatch(channelsOperations.shouldShowCreateTutorial()),
-            dispatch(channelsOperations.shouldShowLightningTutorial()),
             dispatch(appOperations.usdBtcRate()),
             dispatch(createNewBitcoinAccount()),
             dispatch(loadAccountSettings()),
         ]);
+        dispatch(serverOperations.getMerchants());
+        await dispatch(startLis());
         await dispatch(checkBalance());
         await dispatch(streamPaymentOperations.loadStreams());
+        dispatch(startIntervalStatusChecks());
         return successPromise();
     };
 }
@@ -279,7 +433,7 @@ function signMessage(message) {
             logger.error("Error on signMessage", response.error);
             return errorPromise(response.error, signMessage);
         }
-        dispatch(accountActions.successSignMessage(response.response.signature));
+        dispatch(actions.successSignMessage(response.response.signature));
         return successPromise();
     };
 }
@@ -287,7 +441,7 @@ function signMessage(message) {
 function setBitcoinMeasure(value) {
     return async (dispatch, getState) => {
         const { lightningID } = getState().account;
-        dispatch(accountActions.setBitcoinMeasure(value));
+        dispatch(actions.setBitcoinMeasure(value));
         try {
             db.configBuilder()
                 .update()
@@ -304,7 +458,7 @@ function setBitcoinMeasure(value) {
 function setSystemNotificationsStatus(value) {
     return async (dispatch, getState) => {
         const { lightningID } = getState().account;
-        dispatch(accountActions.setSystemNotificationsStatus(value));
+        dispatch(actions.setSystemNotificationsStatus(value));
         try {
             db.configBuilder()
                 .update()
@@ -318,38 +472,98 @@ function setSystemNotificationsStatus(value) {
     };
 }
 
+function setAnalyticsMode(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(actions.setAnalyticsMode(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ analytics: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setAnalyticsMode);
+        }
+    };
+}
+
+function setTermsMode(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(actions.setTermsMode(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({
+                    legalVersion: window.VERSION.Legal,
+                    terms: value,
+                })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setTermsMode);
+        }
+    };
+}
+
+function setWalletMode(value) {
+    return async (dispatch, getState) => {
+        const { lightningID } = getState().account;
+        dispatch(actions.setWalletMode(value));
+        try {
+            db.configBuilder()
+                .update()
+                .set({ walletMode: value })
+                .where("lightningId = :lightningID", { lightningID })
+                .execute();
+            if (value === types.WALLET_MODE.EXTENDED) {
+                await dispatch(startLis());
+            } else if (value === types.WALLET_MODE.STANDARD) {
+                dispatch(streamPaymentOperations.pauseAllStreams());
+                await dispatch(shutDownLis());
+            }
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, setWalletMode);
+        }
+    };
+}
+
 function getPeers() {
     return async (dispatch, getState) => {
         const response = await window.ipcClient("listPeers");
         if (response.ok) {
-            dispatch(accountActions.setPeers(response.response.peers));
+            dispatch(actions.setPeers(response.response.peers));
             return successPromise();
         }
-        dispatch(accountActions.errorPeers(response.error));
+        dispatch(actions.errorPeers(response.error));
         return errorPromise(response.error, getPeers);
     };
 }
 
 function checkLightningID(lightningID) {
     return (dispatch, getState) => {
-        dispatch(accountActions.startValidatingLightningID());
+        dispatch(actions.startValidatingLightningID());
         if (!lightningID) {
-            dispatch(accountActions.undefinedLightningID());
-            dispatch(accountActions.endValidatingLightningID());
+            dispatch(actions.undefinedLightningID());
+            dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
         if (lightningID === getState().account.lightningID) {
-            dispatch(accountActions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF }));
-            dispatch(accountActions.endValidatingLightningID());
+            dispatch(actions.incorrectLightningID({ error: exceptions.LIGHTNING_ID_WRONG_SELF }));
+            dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
         if (lightningID.length !== getState().account.lightningID.length) {
-            dispatch(accountActions.incorrectLightningID({ error: statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH }));
-            dispatch(accountActions.endValidatingLightningID());
+            dispatch(actions.incorrectLightningID({ error: exceptions.LIGHTNING_ID_WRONG_LENGTH }));
+            dispatch(actions.endValidatingLightningID());
             return unsuccessPromise(checkLightningID);
         }
-        dispatch(accountActions.correctLightningID());
-        dispatch(accountActions.endValidatingLightningID());
+        dispatch(actions.correctLightningID());
+        dispatch(actions.endValidatingLightningID());
         return successPromise();
     };
 }
@@ -370,36 +584,65 @@ function checkAmount(amount, type = "lightning") {
         const validateBitcoin = (am) => {
             if (am <= fee) {
                 const currentFee = dispatch(appOperations.convertSatoshiToCurrentMeasure(fee));
-                return statusCodes.EXCEPTION_AMOUNT_LESS_THAN_FEE(currentFee, bitcoinMeasureType);
+                return exceptions.AMOUNT_LESS_THAN_FEE(currentFee, bitcoinMeasureType);
             } else if (am > bitcoinBalance) {
-                return statusCodes.EXCEPTION_AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
+                return exceptions.AMOUNT_ONCHAIN_NOT_ENOUGH_FUNDS;
             }
             return null;
         };
 
         if (!amount && amount !== 0) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         } else if (!Number.isFinite(amount)) {
-            return statusCodes.EXCEPTION_FIELD_DIGITS_ONLY;
+            return exceptions.FIELD_DIGITS_ONLY;
         }
 
         const satoshiAmount = dispatch(appOperations.convertToSatoshi(amount));
         if (!satoshiAmount) {
-            return statusCodes.EXCEPTION_AMOUNT_EQUAL_ZERO(bitcoinMeasureType);
+            return exceptions.AMOUNT_EQUAL_ZERO(bitcoinMeasureType);
         } else if (satoshiAmount < 0) {
-            return statusCodes.EXCEPTION_AMOUNT_NEGATIVE;
+            return exceptions.AMOUNT_NEGATIVE;
         }
         if (type === "bitcoin") {
             return validateBitcoin(satoshiAmount);
         }
 
         if (satoshiAmount > lightningBalance) {
-            return statusCodes.EXCEPTION_AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
+            return exceptions.AMOUNT_LIGHTNING_NOT_ENOUGH_FUNDS;
         } else if (satoshiAmount > MAX_PAYMENT_REQUEST) {
             const capacity = dispatch(appOperations.convertSatoshiToCurrentMeasure(MAX_PAYMENT_REQUEST));
-            return statusCodes.EXCEPTION_AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
+            return exceptions.AMOUNT_MORE_MAX(capacity, bitcoinMeasureType);
         }
         return null;
+    };
+}
+
+/**
+ * @return ${host}/n${macaroonsHex}/n${port}
+ */
+function getRemoteAccressString() {
+    return async (dispatch, getState) => {
+        const response = await window.ipcClient("generateRemoteAccessString", { username: getState().account.login });
+        if (!response.ok) {
+            logger.error("Error on getRemoteAccressString", response.error);
+            return errorPromise(response.error, getRemoteAccressString);
+        }
+
+        return successPromise({
+            remoteAccessString: response.remoteAccessString,
+        });
+    };
+}
+
+function rebuildCertificate() {
+    return async (dispatch, getState) => {
+        await dispatch(logout(true, true));
+        const response = await window.ipcClient("rebuildLndCerts", { username: getState().account.login });
+        if (!response.ok) {
+            logger.error("Error on rebuildCertificate", response.error);
+            return errorPromise(response.error, rebuildCertificate);
+        }
+        return successPromise();
     };
 }
 
@@ -408,6 +651,8 @@ export {
     loadAccountSettings,
     connectKernel,
     connectServerLnd,
+    startLis,
+    shutDownLis,
     getLightningID,
     initAccount,
     logout,
@@ -419,5 +664,13 @@ export {
     checkBalance,
     setBitcoinMeasure,
     openSystemNotificationsModal,
+    openWalletModeModal,
     setSystemNotificationsStatus,
+    startIntervalStatusChecks,
+    finishIntervalStatusChecks,
+    setAnalyticsMode,
+    setTermsMode,
+    setWalletMode,
+    getRemoteAccressString,
+    rebuildCertificate,
 };

@@ -16,9 +16,10 @@ import { initStateContacts } from "modules/contacts/reducers";
 import { initStateChannels } from "modules/channels/reducers";
 import { initStateOnchain } from "modules/onchain/reducers";
 import { initStateFilter } from "modules/filter/reducers";
+import { initStateServer } from "modules/server/reducers";
 
 const testStore = NODE_ENV === "test"
-    ? { lastAction: null }
+    ? { listActions: [] }
     : null;
 
 export const persistedState = {
@@ -33,6 +34,7 @@ export const persistedState = {
     lnd: JSON.parse(JSON.stringify(initStateLnd)),
     notifications: [],
     onchain: JSON.parse(JSON.stringify(initStateOnchain)),
+    server: JSON.parse(JSON.stringify(initStateServer)),
     streamPayment: JSON.parse(JSON.stringify(initStateStreamPayment)),
 };
 
