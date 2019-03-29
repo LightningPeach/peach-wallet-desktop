@@ -15,9 +15,8 @@ function getLightningFee(lightningID, amount) {
     return async (dispatch, getState) => {
         const routes = await window.ipcClient("queryRoutes", {
             amt: amount,
+            num_routes: consts.LIGHTNING_NUM_ROUTES,
             pub_key: lightningID,
-            // lnd broken with this param
-            // num_routes: 5
         });
         if (!routes.ok) {
             return errorPromise(routes.error, getLightningFee);
