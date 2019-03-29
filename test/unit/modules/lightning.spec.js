@@ -539,6 +539,7 @@ describe("Lightning Unit Tests", () => {
                     {
                         amt: amount,
                         pub_key: lightningID,
+                        num_routes: consts.LIGHTNING_NUM_ROUTES,
                     },
                 );
             });
@@ -573,6 +574,7 @@ describe("Lightning Unit Tests", () => {
                     {
                         amt: amount,
                         pub_key: lightningID,
+                        num_routes: consts.LIGHTNING_NUM_ROUTES,
                     },
                 );
             });
@@ -616,6 +618,7 @@ describe("Lightning Unit Tests", () => {
                     {
                         amt: amount,
                         pub_key: lightningID,
+                        num_routes: consts.LIGHTNING_NUM_ROUTES,
                     },
                 );
             });
