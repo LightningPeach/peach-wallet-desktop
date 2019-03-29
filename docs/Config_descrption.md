@@ -1,28 +1,30 @@
 ### Configuration file
 
-The configuration file is called "settings.ini". It contains parameters required for the wallet configuration.
+The configuration file is called "settings.ini". It contains parameters required for the wallet configuration and is used for mainnet. For testnet please use the configuration file which is called "settings.testnet.ini".
 
 **Default config is shown below:**
 
 ```javascript
 [backend]
 dbFile = db.db
+devMode = false
 
 [lnd] 
 init_listen = 9735
 address_look_ahead = 250
 rpclisten = 10009
 restlisten = 10014 
-no_macaroons = true 
+no_macaroons = false 
 log_level = info
+maxpendingchannels = 5
 
 [bitcoin] 
 active = true
 node = neutrino 
-network = simnet
+network = mainnet
 
 [neutrino]
-connect = testnetwallet.lightningpeach.com:18333 
+connect = proxy.lightningpeach.com:8333
 
 [btcd]
 rpcuser = rpcuser
@@ -34,7 +36,7 @@ rpccert = some_path_to_cert/rpc.cert
 active = false
 
 [logger]
-level = DEBUG
+level = INFO
 ```
 
 **Description of config parameters**
@@ -44,6 +46,7 @@ Parameters are described in the following format:
 
 * <u>backend</u> – Parameters for database.
   * `dbFile` – Name of a wallet db file.
+  * `devMode` – Specifies whether devMode is active. If the value is 'true' – then the mode is active and user can develop application more easily.
 * <u>lnd</u> – Ports that are sent when launching lnd.
   * `init_listen` – The initial port number for p2p connections.
   * `address_look_ahead` – How many ports try to alocate starting from the port specified in the *init_listen* parameter. 
@@ -51,6 +54,7 @@ Parameters are described in the following format:
   * `restlisten` – The port for the REST server.
   * `no_macaroons` – Specifies whether to use macaroons. If the parameter has 'true' value, then 'macaroons' won't be used.
   * `log_level` – The level of logging the LND. Possible values: "trace", "debug", "info", "warn", "error", "critical". The default value is "info".
+  * `maxpendingchannels` - The maximum number of incoming pending channels permitted per peer.
 * <u>bitcoin</u> – Options for launching lnd: Bitcoin.
   * `active` – Specifies whether the chain is active.
   * `node` – Type of blockchain interface to use. Possible values: "neutrino", "btcd".
@@ -63,8 +67,6 @@ Parameters are described in the following format:
   * `rpchost` – The daemon's rpc listening host. Format: "ip:port".
   * `rpccert` – Path to btcd cert file.
 * <u>autopilot</u> – Options for autopilot:
-  * `active` – Specififes whether the autopilot function is active.
+  * `active` – Specifies whether the autopilot function is active.
 * <u>logger</u> – Options for wallet logger:
   * `level` – The level of logging the wallet. Possible values: TRACE, DEBUG, INFO, WARN, ERROR, FATAL. The default value is "INFO". 
-
-
