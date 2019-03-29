@@ -6,6 +6,7 @@ import { analytics } from "additional";
 import { appOperations } from "modules/app";
 
 import BtcToUsd from "components/common/btc-to-usd";
+import Ellipsis from "components/common/ellipsis";
 import Modal from "components/modal";
 
 class SuccessPayment extends Component {
@@ -40,7 +41,9 @@ class SuccessPayment extends Component {
                     {name &&
                     <div className="block__row-xs">
                         <div className="col-xs-12">
-                            {name}
+                            <Ellipsis>
+                                {name}
+                            </Ellipsis>
                         </div>
                     </div>
                     }

@@ -104,6 +104,7 @@ export const DEFAULT_BITCOIN_MEASURE_TYPE = "mBTC";
 export const DEFAULT_NOTIFICATIONS_POSITION = "bc";
 export const RECURRING_MEMO_PREFIX = "recurring_payment_";
 export const STREAM_MEMO_PREFIX = "stream_payment_";
+export const INCOMING_RECURRING_NAME = "Incoming recurring payment";
 
 export const BLOCKCHAIN_INFO_HOST = "https://blockchain.info";
 export const ONEML_HOST = "https://1ml.com";

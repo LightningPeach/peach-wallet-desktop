@@ -9,7 +9,7 @@ const ErrorFieldTooltip = (props) => {
     }
     return (
         <div className={`form-error ${props.class || ""}`}>
-            <Ellipsis>{props.text}</Ellipsis>
+            <Ellipsis className="text-ellipsis--sm">{props.text}</Ellipsis>
         </div>
     );
 };

@@ -136,7 +136,8 @@
             position: absolute;
             right: 0;
             padding: 10px 10px 10px 28px;
-            margin-top: -26px;
+            top: 50%;
+            transform: translateY(-50%);
             background: transparent;
             opacity: 0;
             transition: opacity .3s ease-in-out;
@@ -147,6 +148,8 @@
     .ReactTable {
         .rt-tbody {
             .rt-tr:not(.-padRow):hover {
+                position: relative;
+                
                 .stream__actions {
                     opacity: 1;
                     pointer-events: all;

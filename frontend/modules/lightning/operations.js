@@ -1,10 +1,11 @@
+import orderBy from "lodash/orderBy";
+import omit from "lodash/omit";
+
 import { exceptions, consts } from "config";
 import { appOperations, appActions } from "modules/app";
 import { streamPaymentTypes } from "modules/streamPayments";
 import { accountOperations } from "modules/account";
 import { db, successPromise, errorPromise, logger, helpers } from "additional";
-import orderBy from "lodash/orderBy";
-import omit from "lodash/omit";
 import { store } from "store/configure-store";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -111,7 +112,7 @@ async function getInvoices() {
         };
         if (helpers.isStreamOrRecurring(invoice)) {
             tempInvoice.currency = "BTC";
-            tempInvoice.name = "Incoming recurring payment";
+            tempInvoice.name = consts.INCOMING_RECURRING_NAME;
             tempInvoice.type = "stream";
             // default 1 sec? attach stream delay to invoice.
             tempInvoice.delay = -1;

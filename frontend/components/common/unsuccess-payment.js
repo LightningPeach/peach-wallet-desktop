@@ -6,6 +6,7 @@ import { analytics } from "additional";
 import { appOperations } from "modules/app";
 
 import Modal from "components/modal";
+import Ellipsis from "components/common/ellipsis";
 
 class UnSuccessPayment extends Component {
     closeModal = () => {
@@ -36,7 +37,9 @@ class UnSuccessPayment extends Component {
                     {error &&
                     <div className="block__row">
                         <div className="col-xs-12 text-center">
-                            {error}
+                            <Ellipsis>
+                                {error}
+                            </Ellipsis>
                         </div>
                     </div>
                     }

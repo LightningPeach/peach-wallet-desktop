@@ -286,13 +286,14 @@ class RecurringHistory extends Component {
                             <Ellipsis>{item.name}</Ellipsis>
                             <div className="stream__actions">
                                 {walletMode === accountTypes.WALLET_MODE.EXTENDED &&
-                                <button
-                                    className="table__button"
-                                    type="button"
-                                    onClick={() => { this.handleEdit(item) }}
-                                >
-                                    Edit
-                                </button>
+                                    item.name !== consts.INCOMING_RECURRING_NAME &&
+                                    <button
+                                        className="table__button"
+                                        type="button"
+                                        onClick={() => { this.handleEdit(item) }}
+                                    >
+                                        Edit
+                                    </button>
                                 }
                                 <button
                                     className="table__button"
