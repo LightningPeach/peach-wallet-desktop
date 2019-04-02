@@ -46,7 +46,7 @@ Parameters are described in the following format:
 
 * <u>backend</u> – Parameters for database.
   * `dbFile` – Name of a wallet db file.
-  * `devMode` – Specifies whether devMode is active. If the value is 'true' – then the mode is active and user can develop application more easily.
+  * `devMode` – Specifies whether devMode is active. If the value is 'true' – then the mode is active and user can develop application	easier.
 * <u>lnd</u> – Ports that are sent when launching lnd.
   * `init_listen` – The initial port number for p2p connections.
   * `address_look_ahead` – How many ports try to alocate starting from the port specified in the *init_listen* parameter. 
