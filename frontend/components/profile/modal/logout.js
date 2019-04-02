@@ -1,10 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
 import { accountOperations } from "modules/account";
-import { ProfileFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ConfirmLogout extends Component {
@@ -14,7 +16,7 @@ class ConfirmLogout extends Component {
             processing: this.props.isLogouting || false,
         };
 
-        analytics.pageview(`${ProfileFullPath}/logout`, "Logout");
+        analytics.pageview(`${routes.ProfileFullPath}/logout`, "Logout");
     }
 
     componentWillReceiveProps(nextProps) {
@@ -45,32 +47,45 @@ class ConfirmLogout extends Component {
 
     render() {
         return (
-            <Modal title="Log out" onClose={this.closeModal} disabled={this.state.processing}>
-                <div className="modal-body">
+            <Modal
+                title="Are you sure you want to switch to another wallet?"
+                theme="small"
+                onClose={this.closeModal}
+                showCloseButton
+            >
+                <div className="modal__body">
                     <div className="row">
-                        <div className="col-xs-12 channel-close__text">
-                            Are you sure you want to log out?
+                        <div className="col-xs-12">
+                            All data related to this wallet will be securely stored on your hard drive. You can always
+                            switch back to this wallet without any data loss.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
-                        <div className="col-xs-12 text-right">
+                        <div className="col-xs-12">
+                            <span className="button__spinner">
+                                <button
+                                    type="button"
+                                    className="button button__solid button--fullwide"
+                                    onClick={this.logout}
+                                    disabled={this.state.processing}
+                                >
+                                    Switch
+                                </button>
+                                {this.state.processing && <div className="spinner" />}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__link text-uppercase"
+                                className="button button__solid button__solid--transparent button--fullwide"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
                             >
                                 Cancel
-                            </button>
-                            <button
-                                type="button"
-                                className="button button__orange button__close"
-                                onClick={this.logout}
-                                disabled={this.state.processing}
-                            >
-                                Log out
                             </button>
                         </div>
                     </div>

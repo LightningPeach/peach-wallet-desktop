@@ -3,7 +3,6 @@
 const settings = require("../settings");
 const fs = require("fs");
 const path = require("path");
-const { webContents } = require("electron");
 const baseLogger = require("../utils/logger");
 
 const logger = baseLogger.child("binaries");
@@ -27,9 +26,8 @@ class Exec {
         this.starting = false;
         if (!this.manualStopped) {
             try {
+                logger.debug("Inside handle exit will save pid -1");
                 this._savePid(-1);
-                // console.log(await this.start());
-                // webContents.getAllWebContents()[0].send("lnd-up");
             } catch (e) {
                 logger.error({ func: this.handleExit }, `${this.process_name}`, e);
             }
@@ -43,10 +41,12 @@ class Exec {
         try {
             this.manualStopped = true;
             process.kill(this.pid);
+            logger.debug("Inside stop will save pid -1");
             this._savePid(-1);
             if (this.shoudClearData && typeof this._clearData === "function") {
                 await this._clearData();
             }
+            logger.debug("Finished stop function");
             return { ok: true };
         } catch (error) {
             return { ok: false, error };
@@ -54,10 +54,10 @@ class Exec {
     }
 
     _savePid(pid) {
+        this.pid = pid;
         logger.info(`Saving pid ${pid} to ${path.join(settings.get.dataPath, this.pid_name)}`);
         const filePath = path.join(settings.get.dataPath, this.pid_name);
         fs.writeFileSync(filePath, JSON.stringify({ pid }));
-        this.pid = pid;
     }
 
     _getPid() {

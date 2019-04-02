@@ -1,19 +1,13 @@
 .subheader {
-    background-color: transparentize($greyish-50, 0.4);
-
-    & > .container > .row > div[class*="col-"] {
-        display: flex;
-        align-items: center;
-        min-height: 80px;
-        padding-top: 3px;
-        padding-bottom: 3px;
-    }
+    background-color: $grey-extralight;
+    min-height: 80px;
+    padding-top: 4px;
+    padding-bottom: 4px;
 
     .balance {
         font-size: 14px;
         line-height: 1;
         color: #000;
-        letter-spacing: -0.5px;
 
         &__row {
             position: relative;
@@ -28,57 +22,28 @@
         }
 
         &__value {
-            font-weight: 600;
-            letter-spacing: -0.2px;
+            font-weight: bold;
             white-space: nowrap;
         }
     }
 
-    &__exchange_rate {
-        text-align: right;
-        margin-left: auto;
+    .exchange_rate {
+        color: $grey;
 
-        .button {
-            vertical-align: middle;
-            margin-top: -4px;
-            letter-spacing: 0;
-        }
-
-        .exchange_rate {
-            font-size: 18px;
-            font-weight: 600;
-            color: $black;
-            vertical-align: middle;
-            display: inline-block;
-            letter-spacing: -0.3px;
-
-            &--with_btn {
-
-                & + .button {
-                    margin-left: 20px;
-                    margin-top: 5px;
-                    margin-bottom: 5px;
-                }
-            }
+        & + .button {
+            margin-left: 20px;
         }
     }
 }
 
 @media screen and (max-width: 740px) {
     .subheader {
-        & > .container > .row > div[class*="col-"] {
-            flex-wrap: wrap;
+        .exchange_rate {
+            display: none;
         }
 
-        &__exchange_rate {
-
-            .exchange_rate {
-                display: none;
-            }
-
-            .button {
-                margin-top: 2px;
-            }
+        .button {
+            margin-top: 2px;
         }
 
         .converted-part {
@@ -89,17 +54,6 @@
 
 @media screen and (max-width: 525px) {
     .subheader {
-        & > .container > .row > div[class*="col-"] {
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        &__exchange_rate {
-            .button {
-                margin: 10px 0;
-            }
-        }
-
         .balance {
             width: 100%;
 

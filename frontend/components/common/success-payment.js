@@ -1,9 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
+
 import BtcToUsd from "components/common/btc-to-usd";
+import Ellipsis from "components/common/ellipsis";
+import Modal from "components/modal";
 
 class SuccessPayment extends Component {
     closeModal = () => {
@@ -21,41 +25,38 @@ class SuccessPayment extends Component {
             return null;
         }
         return (
-            <div className="modal-wrapper">
-                <div className="modal-layout" onClick={this.closeModal} />
-                <div className="modal modal-payment_result modal-payment_result__success" tabIndex="-1" role="dialog">
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <img
-                                src={`${window.STATIC_FILES}public/assets/images/success.svg`}
-                                alt=""
-                                className="payment_result__icon"
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-12 payment_result__title">
+            <Modal theme="payment_result payment_result-success" onClose={this.closeModal}>
+                <div className="modal__body">
+                    <div className="modal__icon" />
+                    <div className="block__row row--no-col justify-center-xs">
+                        <div className="block__title-lg text-yellow">
                             Success!
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-xs-12 payment_result__info">
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
                             Your payment was sent
                         </div>
-                        {name ?
-                            <div className="col-xs-12 payment_result__info">
+                    </div>
+                    {name &&
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <Ellipsis>
                                 {name}
-                            </div> : null
-                        }
-                        <div className="col-xs-12 payment_result__info">
+                            </Ellipsis>
+                        </div>
+                    </div>
+                    }
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
                             <BtcToUsd amount={amount} />
                         </div>
                     </div>
-                    <div className="row payment_result__btn-row">
+                    <div className="block__row-lg">
                         <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__orange button__close button__side-padding50"
+                                className="button button__solid button--fullwide"
                                 onClick={this.closeModal}
                             >
                                 Ok
@@ -63,7 +64,7 @@ class SuccessPayment extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            </Modal>
         );
     }
 }

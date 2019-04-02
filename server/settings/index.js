@@ -5,7 +5,6 @@ const { app } = require("electron");
 const configSchema = require("./config-schema");
 const settingsFiles = require("./settings-app");
 const settingsPeach = require("./settings-peach");
-const settingsAgreement = require("./settings-agreement");
 const calculated = require("./calculated");
 const baseLogger = require("../utils/logger");
 
@@ -13,13 +12,10 @@ const logger = baseLogger.child("electron");
 const readSettings = ({ appPath, dataPath, config }) => {
     const baseSettings = settingsFiles(appPath);
     const peachSettings = settingsPeach(appPath);
-    const agreementSettings = settingsAgreement(dataPath);
     config.load(baseSettings);
-    config.load(agreementSettings);
     config.load(peachSettings);
     return {
         baseSettings,
-        agreementSettings,
         peachSettings,
     };
 };
@@ -80,9 +76,6 @@ module.exports = Object.freeze({
      */
     set: async (prop, values) => {
         logger.info("[SETTINGS] - requested set prop", prop);
-        if (prop === "agreement") {
-            return calculatedBase.setAgreement(...values);
-        }
         if (prop === "lndPeer") {
             return calculatedBase.setListenPort(...values);
         }
@@ -91,13 +84,13 @@ module.exports = Object.freeze({
         }
         throw new Error(`Set method not available for ${prop} property`);
     },
-    saveLndPath: (username, lndPath) => calculatedBase.saveLndPath(username, lndPath),
+    saveLndPath: (walletName, lndPath) => calculatedBase.saveLndPath(walletName, lndPath),
     preload: {
         getAnalytics: config.get("analytics"),
-        getAgreement: config.get("agreement"),
         getBitcoin: config.get("bitcoin"),
         getDatabasePath: calculatedBase.databasePath,
         getPeach: config.get("peach"),
+        getVersion: config.get("version"),
         getDevMode: config.get("backend.devMode"),
         getInitListenPort: config.get("lnd.init_listen"),
     },

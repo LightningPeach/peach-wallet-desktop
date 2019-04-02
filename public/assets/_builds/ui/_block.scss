@@ -1,0 +1,52 @@
+.block {
+  &__title {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 30px;
+
+    &-sm {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 24px;
+    }
+
+    &-lg {
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 36px;
+    }
+  }
+
+  &__row {
+    @extend .row;
+    padding-top: 20px;
+
+    &-xs {
+      @extend .row;
+      padding-top: 10px;
+    }
+
+    &-sm {
+      @extend .row;
+      padding-top: 14px;
+    }
+
+    &-lg {
+      @extend .row;
+      padding-top: 30px;
+    }
+
+    &-xl {
+      @extend .row;
+      padding-top: 40px;
+    }
+
+    &-item {
+      position: relative;
+
+      &:not(:last-child) {
+        margin-right: 20px;
+      }
+    }
+  }
+}

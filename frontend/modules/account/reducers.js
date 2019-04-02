@@ -3,6 +3,7 @@ import * as types from "./types";
 
 export const initStateAccount = {
     amountStatus: "undefined",
+    analyticsMode: types.ANALYTICS_MODE.PENDING,
     bitcoinAccount: ["Wallet syncing"],
     bitcoinBalance: 0,
     bitcoinMeasureMultiplier: ALL_MEASURES[0].multiplier,
@@ -30,10 +31,12 @@ export const initStateAccount = {
     peers: [],
     signedMessage: null,
     systemNotifications: types.NOTIFICATIONS.DISABLED_LOUD_SHOW_AGAIN,
+    termsMode: types.TERMS_MODE.PENDING,
     toFixedMeasure: ALL_MEASURES[0].toFixed,
     toFixedMeasureAll: ALL_MEASURES[0].toFixedAll,
     unConfirmedBitcoinBalance: 0,
     validatingLightningId: false,
+    walletMode: types.WALLET_MODE.PENDING,
 };
 
 const defaultState = JSON.parse(JSON.stringify(initStateAccount));
@@ -97,6 +100,12 @@ const accountReducer = (state = defaultState, action) => {
             return { ...state, lisStatus: action.payload };
         case types.SET_SYSTEM_NOTIFICATIONS_STATUS:
             return { ...state, systemNotifications: action.payload };
+        case types.SET_ANALYTICS_MODE:
+            return { ...state, analyticsMode: action.payload };
+        case types.SET_TERMS_MODE:
+            return { ...state, termsMode: action.payload };
+        case types.SET_WALLET_MODE:
+            return { ...state, walletMode: action.payload };
         default:
             return state;
     }

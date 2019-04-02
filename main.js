@@ -19,14 +19,13 @@ const logger = baseLogger.child("electron");
 const updater = updaterManager();
 
 let mainWindow = null;
-let agreementWindow = null;
 let notification = null;
 
 let deepLinkUrl;
 
 const template = [
     {
-        label: "LightningPeach wallet",
+        label: "Peach Wallet",
         submenu: [
             { label: "Hide", accelerator: "CmdOrCtrl+H", role: "hide" },
             { label: "Minimize", accelerator: "CmdOrCtrl+M", role: "minimize" },
@@ -106,7 +105,7 @@ if (!gotInstanceLock) {
     app.quit();
 }
 
-function createWindow() {
+function createMainWindow() {
     mainWindow = new BrowserWindow(defaultWindowSettings);
     mainWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
     mainWindow.loadURL(url.format({
@@ -139,40 +138,15 @@ function createWindow() {
     Menu.setApplicationMenu(menu);
 }
 
-const checkAgreement = async () => {
-    if (settings.get.agreement.eula) {
-        createWindow();
-        return;
-    }
-    agreementWindow = new BrowserWindow(defaultWindowSettings);
-    agreementWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
-
-    agreementWindow.loadURL(url.format({
-        pathname: path.join(__dirname, "agreement.html"),
-        protocol: "file:",
-        slashes: true,
-    }));
-    devTools(agreementWindow);
-    agreementWindow.setMenu(null);
-    agreementWindow.maximize();
-    agreementWindow.show();
-
-    agreementWindow.webContents.on("close", () => {
-        if (settings.get.agreement.eula) {
-            createWindow();
-        }
-    });
-};
-
-app.on("ready", checkAgreement);
+app.on("ready", createMainWindow);
 
 app.on("window-all-closed", () => {
     app.quit();
 });
 
 app.on("activate", () => {
-    if (!mainWindow && !agreementWindow) {
-        checkAgreement();
+    if (!mainWindow) {
+        createMainWindow();
     }
 });
 
@@ -192,6 +166,12 @@ app.on("open-url", (e, arg) => {
     e.preventDefault();
     deepLinkUrl = arg;
     helpers.ipcSend("handleUrlReceive", deepLinkUrl);
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+        mainWindow.focus();
+    }
 });
 
 app.on("second-instance", (e, arg) => {
@@ -210,7 +190,7 @@ app.on("second-instance", (e, arg) => {
 
 ipcMain.on("showNotification", (event, sender) => {
     notification = new Notification({
-        title: sender.title || "LightningPeach wallet",
+        title: sender.title || "Peach Wallet",
         subtitle: sender.subtitle,
         body: sender.body,
         silent: sender.silent,

@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { filterActions, filterTypes } from "modules/filter";
 import { initStatePartial as initState } from "modules/filter/reducers";
-import DebounceInput from "react-debounce-input";
+import DebounceInput from "components/ui/debounce-input";
 import Datepicker from "components/ui/datepicker";
 import Timepicker from "components/ui/timepicker";
 import Pricepicker from "components/ui/pricepicker";
@@ -16,7 +16,9 @@ class Filter extends Component {
 
     setFilterPart = (details = {}) => {
         const { source, dispatch, onChange } = this.props;
-        onChange();
+        if (onChange) {
+            onChange();
+        }
         switch (source) {
             case filterTypes.FILTER_REGULAR:
                 dispatch(filterActions.setRegularFilterPart(details));
@@ -30,13 +32,16 @@ class Filter extends Component {
             case filterTypes.FILTER_CONTACTS:
                 dispatch(filterActions.setContactsFilterPart(details));
                 break;
+            case filterTypes.FILTER_MERCHANTS:
+                dispatch(filterActions.setMerchantsFilterPart(details));
+                break;
             default:
                 break;
         }
     };
 
-    handleSearchChange = (e) => {
-        const search = e.target.value.trim();
+    handleSearchChange = (value) => {
+        const search = value;
         this.setState({
             search,
         });
@@ -107,7 +112,7 @@ class Filter extends Component {
             <div className="row">
                 <div className="col-xs-12">
                     <DebounceInput
-                        debounceTimeout={500}
+                        timeout={500}
                         onChange={this.handleSearchChange}
                         className="form-text filter__search"
                         placeholder={searchPlaceholder || ""}
@@ -182,7 +187,7 @@ class Filter extends Component {
                 }
                 <div className="filter__item">
                     <button
-                        className="button button__hollow button__hollow--scarlett-two"
+                        className="button button__hollow button__hollow--red"
                         onClick={this.handleFilterReset}
                     >
                         Reset All
@@ -208,7 +213,7 @@ Filter.propTypes = {
     dispatch: PropTypes.func.isRequired,
     filter: PropTypes.shape(),
     filterKinds: PropTypes.arrayOf(PropTypes.oneOf(filterTypes.FILTER_KIND_LIST)),
-    onChange: PropTypes.func.isRequired,
+    onChange: PropTypes.func,
     searchPlaceholder: PropTypes.string,
     source: PropTypes.oneOf(filterTypes.FILTER_SOURCES).isRequired,
 };
@@ -227,6 +232,9 @@ const mapStateToProps = (state, props) => {
             break;
         case filterTypes.FILTER_CONTACTS:
             filter = state.filter.contacts;
+            break;
+        case filterTypes.FILTER_MERCHANTS:
+            filter = state.filter.merchants;
             break;
         default:
             break;

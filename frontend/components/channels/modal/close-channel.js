@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { ChannelsFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class CloseChannel extends Component {
@@ -15,7 +17,7 @@ class CloseChannel extends Component {
             processing: false,
         };
 
-        analytics.pageview(`${ChannelsFullPath}/close-channel`, "Close Channel");
+        analytics.pageview(`${routes.ChannelsFullPath}/close-channel`, "Close Channel");
     }
 
     closeModal = () => {
@@ -55,29 +57,29 @@ class CloseChannel extends Component {
         const spinner = this.state.processing ? <div className="spinner" /> : null;
         return (
             <Modal title="Close Channel" onClose={this.closeModal}>
-                <div className="modal-body">
+                <div className="modal__body">
                     <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Are you sure you want to close <strong title={title}>{title}</strong> cooperatively?
-                            All your bitcoins will send to ONCHAIN balance.
+                            All your bitcoins will send to ON-CHAIN balance.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
                                 type="button"
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
                             >
                                 Cancel
                             </button>
-                            <span className="button_with_spinner">
+                            <span className="button__spinner">
                                 <button
                                     type="button"
-                                    className="button button__orange button__close"
+                                    className="button button__solid"
                                     onClick={this.closeChannel}
                                     disabled={this.state.processing}
                                 >

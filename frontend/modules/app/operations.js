@@ -1,23 +1,36 @@
 import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
-import { statusCodes } from "config";
-import {
-    USD_PER_BTC_URL,
-    LIGHTNING_ID_LENGTH,
-    ONLY_LETTERS_AND_NUMBERS,
-    BTC_MEASURE,
-} from "config/consts";
+
+import { exceptions, consts, routes } from "config";
 import { store } from "store/configure-store";
 import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
 import { lightningActions } from "modules/lightning";
-import { WalletPath } from "routes";
+import { authTypes } from "modules/auth";
 import * as actions from "./actions";
 import * as types from "./types";
 
+function startModalFlow() {
+    return (dispatch, getState) => {
+        const { modalFlow } = getState().app;
+        if (!modalFlow.length) {
+            return;
+        }
+        dispatch(actions.modalFlowPopFirst());
+        dispatch(actions.setModalState(modalFlow[0]));
+    };
+}
+
 function closeModal() {
-    return dispatch => dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
+    return (dispatch, getState) => {
+        const { modalFlow } = getState().app;
+        if (!modalFlow.length) {
+            dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
+        } else {
+            dispatch(startModalFlow());
+        }
+    };
 }
 
 function openLogoutModal() {
@@ -40,11 +53,20 @@ function openLegalModal() {
     return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_LEGAL));
 }
 
+function openConnectRemoteQRModal() {
+    return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_CONNECT_REMOTE_QR));
+}
+
+function openPasswordRemoteQRModal() {
+    return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_PASSWORD_REMOTE_QR));
+}
+
+
 function usdBtcRate() {
     return async (dispatch, getState) => {
         let response;
         try {
-            response = await fetch(USD_PER_BTC_URL, { method: "GET" });
+            response = await fetch(consts.USD_PER_BTC_URL, { method: "GET" });
             response = await response.json();
         } catch (e) {
             dispatch(actions.setUsdPerBtc(0));
@@ -94,7 +116,7 @@ function convertSatoshiToCurrentMeasure(value) {
 function convertUsdToSatoshi(amount) {
     return (dispatch, getState) => {
         const { usdPerBtc } = getState().app;
-        return Math.round(parseFloat(amount) / (BTC_MEASURE.multiplier * usdPerBtc));
+        return Math.round(parseFloat(amount) / (consts.BTC_MEASURE.multiplier * usdPerBtc));
     };
 }
 
@@ -109,20 +131,20 @@ function convertUsdToCurrentMeasure(amount) {
 
 const validateLightning = lightningId => (dispatch, getState) => {
     if (!lightningId) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
-    } else if (lightningId.length !== LIGHTNING_ID_LENGTH) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+        return exceptions.FIELD_IS_REQUIRED;
+    } else if (lightningId.length !== consts.LIGHTNING_ID_LENGTH) {
+        return exceptions.LIGHTNING_ID_WRONG_LENGTH;
     } else if (lightningId === getState().account.lightningID) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF;
-    } else if (!ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+        return exceptions.LIGHTNING_ID_WRONG_SELF;
+    } else if (!consts.ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
+        return exceptions.LIGHTNING_ID_WRONG;
     }
     return null;
 };
 
-function openDb(username, password) {
+function openDb(walletName, password) {
     return async (dispatch) => {
-        const response = await db.dbStart(username, password);
+        const response = await db.dbStart(walletName, password);
         if (!response.ok) {
             dispatch(actions.dbSetStatus(types.DB_CLOSED));
             return errorPromise(response.error, openDb);
@@ -180,13 +202,14 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
         return;
     }
     store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));
-    if (store.getState().account.isLogined) {
-        store.dispatch(push(WalletPath));
+    if (store.getState().account.isLogined && store.getState().auth.sessionStatus === authTypes.SESSION_ACTIVE) {
+        store.dispatch(push(routes.WalletPath));
     }
 });
 
 export {
     sendSystemNotification,
+    startModalFlow,
     closeModal,
     usdBtcRate,
     copyToClipboard,
@@ -201,4 +224,6 @@ export {
     openDb,
     closeDb,
     openLegalModal,
+    openConnectRemoteQRModal,
+    openPasswordRemoteQRModal,
 };

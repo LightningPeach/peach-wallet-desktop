@@ -1,15 +1,15 @@
-import { error } from "modules/notifications";
+import React, { Component, Fragment } from "react";
 import Tooltip from "rc-tooltip";
-import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics, togglePasswordVisibility, validators, helpers } from "additional";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import File from "components/ui/file";
+
+import { error } from "modules/notifications";
+import { analytics, togglePasswordVisibility, validators, helpers, tooltips } from "additional";
 import { authOperations as operations, authTypes as types } from "modules/auth";
-import * as statusCodes from "config/status-codes";
-import { push } from "react-router-redux";
-import { WalletPath } from "routes";
+import { exceptions } from "config";
+
+import File from "components/ui/file";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 const spinner = <div className="spinner" />;
 
@@ -22,9 +22,6 @@ class Folder extends Component {
             lndPathError: null,
             passwordError: null,
             processing: false,
-            tooltips: {
-                walletPath: ["Full path (include username) to wallet data"],
-            },
         };
     }
 
@@ -41,11 +38,11 @@ class Folder extends Component {
         this.setState({ processing: true });
         const { lndPath } = this.state;
         const paths = lndPath.split(window.pathSep);
-        const username = paths.pop();
+        const walletName = paths.pop();
         const lnPath = paths.join(window.pathSep);
-        const lndPathError = await validators.validateLndPath(lnPath) || await this._validateUsername(username);
+        const lndPathError = await validators.validateLndPath(lnPath) || await this._validatewalletName(walletName);
         const password = this.password.value.trim();
-        const passwordError = !password ? statusCodes.EXCEPTION_FIELD_IS_REQUIRED : null;
+        const passwordError = !password ? exceptions.FIELD_IS_REQUIRED : null;
 
         if (passwordError || lndPathError) {
             this.setState({ lndPathError, passwordError, processing: false });
@@ -53,19 +50,20 @@ class Folder extends Component {
         }
         this.setState({ passwordError });
         await window.ipcClient("setLndPath", { defaultPath: false, lndPath: lnPath });
-        const init = await dispatch(operations.login(username, password));
+        const init = await dispatch(operations.login(walletName, password));
         this.setState({ processing: false });
         if (!init.ok) {
             dispatch(error({ message: helpers.formatNotificationMessage(init.error) }));
             return;
         }
-        dispatch(push(WalletPath));
+        dispatch(operations.setHashedPassword(password));
+        dispatch(operations.setAuthStep(types.RESTORE_STEP_TERMS));
     };
 
-    _validateUsername = async (username) => {
-        const response = await validators.validateUserExistence(username);
+    _validateWalletName = async (walletName) => {
+        const response = await validators.validateUserExistence(walletName);
         if (response) {
-            return statusCodes.EXCEPTION_FOLDER_USERNAME_EXISTS;
+            return exceptions.FOLDER_WALLET_NAME_EXISTS;
         }
         return null;
     };
@@ -73,88 +71,102 @@ class Folder extends Component {
     render() {
         const disabled = this.state.processing;
         return (
-            <form onSubmit={this.handleRestore}>
-                <div className="row mt-14">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="wallet_folder">
-                                User folder
-                                <Tooltip
-                                    placement="right"
-                                    overlay={helpers.formatMultilineText(this.state.tooltips.walletPath)}
-                                    trigger="hover"
-                                    arrowContent={
-                                        <div className="rc-tooltip-arrow-inner" />
-                                    }
-                                    prefixCls="rc-tooltip__small rc-tooltip"
-                                    mouseLeaveDelay={0}
-                                >
-                                    <i className="form-label__icon form-label__icon--info" />
-                                </Tooltip>
-                            </label>
+            <Fragment>
+                <div className="row row--no-col justify-center-xs">
+                    <div className="block__title">
+                        Wallet recovery
+                    </div>
+                </div>
+                <form className="form form--home" onSubmit={this.handleRestore}>
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="wallet_folder">
+                                    User folder
+                                    <Tooltip
+                                        placement="right"
+                                        overlay={tooltips.WALLET_PATH}
+                                        trigger="hover"
+                                        arrowContent={
+                                            <div className="rc-tooltip-arrow-inner" />
+                                        }
+                                        prefixCls="rc-tooltip__small rc-tooltip"
+                                        mouseLeaveDelay={0}
+                                    >
+                                        <i className="tooltip tooltip--info" />
+                                    </Tooltip>
+                                </label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <File
+                                id="wallet_folder"
+                                disabled={disabled}
+                                value={this.state.lndPath}
+                                placeholder="Wallet folder"
+                                buttonPlaceholder="Select"
+                                className={this.state.lndPathError ? "form-text__error" : ""}
+                                onChange={(lndPath) => {
+                                    this.setState({ lndPath, lndPathError: null });
+                                }}
+                            />
+                            <ErrorFieldTooltip text={this.state.lndPathError} />
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <File
-                            id="wallet_folder"
-                            disabled={disabled}
-                            value={this.state.lndPath}
-                            placeholder="Select folder"
-                            className={this.state.lndPathError ? "form-text__error" : ""}
-                            onChange={(lndPath) => {
-                                this.setState({ lndPath, lndPathError: null });
-                            }}
-                        />
-                        <ErrorFieldTooltip text={this.state.lndPathError} />
-                    </div>
-                </div>
-                <div className="row mt-14">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="password">Password</label>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="password">Password</label>
+                            </div>
+                        </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="password"
+                                ref={(ref) => {
+                                    this.password = ref;
+                                }}
+                                className={`form-text form-text--icon_eye ${this.state.passwordError ?
+                                    "form-text__error" :
+                                    ""}`}
+                                name="password"
+                                type="password"
+                                placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
+                                disabled={disabled}
+                                onChange={() => { this.setState({ passwordError: null }) }}
+                            />
+                            <i
+                                className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
+                                onClick={togglePasswordVisibility}
+                            />
+                            <ErrorFieldTooltip text={this.state.passwordError} />
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="password"
-                            ref={(ref) => {
-                                this.password = ref;
-                            }}
-                            className={`form-text form-text--icon_eye ${this.state.passwordError ?
-                                "form-text__error" :
-                                ""}`}
-                            name="password"
-                            type="password"
-                            placeholder="&#9679;&#9679;&#9679;&#9679;&#9679;&#9679;"
-                            disabled={disabled}
-                            onChange={() => { this.setState({ passwordError: null }) }}
-                        />
-                        <i
-                            className="form-text__icon form-text__icon--eye form-text__icon--eye_open"
-                            onClick={togglePasswordVisibility}
-                        />
-                        <ErrorFieldTooltip text={this.state.passwordError} />
+                    <div className="block__row-lg">
+                        <div className="col-xs-12">
+                            <button
+                                type="submit"
+                                className="button button__solid button--fullwide"
+                                disabled={disabled}
+                            >
+                                Proceed
+                            </button>
+                            {disabled ? spinner : null}
+                        </div>
                     </div>
-                </div>
-                <div className="row spinner__wrapper mt-30">
-                    <div className="col-xs-12">
-                        <button type="submit" className="button button__orange button__fullwide" disabled={disabled}>
-                            Proceed
-                        </button>
-                        {disabled ? spinner : null}
+                    <div className="block__row-xs">
+                        <div className="col-xs-12">
+                            <button
+                                type="button"
+                                className="button button__solid button__solid--transparent button--fullwide"
+                                onClick={this.cancelRestore}
+                                disabled={disabled}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                    <div className="col-xs-12 text-center">
-                        <button
-                            type="button"
-                            className="button button__link button__under-button"
-                            onClick={this.cancelRestore}
-                            disabled={disabled}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </Fragment>
         );
     }
 }

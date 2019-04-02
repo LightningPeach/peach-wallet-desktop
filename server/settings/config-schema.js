@@ -1,16 +1,4 @@
 module.exports = {
-    agreement: {
-        eula: {
-            doc: "Is eula accepted",
-            format: Boolean,
-            default: false,
-        },
-        sendStatistics: {
-            doc: "Sending anonymous statistics is accepted",
-            format: Boolean,
-            default: false,
-        },
-    },
     analytics: {
         trackingID: {
             format: String,
@@ -90,7 +78,7 @@ module.exports = {
     },
     btcd: {
         rpcuser: {
-            doc: "Username for RPC connections",
+            doc: "Wallet name for RPC connections",
             format: String,
         },
         rpcpass: {
@@ -110,6 +98,11 @@ module.exports = {
     autopilot: {
         active: {
             format: Boolean,
+        },
+    },
+    version: {
+        legal: {
+            format: String,
         },
     },
     logger: {

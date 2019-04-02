@@ -1,38 +1,56 @@
 .tab {
-
     &-link {
-        cursor: pointer;
-        transition: color .2s, border-color .2s;
-        text-align: center;
-        float: left;
+        transition: color $default-transition, border-color $default-transition;
         position: relative;
         font-size: 16px;
         line-height: 1.13;
         color: $black;
         text-transform: uppercase;
         margin: 0 25px;
-        padding-bottom: 6px;
-        border-bottom: 2px solid transparent;
-        letter-spacing: normal;
+        text-align: center;
 
-        &:first-child {
-            margin-left: 0;
+        &:before {
+            content: "";
+            display: block;
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: transparent;
+            transition: background-color $default-transition;
         }
 
-        &:last-child {
-            margin-right: 0;
+        &:not(.tab-link__no-hover) {
+            cursor: pointer;
         }
 
         &-active {
-            color: $orange;
-            border-bottom-color: #ff864b;
-            font-weight: inherit !important;
+            font-weight: normal!important;
+
+            &:before {
+                background-color: $yellow;
+            }
         }
 
-        &:hover:not(.tab-link__no-hover),
-        &:focus {
-            color: $orange;
-            font-weight: inherit !important;
+        &:hover:not(.tab-link__no-hover) {
+            color: $yellow;
+            outline: none;
         }
+
+        &:focus,
+        &:active {
+            outline: none;
+        }
+    }
+}
+
+.tabs {
+    &__row {
+        margin-left: -25px;
+        margin-right: -25px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
     }
 }

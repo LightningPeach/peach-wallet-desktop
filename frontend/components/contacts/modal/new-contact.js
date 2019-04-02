@@ -1,17 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics, validators, helpers } from "additional";
 import { appOperations } from "modules/app";
-import ErrorFieldTooltip from "components/ui/error-field-tooltip";
-import { statusCodes } from "config";
-import { LIGHTNING_ID_LENGTH, ELEMENT_NAME_MAX_LENGTH } from "config/consts";
-import {
-    contactsActions as actions,
-    contactsOperations as operations,
-} from "modules/contacts";
+import { exceptions, consts, routes } from "config";
+import { contactsActions as actions, contactsOperations as operations } from "modules/contacts";
 import { error, info } from "modules/notifications";
-import { AddressBookFullPath, LightningFullPath } from "routes";
+
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import Modal from "components/modal";
 
 class NewContact extends Component {
@@ -22,7 +19,9 @@ class NewContact extends Component {
             nameError: null,
         };
 
-        const basePath = this.props.page && this.props.page === "lightning" ? LightningFullPath : AddressBookFullPath;
+        const basePath = this.props.page && this.props.page === "lightning"
+            ? routes.LightningFullPath
+            : routes.AddressBookFullPath;
         analytics.pageview(`${basePath}/new-contact`, "New contact");
     }
 
@@ -56,11 +55,11 @@ class NewContact extends Component {
                 const nameEqual = contact.name.toUpperCase() === name.toUpperCase();
                 const lightningIdEqual = contact.lightningID.toUpperCase() === lightningID.toUpperCase();
                 if (nameEqual && lightningIdEqual) {
-                    lightningIDError = statusCodes.EXCEPTION_CONTACT_CREATE_USER_ID_EXISTS;
+                    lightningIDError = exceptions.CONTACT_CREATE_USER_ID_EXISTS;
                 } else if (nameEqual) {
-                    nameError = statusCodes.EXCEPTION_CONTACT_CREATE_USER_EXISTS;
+                    nameError = exceptions.CONTACT_CREATE_USER_EXISTS;
                 } else if (lightningIdEqual) {
-                    lightningIDError = statusCodes.EXCEPTION_CONTACT_CREATE_ID_EXISTS;
+                    lightningIDError = exceptions.CONTACT_CREATE_ID_EXISTS;
                 }
             });
         }
@@ -90,80 +89,78 @@ class NewContact extends Component {
     render() {
         const { newContactDetails } = this.props;
         return (
-            <Modal title="Add new contact" onClose={this.closeModal}>
-                <form onSubmit={this.addContact}>
-                    <div className="modal-body">
-                        <div className="row">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="contact__name">
-                                        Name of contact
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="contact__name"
-                                    className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                                    name="contact__name"
-                                    placeholder="Enter name"
-                                    ref={(input) => {
-                                        this.contact__name = input;
-                                    }}
-                                    defaultValue={newContactDetails ? newContactDetails.name : null}
-                                    max={ELEMENT_NAME_MAX_LENGTH}
-                                    maxLength={ELEMENT_NAME_MAX_LENGTH}
-                                    onChange={() => { this.setState({ nameError: null }) }}
-                                />
-                                <ErrorFieldTooltip text={this.state.nameError} />
+            <Modal title="Add new contact" theme="body-20" onClose={this.closeModal}>
+                <div className="modal__body">
+                    <div className="row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="contact__name">
+                                    Name
+                                </label>
                             </div>
                         </div>
-                        <div className="row mt-14">
-                            <div className="col-xs-12">
-                                <div className="form-label">
-                                    <label htmlFor="contact__lightning">
-                                        Lightning Address
-                                    </label>
-                                </div>
-                            </div>
-                            <div className="col-xs-12">
-                                <input
-                                    id="contact__lightning"
-                                    className={`form-text ${this.state.lightningIDError ? "form-text__error" : ""}`}
-                                    name="contact__lightning"
-                                    placeholder="Enter Lightning Address"
-                                    ref={(input) => {
-                                        this.contact__lightning = input;
-                                    }}
-                                    defaultValue={newContactDetails ? newContactDetails.lightningID : null}
-                                    max={LIGHTNING_ID_LENGTH}
-                                    maxLength={LIGHTNING_ID_LENGTH}
-                                    onChange={() => { this.setState({ lightningIDError: null }) }}
-                                />
-                                <ErrorFieldTooltip text={this.state.lightningIDError} />
-                            </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="contact__name"
+                                className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                name="contact__name"
+                                placeholder="Optional"
+                                ref={(input) => {
+                                    this.contact__name = input;
+                                }}
+                                defaultValue={newContactDetails ? newContactDetails.name : null}
+                                max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
+                                onChange={() => { this.setState({ nameError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.nameError} />
                         </div>
                     </div>
-                    <div className="modal-footer">
-                        <div className="row">
-                            <div className="col-xs-12 text-right">
-                                <button
-                                    className="button button__link text-uppercase"
-                                    type="button"
-                                    onClick={this.closeModal}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="button button__orange button__create"
-                                    type="submit"
-                                >
-                                    Create
-                                </button>
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <div className="form-label">
+                                <label htmlFor="contact__lightning">
+                                    Lightning Address
+                                </label>
                             </div>
                         </div>
+                        <div className="col-xs-12">
+                            <input
+                                id="contact__lightning"
+                                className={`form-text ${this.state.lightningIDError ? "form-text__error" : ""}`}
+                                name="contact__lightning"
+                                placeholder="Enter Lightning Address"
+                                ref={(input) => {
+                                    this.contact__lightning = input;
+                                }}
+                                defaultValue={newContactDetails ? newContactDetails.lightningID : null}
+                                max={consts.LIGHTNING_ID_LENGTH}
+                                maxLength={consts.LIGHTNING_ID_LENGTH}
+                                onChange={() => { this.setState({ lightningIDError: null }) }}
+                            />
+                            <ErrorFieldTooltip text={this.state.lightningIDError} />
+                        </div>
                     </div>
-                </form>
+                </div>
+                <div className="modal__footer">
+                    <div className="row">
+                        <div className="col-xs-12 text-right">
+                            <button
+                                className="link"
+                                type="button"
+                                onClick={this.closeModal}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className="button button__solid"
+                                onClick={this.addContact}
+                            >
+                                Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </Modal>
         );
     }

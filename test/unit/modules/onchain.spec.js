@@ -2,8 +2,7 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
-import "../../utils";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { onChainActions as actions, onChainTypes as types, onChainOperations as operations } from "modules/onchain";
 import onChainReducer, { initStateOnchain } from "modules/onchain/reducers";
 import { accountTypes, accountOperations } from "modules/account";
@@ -146,7 +145,6 @@ describe("OnChain Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let fakeDB;
         let data;
         let store;
@@ -170,13 +168,12 @@ describe("OnChain Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
-            sandbox = sinon.sandbox.create();
             window.ipcClient.resetHistory();
             window.ipcRenderer.send.resetHistory();
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeApp = sandbox.stub(appOperations);
-            fakeDB = sandbox.stub(db);
-            fakeStore = sandbox.stub(defaultStore);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeApp = sinon.stub(appOperations);
+            fakeDB = sinon.stub(db);
+            fakeStore = sinon.stub(defaultStore);
             data = {
                 onchainBuilder: {
                     update: sinon.stub(),
@@ -202,7 +199,7 @@ describe("OnChain Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer()", () => {
@@ -370,7 +367,7 @@ describe("OnChain Unit Tests", () => {
                 store = mockStore(initState);
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_SEND_COINS_DETAILS_REQUIRED,
+                    error: exceptions.SEND_COINS_DETAILS_REQUIRED,
                     f: "sendCoins",
                 };
                 expect(await store.dispatch(operations.sendCoins())).to.deep.equal(expectedData);

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { analytics, helpers } from "additional";
-import History from "components/history";
+import RecordsTable from "components/records/table";
 import BalanceWithMeasure from "components/common/balance-with-measure";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
@@ -13,7 +13,7 @@ const compare = (a, b) => !a ? -1 : !b ? 1 : a > b ? 1 : a < b ? -1 : 0;
 class RegularHistory extends Component {
     getHistoryHeader = () => ([
         {
-            Header: <span className="sortable">Name of payment</span>,
+            Header: <span className="sortable">Description</span>,
             accessor: "name",
             sortMethod: (a, b) => compare(
                 a.props.children.toLowerCase(),
@@ -110,7 +110,7 @@ class RegularHistory extends Component {
                             {helpers.formatDate(item.date)}
                         </div>
                     ),
-                    name: <Ellipsis classList="history">{item.name}</Ellipsis>,
+                    name: <Ellipsis className="history">{item.name}</Ellipsis>,
                     to: <Ellipsis>{address}</Ellipsis>,
                 };
             });
@@ -118,7 +118,7 @@ class RegularHistory extends Component {
 
     render() {
         return (
-            <History
+            <RecordsTable
                 columns={this.getHistoryHeader()}
                 data={this.getHistoryData()}
                 defaultSorted={[

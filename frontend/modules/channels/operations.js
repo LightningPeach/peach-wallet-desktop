@@ -1,7 +1,7 @@
 import keyBy from "lodash/keyBy";
 import has from "lodash/has";
 import isEqual from "lodash/isEqual";
-import { statusCodes } from "config";
+import { exceptions } from "config";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
 import { db, successPromise, errorPromise, logger } from "additional";
@@ -125,7 +125,7 @@ function getChannels(initAccount = false) {
                             }));
                         }
                         if (dbChan.status === "active" && dbChan.localBalance < parseInt(channel.local_balance, 10)) {
-                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line max-len
                             dispatch(appOperations.sendSystemNotification({
                                 body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
                                 title: chanName,
@@ -288,7 +288,7 @@ function connectPeer(lightningID, peerAddress) {
 function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
-            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareNewChannel);
+            return errorPromise(exceptions.ACCOUNT_NO_KERNEL, prepareNewChannel);
         }
         const newChannel = {
             capacity,
@@ -302,16 +302,10 @@ function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
     };
 }
 
-function clearNewChannel() {
-    return async (dispatch, getState) => {
-        dispatch(actions.clearNewChannelPreparing());
-    };
-}
-
 function setCurrentChannel(id) {
     return async (dispatch, getState) => {
         if (!getState().channels.channels[id]) {
-            return errorPromise(statusCodes.EXCEPTION_CHANNEL_ABSENT, setCurrentChannel);
+            return errorPromise(exceptions.CHANNEL_ABSENT, setCurrentChannel);
         }
         dispatch(actions.setCurrentChannel(getState().channels.channels[id]));
         return successPromise();
@@ -370,7 +364,7 @@ function closeChannel(channel, force = false) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         dispatch(actions.removeFromDelete(channel.channel_point));
         return successPromise();
@@ -420,25 +414,38 @@ function createNewChannel() {
                     status: "pending",
                 })
                 .execute();
-            await db.onchainBuilder()
-                .insert()
-                .values({
-                    address: "-",
-                    amount: -newChannelDetails.capacity,
-                    blockHash: "",
-                    blockHeight: 0,
-                    name: `Opening ${newChannelDetails.name}`,
-                    numConfirmations: 0,
-                    status: "pending",
-                    timeStamp: Math.floor(Date.now() / 1000),
-                    totalFees: 0,
-                    txHash: responseChannels.funding_txid_str,
-                })
-                .execute();
+            const onchainTxnExists = await db.onchainBuilder()
+                .select()
+                .where("txHash = :txHash", { txHash: responseChannels.funding_txid_str })
+                .getOne();
+            if (onchainTxnExists) {
+                await db.onchainBuilder()
+                    .update()
+                    .set({ name: `Opening ${newChannelDetails.name}` })
+                    .where("txHash = :txHash", { txHash: responseChannels.funding_txid_str })
+                    .execute();
+            } else {
+                await db.onchainBuilder()
+                    .insert()
+                    .values({
+                        address: "-",
+                        amount: -newChannelDetails.capacity,
+                        blockHash: "",
+                        blockHeight: 0,
+                        name: `Opening ${newChannelDetails.name}`,
+                        numConfirmations: 0,
+                        status: "pending",
+                        timeStamp: Math.floor(Date.now() / 1000),
+                        totalFees: 0,
+                        txHash: responseChannels.funding_txid_str,
+                    })
+                    .execute();
+            }
+            /* istanbul ignore next */
             creatingChannelPoint = null;
         } catch (e) {
             /* istanbul ignore next */
-            logger.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         const expectedBitcoinBalance = getState().account.bitcoinBalance - newChannelDetails.capacity;
         dispatch(actions.successCreateNewChannel(expectedBitcoinBalance));
@@ -494,20 +501,6 @@ function hideShowCreateTutorial() {
     };
 }
 
-function shouldShowLightningTutorial() {
-    return async (dispatch, getState) => {
-        getState()
-            .channels
-            .channels
-            .forEach((item) => {
-                if (item.status === types.CHANNEL_STATUS_ACTIVE) {
-                    dispatch(actions.updateLightningTutorialStatus(types.HIDE));
-                }
-            });
-        return successPromise();
-    };
-}
-
 export {
     openStreamWarningModal,
     openNewChannelModal,
@@ -522,9 +515,7 @@ export {
     clearCurrentChannel,
     closeChannel,
     createNewChannel,
-    clearNewChannel,
     updateChannelOnServer,
     shouldShowCreateTutorial,
-    shouldShowLightningTutorial,
     hideShowCreateTutorial,
 };

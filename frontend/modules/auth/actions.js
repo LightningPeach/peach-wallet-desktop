@@ -5,9 +5,14 @@ const setCurrentForm = payload => ({
     type: types.SET_CURRENT_FORM,
 });
 
-const setTempUsername = payload => ({
+const setTempWalletName = payload => ({
     payload,
-    type: types.SET_TEMP_USERNAME,
+    type: types.SET_TEMP_WALLET_NAME,
+});
+
+const setPassword = payload => ({
+    payload,
+    type: types.SET_PASSWORD,
 });
 
 const setAuthStep = payload => ({
@@ -15,8 +20,15 @@ const setAuthStep = payload => ({
     type: types.SET_REGISTRATION_STEP,
 });
 
+const setSessionStatus = payload => ({
+    payload,
+    type: types.SET_SESSION_STATUS,
+});
+
 export {
     setCurrentForm,
     setAuthStep,
-    setTempUsername,
+    setPassword,
+    setTempWalletName,
+    setSessionStatus,
 };

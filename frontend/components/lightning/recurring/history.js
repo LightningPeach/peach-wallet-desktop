@@ -2,11 +2,10 @@ import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Tooltip from "rc-tooltip";
-import { analytics, helpers } from "additional";
+
+import { analytics, helpers, tooltips } from "additional";
 import { lightningOperations as operations } from "modules/lightning";
 import { channelsOperations, channelsSelectors } from "modules/channels";
-import History from "components/history";
-import BalanceWithMeasure from "components/common/balance-with-measure";
 import {
     streamPaymentOperations,
     streamPaymentTypes,
@@ -14,7 +13,11 @@ import {
 } from "modules/streamPayments";
 import { filterTypes, filterOperations } from "modules/filter";
 import { appOperations } from "modules/app";
-import { STREAM_INFINITE_TIME_VALUE } from "config/consts";
+import { accountTypes } from "modules/account";
+import { consts } from "config";
+
+import RecordsTable from "components/records/table";
+import BalanceWithMeasure from "components/common/balance-with-measure";
 import Ellipsis from "components/common/ellipsis";
 
 const compare = (a, b, aPinned, bPinned, desc) => {
@@ -30,30 +33,13 @@ const compare = (a, b, aPinned, bPinned, desc) => {
 };
 
 class RecurringHistory extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            tooltips: {
-                amount: [
-                    "Total amount for the whole recurring payment",
-                    "and price per singe time unit within the payment.",
-                ],
-                count: [
-                    "Current count of paid (confirmed) plus pending",
-                    "(finished but not confirmed) payments relative",
-                    "to total amount of payments.",
-                ],
-            },
-        };
-    }
-
     getHistoryHeader = () => ([
         {
-            Header: <span className="sortable">Name of payment</span>,
+            Header: <span className="sortable">Description</span>,
             accessor: "name",
             sortMethod: (a, b, desc) => compare(
-                a.props.children[0].props.children.toLowerCase(),
-                b.props.children[0].props.children.toLowerCase(),
+                a.props.children.toLowerCase(),
+                b.props.children.toLowerCase(),
                 a.props["data-pinned"],
                 b.props["data-pinned"],
                 desc,
@@ -72,7 +58,7 @@ class RecurringHistory extends Component {
                     Amount
                     <Tooltip
                         placement="right"
-                        overlay={helpers.formatMultilineText(this.state.tooltips.amount)}
+                        overlay={tooltips.RECURRING_AMOUNT}
                         trigger="hover"
                         arrowContent={
                             <div className="rc-tooltip-arrow-inner" />
@@ -80,7 +66,7 @@ class RecurringHistory extends Component {
                         prefixCls="rc-tooltip__small rc-tooltip"
                         mouseLeaveDelay={0}
                     >
-                        <i className="form-label__icon form-label__icon--info" />
+                        <i className="tooltip tooltip--info" />
                     </Tooltip>
                 </span>),
             accessor: "amount",
@@ -105,7 +91,7 @@ class RecurringHistory extends Component {
                     Count
                     <Tooltip
                         placement="right"
-                        overlay={helpers.formatMultilineText(this.state.tooltips.count)}
+                        overlay={tooltips.RECURRING_COUNT}
                         trigger="hover"
                         arrowContent={
                             <div className="rc-tooltip-arrow-inner" />
@@ -113,7 +99,7 @@ class RecurringHistory extends Component {
                         prefixCls="rc-tooltip__small rc-tooltip"
                         mouseLeaveDelay={0}
                     >
-                        <i className="form-label__icon form-label__icon--info" />
+                        <i className="tooltip tooltip--info" />
                     </Tooltip>
                 </span>),
             accessor: "count",
@@ -148,7 +134,7 @@ class RecurringHistory extends Component {
 
     getHistoryData = () => {
         const {
-            dispatch, contacts, history, lightningID, streams, isThereActiveChannel, filter,
+            dispatch, contacts, history, lightningID, streams, isThereActiveChannel, filter, walletMode,
         } = this.props;
         return [
             ...streams.sort((a, b) => a.date > b.date ? -1 : a.date < b.date ? 1 : 0),
@@ -204,7 +190,7 @@ class RecurringHistory extends Component {
                 if (item.status === streamPaymentTypes.STREAM_PAYMENT_PAUSED) {
                     status = (
                         <Fragment>
-                            <span
+                            <button
                                 className="start"
                                 onClick={() => {
                                     analytics.event({
@@ -218,8 +204,9 @@ class RecurringHistory extends Component {
                                     }
                                     dispatch(streamPaymentOperations.startStreamPayment(item.id));
                                 }}
+                                disabled={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                             />
-                            <span
+                            <button
                                 className="stop"
                                 onClick={() => {
                                     analytics.event({
@@ -229,12 +216,13 @@ class RecurringHistory extends Component {
                                     });
                                     dispatch(streamPaymentOperations.finishStreamPayment(item.id));
                                 }}
+                                disabled={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                             />
                         </Fragment>
                     );
                 } else if (item.status === streamPaymentTypes.STREAM_PAYMENT_STREAMING) {
                     status = (
-                        <span
+                        <button
                             className="pause"
                             onClick={() => {
                                 analytics.event({
@@ -244,6 +232,7 @@ class RecurringHistory extends Component {
                                 });
                                 dispatch(streamPaymentOperations.pauseStreamPayment(item.id));
                             }}
+                            disabled={walletMode !== accountTypes.WALLET_MODE.EXTENDED}
                         />
                     );
                 }
@@ -268,11 +257,13 @@ class RecurringHistory extends Component {
                             >
                                 {item.partsPaid}
                                 {item.partsPending > 0 && `+${item.partsPending}`}
-                            </span> / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
+                            </span> / {item.totalParts === consts.STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
                         </span>)
                     : (
                         <span>
-                            {item.partsPaid} / {item.totalParts === STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts}
+                            {item.partsPaid} / {
+                                item.totalParts === consts.STREAM_INFINITE_TIME_VALUE ? "∞" : item.totalParts
+                            }
                         </span>);
                 return {
                     amount,
@@ -294,13 +285,16 @@ class RecurringHistory extends Component {
                         <div data-pinned={item.isActive}>
                             <Ellipsis>{item.name}</Ellipsis>
                             <div className="stream__actions">
-                                <button
-                                    className="table__button"
-                                    type="button"
-                                    onClick={() => { this.handleEdit(item) }}
-                                >
-                                    Edit
-                                </button>
+                                {walletMode === accountTypes.WALLET_MODE.EXTENDED &&
+                                    item.name !== consts.INCOMING_RECURRING_NAME &&
+                                    <button
+                                        className="table__button"
+                                        type="button"
+                                        onClick={() => { this.handleEdit(item) }}
+                                    >
+                                        Edit
+                                    </button>
+                                }
                                 <button
                                     className="table__button"
                                     type="button"
@@ -336,7 +330,7 @@ class RecurringHistory extends Component {
 
     render() {
         return (
-            <History
+            <RecordsTable
                 columns={this.getHistoryHeader()}
                 data={this.getHistoryData()}
                 defaultSorted={[
@@ -379,6 +373,7 @@ RecurringHistory.propTypes = {
         status: PropTypes.string.isRequired,
         totalParts: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     })).isRequired,
+    walletMode: PropTypes.oneOf(accountTypes.WALLET_MODES_LIST),
 };
 
 const mapStateToProps = state => ({
@@ -390,6 +385,7 @@ const mapStateToProps = state => ({
     lightningID: state.account.lightningID,
     modalState: state.app.modalState,
     streams: state.streamPayment.streams,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(RecurringHistory);

@@ -23,11 +23,6 @@ const setLndInitStatus = payload => ({
     type: types.SET_LND_INIT_STATUS,
 });
 
-const setNetworkBlocksHeight = payload => ({
-    payload,
-    type: types.SET_NETWORK_BLOCKS,
-});
-
 const setLndBlocksHeight = payload => ({
     payload,
     type: types.SET_LND_BLOCKS_HEIGHT,
@@ -43,7 +38,6 @@ export {
     lndInitingSuccess,
     lndInitingError,
     lndSynced,
-    setNetworkBlocksHeight,
     setLndBlocksHeight,
     setLndBlocksHeightOnLogin,
     setLndInitStatus,
