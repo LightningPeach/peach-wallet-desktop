@@ -101,7 +101,7 @@ class ConnectRemoteQR extends Component {
                                                 </li>
                                                 <li className="list__item">
                                                     Finally, you need to generate new QR code being located on the same
-                                                    network with the routerContacts
+                                                    network with the router
                                                 </li>
                                             </ul>
                                         </div>
