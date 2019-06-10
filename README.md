@@ -4,6 +4,7 @@
   <img src="docs/peach_logo.png" alt="peach logo" />
 </h1>
 
+
 Peach Wallet is a free cross-platform desktop Lightning Network wallet. It simplifies the process of making micro payments, which are processed seamlessly thanks to user-friendly application and own payment server solution.
 
 ### Technical details
