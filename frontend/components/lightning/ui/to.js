@@ -3,12 +3,11 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { contactsActions, contactsOperations } from "modules/contacts";
 import { PAYMENT_REQUEST_LENGTH, LIGHTNING_ID_LENGTH } from "config/consts";
-import debounce from "lodash/debounce";
+import { debounce } from "additional";
 
 class ToField extends Component {
     constructor(props) {
         super(props);
-        this.onBlur = debounce(this.onBlur.bind(this), 150);
         this.selectedItem = false;
         this.pseudoFocused = false;
         this.state = {
@@ -50,7 +49,7 @@ class ToField extends Component {
         document.removeEventListener("mouseup", this._handleMouseUp, false);
     }
 
-    onBlur = () => {
+    onBlur = debounce(() => {
         if (this.pseudoFocused) {
             return;
         }
@@ -70,7 +69,7 @@ class ToField extends Component {
             this.setState({ empty: value.length < 1, isFocused: false, value });
         }
         this.props.onChange(value);
-    };
+    }, 150);
 
     onInput = () => {
         const { value } = this.input;
@@ -218,8 +217,9 @@ class ToField extends Component {
     );
 
     render() {
+        const { disableLightningId } = this.props;
         return (
-            <div className="l-select">
+            <div className={`l-select ${disableLightningId ? "l-select--no-dropdown" : ""}`}>
                 {this.renderArrow()}
                 {/* {this.renderClear()} */}
                 <input
@@ -235,7 +235,7 @@ class ToField extends Component {
                     onChange={this.onInput}
                     disabled={this.props.disabled}
                 />
-                {this.state.isFocused ? this.renderDropdown() : null}
+                {this.state.isFocused && !disableLightningId ? this.renderDropdown() : null}
             </div>
         );
     }
@@ -248,6 +248,7 @@ ToField.propTypes = {
         name: PropTypes.string.isRequired,
     })),
     contactsSearch: PropTypes.string,
+    disableLightningId: PropTypes.bool,
     disabled: PropTypes.bool,
     dispatch: PropTypes.func.isRequired,
     id: PropTypes.string,

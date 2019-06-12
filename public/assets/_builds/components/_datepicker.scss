@@ -1,0 +1,86 @@
+.react-datepicker {
+  border: none;
+  border-radius: 2px;
+  overflow: hidden;
+
+  &__triangle {
+    display: none;
+  }
+
+  &__header {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom: none;
+    padding-top: 12px;
+    background-color: $white;
+  }
+
+  &__current-month {
+    color: $black;
+    font-size: 14px;
+    font-weight: 600;
+    height: 40px;
+    line-height: 40px;
+  }
+
+  &__navigation {
+    top: 24px;
+
+    &--next {
+      right: 16px;
+      border-left-color: $black;
+
+      &:hover {
+        border-left-color: $black;
+      }
+    }
+
+    &--previous {
+      border-right-color: $black;
+      left: 16px;
+
+      &:hover {
+        border-right-color: $black;
+      }
+    }
+  }
+
+  &__month {
+    margin: 6px 16px 0;
+  }
+
+  &__day {
+    margin: 1px;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      border-radius: 50%;
+    }
+
+    &-names {
+      margin: 0 16px;
+    }
+
+    &-name {
+      font-weight: 600;
+      margin: 1px;
+      width: 28px;
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+    }
+
+    &--in-range {
+      border-radius: 50%;
+      background-color: $yellow;
+
+      &:hover {
+        background-color: rgba(255, 119, 0, 0.38);
+      }
+    }
+  }
+}

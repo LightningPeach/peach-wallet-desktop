@@ -1,0 +1,62 @@
+.chat {
+    &__msg-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__msg {
+        padding: 5px;
+        border-radius: $border-radius;
+        max-width: 50%;
+        position: relative;
+        margin-bottom: 10px;
+
+        &--invoice {
+            $bColor: $red30;
+            background: $bColor;
+            align-self: flex-end;
+            margin-right: 10px;
+
+            &:after {
+                border-width: 10px 0 0 10px;
+                border-color: transparent transparent transparent $bColor;
+                right: -10px;
+            }
+        }
+
+        &--payment {
+            $bColor: $yellow30;
+            background: $bColor;
+            align-self: flex-start;
+            margin-left: 10px;
+
+            &:after {
+                border-width: 0 0 10px 10px;
+                border-color: transparent transparent $bColor transparent;
+                left: -10px;
+            }
+        }
+
+        &:after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+            position: absolute;
+            bottom: 5px;
+        }
+    }
+
+    &__username {
+        display: block;
+        text-transform: capitalize;
+        padding-bottom: 5px;
+        font-weight: 500;
+    }
+
+    &__date {
+        font-size: 12px;
+        text-align: right;
+        padding-top: 10px;
+    }
+}

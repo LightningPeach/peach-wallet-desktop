@@ -74,7 +74,6 @@ describe("Contacts Unit Tests", () => {
     describe("Operations tests", () => {
         const lightningID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         const name = "waldo";
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -91,10 +90,9 @@ describe("Contacts Unit Tests", () => {
             successResp = await successPromise();
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
-            fakeDB = sandbox.stub(db);
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
+            fakeDB = sinon.stub(db);
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
             data = {
                 contactsBuilder: {
                     getMany: sinon.stub(),
@@ -123,7 +121,7 @@ describe("Contacts Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("Contacts search", () => {

@@ -1,72 +1,54 @@
 import * as types from "./types";
 
-const setStreamPage = streamId => ({
-    payload: streamId,
-    type: types.SET_STREAM_PAGE,
+const setCurrentStream = payload => ({
+    payload,
+    type: types.SET_CURRENT_STREAM,
 });
 
-const streamPaymentPrepare = streamDetails => ({
-    payload: streamDetails,
-    type: types.STREAM_PAYMENT_PREPARE,
+const prepareStreamPayment = payload => ({
+    payload,
+    type: types.PREPARE_STREAM_PAYMENT,
 });
 
-const streamPaymentUpdate = (streamId, title) => ({
+const updateStreamPayment = (streamId, details) => ({
     payload: {
-        streamId,
-        title,
-    },
-    type: types.STREAM_PAYMENT_UPDATE,
-});
-
-const streamPaymentDelete = streamId => ({
-    payload: streamId,
-    type: types.STREAM_PAYMENT_DELETE,
-});
-
-const streamPaymentSuccessFinish = streamId => ({
-    payload: streamId,
-    type: types.STREAM_PAYMENT_SUCCESS_FINISH,
-});
-
-const streamPaymentFailFinish = streamId => ({
-    payload: streamId,
-    type: types.STREAM_PAYMENT_FAIL_FINISH,
-});
-
-const streamPaymentStatus = (streamId, status) => ({
-    payload: {
-        status,
+        details,
         streamId,
     },
-    type: types.STREAM_PAYMENT_STATUS,
+    type: types.UPDATE_STREAM_PAYMENT,
 });
 
-const streamCurrentSec = (streamId, sec) => ({
+const changeStreamPartsPaid = (streamId, change) => ({
     payload: {
-        currentPart: sec,
+        change,
         streamId,
     },
-    type: types.STREAM_CURRENT_SEC,
+    type: types.CHANGE_STREAM_PARTS_PAID,
 });
 
-const addStreamToList = () => ({
-    type: types.ADD_STREAM_TO_LIST,
+const changeStreamPartsPending = (streamId, change) => ({
+    payload: {
+        change,
+        streamId,
+    },
+    type: types.CHANGE_STREAM_PARTS_PENDING,
 });
 
-const setStreams = streams => ({
-    payload: streams,
-    type: types.SET_STREAMS,
+const addStreamPaymentToList = () => ({
+    type: types.ADD_STREAM_PAYMENT_TO_LIST,
+});
+
+const setStreamPayments = payload => ({
+    payload,
+    type: types.SET_STREAM_PAYMENTS,
 });
 
 export {
-    setStreamPage,
-    streamPaymentPrepare,
-    streamPaymentUpdate,
-    streamPaymentDelete,
-    streamPaymentSuccessFinish,
-    streamPaymentFailFinish,
-    streamPaymentStatus,
-    streamCurrentSec,
-    addStreamToList,
-    setStreams,
+    setCurrentStream,
+    prepareStreamPayment,
+    updateStreamPayment,
+    changeStreamPartsPaid,
+    changeStreamPartsPending,
+    addStreamPaymentToList,
+    setStreamPayments,
 };

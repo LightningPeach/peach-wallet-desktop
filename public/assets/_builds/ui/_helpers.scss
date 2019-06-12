@@ -1,49 +1,43 @@
-.text-right {
-    text-align: right !important;
-}
-
-.text-center {
-    text-align: center !important;
-}
-
-.text-left {
-    text-align: left !important;
-}
-
-.position-init {
-    position: initial;
-}
-
 .date__ymd + .date__hms {
     padding-left: 8px;
 }
 
 .text-ellipsis {
-    &__container {
-        position: relative;
-        width: 100%;
-        white-space: nowrap;
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    position: relative;
+    width: 100%;
+    white-space: nowrap;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 24px;
+    line-height: 24px;
+
+    &--sm {
         min-height: 16px;
+        line-height: 16px;
+    }
 
-        &.hovered {
-            overflow: visible;
+    &.hovered {
+        overflow: visible;
+        white-space: normal;
+
+        .text-ellipsis__popper {
+            position: absolute;
+            width: calc(100% + 10px);
+            word-break: break-all;
+            background: $white;
+            padding: 5px;
+            margin-top: -5px;
+            margin-left: -5px;
+            box-shadow: 0 2px 4px 0 rgba(181, 181, 181, 0.5);
             white-space: normal;
-
-            .text-ellipsis__text {
-                position: absolute;
-                width: 100%;
-                word-break: break-all;
-                background: #fff;
-                padding: 5px;
-                margin-top: -5px;
-                margin-left: -5px;
-                box-shadow: 0 2px 4px 0 rgba(181, 181, 181, 0.5);
-                white-space: normal;
-                z-index: 1;
-            }
+            left: 0;
+            top: 0;
+            z-index: 1;
         }
     }
+}
+
+.position {
+    &-relative { position: relative; }
 }

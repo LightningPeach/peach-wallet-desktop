@@ -2,6 +2,7 @@ const fs = require("fs");
 const { join } = require("path");
 const helpers = require("../utils/helpers");
 const baseLogger = require("../utils/logger");
+const publicIp = require("public-ip");
 
 const logger = baseLogger.child("electron");
 
@@ -12,42 +13,18 @@ module.exports = ({
     config,
 }) => {
     const peersFile = join(config.get("dataPath"), "peers.json");
+    const ipFile = join(config.get("dataPath"), "ip.json");
+    const userPathsFile = join(config.get("dataPath"), "usersPath.json");
     /**
-     * Return username based path to database file
-     * @param {*} username
+     * Return wallet name based path to database file
+     * @param {*} walletName
      * @returns {*}
      */
-    const databasePath = username => join(config.get("dataPath"), String(username), config.get("backend.dbFile"));
-
-    /**
-     * Create agreement file (eula.txt and google analytics agreement)
-     * @param {bool} gaChecked - if user agreed to send ga analytics
-     */
-    const setAgreement = async (gaChecked) => {
-        logger.info("[SETTINGS] - setAgreement", gaChecked);
-        const sendStatistics = gaChecked || false;
-        const agreementContent = [
-            "[agreement]",
-            "eula = true",
-            `sendStatistics = ${sendStatistics}`,
-        ];
-        if (gaChecked) {
-            agreementContent.push(
-                "",
-                "[analytics]",
-                `trackingID = ${baseSettings.peachSettings.analytics.trackingID}`,
-                `appUrl = ${baseSettings.peachSettings.analytics.appUrl}`,
-            );
-        }
-        logger.info("[SETTINGS] - will write ", agreementContent);
-        await helpers.writeFile(join(dataPath, "agreement.ini"), agreementContent.join("\n"));
-        config.set("analytics", Object.assign({}, baseSettings.peachSettings.analytics));
-        config.set("agreement", { eula: true, sendStatistics });
-    };
+    const databasePath = walletName => join(config.get("lndPath"), String(walletName), config.get("backend.dbFile"));
 
     const walletLndPath = (name, additionalFile) => {
         if (!name) {
-            throw new Error("Username for wallet not provided");
+            throw new Error("Wallet name not provided");
         }
         const paths = [config.get("dataPath"), String(name)];
         if (additionalFile) {
@@ -56,23 +33,23 @@ module.exports = ({
         return join(...paths);
     };
 
-    const listenPort = (username) => {
+    const listenPort = (walletName) => {
         const fileExists = fs.existsSync(peersFile);
         if (!fileExists) {
-            logger.info("[SETTINGS] - listenPort", { fileExists, username, port: config.get("lnd.init_listen") });
+            logger.info("[SETTINGS] - listenPort", { fileExists, walletName, port: config.get("lnd.init_listen") });
             return config.get("lnd.init_listen");
         }
         const peers = JSON.parse(fs.readFileSync(peersFile).toString());
-        logger.info("[SETTINGS] - listenPort", { fileExists, username, peers });
-        if (username in peers) {
-            return peers[username];
+        logger.info("[SETTINGS] - listenPort", { fileExists, walletName, peers });
+        if (walletName in peers) {
+            return peers[walletName];
         }
         const lndPeer = Math.max(...Object.values(peers));
-        logger.info("[SETTINGS] - listenPort", { fileExists, username, lndPeer });
+        logger.info("[SETTINGS] - listenPort", { fileExists, walletName, lndPeer });
         return parseInt(lndPeer, 10) + 1;
     };
 
-    const setListenPort = async (username, port) => {
+    const setListenPort = async (walletName, port) => {
         const initPort = config.get("lnd.init_listen");
         const parsedPort = parseInt(port, 10);
         if (parsedPort < initPort) {
@@ -80,27 +57,116 @@ module.exports = ({
         }
         const fileExists = fs.existsSync(peersFile);
         logger.info("[SETTINGS] - setListenPort", {
-            initPort, parsedPort, peersFile, fileExists, username,
+            initPort, parsedPort, peersFile, fileExists, walletName,
         });
         if (!fileExists) {
-            await helpers.writeFile(peersFile, JSON.stringify({ [username]: parsedPort }));
+            await helpers.writeFile(peersFile, JSON.stringify({ [walletName]: parsedPort }));
             return;
         }
         helpers.ipcSend("setPeerPort", parsedPort);
         const peers = JSON.parse(fs.readFileSync(peersFile).toString());
         logger.info("[SETTINGS] - setListenPort", { peers });
-        if (username in peers && peers[username] === parsedPort) {
+        if (walletName in peers && peers[walletName] === parsedPort) {
             return;
         }
-        peers[username] = parsedPort;
+        peers[walletName] = parsedPort;
         await helpers.writeFile(peersFile, JSON.stringify(peers));
     };
 
+    const getCustomPathLndWalletNames = () => {
+        const basePath = config.get("dataPath");
+        const baseFolders = {};
+        let allData;
+        helpers.readFolderWithinFolder(basePath).forEach((item) => {
+            baseFolders[item] = basePath;
+        });
+        if (fs.existsSync(userPathsFile)) {
+            allData = Object.assign({}, baseFolders, JSON.parse(fs.readFileSync(userPathsFile).toString()));
+        } else {
+            allData = baseFolders;
+        }
+        return Object.entries(allData).reduce((data, [walletName, userPath]) => {
+            const returnData = data;
+            const { ok } = helpers.checkDirSync(join(userPath, walletName, "data"));
+            if (ok) {
+                returnData[walletName] = userPath;
+            }
+            return returnData;
+        }, {});
+    };
+
+    const loadLndPath = async (walletName) => {
+        const defaultPath = config.get("dataPath");
+        const paths = getCustomPathLndWalletNames();
+        logger.info("[SETTINGS] - getLndPath", { walletName, paths });
+        if (walletName in paths) {
+            return paths[walletName];
+        }
+        return defaultPath;
+    };
+
+    const saveLndPath = async (walletName, lndPath) => {
+        const paths = getCustomPathLndWalletNames();
+        logger.info("[SETTINGS] - saveLndPath", { paths });
+        if (walletName in paths && paths[walletName] === lndPath) {
+            return;
+        }
+        paths[walletName] = lndPath;
+        await helpers.writeFile(userPathsFile, JSON.stringify(paths));
+    };
+
+    const saveLndIP = async (username, ip) => {
+        const fileExists = fs.existsSync(ipFile);
+        logger.info("[SETTINGS] - saveLndIP", {
+            ip, ipFile, fileExists, username,
+        });
+        if (!fileExists) {
+            await helpers.writeFile(ipFile, JSON.stringify({ [username]: ip }));
+            return;
+        }
+        const ips = JSON.parse(fs.readFileSync(ipFile).toString());
+        logger.info("[SETTINGS] - saveLndIP", { ips });
+        if (username in ips && ips[username] === ip) {
+            return;
+        }
+        ips[username] = ip;
+        await helpers.writeFile(ipFile, JSON.stringify(ips));
+    };
+
+    /**
+     * Will save ip into file if file does not exist or if there in no data about current user
+     * @param username
+     * @returns ip
+     */
+    const getLndIP = async (username) => {
+        const fileExists = fs.existsSync(ipFile);
+        const lnd = config.get("lnd");
+        const defaultIP = `${await publicIp.v4()}:${lnd.restlisten}`;
+        if (!fileExists) {
+            // default return for the function
+            await saveLndIP(username, defaultIP);
+            return defaultIP;
+        }
+        const ips = JSON.parse(fs.readFileSync(ipFile).toString());
+        logger.info("[SETTINGS] - getLndIP", { fileExists, username, ips });
+        if (username in ips) {
+            return ips[username];
+        }
+
+        // defaul return for the function
+        await saveLndIP(username, defaultIP);
+        return defaultIP;
+    };
+
     return {
+        getCustomPathLndWalletNames,
         databasePath,
         listenPort,
-        setAgreement,
         setListenPort,
         walletLndPath,
+        loadLndPath,
+        saveLndPath,
+        getLndIP,
+        saveLndIP,
     };
 };

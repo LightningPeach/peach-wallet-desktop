@@ -4,6 +4,7 @@ import thunk from "redux-thunk";
 import createLogger from "redux-logger";
 import { hashHistory } from "react-router";
 import { routerMiddleware } from "react-router-redux";
+import { NODE_ENV } from "config/node-settings";
 import rootReducer from "reducers";
 import { initStateAccount } from "modules/account/reducers";
 import { initStateApp } from "modules/app/reducers";
@@ -14,22 +15,28 @@ import { initStateStreamPayment } from "modules/streamPayments/reducers";
 import { initStateContacts } from "modules/contacts/reducers";
 import { initStateChannels } from "modules/channels/reducers";
 import { initStateOnchain } from "modules/onchain/reducers";
+import { initStateFilter } from "modules/filter/reducers";
+import { initStateServer } from "modules/server/reducers";
 
-let persistedState;
-if (persistedState === undefined) {
-    persistedState = {
-        account: JSON.parse(JSON.stringify(initStateAccount)),
-        app: JSON.parse(JSON.stringify(initStateApp)),
-        auth: JSON.parse(JSON.stringify(initStateAuth)),
-        channels: JSON.parse(JSON.stringify(initStateChannels)),
-        contacts: JSON.parse(JSON.stringify(initStateContacts)),
-        lightning: JSON.parse(JSON.stringify(initStateLightning)),
-        lnd: JSON.parse(JSON.stringify(initStateLnd)),
-        notifications: [],
-        onchain: JSON.parse(JSON.stringify(initStateOnchain)),
-        streamPayment: JSON.parse(JSON.stringify(initStateStreamPayment)),
-    };
-}
+const testStore = NODE_ENV === "test"
+    ? { listActions: [] }
+    : null;
+
+export const persistedState = {
+    ...testStore,
+    account: JSON.parse(JSON.stringify(initStateAccount)),
+    app: JSON.parse(JSON.stringify(initStateApp)),
+    auth: JSON.parse(JSON.stringify(initStateAuth)),
+    channels: JSON.parse(JSON.stringify(initStateChannels)),
+    contacts: JSON.parse(JSON.stringify(initStateContacts)),
+    filter: JSON.parse(JSON.stringify(initStateFilter)),
+    lightning: JSON.parse(JSON.stringify(initStateLightning)),
+    lnd: JSON.parse(JSON.stringify(initStateLnd)),
+    notifications: [],
+    onchain: JSON.parse(JSON.stringify(initStateOnchain)),
+    server: JSON.parse(JSON.stringify(initStateServer)),
+    streamPayment: JSON.parse(JSON.stringify(initStateStreamPayment)),
+};
 
 const router = routerMiddleware(hashHistory);
 
@@ -38,7 +45,9 @@ const logger = createLogger({
     level: "info",
 });
 
-const enhancer = applyMiddleware(thunk, router, logger);
+const enhancer = NODE_ENV === "test"
+    ? applyMiddleware(thunk, router)
+    : applyMiddleware(thunk, router, logger);
 
 export const configureStore = (initialState = JSON.parse(JSON.stringify(persistedState))) => {
     const store = createStore(

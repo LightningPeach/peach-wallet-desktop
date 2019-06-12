@@ -1,6 +1,8 @@
+const { EntitySchema } = require("typeorm");
+
 const { Channels } = require("../model/Channels");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Channels,
     columns: {
         fundingTxid: {
@@ -15,9 +17,17 @@ module.exports = {
             type: "varchar",
             default: "pending",
         },
-        blockHeight: {
+        activeStatus: {
+            type: "integer",
+            default: 0,
+        },
+        localBalance: {
+            type: "integer",
+            default: 0,
+        },
+        remoteBalance: {
             type: "integer",
             default: 0,
         },
     },
-};
+});

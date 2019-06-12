@@ -1,22 +1,36 @@
 import fetch from "isomorphic-fetch";
 import urlParse from "url-parse";
 import { push } from "react-router-redux";
-import * as statusCodes from "config/status-codes";
-import { USD_PER_BTC_URL, LIGHTNING_ID_LENGTH, ONLY_LETTERS_AND_NUMBERS } from "config/consts";
+
+import { exceptions, consts, routes } from "config";
 import { store } from "store/configure-store";
-import { db, errorPromise, successPromise, helpers } from "additional";
+import { db, errorPromise, successPromise, helpers, logger } from "additional";
 import { info, error } from "modules/notifications";
 import { lightningActions } from "modules/lightning";
-import { WalletPath } from "routes";
+import { authTypes } from "modules/auth";
 import * as actions from "./actions";
 import * as types from "./types";
 
-function closeModal() {
-    return dispatch => dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
+function startModalFlow() {
+    return (dispatch, getState) => {
+        const { modalFlow } = getState().app;
+        if (!modalFlow.length) {
+            return;
+        }
+        dispatch(actions.modalFlowPopFirst());
+        dispatch(actions.setModalState(modalFlow[0]));
+    };
 }
 
-function openChangePasswordModal() {
-    return dispatch => dispatch(actions.setModalState(types.PROFILE_CHANGE_PASS_MODAL_STATE));
+function closeModal() {
+    return (dispatch, getState) => {
+        const { modalFlow } = getState().app;
+        if (!modalFlow.length) {
+            dispatch(actions.setModalState(types.CLOSE_MODAL_STATE));
+        } else {
+            dispatch(startModalFlow());
+        }
+    };
 }
 
 function openLogoutModal() {
@@ -39,11 +53,20 @@ function openLegalModal() {
     return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_LEGAL));
 }
 
+function openConnectRemoteQRModal() {
+    return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_CONNECT_REMOTE_QR));
+}
+
+function openPasswordRemoteQRModal() {
+    return dispatch => dispatch(actions.setModalState(types.MODAL_STATE_PASSWORD_REMOTE_QR));
+}
+
+
 function usdBtcRate() {
     return async (dispatch, getState) => {
         let response;
         try {
-            response = await fetch(USD_PER_BTC_URL, { method: "GET" });
+            response = await fetch(consts.USD_PER_BTC_URL, { method: "GET" });
             response = await response.json();
         } catch (e) {
             dispatch(actions.setUsdPerBtc(0));
@@ -65,11 +88,11 @@ function copyToClipboard(data, message = "") {
             document.execCommand("copy");
         } catch (err) {
             newMsg = "Error while copying to clipboard";
-            console.error(err);
+            logger.error(err);
         }
         document.body.removeChild(textArea);
         dispatch(info({
-            message: newMsg || "Copied",
+            message: helpers.formatNotificationMessage(newMsg || "Copied"),
             uid: newMsg.toString() || "Copied",
         }));
     };
@@ -90,22 +113,38 @@ function convertSatoshiToCurrentMeasure(value) {
     };
 }
 
+function convertUsdToSatoshi(amount) {
+    return (dispatch, getState) => {
+        const { usdPerBtc } = getState().app;
+        return Math.round(parseFloat(amount) / (consts.BTC_MEASURE.multiplier * usdPerBtc));
+    };
+}
+
+function convertUsdToCurrentMeasure(amount) {
+    return (dispatch, getState) => {
+        const currentMultiplier = getState().account.bitcoinMeasureMultiplier;
+        const toFixed = getState().account.toFixedMeasure;
+        const satoshiAmount = dispatch(convertUsdToSatoshi(amount));
+        return satoshiAmount * currentMultiplier;
+    };
+}
+
 const validateLightning = lightningId => (dispatch, getState) => {
     if (!lightningId) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
-    } else if (lightningId.length !== LIGHTNING_ID_LENGTH) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+        return exceptions.FIELD_IS_REQUIRED;
+    } else if (lightningId.length !== consts.LIGHTNING_ID_LENGTH) {
+        return exceptions.LIGHTNING_ID_WRONG_LENGTH;
     } else if (lightningId === getState().account.lightningID) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF;
-    } else if (!ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+        return exceptions.LIGHTNING_ID_WRONG_SELF;
+    } else if (!consts.ONLY_LETTERS_AND_NUMBERS.test(lightningId)) {
+        return exceptions.LIGHTNING_ID_WRONG;
     }
     return null;
 };
 
-function openDb(username, password) {
+function openDb(walletName, password) {
     return async (dispatch) => {
-        const response = await db.dbStart(username, password);
+        const response = await db.dbStart(walletName, password);
         if (!response.ok) {
             dispatch(actions.dbSetStatus(types.DB_CLOSED));
             return errorPromise(response.error, openDb);
@@ -120,6 +159,22 @@ function closeDb() {
         dispatch(actions.dbSetStatus(types.DB_CLOSING));
         await db.dbClose();
         dispatch(actions.dbSetStatus(types.DB_CLOSED));
+    };
+}
+
+function sendSystemNotification(sender) {
+    return (dispatch, getState) => {
+        const notifications = getState().account.systemNotifications;
+        const access = (notifications >> 2) & 1; // eslint-disable-line
+        const sound = (notifications >> 1) & 1; // eslint-disable-line
+        if (access) {
+            window.ipcRenderer.send("showNotification", {
+                body: sender.body,
+                silent: !sound,
+                subtitle: sender.subtitle,
+                title: sender.title,
+            });
+        }
     };
 }
 
@@ -143,21 +198,24 @@ window.ipcRenderer.on("handleUrlReceive", async (event, status) => {
     const parsed = urlParse(status);
     const paymentRequest = parsed.hostname || parsed.pathname;
     if (parsed.protocol !== "lightning:") {
-        store.dispatch(error({ message: "Incorrect payment protocol" }));
+        store.dispatch(error({ message: helpers.formatNotificationMessage("Incorrect payment protocol") }));
         return;
     }
     store.dispatch(lightningActions.setExternalPaymentRequest(paymentRequest));
-    if (store.getState().account.isLogined) {
-        store.dispatch(push(WalletPath));
+    if (store.getState().account.isLogined && store.getState().auth.sessionStatus === authTypes.SESSION_ACTIVE) {
+        store.dispatch(push(routes.WalletPath));
     }
 });
 
 export {
+    sendSystemNotification,
+    startModalFlow,
     closeModal,
-    openChangePasswordModal,
     usdBtcRate,
     copyToClipboard,
     convertToSatoshi,
+    convertUsdToSatoshi,
+    convertUsdToCurrentMeasure,
     convertSatoshiToCurrentMeasure,
     openForceLogoutModal,
     openDeepLinkLightningModal,
@@ -166,4 +224,6 @@ export {
     openDb,
     closeDb,
     openLegalModal,
+    openConnectRemoteQRModal,
+    openPasswordRemoteQRModal,
 };

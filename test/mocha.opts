@@ -1,6 +1,7 @@
 --exit
 --recursive
 --renderer
---require babel-polyfill
---require babel-core/register
+--require @babel/polyfill
+--require @babel/register
+--require raf/polyfill
 --require test/setup.js

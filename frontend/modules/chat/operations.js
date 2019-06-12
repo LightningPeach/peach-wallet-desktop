@@ -1,0 +1,26 @@
+/* eslint-disable import/prefer-default-export */
+import { errorPromise, successPromise } from "additional";
+
+import * as actions from "./actions";
+
+function sendMsg(lightningId, msg) {
+    return async (dispatch) => {
+        const amt = 1;
+        const response = await window.ipcClient("sendPayment", {
+            details: {
+                amt,
+                dest_string: lightningId,
+                message: msg,
+            },
+            isPayReq: false,
+        });
+        if (!response.ok) {
+            return errorPromise(response.error, sendMsg);
+        }
+        dispatch(actions.addMsg(amt, lightningId, msg));
+        return successPromise();
+    };
+}
+
+export { sendMsg };
+/* eslint-enable import/prefer-default-export */

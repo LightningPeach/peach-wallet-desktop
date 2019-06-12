@@ -1,6 +1,4 @@
 .home {
-    height: 100vh;
-    /*background: linear-gradient(76deg, rgba(255, 255, 255, 0.18), rgba(255, 187, 154, 0.18));*/
     background: #fff;
 
     &__sync-text {
@@ -9,73 +7,33 @@
         font-size: 12px;
     }
 
-    &__container {
-        width: 380px;
-        top: 130px;
-        position: relative;
-        max-width: 100%;
-        transition: top .2s ease-in-out;
-    }
-
     &__logo {
         text-align: center;
-        margin-bottom: 46px;
-
-        & img {
-            width: 139px;
-            display: block;
-            margin: 0 auto;
-            z-index: 1;
-            position: relative;
-            max-width: 100%;
-        }
+        width: 240px;
+        height: 60px;
+        background: url(../images/logo-black.svg) no-repeat center top;
+        background-size: contain;
     }
 
-    &__title {
-        font-size: 20px;
-        line-height: 1.5;
-        color: #000;
-        margin: 0 -100px 26px;
-        text-transform: uppercase;
-        text-align: center;
-        font-weight: 600;
-        letter-spacing: -0.3px;
+    &__content {
+        padding-top: 40px;
+        padding-bottom: 40px;
     }
 
-    &__restore-block {
-        position: relative;
+    &__body {
+        padding-top: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
-    .form-text,
-    .form-textarea {
-        background-color: transparent;
-    }
-
-    .signup {
-        margin-top: 7px;
-        font-size: 12px;
-        line-height: 1.33;
-        letter-spacing: -0.4px;
-
-        &__link {
-            padding-left: 4px;
-        }
-    }
-
-    .form-row__footer {
-        .spinner {
+    &__seed {
+        &-reload {
             position: absolute;
-            top: 7px;
-            right: 25px;
+            bottom: 8px;
+            right: 18px;
         }
     }
-
-    .seed__reload {
-        position: absolute;
-        bottom: 10px;
-        right: 25px;
-    }
-
 }
 
 .h-sync {
@@ -83,7 +41,7 @@
 
     &__percent {
         font-size: 14px;
-        font-weight: 600;
+        font-weight: bold;
         color: $black;
         line-height: 1;
     }
@@ -103,7 +61,7 @@
             }
 
             &::-webkit-progress-value {
-                background-color: $apple-green;
+                background-color: $green;
                 border-radius: $border-radius;
                 transition: width .4s ease-in-out;
             }
@@ -112,37 +70,14 @@
 
     &__text {
         font-size: 12px;
-        color: transparentize($ultrablack, .7);
+        color: transparentize($black, .7);
         line-height: 1;
         margin-top: 10px;
     }
 }
 
-@media screen and (max-width: 575px) {
-    .home {
-        &__title {
-            margin-left: 0;
-            margin-right: 0;
-        }
-    }
-}
-
 @media screen and (max-width: 360px) {
     .home {
-        &__container {
-            top: 60px;
-        }
-
-        &__restore-block {
-            float: none !important;
-            margin: 0 auto;
-            display: block;
-        }
-
-        &__signup-block {
-            float: none !important;
-            display: block;
-            text-align: center;
-        }
+        padding-top: 60px;
     }
 }

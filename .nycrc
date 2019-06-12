@@ -1,17 +1,36 @@
 {
+  "require": [
+    "@babel/register",
+    "@babel/polyfill"
+  ],
+  "reporter": [
+    "text",
+    "html"
+  ],
+  "check-coverage": true,
+  "per-file": true,
+  "statements": 100,
+  "functions": 100,
+  "lines": 100,
+  "watermarks": {
+    "lines": [90, 100],
+    "functions": [90, 100],
+    "branches": [60, 80],
+    "statements": [90, 100]
+  },
   "sourceMap": false,
   "instrument": false,
   "exclude": [
-    "./frontend/config",
-    "./frontend/components",
-    "./frontend/containers",
-    "./frontend/additional/index.js",
-    "./frontend/additional/analytics.js",
-    "./frontend/additional/db.js",
-    "./frontend/store"
+    "frontend/config",
+    "frontend/components",
+    "frontend/containers",
+    "frontend/additional/index.js",
+    "frontend/additional/analytics.js",
+    "frontend/additional/db.js",
+    "frontend/store"
   ],
   "include": [
-    "./frontend"
+    "frontend"
   ],
   "report-dir": "./coverage/nyc"
 }

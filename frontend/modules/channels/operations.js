@@ -1,19 +1,20 @@
 import keyBy from "lodash/keyBy";
 import has from "lodash/has";
-import * as statusCodes from "config/status-codes";
-import { appActions, appTypes } from "modules/app";
-import { accountOperations, accountTypes } from "modules/account";
-import { db, successPromise, errorPromise } from "additional";
-import { CHANNEL_CLOSE_CONFIRMATION } from "config/consts";
 import isEqual from "lodash/isEqual";
+import { exceptions } from "config";
+import { appOperations, appActions, appTypes } from "modules/app";
+import { accountOperations, accountTypes } from "modules/account";
+import { db, successPromise, errorPromise, logger } from "additional";
+import { CHANNEL_CLOSE_CONFIRMATION, CHANNEL_LEFT_AMOUNT_TO_NOTIFY } from "config/consts";
 import { onChainOperations } from "modules/onchain";
 import * as actions from "./actions";
 import * as types from "./types";
 import * as selectors from "./selectors";
 
+// TODO: move this to store
 let creatingChannelPoint;
 
-function streamWarningModal() {
+function openStreamWarningModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_WARNING));
 }
 
@@ -23,6 +24,10 @@ function openNewChannelModal() {
 
 function openDeleteChannelModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_DELETE_CHANNEL));
+}
+
+function openEditChannelModal() {
+    return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_EDIT_CHANNEL));
 }
 
 function openForceDeleteChannelModal() {
@@ -36,12 +41,12 @@ async function getDbChannels() {
     return keyBy(response, "fundingTxid");
 }
 
-function getChannels() {
+function getChannels(initAccount = false) {
     return async (dispatch, getState) => {
         if (getState().app.dbStatus !== appTypes.DB_OPENED || getState().channels.creatingNewChannel) {
             return;
         }
-        let namelessChannelCount = selectors.getCountNamelessChannels(getState().channels.channels);
+        let emptyChannelIndex = 1;
         await dispatch(onChainOperations.getOnchainHistory());
         const getActiveChannels = async (dbChannels, blockHeight) => {
             const response = await window.ipcClient("listChannels");
@@ -50,24 +55,116 @@ function getChannels() {
                 const bChan = b.chan_id;
                 return aChan < bChan ? -1 : 1;
             };
+            const keyByListChannels = keyBy(response.response.channels, channel => channel.channel_point.split(":")[0]);
+            Object.values(dbChannels).forEach((dbChan) => {
+                // Check if channel in database marked as active, not found in listchannels
+                // and channel hasn't been closed from our side(not in delete queue, while tx not in pool)
+                // then show notification about channel closing by counterparty
+                if (
+                    dbChan.status === "active"
+                    && !has(keyByListChannels, dbChan.fundingTxid)
+                    && getState().channels.deleteQueue.filter(channel =>
+                        channel.split(":")[0] === dbChan.fundingTxid).length === 0
+                ) {
+                    dispatch(appOperations.sendSystemNotification({
+                        body: "Channel has been closed by counterparty",
+                        title: dbChan.name,
+                    }));
+                    db.channelsBuilder()
+                        .update()
+                        .set({
+                            activeStatus: false,
+                            status: "deleted",
+                        })
+                        .where("fundingTxid = :txID", { txID: dbChan.fundingTxid })
+                        .execute();
+                }
+            });
             return response.response.channels.sort(sort)
                 .map((channel) => {
                     const status = channel.active ? types.CHANNEL_STATUS_ACTIVE : types.CHANNEL_STATUS_NOT_ACTIVE;
                     const maturity = blockHeight;
                     let chanName;
                     const chanTxid = channel.channel_point.split(":")[0];
+                    const totalBalance = parseInt(channel.local_balance, 10) + parseInt(channel.remote_balance, 10);
                     if (has(dbChannels, chanTxid)) {
-                        chanName = dbChannels[chanTxid].name;
+                        const dbChan = dbChannels[chanTxid];
+                        chanName = dbChan.name;
+                        if (dbChan.status === "pending") {
+                            dispatch(appOperations.sendSystemNotification({
+                                body: "Channel has been opened",
+                                title: chanName,
+                            }));
+                        }
+                        if (!initAccount && dbChan.status === "active" && !!dbChan.activeStatus !== channel.active) {
+                            if (channel.active) {
+                                dispatch(appOperations.sendSystemNotification({
+                                    body: "Channel becomes active",
+                                    title: chanName,
+                                }));
+                            } else {
+                                dispatch(appOperations.sendSystemNotification({
+                                    body: "Channel becomes inactive",
+                                    title: chanName,
+                                }));
+                            }
+                        }
+
+                        if (
+                            dbChan.localBalance / totalBalance > CHANNEL_LEFT_AMOUNT_TO_NOTIFY
+                            && parseInt(channel.local_balance, 10) / totalBalance <= CHANNEL_LEFT_AMOUNT_TO_NOTIFY
+                        ) {
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(
+                                channel.local_balance,
+                                10,
+                            )));
+                            const measure = getState().account.bitcoinMeasureType;
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You have only ${amount} ${measure} left in the channel`,
+                                title: chanName,
+                            }));
+                        }
+                        if (dbChan.status === "active" && dbChan.localBalance < parseInt(channel.local_balance, 10)) {
+                            const amount = dispatch(appOperations.convertSatoshiToCurrentMeasure(parseInt(channel.local_balance, 10) - dbChan.localBalance)); // eslint-disable-line max-len
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${amount} ${getState().account.bitcoinMeasureType}`,
+                                title: chanName,
+                            }));
+                        }
+                        if (
+                            dbChan.status !== "active"
+                            || !!dbChan.activeStatus !== channel.active
+                            || dbChan.localBalance !== parseInt(channel.local_balance, 10)
+                            || dbChan.remoteBalance !== parseInt(channel.remote_balance, 10)
+                        ) {
+                            db.channelsBuilder()
+                                .update()
+                                .set({
+                                    activeStatus: channel.active,
+                                    localBalance: channel.local_balance,
+                                    remoteBalance: channel.remote_balance,
+                                    status: "active",
+                                })
+                                .where("fundingTxid = :txID", { txID: chanTxid })
+                                .execute();
+                        }
                     } else {
-                        chanName = `CHANNEL ${namelessChannelCount += 1}`;
+                        const notInUseChannelName = selectors.getFirstNotInUseDefaultChannelName(
+                            getState().channels.channels,
+                            emptyChannelIndex,
+                        );
+                        chanName = `CHANNEL ${notInUseChannelName}`;
+                        emptyChannelIndex += 1;
                         // TODO: time race between creating channel and getchannels
                         if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                             db.channelsBuilder()
                                 .insert()
                                 .values({
-                                    blockHeight,
+                                    activeStatus: channel.active,
                                     fundingTxid: chanTxid,
+                                    localBalance: channel.local_balance,
                                     name: chanName,
+                                    remoteBalance: channel.remote_balance,
                                     status: "active",
                                 })
                                 .execute();
@@ -89,7 +186,7 @@ function getChannels() {
                     };
                 });
         };
-        const getPendingChannels = async (dbChannels, blockHeight) => {
+        const getPendingChannels = async (dbChannels) => {
             const response = await window.ipcClient("pendingChannels");
             return response.response.pending_open_channels.map((channel) => {
                 let chanName;
@@ -98,20 +195,42 @@ function getChannels() {
                 if (has(dbChannels, chanTxid)) {
                     const dbChan = dbChannels[chanTxid];
                     chanName = dbChan.name;
-                    // maturity = blockHeight - dbChannels[channel.channel.channel_point].blockHeight;
+                    // Return maturity of current channels' opening transaction
                     maturity = getState().onchain.history
-                        .filter(txn => txn.tx_hash === dbChan.fundingTxid.split(":")[0])
+                        .filter(txn => txn.tx_hash === dbChan.fundingTxid)
                         .reduce((mat, txn) => mat !== 0 ? mat : parseInt(txn.num_confirmations, 10), 0);
+                    if (
+                        dbChan.status !== "pending"
+                        || !!dbChan.activeStatus !== false
+                        || dbChan.localBalance !== parseInt(channel.channel.local_balance, 10)
+                        || dbChan.remoteBalance !== parseInt(channel.channel.remote_balance, 10)
+                    ) {
+                        db.channelsBuilder()
+                            .update()
+                            .set({
+                                activeStatus: false,
+                                localBalance: channel.channel.local_balance,
+                                remoteBalance: channel.channel.remote_balance,
+                                status: "pending",
+                            })
+                            .where("fundingTxid = :txID", { txID: chanTxid })
+                            .execute();
+                    }
                 } else {
-                    chanName = `CHANNEL ${namelessChannelCount += 1}`;
+                    const notInUseChannelName =
+                        selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels, emptyChannelIndex);
+                    emptyChannelIndex += 1;
+                    chanName = `CHANNEL ${notInUseChannelName}`;
                     // TODO: time race between creating channel and pendingchannels
                     if (!getState().channels.creatingNewChannel && chanTxid !== creatingChannelPoint) {
                         db.channelsBuilder()
                             .insert()
                             .values({
-                                blockHeight,
+                                activeStatus: false,
                                 fundingTxid: chanTxid,
+                                localBalance: channel.channel.local_balance,
                                 name: chanName,
+                                remoteBalance: channel.channel.remote_balance,
                                 status: "pending",
                             })
                             .execute();
@@ -136,7 +255,7 @@ function getChannels() {
 
         const info = await window.ipcClient("getInfo");
         if (!info.ok) {
-            console.error(info);
+            logger.error(info);
             return;
         }
         const dbChans = await getDbChannels();
@@ -169,30 +288,24 @@ function connectPeer(lightningID, peerAddress) {
 function prepareNewChannel(lightningID, capacity, peerAddress, name, custom) {
     return async (dispatch, getState) => {
         if (getState().account.kernelConnectIndicator !== accountTypes.KERNEL_CONNECTED) {
-            return errorPromise(statusCodes.EXCEPTION_ACCOUNT_NO_KERNEL, prepareNewChannel);
+            return errorPromise(exceptions.ACCOUNT_NO_KERNEL, prepareNewChannel);
         }
         const newChannel = {
             capacity,
             custom,
             host: peerAddress,
             lightningID,
-            name: name || `Channel ${selectors.getCountNamelessChannels(getState().channels.channels) + 1}`,
+            name: name || `Channel ${selectors.getFirstNotInUseDefaultChannelName(getState().channels.channels)}`,
         };
         dispatch(actions.newChannelPreparing(newChannel));
         return successPromise();
     };
 }
 
-function clearNewChannel() {
-    return async (dispatch, getState) => {
-        dispatch(actions.clearNewChannelPreparing());
-    };
-}
-
 function setCurrentChannel(id) {
     return async (dispatch, getState) => {
         if (!getState().channels.channels[id]) {
-            return errorPromise(statusCodes.EXCEPTION_CHANNEL_ABSENT, setCurrentChannel);
+            return errorPromise(exceptions.CHANNEL_ABSENT, setCurrentChannel);
         }
         dispatch(actions.setCurrentChannel(getState().channels.channels[id]));
         return successPromise();
@@ -221,15 +334,18 @@ function closeChannel(channel, force = false) {
             params.force = true;
         }
         const response = await window.ipcClient("closeChannel", params);
-        dispatch(actions.removeFromDelete(channel.channel_point));
         if (!response.ok) {
+            dispatch(actions.removeFromDelete(channel.channel_point));
             return errorPromise(response.error, closeChannel);
         }
         try {
             await db.channelsBuilder()
                 .update()
-                .set({ status: "deleted" })
-                .where("fundingTxid = :txID", { txID: channel.channel_point })
+                .set({
+                    activeStatus: false,
+                    status: "deleted",
+                })
+                .where("fundingTxid = :txID", { txID })
                 .execute();
             await db.onchainBuilder()
                 .insert()
@@ -248,8 +364,9 @@ function closeChannel(channel, force = false) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
+        dispatch(actions.removeFromDelete(channel.channel_point));
         return successPromise();
     };
 }
@@ -283,44 +400,74 @@ function createNewChannel() {
             dispatch(actions.endCreateNewChannel());
             return errorPromise(responseChannels.error, createNewChannel);
         }
-        const fundingTxid = responseChannels.funding_txid_str;
+        const fundingTxid = responseChannels.funding_txid_str.split(":")[0];
         creatingChannelPoint = fundingTxid;
         try {
             await db.channelsBuilder()
                 .insert()
                 .values({
-                    blockHeight: responseChannels.block_height,
+                    activeStatus: false,
                     fundingTxid,
+                    localBalance: 0,
                     name: newChannelDetails.name,
+                    remoteBalance: 0,
                     status: "pending",
                 })
                 .execute();
-            await db.onchainBuilder()
-                .insert()
-                .values({
-                    address: "-",
-                    amount: -newChannelDetails.capacity,
-                    blockHash: "",
-                    blockHeight: 0,
-                    name: `Opening ${newChannelDetails.name}`,
-                    numConfirmations: 0,
-                    status: "pending",
-                    timeStamp: Math.floor(Date.now() / 1000),
-                    totalFees: 0,
-                    txHash: responseChannels.funding_txid_str,
-                })
-                .execute();
+            const onchainTxnExists = await db.onchainBuilder()
+                .select()
+                .where("txHash = :txHash", { txHash: responseChannels.funding_txid_str })
+                .getOne();
+            if (onchainTxnExists) {
+                await db.onchainBuilder()
+                    .update()
+                    .set({ name: `Opening ${newChannelDetails.name}` })
+                    .where("txHash = :txHash", { txHash: responseChannels.funding_txid_str })
+                    .execute();
+            } else {
+                await db.onchainBuilder()
+                    .insert()
+                    .values({
+                        address: "-",
+                        amount: -newChannelDetails.capacity,
+                        blockHash: "",
+                        blockHeight: 0,
+                        name: `Opening ${newChannelDetails.name}`,
+                        numConfirmations: 0,
+                        status: "pending",
+                        timeStamp: Math.floor(Date.now() / 1000),
+                        totalFees: 0,
+                        txHash: responseChannels.funding_txid_str,
+                    })
+                    .execute();
+            }
+            /* istanbul ignore next */
             creatingChannelPoint = null;
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         const expectedBitcoinBalance = getState().account.bitcoinBalance - newChannelDetails.capacity;
         dispatch(actions.successCreateNewChannel(expectedBitcoinBalance));
         dispatch(actions.endCreateNewChannel());
         dispatch(actions.clearNewChannelPreparing());
-        console.log(`TXN FOR CHANNEL OPENING: ${responseChannels.funding_txid_str}`);
+        logger.log(`TXN FOR CHANNEL OPENING: ${responseChannels.funding_txid_str}`);
         return successPromise({ trnID: responseChannels.funding_txid_str });
+    };
+}
+
+function updateChannelOnServer(name, txId) {
+    return async (dispatch, getState) => {
+        try {
+            await db.channelsBuilder()
+                .update()
+                .set({ name })
+                .where("fundingTxId = :txId", { txId })
+                .execute();
+            return successPromise();
+        } catch (e) {
+            return errorPromise(e.message, updateChannelOnServer);
+        }
     };
 }
 
@@ -354,25 +501,11 @@ function hideShowCreateTutorial() {
     };
 }
 
-function shouldShowLightningTutorial() {
-    return async (dispatch, getState) => {
-        // dispatch(actions.updateLightningTutorialStatus(types.SHOW));
-        getState()
-            .channels
-            .channels
-            .forEach((item) => {
-                if (item.status === types.CHANNEL_STATUS_ACTIVE) {
-                    dispatch(actions.updateLightningTutorialStatus(types.HIDE));
-                }
-            });
-        return successPromise();
-    };
-}
-
 export {
-    streamWarningModal,
+    openStreamWarningModal,
     openNewChannelModal,
     openDeleteChannelModal,
+    openEditChannelModal,
     openForceDeleteChannelModal,
     getDbChannels,
     getChannels,
@@ -382,8 +515,7 @@ export {
     clearCurrentChannel,
     closeChannel,
     createNewChannel,
-    clearNewChannel,
+    updateChannelOnServer,
     shouldShowCreateTutorial,
-    shouldShowLightningTutorial,
     hideShowCreateTutorial,
 };

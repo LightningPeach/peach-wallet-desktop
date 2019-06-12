@@ -1,6 +1,10 @@
 import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
+import Tooltip from "rc-tooltip";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
+
+import { tooltips } from "additional";
+
 import BtcToUsd from "components/common/btc-to-usd";
 
 class SubHeader extends PureComponent {
@@ -11,32 +15,48 @@ class SubHeader extends PureComponent {
         return (
             <section className="subheader">
                 <div className="container">
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <div className="balance">
-                                <div className="balance__row">
-                                    <span className="balance__title">Lightning balance:</span>
-                                    <span className="balance__value">
-                                        <BtcToUsd satoshi={lightningBalance} />
-                                    </span>
-                                </div>
-                                <div className="balance__row">
-                                    <span className="balance__title">Onchain balance:</span>
-                                    <span className="balance__value"><BtcToUsd satoshi={bitcoinBalance} /></span>
-                                </div>
-                                <div className="balance__row">
-                                    <span className="balance__title">Locked Onchain balance:</span>
-                                    <span className="balance__value">
-                                        <BtcToUsd satoshi={unConfirmedBitcoinBalance} />
-                                    </span>
-                                </div>
+                    <div className="row row--no-col justify-between-xs align-center-xs">
+                        <div className="balance">
+                            <div className="balance__row">
+                                <span className="balance__title">
+                                    Lightning balance:
+                                </span>
+                                <span className="balance__value">
+                                    <BtcToUsd amount={lightningBalance} />
+                                </span>
                             </div>
-                            <div className="subheader__exchange_rate">
-                                <div className={`exchange_rate ${button ? "exchange_rate--with_btn" : ""}`}>
-                                    1BTC <BtcToUsd satoshi={100000000} hideBtc />
-                                </div>
-                                {button || null}
+                            <div className="balance__row">
+                                <span className="balance__title">
+                                    On-chain balance:
+                                </span>
+                                <span className="balance__value"><BtcToUsd amount={bitcoinBalance} /></span>
                             </div>
+                            <div className="balance__row">
+                                <Tooltip
+                                    placement="right"
+                                    overlay={tooltips.LOCKED_BALANCE}
+                                    trigger="hover"
+                                    arrowContent={
+                                        <div className="rc-tooltip-arrow-inner" />
+                                    }
+                                    prefixCls="rc-tooltip__small rc-tooltip"
+                                    mouseLeaveDelay={0}
+                                >
+                                    <i className="tooltip tooltip--left tooltip--info" />
+                                </Tooltip>
+                                <span className="balance__title">
+                                    Locked On-chain balance:
+                                </span>
+                                <span className="balance__value">
+                                    <BtcToUsd amount={unConfirmedBitcoinBalance} />
+                                </span>
+                            </div>
+                        </div>
+                        <div className="row row--no-col align-center-xs">
+                            <div className="exchange_rate">
+                                1BTC <BtcToUsd amount={100000000} hideBase />
+                            </div>
+                            {button || null}
                         </div>
                     </div>
                 </div>

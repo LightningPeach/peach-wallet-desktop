@@ -1,71 +1,73 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+
+import { analytics, logger, helpers } from "additional";
 import { appOperations } from "modules/app";
 import { channelsOperations as operations } from "modules/channels";
 import { error, info } from "modules/notifications";
-import { ChannelsFullPath } from "routes";
+import { routes } from "config";
+
 import Modal from "components/modal";
 
 class ForceCloseChannel extends Component {
     constructor(props) {
         super(props);
-        this.closeModal = this.closeModal.bind(this);
-        this.closeChannel = this.closeChannel.bind(this);
         this.state = {
             processing: false,
         };
 
-        analytics.pageview(`${ChannelsFullPath}/force-close-channel`, "Force Close Channel");
+        analytics.pageview(`${routes.ChannelsFullPath}/force-close-channel`, "Force Close Channel");
     }
 
-    closeModal() {
+    closeModal = () => {
         const { dispatch } = this.props;
         if (this.state.processing) {
             return;
         }
         analytics.event({ action: "Force Close Channel Modal", category: "Channels", label: "Cancel" });
         dispatch(appOperations.closeModal());
-    }
+    };
 
-    async closeChannel() {
+    closeChannel = async () => {
         const { dispatch, currentChannel } = this.props;
         analytics.event({ action: "Force Close Channel Modal", category: "Channels", label: "Close" });
         dispatch(appOperations.closeModal());
         const response = await dispatch(operations.closeChannel(currentChannel, true));
         if (!response.ok) {
-            dispatch(error({ message: response.error }));
+            dispatch(error({ message: helpers.formatNotificationMessage(response.error) }));
             return;
         }
         const tempName = currentChannel.name || currentChannel.remote_pubkey;
         dispatch(operations.clearCurrentChannel());
         dispatch(operations.getChannels());
-        dispatch(info({ message: <span>Channel <strong>{tempName}</strong> deleted</span> }));
-    }
+        dispatch(info({
+            message: helpers.formatNotificationMessage(<span>Channel <strong>{tempName}</strong> deleted</span>),
+        }));
+    };
 
     render() {
         const { currentChannel } = this.props;
         if (!currentChannel) {
-            console.log("FORCE CLOSE CHANNEL: No current channel");
+            logger.log("FORCE CLOSE CHANNEL: No current channel");
             return null;
         }
         const title = currentChannel.name || currentChannel.remote_pubkey;
         return (
             <Modal title="Force Close Channel" onClose={this.closeModal}>
-                <div className="modal-body">
-                    <div className="row form-row">
+                <div className="modal__body">
+                    <div className="row">
                         <div className="col-xs-12 channel-close__text">
                             Cooperative close of <strong title={title}>{title}</strong> is failed. You can close channel
                             not cooperatively and receive you funds in 24 hours.
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
@@ -74,7 +76,7 @@ class ForceCloseChannel extends Component {
                             </button>
                             <button
                                 type="button"
-                                className="button button__orange button__close"
+                                className="button button__solid"
                                 onClick={this.closeChannel}
                                 disabled={this.state.processing}
                             >

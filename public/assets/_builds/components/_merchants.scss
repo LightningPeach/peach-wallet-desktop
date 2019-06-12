@@ -1,0 +1,59 @@
+.merchants {
+    &__item {
+        display: flex;
+        padding: 12px;
+        background: rgba(245, 166, 35, 0.1);
+        margin-bottom: 16px;
+    }
+
+    &__logo {
+        width: 60px;
+        flex-shrink: 0;
+
+        &-img {
+            width: 100%;
+            height: auto;
+        }
+    }
+
+    &__body {
+        margin-left: 16px;
+    }
+
+    &__row {
+        display: flex;
+        flex-wrap: wrap;
+
+        &--name {
+            font-size: 18px;
+            font-weight: bold;
+            padding-bottom: 3px;
+        }
+
+        &--name + .merchants__row--channel-info,
+        &--name + .merchants__row--website,
+        &--description + .merchants__row--channel-info,
+        &--description + .merchants__row--website{
+            padding-top: 12px;
+        }
+
+        &--channel-info {
+            padding-bottom: 3px;
+        }
+    }
+
+    &__label {
+        width: 116px;
+        font-weight: bold;
+    }
+
+    &__link {
+        line-height: inherit;
+        height: inherit;
+        font-size: 14px;
+    }
+
+    .filter {
+        margin-bottom: 38px;
+    }
+}

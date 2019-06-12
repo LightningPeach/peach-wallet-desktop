@@ -2,8 +2,7 @@ import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
 import omit from "lodash/omit";
 
-import "../../utils";
-import * as statusCodes from "config/status-codes";
+import { exceptions, consts } from "config";
 import {
     lightningActions as actions,
     lightningTypes as types,
@@ -12,6 +11,7 @@ import {
 import lightningReducer, { initStateLightning } from "modules/lightning/reducers";
 import { accountOperations, accountTypes } from "modules/account";
 import { appTypes } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
 import { store as defaultStore } from "store/configure-store";
 import { db, errorPromise, successPromise } from "additional";
 
@@ -49,6 +49,7 @@ describe("Lightning Unit Tests", () => {
                 amount: "bar",
                 comment: "baz",
                 pay_req: "qux",
+                pay_req_decoded: "goofy",
                 name: "quux",
                 contact_name: "corge",
                 fee: "uier",
@@ -62,6 +63,7 @@ describe("Lightning Unit Tests", () => {
                 data.amount,
                 data.comment,
                 data.pay_req,
+                data.pay_req_decoded,
                 data.name,
                 data.contact_name,
                 data.fee,
@@ -215,7 +217,6 @@ describe("Lightning Unit Tests", () => {
     describe("Operations tests", () => {
         const lightningID = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
         const amount = 500;
-        let sandbox;
         let fakeDB;
         let fakeAccount;
         let data;
@@ -234,12 +235,11 @@ describe("Lightning Unit Tests", () => {
             successResp = await successPromise();
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
-            sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
-            fakeDB = sandbox.stub(db);
-            fakeAccount = sandbox.stub(accountOperations);
-            fakeStore = sandbox.stub(defaultStore);
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
+            fakeDB = sinon.stub(db);
+            fakeAccount = sinon.stub(accountOperations);
+            fakeStore = sinon.stub(defaultStore);
             data = {
                 lightningBuilder: {
                     getMany: sinon.stub(),
@@ -248,9 +248,14 @@ describe("Lightning Unit Tests", () => {
                     execute: sinon.stub(),
                 },
                 streamBuilder: {
+                    update: sinon.stub(),
+                    set: sinon.stub(),
+                    where: sinon.stub(),
+                    execute: sinon.stub(),
                     leftJoinAndSelect: sinon.stub(),
                     getMany: sinon.stub(),
                     leftJoinAndSelectAttr: ["stream.parts", "stream_part"],
+
                 },
             };
             initState = {
@@ -264,7 +269,7 @@ describe("Lightning Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer()", () => {
@@ -311,7 +316,9 @@ describe("Lightning Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            first_index_offset: 1,
                             invoices,
+                            last_index_offset: 2,
                         },
                     })
                     .withArgs("decodePayReq")
@@ -532,6 +539,7 @@ describe("Lightning Unit Tests", () => {
                     {
                         amt: amount,
                         pub_key: lightningID,
+                        num_routes: consts.LIGHTNING_NUM_ROUTES,
                     },
                 );
             });
@@ -566,6 +574,7 @@ describe("Lightning Unit Tests", () => {
                     {
                         amt: amount,
                         pub_key: lightningID,
+                        num_routes: consts.LIGHTNING_NUM_ROUTES,
                     },
                 );
             });
@@ -609,13 +618,14 @@ describe("Lightning Unit Tests", () => {
                     {
                         amt: amount,
                         pub_key: lightningID,
+                        num_routes: consts.LIGHTNING_NUM_ROUTES,
                     },
                 );
             });
         });
 
         describe("preparePayment()", () => {
-            it("getLihtningFee() error", async () => {
+            it("ipc error", async () => {
                 window.ipcClient
                     .withArgs("queryRoutes")
                     .returns({
@@ -668,6 +678,7 @@ describe("Lightning Unit Tests", () => {
                             lightningID,
                             name: "Payment",
                             pay_req: null,
+                            pay_req_decoded: null,
                         },
                         type: types.PAYMENT_PREPARING,
                     },
@@ -727,7 +738,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: data.attr.pay_req,
+                        details: {
+                            payment_request: data.attr.pay_req,
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(fakeDB.lightningBuilder).not.to.be.calledOnce;
@@ -753,7 +767,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: data.attr.pay_req,
+                        details: {
+                            payment_request: data.attr.pay_req,
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -819,7 +836,7 @@ describe("Lightning Unit Tests", () => {
                     });
                 expectedData = {
                     ...errorResp,
-                    error: statusCodes.EXCEPTION_REMOTE_OFFLINE,
+                    error: exceptions.REMOTE_OFFLINE,
                     f: "addInvoiceRemote",
                 };
                 expect(await store.dispatch(operations.addInvoiceRemote(
@@ -873,6 +890,7 @@ describe("Lightning Unit Tests", () => {
                                 comment: "baz",
                                 lightningID: "qux",
                                 name: "quux",
+                                pay_req_decoded: null,
                             },
                         ],
                     },
@@ -924,7 +942,65 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: "foo",
+                        details: {
+                            payment_request: "foo",
+                        },
+                        isPayReq: true,
+                    },
+                );
+                expect(fakeDB.lightningBuilder).to.be.calledOnce;
+                expect(data.lightningBuilder.insert).to.be.calledOnce;
+                expect(data.lightningBuilder.insert).to.be.calledImmediatelyAfter(fakeDB.lightningBuilder);
+                expect(data.lightningBuilder.values).to.be.calledOnce;
+                expect(data.lightningBuilder.values).to.be.calledImmediatelyAfter(data.lightningBuilder.insert);
+                expect(data.lightningBuilder.values).to.be.calledWith({
+                    name: "quux",
+                    paymentHash: "uier",
+                });
+                expect(data.lightningBuilder.execute).to.be.calledOnce;
+                expect(data.lightningBuilder.execute).to.be.calledImmediatelyAfter(data.lightningBuilder.values);
+            });
+
+            it("payment request with updated amount", async () => {
+                initState.lightning.paymentDetails[0].amount = "fooNew";
+                initState.lightning.paymentDetails[0].pay_req_decoded = {
+                    destination: "goofy",
+                    cltv_expiry: "mickey",
+                    payment_hash: "donald",
+                };
+                store = mockStore(initState);
+                expectedData = {
+                    ...successResp,
+                    response: {
+                        amount: "fooNew",
+                        payment_hash: "uier",
+                    },
+                };
+                expectedActions = [
+                    {
+                        type: types.PENDING_PAYMENT,
+                    },
+                    {
+                        type: types.SUCCESS_PAYMENT,
+                    },
+                    { ...successResp },
+                ];
+                expect(await store.dispatch(operations.makePayment(
+                    lightningID,
+                    amount,
+                ))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith(
+                    "sendPayment",
+                    {
+                        details: {
+                            amt: "fooNew",
+                            dest_string: "goofy",
+                            final_cltv_delta: "mickey",
+                            payment_hash_string: "donald",
+                        },
+                        isPayReq: false,
                     },
                 );
                 expect(fakeDB.lightningBuilder).to.be.calledOnce;
@@ -1025,7 +1101,10 @@ describe("Lightning Unit Tests", () => {
                 expect(window.ipcClient).to.be.calledWith(
                     "sendPayment",
                     {
-                        payment_request: "uier",
+                        details: {
+                            payment_request: "uier",
+                        },
+                        isPayReq: true,
                     },
                 );
                 expect(fakeDB.lightningBuilder).to.be.calledOnce;
@@ -1070,7 +1149,9 @@ describe("Lightning Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            first_index_offset: 1,
                             invoices,
+                            last_index_offset: 3,
                         },
                     })
                     .withArgs("decodePayReq")
@@ -1111,9 +1192,16 @@ describe("Lightning Unit Tests", () => {
                         date: 201000,
                         lightningID: "corge",
                         memo: "stream_payment_baz",
-                        name: "Incoming stream payment",
+                        name: consts.INCOMING_RECURRING_NAME,
                         payment_hash: "uier",
-                        type: "invoice",
+                        type: "stream",
+                        currency: "BTC",
+                        delay: -1,
+                        partsPaid: 1,
+                        price: 101,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        totalAmount: 101,
+                        totalParts: 1,
                     },
                 ];
                 expect(await operations.getInvoices()).to.deep.equal(expectedData);
@@ -1158,31 +1246,37 @@ describe("Lightning Unit Tests", () => {
                 ];
                 dbStreams = [
                     {
+                        id: 103,
                         parts: [{ payment_hash: "no-bar" }],
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        partsPaid: 0,
                     },
                     {
                         id: 101,
-                        status: "on",
+                        status: streamPaymentTypes.STREAM_PAYMENT_PAUSED,
                         parts: [{ payment_hash: "1" }],
                         name: "name-foo",
+                        partsPaid: 0,
                     },
                     {
                         id: 102,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "2" }],
                         name: "name-bar",
                         price: 502,
                         date: 602,
                         lightningID: "qux",
+                        partsPaid: 0,
                     },
                     {
                         id: 104,
-                        status: "end",
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
                         parts: [{ payment_hash: "4" }],
                         name: "name-quux",
                         price: 504,
                         date: 604,
                         lightningID: "quux",
+                        partsPaid: 0,
                     },
                 ];
                 window.ipcClient
@@ -1199,6 +1293,13 @@ describe("Lightning Unit Tests", () => {
                 fakeDB.streamBuilder.returns({
                     leftJoinAndSelect: data.streamBuilder.leftJoinAndSelect.returns({
                         getMany: data.streamBuilder.getMany.returns(dbStreams),
+                    }),
+                    update: data.streamBuilder.update.returns({
+                        set: data.streamBuilder.set.returns({
+                            where: data.streamBuilder.where.returns({
+                                execute: data.streamBuilder.execute,
+                            }),
+                        }),
                     }),
                 });
             });
@@ -1224,32 +1325,50 @@ describe("Lightning Unit Tests", () => {
                         date: 203000,
                         lightningID: "baz",
                         name: "Outgoing payment",
-                        path: ["baz"],
                         payment_hash: "baz",
                         type: "payment",
                     },
                     {
-                        amount: 302,
-                        date: 202000,
-                        lightningID: "bar",
+                        price: 502,
+                        date: 602,
+                        lightningID: "qux",
                         name: "name-bar",
-                        path: ["bar"],
-                        parts: 1,
+                        type: "stream",
+                        id: 102,
+                        partsPaid: 1,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                    },
+                    {
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        partsPaid: 0,
+                        id: 103,
                         type: "stream",
                     },
                     {
-                        amount: 504,
+                        id: 104,
+                        price: 504,
                         date: 604,
                         lightningID: "quux",
                         name: "name-quux",
-                        path: [],
-                        parts: 0,
+                        status: streamPaymentTypes.STREAM_PAYMENT_FINISHED,
+                        partsPaid: 0,
                         type: "stream",
                     },
                 ];
                 expect(await operations.getPayments()).to.deep.equal(expectedData);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("listPayments");
+                expect(data.streamBuilder.update).to.be.calledOnce;
+                expect(data.streamBuilder.update).to.be.calledImmediatelyAfter(fakeDB.streamBuilder);
+                expect(data.streamBuilder.set).to.be.calledOnce;
+                expect(data.streamBuilder.set).to.be.calledImmediatelyAfter(data.streamBuilder.update);
+                expect(data.streamBuilder.set)
+                    .to.be.calledWithExactly({ partsPaid: 1 });
+                expect(data.streamBuilder.where).to.be.calledOnce;
+                expect(data.streamBuilder.where).to.be.calledImmediatelyAfter(data.streamBuilder.set);
+                expect(data.streamBuilder.where).to.be.calledWithExactly("id = :id", { id: 102 });
+                expect(data.streamBuilder.execute).to.be.calledOnce;
+                expect(data.streamBuilder.execute).to.be.calledImmediatelyAfter(data.streamBuilder.where);
             });
         });
 
@@ -1292,7 +1411,9 @@ describe("Lightning Unit Tests", () => {
                     .returns({
                         ok: true,
                         response: {
+                            first_index_offset: 1,
                             invoices,
+                            last_index_offset: 2,
                         },
                     })
                     .withArgs("decodePayReq")
@@ -1335,7 +1456,6 @@ describe("Lightning Unit Tests", () => {
                                 date: 203000,
                                 lightningID: "baz",
                                 name: "Outgoing payment",
-                                path: ["baz"],
                                 payment_hash: "baz",
                                 type: "payment",
                             },
@@ -1354,6 +1474,67 @@ describe("Lightning Unit Tests", () => {
                 ];
                 expect(await store.dispatch(operations.getHistory())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+        });
+
+        describe("getPaginatedInvoices()", () => {
+            beforeEach(() => {
+                window.ipcClient
+                    .withArgs("listInvoices")
+                    .returns({
+                        ok: true,
+                        response: {
+                            first_index_offset: 1,
+                            invoices: [{ foo: "bar" }],
+                            last_index_offset: 3,
+                        },
+                    });
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("listInvoices")
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = [];
+                expect(await operations.getPaginatedInvoices()).to.deep.equal(expectedData);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("listInvoices");
+            });
+
+            it("success", async () => {
+                expectedData = [{ foo: "bar" }];
+                expect(await operations.getPaginatedInvoices()).to.deep.equal(expectedData);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("listInvoices");
+            });
+
+            it("success 2 page", async () => {
+                window.ipcClient
+                    .withArgs("listInvoices")
+                    .onCall(0)
+                    .returns({
+                        ok: true,
+                        response: {
+                            first_index_offset: 1,
+                            invoices: [{ foo: "bar" }],
+                            last_index_offset: consts.DEFAULT_MAX_INVOICES,
+                        },
+                    })
+                    .onCall(1)
+                    .returns({
+                        ok: true,
+                        response: {
+                            first_index_offset: consts.DEFAULT_MAX_INVOICES + 1,
+                            invoices: [{ foo: "bar" }],
+                            last_index_offset: consts.DEFAULT_MAX_INVOICES + 2,
+                        },
+                    });
+                expectedData = [{ foo: "bar" }, { foo: "bar" }];
+                expect(await operations.getPaginatedInvoices()).to.deep.equal(expectedData);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("listInvoices");
             });
         });
     });

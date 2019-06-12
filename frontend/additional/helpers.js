@@ -1,47 +1,20 @@
-import React from "react";
-import * as statusCodes from "config/status-codes";
+import React, { Fragment } from "react";
+import crypto from "crypto";
+import moment from "moment";
+
+import { exceptions, consts } from "config";
 
 /**
  * @param {Date} date - date
  * @param {string} [format="%d.%m.%y %h:%i:%s"] - format for return string
- * @param {boolean} withLeadZero - Add lead zero to 1-9num
  * @returns {string}
  */
-const formatDate = (date, format, withLeadZero = true) => {
-    let formattedDate = format;
+export const formatDate = (date, format) => {
+    const formattedDate = format || "DD.MM.YY hh:mm:ss A";
     if (!(date instanceof Date)) {
-        throw new Error(statusCodes.EXCEPTION_DATE_INSTANCE);
+        throw new Error(exceptions.DATE_INSTANCE);
     }
-    if (!formattedDate) {
-        formattedDate = "%d.%m.%y %h:%i:%s";
-    }
-    const leadZero = item => item < 10 ? `0${item}` : item;
-    const day = withLeadZero ? leadZero(date.getDate()) : date.getDate();
-    const month = withLeadZero ? leadZero(date.getMonth() + 1) : date.getMonth() + 1;
-    const hours = withLeadZero ?
-        leadZero(date.getHours()
-            .toString()) :
-        date.getHours()
-            .toString();
-    const minutes = withLeadZero ?
-        leadZero(date.getMinutes()
-            .toString()) :
-        date.getMinutes()
-            .toString();
-    const seconds = withLeadZero ?
-        leadZero(date.getSeconds()
-            .toString()) :
-        date.getSeconds()
-            .toString();
-    const year = date.getYear() % 100;
-
-    return formattedDate
-        .replace("%d", day)
-        .replace("%m", month)
-        .replace("%y", year)
-        .replace("%h", hours)
-        .replace("%i", minutes)
-        .replace("%s", seconds);
+    return moment(date).format(formattedDate);
 };
 
 /**
@@ -49,7 +22,7 @@ const formatDate = (date, format, withLeadZero = true) => {
  * @param {number} num
  * @returns {string}
  */
-const noExponents = (num) => {
+export const noExponents = (num) => {
     const sign = num < 0 ? "-" : "";
     const data = String(num).split(/[eE]/);
     if (data.length === 1) {
@@ -80,27 +53,77 @@ const noExponents = (num) => {
 /**
  * @returns {boolean}
  */
-/* istanbul ignore next */
-const hasSelection = () => {
+
+export const hasSelection = /* istanbul ignore next */ () => {
     const selection = window.getSelection();
     return selection.type === "Range";
 };
 
 /**
- * @param {*} tooltipText
+ * @param {*} text
+ * @returns {*}
+ */
+export const formatMultilineText = /* istanbul ignore next */ (text) => {
+    if (text instanceof Array) {
+        return text.map((i, k) => <span key={k}>{i}<br /></span>); // eslint-disable-line
+    }
+    return text;
+};
+
+/**
+ * @param {*} error
+ * @param {boolean} helper
  * @returns {*}
  */
 /* istanbul ignore next */
-const formatTooltips = (tooltipText) => {
-    if (tooltipText instanceof Array) {
-        return tooltipText.map((i, k) => <span key={k}>{i}<br /></span>); // eslint-disable-line
+export const formatNotificationMessage =
+    (
+        error,
+        helper = false,
+        helperActions = [
+            "Wait for some time and try again later.",
+            "Open a direct channel with the recipient.",
+            "Send the on-chain payment to recipient.",
+        ],
+    ) => (
+        <Fragment>
+            <span className="notification-message--error">{formatMultilineText(error)}</span>
+            {helper &&
+            <span className="notification-message--helper">
+                <span>Please, try the following actions:</span>
+                <ul>
+                    {helperActions.map(item => <li key={item}>{item}</li>)}
+                </ul>
+            </span>}
+        </Fragment>
+    );
+
+/**
+ * @param time
+ * @param removeQuantity
+ * @returns {*}
+ */
+export const formatTimeRange = (time, removeQuantity = true) => {
+    let index = -1;
+    consts.TIME_RANGE_MEASURE.forEach((item, key) => {
+        if (time % item.range === 0) {
+            index = key;
+        }
+    });
+    if (index === -1) {
+        return null;
     }
-    return tooltipText;
+    const count = Math.round(time / consts.TIME_RANGE_MEASURE[index].range);
+    let response = `${count} ${consts.TIME_RANGE_MEASURE[index].measure}`;
+    if (removeQuantity && count === 1) {
+        response = response.slice(0, -1);
+    }
+    return response;
 };
 
-export {
-    formatDate,
-    formatTooltips,
-    hasSelection,
-    noExponents,
-};
+export const isStreamOrRecurring = ({ memo = "" }) => (
+    memo.includes(consts.STREAM_MEMO_PREFIX) || memo.includes(consts.RECURRING_MEMO_PREFIX)
+);
+
+export const hash = data =>
+    crypto.createHash("sha256").update(data).digest("hex");

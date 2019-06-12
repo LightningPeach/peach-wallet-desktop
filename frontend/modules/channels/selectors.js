@@ -7,7 +7,8 @@ function isThereActiveChannel(state) {
     return channels.reduce((active, channel) => active || (isActive(channel.status) && notDeleting(channel)), false);
 }
 
-function getCountNamelessChannels(channels = []) {
+function getFirstNotInUseDefaultChannelName(channels = [], countIndex = 1) {
+    let index = countIndex;
     const getNum = (ch) => {
         const defaultNamed = /^CHANNEL [0-9]+$/i.test(ch.name);
         if (defaultNamed) {
@@ -15,13 +16,24 @@ function getCountNamelessChannels(channels = []) {
         }
         return 0;
     };
-    return Math.max(...[
-        0,
-        ...channels.map(getNum),
-    ]);
+    const sort = (a, b) => a < b ? -1 : 1;
+    const sortedNums = [0, ...channels.map(getNum)].sort(sort);
+    const sortedLength = sortedNums.length;
+    sortedNums[sortedLength] = Number.MAX_SAFE_INTEGER;
+    for (let i = 1; i <= sortedLength; i += 1) {
+        if (sortedNums[i] - sortedNums[i - 1] > 1) {
+            if (index + 1 > sortedNums[i] - sortedNums[i - 1]) {
+                index -= (sortedNums[i] - sortedNums[i - 1]) - 1;
+            } else {
+                index += sortedNums[i - 1];
+                break;
+            }
+        }
+    }
+    return index;
 }
 
 export {
     isThereActiveChannel,
-    getCountNamelessChannels,
+    getFirstNotInUseDefaultChannelName,
 };

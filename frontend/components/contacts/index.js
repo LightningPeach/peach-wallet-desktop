@@ -1,45 +1,40 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { analytics } from "additional";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+import { push } from "react-router-redux";
+
+import { analytics, logger } from "additional";
 import {
     contactsActions as actions,
     contactsOperations as operations,
     contactsTypes as types,
 } from "modules/contacts";
+import { accountOperations, accountTypes } from "modules/account";
+import { consts, routes } from "config";
+import { appOperations, appTypes } from "modules/app";
+import { filterTypes, filterOperations } from "modules/filter";
+
 import SubHeader from "components/subheader";
 import Button from "components/ui/button";
-import DebounceInput from "react-debounce-input";
-import History from "components/history";
+import RecordsTable from "components/records/table";
 import Ellipsis from "components/common/ellipsis";
-import { WalletPath, AddressBookFullPath } from "routes";
-import { push } from "react-router-redux";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { MODAL_ANIMATION_TIMEOUT } from "config/consts";
-import { appOperations, appTypes } from "modules/app";
-import DeleteContact from "./modal/delete-contact";
-import NewContact from "./modal/new-contact";
-import EditContact from "./modal/edit-contact";
+import { DeleteContact, NewContact, EditContact } from "./modal";
 
 class ContactsPage extends Component {
     constructor(props) {
         super(props);
-        this.contacts = this.props.contacts;
-        this.state = {
-            search_value: "",
-        };
 
-        analytics.pageview(AddressBookFullPath, "Address Book");
+        analytics.pageview(routes.AddressBookFullPath, "Address Book");
     }
 
     componentWillMount() {
         this.props.dispatch(operations.getContacts());
     }
 
-    componentWillUpdate(nextProps, nextState) {
-        this.filterContacts(nextState.search_value, nextProps.contacts);
+    componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(AddressBookFullPath, "Address Book");
+            analytics.pageview(routes.AddressBookFullPath, "Address Book");
         }
     }
 
@@ -53,9 +48,10 @@ class ContactsPage extends Component {
     getHistoryHeader = () => (
         [
             {
-                Header: <span className="sortable">Name of contact</span>,
+                Header: <span className="sortable">Name</span>,
                 accessor: "name",
                 maxWidth: 201,
+                minWidth: 142,
             },
             {
                 Header: <span className="sortable">Lightning ID</span>,
@@ -66,58 +62,56 @@ class ContactsPage extends Component {
     );
 
     getContactsData = () => {
-        const btnClass = "table__button";
-        return this.contacts.map((contact, key) => ({
-            lightning: (
-                <div className="contacts__lightning-wrapper">
-                    <div className="contacts__lightningId">
-                        {contact.lightningID}
+        const { contacts, filter, dispatch } = this.props;
+        return contacts
+            .filter(contact => dispatch(filterOperations.filter(
+                filter,
+                {
+                    search: [
+                        contact.name,
+                        contact.lightningID,
+                    ],
+                },
+            )))
+            .map((contact, key) => ({
+                lightning: (
+                    <div className="contacts__lightning-wrapper">
+                        <div className="contacts__lightningId">
+                            {contact.lightningID}
+                        </div>
+                        <div className="contacts__actions">
+                            <button className="table__button" type="button" onClick={() => this.handleEdit(contact)}>
+                                Edit
+                            </button>
+                            <button
+                                className="table__button"
+                                type="button"
+                                onClick={() => this.handleCopy(contact.lightningID)}
+                            >
+                                Copy
+                            </button>
+                            <button className="table__button" type="button" onClick={() => this.handlePay(contact)}>
+                                Pay
+                            </button>
+                        </div>
                     </div>
-                    <div className="contacts__actions">
-                        <button className={btnClass} type="button" onClick={() => this.handleEdit(key)}>
-                            Edit
-                        </button>
-                        <button className={btnClass} type="button" onClick={() => this.handleCopy(contact.lightningID)}>
-                            Copy
-                        </button>
-                        <button className={btnClass} type="button" onClick={() => this.handlePay(key)}>
-                            Pay
-                        </button>
-                    </div>
-                </div>
-            ),
-            name: <Ellipsis>{contact.name}</Ellipsis>,
-        }));
+                ),
+                name: <Ellipsis>{contact.name}</Ellipsis>,
+            }));
     };
 
-    filterContacts = (keyword, props = undefined) => {
-        const contacts = !props ? this.props.contacts : props;
-        this.contacts = !keyword ?
-            contacts :
-            contacts.filter(contact => contact.name.toUpperCase()
-                .includes(keyword.toUpperCase()) || contact.lightningID.includes(keyword));
-    };
-
-    handleSearch = (e) => {
-        if (this.props.contacts) {
-            this.setState({ search_value: e.target.value.trim() });
-        }
-    };
-
-    handleEdit = (index) => {
+    handleEdit = (contact) => {
         analytics.event({ action: "Edit contact", category: "Address Book", label: "Edit" });
         const { dispatch } = this.props;
-        const updateContact = this.contacts[index];
-        dispatch(actions.setCurrentContact(updateContact));
+        dispatch(actions.setCurrentContact(contact));
         dispatch(operations.openEditContactModal());
     };
 
-    handlePay = (index) => {
+    handlePay = (contact) => {
         analytics.event({ action: "Pay contact", category: "Address Book", label: "Pay" });
         const { dispatch } = this.props;
-        const payContact = this.contacts[index];
-        dispatch(operations.setContactsSearch(payContact.name));
-        dispatch(push(WalletPath));
+        dispatch(operations.setContactsSearch(contact.name));
+        dispatch(push(routes.WalletPath));
     };
 
     handleCopy = (address) => {
@@ -132,36 +126,48 @@ class ContactsPage extends Component {
         dispatch(operations.openNewContactModal());
     };
 
-    renderEmptyList = () => (
-        <div className="empty-placeholder">
-            <span className="placeholder_text">Here all your contacts will be displayed</span>
-        </div>
-    );
+    renderEmptyList = (isStandard = false) => {
+        const { dispatch } = this.props;
+        return (
+            <div className="page__placeholder page__placeholder--book">
+                {isStandard
+                    ? (
+                        <Fragment>
+                            <div className="row">
+                                <div className="col-xs-12">
+                                    <span className="page__placeholder-text">
+                                        Contact list is available only in the&nbsp;
+                                        <button
+                                            className="link"
+                                            onClick={() => dispatch(accountOperations.openWalletModeModal())}
+                                        >
+                                            Extended Mode
+                                        </button>.
+                                    </span>
+                                </div>
+                            </div>
+                        </Fragment>
+                    )
+                    : <span className="page__placeholder-text">Here all your contacts will be displayed</span>
+                }
+            </div>
+        );
+    };
 
     renderContacts = () => (
         <div className="container">
             <div className="row">
-                <div className="col-xs-12 search">
-                    <DebounceInput
-                        debounceTimeout={500}
-                        onChange={this.handleSearch}
-                        className="form-text form-search"
-                        placeholder="&nbsp;"
-                        value={this.state.search_value}
-                    />
-                </div>
-            </div>
-            <div className="row">
                 <div className="col-xs-12 table">
-                    <History
+                    <RecordsTable
                         data={this.getContactsData()}
-                        key={3}
                         columns={this.getHistoryHeader()}
-                        filterable={false}
+                        source={filterTypes.FILTER_CONTACTS}
                         withoutTitle
-                        showPagination
-                        showPageJump={false}
+                        filters={[
+                            filterTypes.FILTER_KIND_SEARCH,
+                        ]}
                         emptyPlaceholder="No contacts found"
+                        searchPlaceholder="Name, Lightning ID"
                     />
                 </div>
             </div>
@@ -169,8 +175,7 @@ class ContactsPage extends Component {
     );
 
     render() {
-        console.log("RENDERED CONTACTS");
-        const { contacts, modalState } = this.props;
+        const { contacts, modalState, walletMode } = this.props;
         let modal;
         switch (modalState) {
             case types.MODAL_STATE_NEW_CONTACT:
@@ -185,22 +190,27 @@ class ContactsPage extends Component {
             default:
                 modal = null;
         }
-        const headerBtn = <Button class="button__orange" onClick={this.headerBtnClick} text="ADD CONTACT" />;
+        const headerBtn = walletMode === accountTypes.WALLET_MODE.EXTENDED
+            ? <Button class="button__solid" onClick={this.headerBtnClick} text="ADD CONTACT" />
+            : null;
 
-        return [
-            <SubHeader key={1} button={headerBtn} />,
-            <div key={2} className="contacts-page">
-                {!contacts.length ? this.renderEmptyList() : this.renderContacts()}
-            </div>,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={3}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+        return (
+            <Fragment>
+                <SubHeader button={headerBtn} />
+                <div className="page contacts">
+                    {!contacts.length || walletMode !== accountTypes.WALLET_MODE.EXTENDED
+                        ? this.renderEmptyList(walletMode === accountTypes.WALLET_MODE.STANDARD)
+                        : this.renderContacts()}
+                </div>
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>
+            </Fragment>
+        );
     }
 }
 
@@ -210,12 +220,16 @@ ContactsPage.propTypes = {
         name: PropTypes.string.isRequired,
     })).isRequired,
     dispatch: PropTypes.func.isRequired,
+    filter: PropTypes.shape().isRequired,
     modalState: PropTypes.string.isRequired,
+    walletMode: PropTypes.oneOf(accountTypes.WALLET_MODES_LIST),
 };
 
 const mapStateToProps = state => ({
     contacts: state.contacts.contacts,
+    filter: state.filter.contacts,
     modalState: state.app.modalState,
+    walletMode: state.account.walletMode,
 });
 
 export default connect(mapStateToProps)(ContactsPage);

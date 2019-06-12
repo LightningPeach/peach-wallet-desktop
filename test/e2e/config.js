@@ -1,4 +1,4 @@
-const username = "testUsername";
+const walletName = "testWalletName";
 const password = "testPass1234";
 const randomSeed = "test test";
 const onchainAmount = 100000000;
@@ -9,7 +9,6 @@ const channelAmount = 10;
 const channelOpenedAmountString = "9.9095 mBTC";
 const channelHost = "127.0.0.1:20202";
 const timeoutForElementChecks = 40 * 1000;
-const agreementFile = "agreement.ini";
 const localSettings = "settings.local.ini";
 const regularTransactionName = "Test regular transaction";
 const filenamePostfix = ".testBackup";
@@ -19,7 +18,7 @@ const cmdUtilsTimeout = 1000;
 const cmdUtilsCallDelay = 5 * 1000;
 
 module.exports = {
-    username,
+    walletName,
     password,
     randomSeed,
     onchainAmount,
@@ -30,7 +29,6 @@ module.exports = {
     channelOpenedAmountString,
     channelHost,
     timeoutForElementChecks,
-    agreementFile,
     localSettings,
     regularTransactionName,
     filenamePostfix,

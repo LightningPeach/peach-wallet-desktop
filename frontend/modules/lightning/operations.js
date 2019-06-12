@@ -1,8 +1,11 @@
-import * as statusCodes from "config/status-codes";
-import { appOperations, appActions } from "modules/app";
-import { accountOperations } from "modules/account";
-import { db, successPromise, errorPromise } from "additional";
 import orderBy from "lodash/orderBy";
+import omit from "lodash/omit";
+
+import { exceptions, consts } from "config";
+import { appOperations, appActions } from "modules/app";
+import { streamPaymentTypes } from "modules/streamPayments";
+import { accountOperations } from "modules/account";
+import { db, successPromise, errorPromise, logger, helpers } from "additional";
 import { store } from "store/configure-store";
 import * as actions from "./actions";
 import * as types from "./types";
@@ -12,9 +15,8 @@ function getLightningFee(lightningID, amount) {
     return async (dispatch, getState) => {
         const routes = await window.ipcClient("queryRoutes", {
             amt: amount,
+            num_routes: consts.LIGHTNING_NUM_ROUTES,
             pub_key: lightningID,
-            // lnd broken with this param
-            // num_routes: 5
         });
         if (!routes.ok) {
             return errorPromise(routes.error, getLightningFee);
@@ -51,6 +53,7 @@ export function preparePayment(
     amount,
     comment,
     pay_req = null,
+    pay_req_decoded = null,
     paymentName = null,
     contact_name = null,
 ) {
@@ -65,6 +68,7 @@ export function preparePayment(
             amount,
             comment,
             pay_req,
+            pay_req_decoded,
             name,
             contact_name,
             fees.response.fee,
@@ -73,15 +77,26 @@ export function preparePayment(
     };
 }
 
-async function getInvoices() {
-    const response = await window.ipcClient("listInvoices");
-    if (!response.ok) {
-        console.error("ERROR ON GET INVOICES");
-        console.error(response);
+async function getPaginatedInvoices(offset = 0) {
+    const { ok, response } = await window.ipcClient("listInvoices", { index_offset: offset });
+    if (!ok) {
+        logger.error("ERROR ON GET INVOICES");
+        logger.error(response);
         return [];
     }
+    const lastOffset = parseInt(response.last_index_offset, 10);
+    if (lastOffset === 0 || lastOffset % consts.DEFAULT_MAX_INVOICES !== 0) {
+        return response.invoices;
+    }
+    return [...response.invoices, ...(await getPaginatedInvoices(lastOffset))];
+}
+
+async function getInvoices() {
+    // use maximum `num_max_invoices` or collect all invoices recursively? That is the question.
+    // const response = await window.ipcClient("listInvoices", { num_max_invoices: consts.MAX_INVOICES });
+    const allInvoices = await getPaginatedInvoices();
     const streamInvoices = {};
-    const settledInvoices = response.response.invoices.filter(invoice => invoice.settled);
+    const settledInvoices = allInvoices.filter(invoice => invoice.settled);
     const invoices = await settledInvoices.reduce(async (invoicePromise, invoice) => {
         const newInvoices = await invoicePromise;
         const payReq = await window.ipcClient("decodePayReq", { pay_req: invoice.payment_request });
@@ -95,11 +110,19 @@ async function getInvoices() {
             payment_hash: payReq.response.payment_hash,
             type: "invoice",
         };
-        if (memo.includes("stream_payment_")) {
-            tempInvoice.name = "Incoming stream payment";
-            tempInvoice.amount = parseInt(invoice.value, 10) + (streamInvoices[memo] ?
-                streamInvoices[memo].amount :
+        if (helpers.isStreamOrRecurring(invoice)) {
+            tempInvoice.currency = "BTC";
+            tempInvoice.name = consts.INCOMING_RECURRING_NAME;
+            tempInvoice.type = "stream";
+            // default 1 sec? attach stream delay to invoice.
+            tempInvoice.delay = -1;
+            tempInvoice.price = tempInvoice.amount;
+            tempInvoice.totalAmount = tempInvoice.amount + (streamInvoices[memo] ?
+                streamInvoices[memo].totalAmount :
                 0);
+            tempInvoice.totalParts = (streamInvoices[memo] ? streamInvoices[memo].totalParts : 0) + 1;
+            tempInvoice.partsPaid = tempInvoice.totalParts;
+            tempInvoice.status = streamPaymentTypes.STREAM_PAYMENT_FINISHED;
             streamInvoices[memo] = tempInvoice;
         } else {
             newInvoices.push(tempInvoice);
@@ -112,8 +135,8 @@ async function getInvoices() {
 async function getPayments() {
     const lndPayments = await window.ipcClient("listPayments");
     if (!lndPayments.ok) {
-        console.error("Error on Lightning:getPayments");
-        console.error(lndPayments.error);
+        logger.error("Error on Lightning:getPayments");
+        logger.error(lndPayments.error);
         return [];
     }
     const [dbPayments, dbStreams] = await Promise.all([
@@ -126,51 +149,61 @@ async function getPayments() {
     const foundedInDb = [];
     const streamPayments = {};
     const payments = lndPayments.response.payments.reduce((reducedPayments, payment) => {
+        // TODO: Add restore db by parts, restore missing streams in db, focus on memo field
         const findInParts = (isFound, item) => isFound || item.payment_hash === payment.payment_hash;
-        const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false));
-        if (dbStream.length) {
-            foundedInDb.push(dbStream[0].id);
-            if (dbStream[0].status !== "end") {
+        const dbStream = dbStreams.filter(item => item.parts.reduce(findInParts, false))[0];
+        if (dbStream) {
+            foundedInDb.push(dbStream.id);
+            if (dbStream.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED) {
                 return reducedPayments;
             }
-            const amount = streamPayments[dbStream[0].id] ? parseInt(streamPayments[dbStream[0].id].amount, 10) : 0;
-            const date = streamPayments[dbStream[0].id] ?
-                parseInt(streamPayments[dbStream[0].id].date, 10) :
-                parseInt(payment.creation_date, 10) * 1000;
-            const parts = streamPayments[dbStream[0].id] ? streamPayments[dbStream[0].id].parts + 1 : 1;
-            streamPayments[dbStream[0].id] = {
-                amount: parseInt(payment.value, 10) + amount,
-                date,
-                lightningID: payment.path[payment.path.length - 1],
-                name: dbStream[0].name,
-                parts,
-                path: payment.path,
+            const partsPaid = streamPayments[dbStream.id] ? streamPayments[dbStream.id].partsPaid + 1 : 1;
+            streamPayments[dbStream.id] = {
+                ...omit(dbStream, "parts"),
+                partsPaid,
                 type: "stream",
             };
             return reducedPayments;
         }
-        const dbPayment = dbPayments.filter(item => item.paymentHash === payment.payment_hash);
+        const dbPayment = dbPayments.filter(item => item.paymentHash === payment.payment_hash)[0];
         reducedPayments.push({
             amount: -parseInt(payment.value, 10),
             date: parseInt(payment.creation_date, 10) * 1000,
             lightningID: payment.path[payment.path.length - 1],
-            name: dbPayment.length ? dbPayment[0].name : "Outgoing payment",
-            path: payment.path,
+            name: dbPayment ? dbPayment.name : "Outgoing payment",
             payment_hash: payment.payment_hash,
             type: "payment",
         });
         return reducedPayments;
     }, []);
-    const orphansStreams = dbStreams.filter(dbStream => !foundedInDb.includes(dbStream.id) && dbStream.status === "end")
+    const orphansStreams = dbStreams.filter(dbStream =>
+        !foundedInDb.includes(dbStream.id)
+        && dbStream.status === streamPaymentTypes.STREAM_PAYMENT_FINISHED)
         .map(dbStream => ({
-            amount: parseInt(dbStream.price, 10),
-            date: dbStream.date,
-            lightningID: dbStream.lightningID,
-            name: dbStream.name,
-            parts: 0,
-            path: [],
+            ...omit(dbStream, "parts"),
+            partsPaid: 0,
             type: "stream",
         }));
+    dbStreams.forEach((dbStream) => {
+        if (dbStream.status !== streamPaymentTypes.STREAM_PAYMENT_FINISHED) {
+            return;
+        }
+        const partsPaid = !foundedInDb.includes(dbStream.id)
+            ? 0
+            : streamPayments[dbStream.id].partsPaid;
+        if (dbStream.partsPaid !== partsPaid) {
+            try {
+                db.streamBuilder()
+                    .update()
+                    .set({ partsPaid })
+                    .where("id = :id", { id: dbStream.id })
+                    .execute();
+            } catch (e) {
+                /* istanbul ignore next */
+                logger.error(exceptions.EXTRA, e);
+            }
+        }
+    });
     return [...payments, ...Object.values(streamPayments), ...orphansStreams];
 }
 
@@ -189,18 +222,18 @@ function getHistory() {
     };
 }
 
-function addInvoiceRemote(lightningID, amount) {
+function addInvoiceRemote(lightningID, amount, memo = "") {
     return async (dispatch, getState) => {
-        console.log("Sending rpc");
+        logger.log("Sending rpc");
         const response = await window.ipcClient("addInvoiceRemote", {
             lightning_id: lightningID,
-            memo: getState().account.lightningID,
+            memo: memo || getState().account.lightningID,
             value: amount.toString(),
         });
         if (!response.ok) {
             let error;
             if (response.error.indexOf("invalid json response body") !== -1) {
-                error = statusCodes.EXCEPTION_REMOTE_OFFLINE;
+                error = exceptions.REMOTE_OFFLINE;
             } else {
                 error = response.error; // eslint-disable-line
             }
@@ -212,7 +245,25 @@ function addInvoiceRemote(lightningID, amount) {
 
 function pay(details) {
     return async (dispatch, getState) => {
-        const response = await window.ipcClient("sendPayment", { payment_request: details.pay_req });
+        let paymentDetails;
+        let isPayReqPayment = true;
+        if (details.pay_req_decoded && details.pay_req_decoded.num_satoshis !== details.amount) {
+            isPayReqPayment = false;
+            paymentDetails = {
+                amt: details.amount,
+                dest_string: details.pay_req_decoded.destination,
+                final_cltv_delta: details.pay_req_decoded.cltv_expiry,
+                payment_hash_string: details.pay_req_decoded.payment_hash,
+            };
+        } else {
+            paymentDetails = {
+                payment_request: details.pay_req,
+            };
+        }
+        const response = await window.ipcClient("sendPayment", {
+            details: paymentDetails,
+            isPayReq: isPayReqPayment,
+        });
         if (!response.ok) {
             dispatch(actions.errorPayment(response.error));
             return errorPromise(response.error, pay);
@@ -224,7 +275,7 @@ function pay(details) {
                 .execute();
         } catch (e) {
             /* istanbul ignore next */
-            console.error(statusCodes.EXCEPTION_EXTRA, e);
+            logger.error(exceptions.EXTRA, e);
         }
         dispatch(actions.successPayment());
         dispatch(accountOperations.checkBalance());
@@ -237,9 +288,10 @@ function pay(details) {
 
 function makePayment() {
     return async (dispatch, getState) => {
-        console.log("Will send payment");
+        logger.log("Will send payment");
         dispatch(pendingPayment());
         let payReq = getState().lightning.paymentDetails[0].pay_req || null;
+        const payReqDecoded = getState().lightning.paymentDetails[0].pay_req_decoded || null;
         const details = {
             amount: getState().lightning.paymentDetails[0].amount,
             comment: getState().lightning.paymentDetails[0].comment,
@@ -247,8 +299,8 @@ function makePayment() {
             name: getState().lightning.paymentDetails[0].name,
         };
         if (!payReq) {
-            console.log("Will add remote invoice");
-            console.log(details.lightningID, details.amount);
+            logger.log("Will add remote invoice");
+            logger.log(details.lightningID, details.amount);
             const response = await dispatch(addInvoiceRemote(details.lightningID, details.amount));
             if (!response.ok) {
                 dispatch(actions.errorPayment(response.error));
@@ -263,6 +315,7 @@ function makePayment() {
             lightningID: details.lightningID,
             name: details.name,
             pay_req: payReq,
+            pay_req_decoded: payReqDecoded,
         }));
     };
 }
@@ -316,6 +369,7 @@ window.ipcRenderer.on("invoices-update", (event) => {
 export {
     addInvoiceRemote,
     channelWarningModal,
+    getPaginatedInvoices,
     getInvoices,
     getHistory,
     getLightningFee,
