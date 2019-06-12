@@ -7,9 +7,12 @@ function sendMsg(lightningId, msg) {
     return async (dispatch) => {
         const amt = 1;
         const response = await window.ipcClient("sendPayment", {
-            amt,
-            dest_string: lightningId,
-            message: msg,
+            details: {
+                amt,
+                dest_string: lightningId,
+                message: msg,
+            },
+            isPayReq: false,
         });
         if (!response.ok) {
             return errorPromise(response.error, sendMsg);

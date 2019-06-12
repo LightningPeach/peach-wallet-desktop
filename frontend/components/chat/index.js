@@ -126,7 +126,7 @@ class ChatPage extends Component {
                             <div className="row form-row">
                                 <div className="col-xs-12 text-right">
                                     <button
-                                        className="button button__orange button__create"
+                                        className="button button__solid"
                                         type="submit"
                                         disabled={submitDisabled}
                                     >
