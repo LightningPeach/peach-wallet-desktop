@@ -1,7 +1,7 @@
 import bitcoin from "bitcoinjs-lib";
-import * as statusCodes from "config/status-codes";
+import { exceptions } from "config";
 import {
-    MIN_PASS_LENGTH, USERNAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
+    MIN_PASS_LENGTH, WALLET_NAME_MAX_LENGTH, VALIDATE_PASS_REGEXP, ONLY_UNICODE_LETTERS_AND_NUMBERS,
     ONLY_LETTERS_AND_NUMBERS, LIGHTNING_ID_LENGTH, SEED_COUNT,
 } from "config/consts";
 import isNil from "lodash/isNil";
@@ -24,7 +24,7 @@ const validateBitcoinAddr = (addr, network) => {
         bitcoin.address.toOutputScript(addr, network);
         return null;
     } catch (e) {
-        return statusCodes.EXCEPTION_BITCOIN_ADDRESS_WRONG;
+        return exceptions.BITCOIN_ADDRESS_WRONG;
     }
 };
 
@@ -34,11 +34,11 @@ const validateBitcoinAddr = (addr, network) => {
  */
 const validateLightning = (id) => {
     if (!id) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (id.length !== LIGHTNING_ID_LENGTH) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+        return exceptions.LIGHTNING_ID_WRONG_LENGTH;
     } else if (!ONLY_LETTERS_AND_NUMBERS.test(id)) {
-        return statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+        return exceptions.LIGHTNING_ID_WRONG;
     }
     return null;
 };
@@ -49,11 +49,11 @@ const validateLightning = (id) => {
  */
 const validateChannelHost = (channelHost) => {
     if (!channelHost) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     }
     const [lightningId, host] = channelHost.split("@");
     if (!lightningId || !host) {
-        return statusCodes.EXCEPTION_LIGHTNING_HOST_WRONG_FORMAT;
+        return exceptions.LIGHTNING_HOST_WRONG_FORMAT;
     }
     return validateLightning(lightningId);
 };
@@ -64,11 +64,11 @@ const validateChannelHost = (channelHost) => {
  */
 const validatePass = (pass) => {
     if (!pass) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (pass.length < MIN_PASS_LENGTH) {
-        return statusCodes.EXCEPTION_PASSWORD_WRONG_MIN_LENGTH;
+        return exceptions.PASSWORD_WRONG_MIN_LENGTH;
     } else if (!VALIDATE_PASS_REGEXP.test(pass)) {
-        return statusCodes.EXCEPTION_PASSWORD_WRONG_FORMAT;
+        return exceptions.PASSWORD_WRONG_FORMAT;
     }
     return null;
 };
@@ -80,9 +80,9 @@ const validatePass = (pass) => {
  */
 const validatePassSeed = (seed, seedCompare) => {
     if (!seed) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (seedCompare && seed !== seedCompare) {
-        return statusCodes.EXCEPTION_PASSWORD_SEED_MISMATCH;
+        return exceptions.PASSWORD_SEED_MISMATCH;
     }
     return null;
 };
@@ -94,9 +94,9 @@ const validatePassSeed = (seed, seedCompare) => {
  */
 const validatePassMismatch = (newPass, confPass) => {
     if (!confPass) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (newPass !== confPass) {
-        return statusCodes.EXCEPTION_PASSWORD_MISMATCH;
+        return exceptions.PASSWORD_MISMATCH;
     }
     return null;
 };
@@ -108,7 +108,7 @@ const validatePassMismatch = (newPass, confPass) => {
  */
 const validatePassDiff = (oldPass, newPass) => {
     if (oldPass === newPass) {
-        return statusCodes.EXCEPTION_PASSWORD_DIFF;
+        return exceptions.PASSWORD_DIFF;
     }
     return null;
 };
@@ -127,12 +127,12 @@ const validateName = (
     required = false,
     withSpace = true,
     allUnicodeLettersAndNumbers = true,
-    maxChars = USERNAME_MAX_LENGTH,
+    maxChars = WALLET_NAME_MAX_LENGTH,
     withSeparators = false,
 ) => {
     let tempName = name;
     if (required && !tempName) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (!tempName) {
         return null;
     }
@@ -140,29 +140,29 @@ const validateName = (
         tempName = tempName.replace(/\s/g, "");
     }
     if (tempName.length > maxChars) {
-        return statusCodes.EXCEPTION_USERNAME_WRONG_MAX_LENGTH(maxChars);
+        return exceptions.WALLET_NAME_WRONG_MAX_LENGTH(maxChars);
     }
     if (withSeparators) {
-        tempName = tempName.replace(/[$-/:-?{-~!"^_`\[\]]/g, ""); // eslint-disable-line
+        tempName = tempName.replace(/[!-\/:-@[-`{-~]/g, ""); // eslint-disable-line
     }
     if (allUnicodeLettersAndNumbers) {
         if (!ONLY_UNICODE_LETTERS_AND_NUMBERS.test(tempName)) {
-            return statusCodes.EXCEPTION_USERNAME_WRONG_FORMAT(withSpace, withSeparators);
+            return exceptions.WALLET_NAME_WRONG_FORMAT(withSpace, withSeparators);
         }
     } else if (!ONLY_LETTERS_AND_NUMBERS.test(tempName)) {
-        return statusCodes.EXCEPTION_USERNAME_WRONG_FORMAT(withSpace, withSeparators);
+        return exceptions.WALLET_NAME_WRONG_FORMAT(withSpace, withSeparators);
     }
     return null;
 };
 
-const validateUserExistence = async (username) => {
-    const invalidName = validateName(username, true, false, false);
+const validateUserExistence = async (walletName) => {
+    const invalidName = validateName(walletName, true, false, false);
     if (invalidName) {
         return invalidName;
     }
-    const response = await window.ipcClient("checkUser", { username });
-    if (response.ok) {
-        return statusCodes.EXCEPTION_USERNAME_EXISTS;
+    const { ok } = await window.ipcClient("checkWalletName", { walletName });
+    if (!ok) {
+        return exceptions.WALLET_NAME_EXISTS;
     }
     return null;
 };
@@ -173,11 +173,22 @@ const validateUserExistence = async (username) => {
  */
 const validateSeed = (seed) => {
     if (!seed.length) {
-        return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+        return exceptions.FIELD_IS_REQUIRED;
     } else if (seed.length !== SEED_COUNT) {
-        return statusCodes.EXCEPTION_PASSWORD_SEED_COUNT_MISMATCH;
+        return exceptions.PASSWORD_SEED_COUNT_MISMATCH;
     } else if (!seed.every(s => /^[a-z]+$/.test(s))) {
-        return statusCodes.EXCEPTION_PASSWORD_SEED_WRONG_FORMAT;
+        return exceptions.PASSWORD_SEED_WRONG_FORMAT;
+    }
+    return null;
+};
+
+const validateLndPath = async (lndPath) => {
+    if (!lndPath) {
+        return exceptions.FIELD_IS_REQUIRED;
+    }
+    const response = await window.ipcClient("validateLndPath", { lndPath });
+    if (!response.ok) {
+        return exceptions.FOLDER_UNAVAILABLE;
     }
     return null;
 };
@@ -194,4 +205,5 @@ export {
     validatePassSeed,
     validateSeed,
     validateUserExistence,
+    validateLndPath,
 };

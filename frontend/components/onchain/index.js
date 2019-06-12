@@ -1,33 +1,25 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import bitcoin from "bitcoinjs-lib";
+import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+
 import { analytics, helpers, validators } from "additional";
-import * as statusCodes from "config/status-codes";
+import { exceptions, consts, routes, nodeSettings } from "config";
+import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
+import { filterTypes } from "modules/filter";
+import { appOperations, appTypes } from "modules/app";
+import { accountOperations } from "modules/account";
+
 import SubHeader from "components/subheader";
-import {
-    MODAL_ANIMATION_TIMEOUT,
-    USERNAME_MAX_LENGTH,
-    LIGHTNING_ID_LENGTH,
-    SIMNET_NETWORK,
-} from "config/consts";
-import { BITCOIN_SETTINGS } from "config/node-settings";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 import SuccessPayment from "components/common/success-payment";
 import UnSuccessPayment from "components/common/unsuccess-payment";
-import History from "components/history";
-import BlocksLoader from "components/ui/blocks_loader";
-import { onChainOperations as operations, onChainTypes as types } from "modules/onchain";
 import BtcToUsd from "components/common/btc-to-usd";
-import BalanceWithMeasure from "components/common/balance-with-measure";
-import { appOperations, appTypes } from "modules/app";
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
-import { OnchainFullPath } from "routes";
-import { accountOperations } from "modules/account";
-import DigitsField from "components/ui/digitsField";
-import Ellipsis from "components/common/ellipsis";
+import DigitsField from "components/ui/digits-field";
 import OnChainDetails from "./modal/details";
 import OnchainWarning from "./modal/warning";
+import OnchainHistory from "./history";
 
 class Onchain extends Component {
     constructor(props) {
@@ -38,7 +30,7 @@ class Onchain extends Component {
             nameError: null,
             toError: null,
         };
-        analytics.pageview(OnchainFullPath, "Onchain");
+        analytics.pageview(routes.OnchainFullPath, "On-chain");
     }
 
     componentWillMount() {
@@ -47,13 +39,13 @@ class Onchain extends Component {
 
     componentWillUpdate(nextProps) {
         if (this.props.modalState !== nextProps.modalState && nextProps.modalState === appTypes.CLOSE_MODAL_STATE) {
-            analytics.pageview(OnchainFullPath, "Onchain");
+            analytics.pageview(routes.OnchainFullPath, "On-chain");
         }
     }
 
     onChainPay = async (e) => {
         e.preventDefault();
-        analytics.event({ action: "Payment", category: "Onchain", label: "Pay" });
+        analytics.event({ action: "Payment", category: "On-chain", label: "Pay" });
         const { dispatch } = this.props;
         const name = this.name.value.trim();
         const to = this.to.value.trim();
@@ -74,128 +66,25 @@ class Onchain extends Component {
             this.setState({ amountError: response.error });
             return;
         }
-        if (to.length === LIGHTNING_ID_LENGTH) {
+        if (to.length === consts.LIGHTNING_ID_LENGTH) {
             dispatch(operations.openWarningModal());
             return;
         }
         dispatch(operations.openSendCoinsModal());
     };
 
-    getHistoryHeader = () => [
-        {
-            Header: <span className="sortable">Name of payment</span>,
-            accessor: "name",
-            className: "name",
-            sortMethod: (a, b) => {
-                const aa = a.props.children.toLowerCase();
-                const bb = b.props.children.toLowerCase();
-                return aa > bb ? 1 : (aa < bb ? -1 : 0); // eslint-disable-line
-            },
-            width: 164,
-        },
-        {
-            Header: <span className="">Amount</span>,
-            accessor: "amount",
-            className: "amount",
-            sortable: false,
-            width: 145,
-        },
-        {
-            Header: <span className="sortable">To</span>,
-            accessor: "to",
-            className: "to",
-            sortable: false,
-            width: 156,
-        },
-        {
-            Header: <span className="sortable">Confirmations</span>,
-            accessor: "time",
-            className: "time",
-            sortable: false,
-            width: 157,
-        },
-        {
-            Header: <span>Transaction ID</span>,
-            accessor: "tid",
-            className: "tid",
-            sortable: false,
-            width: 198,
-        },
-        {
-            Header: <span className="sortable">Date</span>,
-            accessor: "date",
-            className: "date",
-            width: 120,
-            // eslint-disable-next-line
-            sortMethod: (a, b) => a.props.dateTime > b.props.dateTime ?
-                1 :
-                (a.props.dateTime < b.props.dateTime ? -1 : 0),
-        },
-    ];
-
-    getHistoryData = () => {
-        const { dispatch, lightningID } = this.props;
-        return this.props.history.map((item, key) => {
-            const className = key === 0 ? "green" : "orange";
-            const tempAddress = item.to !== lightningID ? item.to : "me";
-            const address = (
-                <span
-                    onClick={() => {
-                        if (helpers.hasSelection()) return;
-                        if (tempAddress !== "-") {
-                            analytics.event({ action: "History address", category: "Onchain", label: "Copy" });
-                            dispatch(appOperations.copyToClipboard(item.to));
-                        }
-                    }}
-                    title={tempAddress}
-                >
-                    {tempAddress}
-                </span>
-            );
-            const tid = (
-                <span
-                    onClick={() => {
-                        if (helpers.hasSelection()) return;
-                        analytics.event({ action: "History transaction hash", category: "Onchain", label: "Copy" });
-                        dispatch(appOperations.copyToClipboard(item.tx_hash));
-                    }}
-                    title={item.tx_hash}
-                >
-                    {item.tx_hash}
-                </span>
-            );
-            const [ymd, hms] = helpers.formatDate(item.date).split(" ");
-            return {
-                amount: <BalanceWithMeasure satoshi={item.amount} />,
-                date: (
-                    <span dateTime={item.date}>
-                        <span className="date__ymd">{ymd}</span>
-                        <span className="date__hms">{hms}</span>
-                    </span>
-                ),
-                name: <Ellipsis>{item.name}</Ellipsis>,
-                tid: <Ellipsis>{tid}</Ellipsis>,
-                time: <BlocksLoader
-                    class={item.status === "pending" ? "pending" : "sended"}
-                    countBlocks={item.num_confirmations}
-                />,
-                to: <Ellipsis>{address}</Ellipsis>,
-            };
-        });
-    };
-
     getNetwork = () => {
-        if (BITCOIN_SETTINGS.network === "testnet") {
+        if (nodeSettings.BITCOIN_SETTINGS.network === "testnet") {
             return bitcoin.networks.testnet;
-        } else if (BITCOIN_SETTINGS.network === "simnet") {
-            return SIMNET_NETWORK;
+        } else if (nodeSettings.BITCOIN_SETTINGS.network === "simnet") {
+            return consts.SIMNET_NETWORK;
         }
         return bitcoin.networks.bitcoin;
     };
 
     validateTo = (to) => {
         if (!to) {
-            return statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+            return exceptions.FIELD_IS_REQUIRED;
         }
         const network = this.getNetwork();
         return validators.validateBitcoinAddr(to, network);
@@ -211,105 +100,123 @@ class Onchain extends Component {
 
     renderOnchain = () => {
         const { dispatch, bitcoinMeasureType } = this.props;
-        let usd = null;
-        if (this.state.amount) {
-            usd = (
-                <span className="form-usd">
-                    <BtcToUsd satoshi={dispatch(appOperations.convertToSatoshi(this.state.amount))} hideBtc />
-                </span>
-            );
-        }
-        return [
-            <div className="tab-link tab-link__no-hover" key={-1}>
-                Onchain payment
-            </div>,
-            <form
-                className="send"
-                onSubmit={this.onChainPay}
-                key={0}
-                ref={(ref) => {
-                    this.form = ref;
-                }}
-            >
-                <div className="row form-row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="send-coins__name">Name of payment</label>
+        return (
+            <Fragment>
+                <div className="tabs">
+                    <div className="tabs__row">
+                        <div className="tab-link tab-link-active tab-link__no-hover">
+                            On-chain payment
                         </div>
                     </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="send-coins__name"
-                            className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
-                            name="send-coins__name"
-                            placeholder="Enter name"
+                </div>
+                <div className="block__row-lg">
+                    <div className="col-xs-12 col-md-6">
+                        <form
+                            className="form form--onchain"
+                            onSubmit={this.onChainPay}
+                            key={0}
                             ref={(ref) => {
-                                this.name = ref;
+                                this.form = ref;
                             }}
-                            onChange={() => this.setState({ nameError: null })}
-                            max={USERNAME_MAX_LENGTH}
-                            maxLength={USERNAME_MAX_LENGTH}
-                        />
-                        <ErrorFieldTooltip text={this.state.nameError} />
+                        >
+                            <div className="row">
+                                <div className="col-xs-12">
+                                    <div className="form-label">
+                                        <label htmlFor="send-coins__name">Description</label>
+                                    </div>
+                                </div>
+                                <div className="col-xs-12">
+                                    <input
+                                        id="send-coins__name"
+                                        className={`form-text ${this.state.nameError ? "form-text__error" : ""}`}
+                                        name="send-coins__name"
+                                        placeholder="Optional"
+                                        ref={(ref) => {
+                                            this.name = ref;
+                                        }}
+                                        onChange={() => this.setState({ nameError: null })}
+                                        max={consts.ELEMENT_NAME_MAX_LENGTH}
+                                        maxLength={consts.ELEMENT_NAME_MAX_LENGTH}
+                                    />
+                                    <ErrorFieldTooltip text={this.state.nameError} />
+                                </div>
+                            </div>
+                            <div className="block__row">
+                                <div className="col-xs-12">
+                                    <div className="form-label">
+                                        <label htmlFor="send-coins__to">To</label>
+                                    </div>
+                                </div>
+                                <div className="col-xs-12">
+                                    <input
+                                        id="send-coins__to"
+                                        className={`form-text ${this.state.toError ? "form-text__error" : ""}`}
+                                        name="send-coins__to"
+                                        placeholder="Bitcoin Address"
+                                        ref={(ref) => {
+                                            this.to = ref;
+                                        }}
+                                        onChange={() => this.setState({ toError: null })}
+                                    />
+                                    <ErrorFieldTooltip text={this.state.toError} />
+                                </div>
+                            </div>
+                            <div className="block__row align-end-xs">
+                                <div className="col-xs-8">
+                                    <div className="row">
+                                        <div className="col-xs-12">
+                                            <div className="row row--no-col justify-between-xs">
+                                                <div className="form-label">
+                                                    <label htmlFor="send-coins__amount">
+                                                        Amount in {bitcoinMeasureType}
+                                                    </label>
+                                                </div>
+                                                {this.state.amount &&
+                                                <div className="form-usd form-usd--label">
+                                                    <BtcToUsd
+                                                        amount={dispatch(appOperations
+                                                            .convertToSatoshi(this.state.amount))}
+                                                        hideBase
+                                                    />
+                                                </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div className="col-xs-12">
+                                            <DigitsField
+                                                id="send-coins__amount"
+                                                className={`form-text ${
+                                                    this.state.amountError ? "form-text__error" : ""}`}
+                                                name="send-coins__amount"
+                                                placeholder={`${
+                                                    bitcoinMeasureType === "Satoshi" ? "0" : "0.0"
+                                                } ${bitcoinMeasureType}`}
+                                                ref={(ref) => {
+                                                    this.amountComponent = ref;
+                                                }}
+                                                setRef={(ref) => {
+                                                    this.amount = ref;
+                                                }}
+                                                setOnChange={e => this.setState({
+                                                    amount: e.target.value,
+                                                    amountError: null,
+                                                })}
+                                            />
+                                            <ErrorFieldTooltip text={this.state.amountError} />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="col-xs-4">
+                                    <button type="submit" className="button button__solid button--fullwide">
+                                        Pay
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div className="row form-row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="send-coins__to">To</label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <input
-                            id="send-coins__to"
-                            className={`form-text ${this.state.toError ? "form-text__error" : ""}`}
-                            name="send-coins__to"
-                            placeholder="Bitcoin Address"
-                            ref={(ref) => {
-                                this.to = ref;
-                            }}
-                            onChange={() => this.setState({ toError: null })}
-                        />
-                        <ErrorFieldTooltip text={this.state.toError} />
-                    </div>
-                </div>
-                <div className="row form-row">
-                    <div className="col-xs-12">
-                        <div className="form-label">
-                            <label htmlFor="send-coins__amount">Amount in {bitcoinMeasureType}</label>
-                        </div>
-                    </div>
-                    <div className="col-xs-12">
-                        <DigitsField
-                            id="send-coins__amount"
-                            className={`form-text ${this.state.amountError ? "form-text__error" : ""}`}
-                            name="send-coins__amount"
-                            placeholder={`${bitcoinMeasureType === "Satoshi" ? "0" : "0.0"} ${bitcoinMeasureType}`}
-                            ref={(ref) => {
-                                this.amountComponent = ref;
-                            }}
-                            setRef={(ref) => {
-                                this.amount = ref;
-                            }}
-                            setOnChange={e => this.setState({
-                                amount: e.target.value,
-                                amountError: null,
-                            })}
-                        />
-                        <ErrorFieldTooltip text={this.state.amountError} />
-                    </div>
-                    <div className="col-xs-12" />
-                </div>
-                <div className="row form-row__footer">
-                    <div className="col-xs-12 text-right">
-                        {usd}
-                        <button type="submit" className="button button__orange button__side-padding45">
-                            Pay
-                        </button>
-                    </div>
-                </div>
-            </form>,
-        ];
+            </Fragment>
+        );
     };
 
     render() {
@@ -323,7 +230,7 @@ class Onchain extends Component {
                 modal = (
                     <UnSuccessPayment
                         error={this.props.sendCoinsPaymentDetails}
-                        category="Onchain"
+                        category="On-chain"
                         onClose={() => dispatch(operations.clearSendCoinsError())}
                     />
                 );
@@ -333,7 +240,7 @@ class Onchain extends Component {
                     <SuccessPayment
                         name={sendCoinsDetails.name}
                         amount={sendCoinsDetails.amount}
-                        category="Onchain"
+                        category="On-chain"
                         onClose={this.successPaymentCallback}
                     />
                 );
@@ -345,52 +252,30 @@ class Onchain extends Component {
                 modal = null;
                 break;
         }
-        return [
-            <SubHeader key={1} />,
-            <div key={2} className="onchain">
-                <div className="container">
-                    {this.renderOnchain()}
-                    <History
-                        key={3}
-                        columns={this.getHistoryHeader()}
-                        data={this.getHistoryData()}
-                        defaultSorted={[
-                            {
-                                desc: true,
-                                id: "date",
-                            },
-                        ]}
-                    />
+        return (
+            <Fragment>
+                <SubHeader />
+                <div className="page onchain">
+                    <div className="container">
+                        {this.renderOnchain()}
+                        <OnchainHistory />
+                    </div>
                 </div>
-            </div>,
-            <ReactCSSTransitionGroup
-                transitionName="modal-transition"
-                transitionEnterTimeout={MODAL_ANIMATION_TIMEOUT}
-                transitionLeaveTimeout={MODAL_ANIMATION_TIMEOUT}
-                key={3}
-            >
-                {modal}
-            </ReactCSSTransitionGroup>,
-        ];
+                <ReactCSSTransitionGroup
+                    transitionName="modal-transition"
+                    transitionEnterTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                    transitionLeaveTimeout={consts.MODAL_ANIMATION_TIMEOUT}
+                >
+                    {modal}
+                </ReactCSSTransitionGroup>,
+            </Fragment>
+        );
     }
 }
 
 Onchain.propTypes = {
     bitcoinMeasureType: PropTypes.string.isRequired,
     dispatch: PropTypes.func.isRequired,
-    history: PropTypes.arrayOf(PropTypes.shape({
-        amount: PropTypes.number,
-        block_hash: PropTypes.string,
-        block_height: PropTypes.number,
-        date: PropTypes.instanceOf(Date).isRequired,
-        name: PropTypes.string.isRequired,
-        num_confirmations: PropTypes.number,
-        status: PropTypes.string.isRequired,
-        to: PropTypes.string.isRequired,
-        total_fees: PropTypes.number,
-        tx_hash: PropTypes.string,
-    })).isRequired,
-    lightningID: PropTypes.string.isRequired,
     modalState: PropTypes.string.isRequired,
     sendCoinsDetails: PropTypes.shape({
         amount: PropTypes.number.isRequired,

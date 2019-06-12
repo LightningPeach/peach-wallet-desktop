@@ -3,14 +3,13 @@ import thunk from "redux-thunk";
 import nock from "nock";
 import omit from "lodash/omit";
 
-import * as statusCodes from "config/status-codes";
-import { USD_PER_BTC_HOST, USD_PER_BTC_QUERY, MBTC_MEASURE } from "config/consts";
+import { exceptions, consts, routes } from "config";
 import { appActions as actions, appTypes as types, appOperations as operations } from "modules/app";
 import appReducer, { initStateApp } from "modules/app/reducers";
+import { initStateAuth } from "modules/auth/reducers";
 import { notificationsTypes } from "modules/notifications";
 import { lightningTypes } from "modules/lightning";
 import { accountTypes } from "modules/account";
-import { WalletPath } from "routes";
 import { errorPromise, successPromise, unsuccessPromise, db } from "additional";
 import { store as defaultStore } from "store/configure-store";
 
@@ -35,6 +34,33 @@ describe("App Unit Tests", () => {
             expect(actions.setModalState(data)).to.deep.equal(expectedData);
         });
 
+        it("should create an action to add modal to flow - single value", () => {
+            expectedData = {
+                payload: [data],
+                type: types.ADD_MODAL_TO_FLOW,
+            };
+            expect(actions.addModalToFlow(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to add modal to flow - array value", () => {
+            data = ["foo"];
+            expectedData = {
+                payload: data,
+                type: types.ADD_MODAL_TO_FLOW,
+            };
+            expect(actions.addModalToFlow(data)).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to pop first modal into flow", () => {
+            expectedData = { type: types.MODAL_FLOW_POP_FIRST };
+            expect(actions.modalFlowPopFirst()).to.deep.equal(expectedData);
+        });
+
+        it("should create an action to set app status as default", () => {
+            expectedData.type = types.SET_APP_AS_DEFAULT_STATUS;
+            expect(actions.setAppAsDefaultStatus(data)).to.deep.equal(expectedData);
+        });
+
         it("should create an action to set app status as default", () => {
             expectedData.type = types.SET_APP_AS_DEFAULT_STATUS;
             expect(actions.setAppAsDefaultStatus(data)).to.deep.equal(expectedData);
@@ -57,7 +83,6 @@ describe("App Unit Tests", () => {
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -73,17 +98,17 @@ describe("App Unit Tests", () => {
             errorResp = await errorPromise(undefined, { name: undefined });
             successResp = await successPromise();
             unsuccessResp = await unsuccessPromise({ name: undefined });
-            sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
-            fakeDB = sandbox.stub(db);
-            fakeStore = sandbox.stub(defaultStore);
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
+            fakeDB = sinon.stub(db);
+            fakeStore = sinon.stub(defaultStore);
             data = {};
             initState = {
                 account: {
-                    bitcoinMeasureMultiplier: MBTC_MEASURE.multiplier,
-                    toFixedMeasure: MBTC_MEASURE.toFixed,
+                    bitcoinMeasureMultiplier: consts.MBTC_MEASURE.multiplier,
+                    toFixedMeasure: consts.MBTC_MEASURE.toFixed,
                 },
+                auth: { ...initStateAuth },
                 app: { ...initStateApp },
             };
             expectedData = undefined;
@@ -94,7 +119,7 @@ describe("App Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer", () => {
@@ -181,14 +206,13 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 0,
                             level: "error",
-                            message: "Incorrect payment protocol",
                             position: "bc",
                         },
                         type: notificationsTypes.SHOW_NOTIFICATION,
                     },
                 ];
                 const storeActions = store.getActions();
-                storeActions[0].payload = omit(storeActions[0].payload, "uid");
+                storeActions[0].payload = omit(storeActions[0].payload, ["uid", "message"]);
                 expect(storeActions).to.deep.equal(expectedActions);
             });
 
@@ -216,7 +240,7 @@ describe("App Unit Tests", () => {
                     },
                     {
                         payload: {
-                            args: [WalletPath],
+                            args: [routes.WalletPath],
                             method: "push",
                         },
                         type: "@@router/CALL_HISTORY_METHOD",
@@ -231,20 +255,6 @@ describe("App Unit Tests", () => {
                 expectedData = { type: types.SET_MODAL_STATE };
             });
 
-            it("closeModal()", async () => {
-                expectedData.payload = types.CLOSE_MODAL_STATE;
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.closeModal())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("openChangePasswordModal()", async () => {
-                expectedData.payload = types.PROFILE_CHANGE_PASS_MODAL_STATE;
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.openChangePasswordModal())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
             it("openLogoutModal()", async () => {
                 expectedData.payload = types.LOGOUT_MODAL_STATE;
                 expectedActions = [expectedData];
@@ -252,7 +262,7 @@ describe("App Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
 
-            it("openDeepLinkLighningModal()", async () => {
+            it("openDeepLinkLightningModal()", async () => {
                 expectedData.payload = types.DEEP_LINK_LIGHTNING_MODAL_STATE;
                 expectedActions = [expectedData];
                 expect(await store.dispatch(operations.openDeepLinkLightningModal())).to.deep.equal(expectedData);
@@ -280,6 +290,121 @@ describe("App Unit Tests", () => {
                 expect(await store.dispatch(operations.openLegalModal())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
             });
+
+            it("openConnectRemoteQRModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_CONNECT_REMOTE_QR;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openConnectRemoteQRModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("openPasswordRemoteQRModal()", async () => {
+                expectedData.payload = types.MODAL_STATE_PASSWORD_REMOTE_QR;
+                expectedActions = [expectedData];
+                expect(await store.dispatch(operations.openPasswordRemoteQRModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+        });
+
+        describe("startModalFlow", () => {
+            it("empty modal flow", async () => {
+                expect(await store.dispatch(operations.startModalFlow(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+
+            it("modal flow filled with two values", async () => {
+                initState = {
+                    app: {
+                        modalFlow: ["foo", "bar"],
+                    },
+                };
+                store = mockStore(initState);
+                expectedActions = [
+                    {
+                        type: types.MODAL_FLOW_POP_FIRST,
+                    },
+                    {
+                        payload: "foo",
+                        type: types.SET_MODAL_STATE,
+                    },
+                ];
+                expect(await store.dispatch(operations.startModalFlow(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+        });
+
+        describe("closeModal()", () => {
+            it("empty modal flow", async () => {
+                expectedActions = [
+                    {
+                        payload: types.CLOSE_MODAL_STATE,
+                        type: types.SET_MODAL_STATE,
+                    },
+                ];
+                expect(await store.dispatch(operations.closeModal())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+            });
+
+            it("modal flow filled", async () => {
+                initState = {
+                    app: {
+                        modalFlow: ["foo"],
+                    },
+                };
+                store = mockStore(initState);
+                expectedActions = [
+                    {
+                        type: types.MODAL_FLOW_POP_FIRST,
+                    },
+                    {
+                        payload: "foo",
+                        type: types.SET_MODAL_STATE,
+                    },
+                ];
+                expect(await store.dispatch(operations.closeModal(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+        });
+
+        describe("sendSystemNotification", () => {
+            beforeEach(() => {
+                initState = {
+                    account: {
+                        systemNotifications: 6,
+                    },
+                    app: { ...initStateApp },
+                };
+                store = mockStore(initState);
+                data = {
+                    body: "body",
+                    silent: false,
+                    subtitle: "subtitle",
+                    title: "title",
+                };
+            });
+
+            it("notifications disabled", () => {
+                initState = {
+                    account: {
+                        systemNotifications: 2,
+                    },
+                    app: { ...initStateApp },
+                };
+                store = mockStore(initState);
+                expect(store.dispatch(operations.sendSystemNotification(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).not.to.be.called;
+            });
+
+            it("notifications disabled", () => {
+                expect(store.dispatch(operations.sendSystemNotification(data))).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcRenderer.send).to.be.calledOnce;
+                expect(window.ipcRenderer.send).to.be.calledWithExactly("showNotification", data);
+            });
         });
 
         describe("usdBtcRate()", () => {
@@ -290,7 +415,9 @@ describe("App Unit Tests", () => {
             it("error response", async () => {
                 data.code = 404;
                 data.rate = 0;
-                nock(USD_PER_BTC_HOST).get(USD_PER_BTC_QUERY).reply(data.code);
+                nock(consts.BLOCKCHAIN_INFO_HOST)
+                    .get(consts.USD_PER_BTC_QUERY)
+                    .reply(data.code);
                 expectedActions = [{ payload: data.rate, type: types.USD_PER_BTC }];
                 expect(await store.dispatch(operations.usdBtcRate())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -299,7 +426,9 @@ describe("App Unit Tests", () => {
             it("success", async () => {
                 data.code = 200;
                 data.rate = 9000;
-                nock(USD_PER_BTC_HOST).get(USD_PER_BTC_QUERY).reply(data.code, { USD: { last: data.rate } });
+                nock(consts.BLOCKCHAIN_INFO_HOST)
+                    .get(consts.USD_PER_BTC_QUERY)
+                    .reply(data.code, { USD: { last: data.rate } });
                 expectedActions = [{ payload: data.rate, type: types.USD_PER_BTC }];
                 expect(await store.dispatch(operations.usdBtcRate())).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -319,7 +448,6 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 5,
                             level: "info",
-                            message: "Error while copying to clipboard",
                             position: "bc",
                             uid: "Error while copying to clipboard",
                         },
@@ -327,7 +455,9 @@ describe("App Unit Tests", () => {
                     },
                 ];
                 store.dispatch(operations.copyToClipboard(data.value, data.msg));
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "message");
+                expect(storeActions).to.deep.equal(expectedActions);
             });
 
             it("success with empty msg", () => {
@@ -337,7 +467,6 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 5,
                             level: "info",
-                            message: "Copied",
                             position: "bc",
                             uid: "Copied",
                         },
@@ -345,7 +474,9 @@ describe("App Unit Tests", () => {
                     },
                 ];
                 store.dispatch(operations.copyToClipboard(data.value));
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "message");
+                expect(storeActions).to.deep.equal(expectedActions);
                 expect(document.execCommand).to.be.calledOnce;
                 expect(document.execCommand).to.be.calledWith(data.execCommand);
                 document.execCommand = undefined;
@@ -358,7 +489,6 @@ describe("App Unit Tests", () => {
                         payload: {
                             autoDismiss: 5,
                             level: "info",
-                            message: "Copy notification msg",
                             position: "bc",
                             uid: "Copy notification msg",
                         },
@@ -366,11 +496,32 @@ describe("App Unit Tests", () => {
                     },
                 ];
                 store.dispatch(operations.copyToClipboard(data.value, data.msg));
-                expect(store.getActions()).to.deep.equal(expectedActions);
+                const storeActions = store.getActions();
+                storeActions[0].payload = omit(storeActions[0].payload, "message");
+                expect(storeActions).to.deep.equal(expectedActions);
                 expect(document.execCommand).to.be.calledOnce;
                 expect(document.execCommand).to.be.calledWith(data.execCommand);
                 document.execCommand = undefined;
             });
+        });
+
+        it("convertUsdToSatoshi()", () => {
+            initState.app.usdPerBtc = 100;
+            store = mockStore(initState);
+            data.value = 10;
+            expectedData = 10000000;
+            expect(store.dispatch(operations.convertUsdToSatoshi(data.value))).to.deep.equal(expectedData);
+            expect(store.getActions()).to.deep.equal(expectedActions);
+        });
+
+        it("convertUsdToCurrentMeasure()", () => {
+            initState.app.usdPerBtc = 100;
+            store = mockStore(initState);
+            data.value = 10;
+            expectedData = 100;
+            expect(Math.abs(store.dispatch(operations.convertUsdToCurrentMeasure(data.value)) - expectedData))
+                .to.be.below(1e-8);
+            expect(store.getActions()).to.deep.equal(expectedActions);
         });
 
         it("convertToSatoshi()", () => {
@@ -396,18 +547,18 @@ describe("App Unit Tests", () => {
             });
 
             it("error with undefined lightning id", async () => {
-                expectedData = statusCodes.EXCEPTION_FIELD_IS_REQUIRED;
+                expectedData = exceptions.FIELD_IS_REQUIRED;
                 expect(await store.dispatch(operations.validateLightning())).to.deep.equal(expectedData);
             });
 
             it("error with personal lightning id", async () => {
-                expectedData = statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_SELF;
+                expectedData = exceptions.LIGHTNING_ID_WRONG_SELF;
                 expect(await store.dispatch(operations.validateLightning(data.lightningId)))
                     .to.deep.equal(expectedData);
             });
 
             it("error with incorrect lightning id", async () => {
-                expectedData = statusCodes.EXCEPTION_LIGHTNING_ID_WRONG_LENGTH;
+                expectedData = exceptions.LIGHTNING_ID_WRONG_LENGTH;
                 expect(await store.dispatch(operations.validateLightning(data.lightningId[0])))
                     .to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
@@ -415,7 +566,7 @@ describe("App Unit Tests", () => {
 
             it("error with incorrect symbol", async () => {
                 data.lightningId = "x@xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-                expectedData = statusCodes.EXCEPTION_LIGHTNING_ID_WRONG;
+                expectedData = exceptions.LIGHTNING_ID_WRONG;
                 expect(await store.dispatch(operations.validateLightning(data.lightningId)))
                     .to.deep.equal(expectedData);
             });
@@ -500,11 +651,20 @@ describe("App Unit Tests", () => {
             expect(appReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle LOGOUT_ACCOUNT action", () => {
+        it("should handle LOGOUT_ACCOUNT action, app not deep link default", () => {
             action.type = accountTypes.LOGOUT_ACCOUNT;
             state = JSON.parse(JSON.stringify(initStateApp));
             state.dbStatus = types.DB_OPENED;
             state.usdPerBtc = "bar";
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle LOGOUT_ACCOUNT action, app is deep link default", () => {
+            action.type = accountTypes.LOGOUT_ACCOUNT;
+            state = JSON.parse(JSON.stringify(initStateApp));
+            state.dbStatus = types.DB_OPENED;
+            state.appAsDefaultStatus = true;
+            expectedData.appAsDefaultStatus = true;
             expect(appReducer(state, action)).to.deep.equal(expectedData);
         });
 
@@ -541,6 +701,36 @@ describe("App Unit Tests", () => {
         it("should handle SET_PEER_PORT action", () => {
             action.type = types.SET_PEER_PORT;
             expectedData.peerPort = data;
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle ADD_MODAL_TO_FLOW action - empty", () => {
+            action.type = types.ADD_MODAL_TO_FLOW;
+            action.payload = ["foo"];
+            expectedData.modalFlow = action.payload;
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle ADD_MODAL_TO_FLOW action - pre-filled", () => {
+            action.type = types.ADD_MODAL_TO_FLOW;
+            action.payload = ["foo"];
+            state = JSON.parse(JSON.stringify(initStateApp));
+            state.modalFlow = ["bar"];
+            expectedData.modalFlow = [...state.modalFlow, ...action.payload];
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle MODAL_FLOW_POP_FIRST action - empty", () => {
+            state = JSON.parse(JSON.stringify(initStateApp));
+            action = { type: types.MODAL_FLOW_POP_FIRST };
+            expect(appReducer(state, action)).to.deep.equal(expectedData);
+        });
+
+        it("should handle MODAL_FLOW_POP_FIRST action - pre-filled", () => {
+            state = JSON.parse(JSON.stringify(initStateApp));
+            state.modalFlow = ["foo", "bar"];
+            action = { type: types.MODAL_FLOW_POP_FIRST };
+            expectedData.modalFlow = ["bar"];
             expect(appReducer(state, action)).to.deep.equal(expectedData);
         });
     });

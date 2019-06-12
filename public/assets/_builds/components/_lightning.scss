@@ -1,39 +1,75 @@
 .lightning {
-    .container {
-        padding-top: 37px;
-    }
+    .connected-field {
+        & > :not(:last-child) {
+            padding-right: 0;
 
-    .send {
-        padding-top: 23px;
-        width: 420px;
-        max-width: 100%;
-    }
-
-    .tabs {
-        &__wrapper {
-            min-height: 27px;
-        }
-        &__container {
-            width: 368px;
-            position: absolute;
-            right: 100%;
-            margin-right: -388px;
-
-            &:after {
-                content: "";
-                clear: both;
-                display: inline-block;
+            .connected-field__input,
+            .Select-control {
+                border-bottom-right-radius: 0;
+                border-top-right-radius: 0;
+                border: 1px solid rgba(74,74,74,0.3);
+                border-right: 0;
             }
         }
-    }
 
-    .tab-content {
-        position: relative;
+        & > :not(:first-child) {
+            padding-left: 0;
+
+            .connected-field__input,
+            .Select-control {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                border: 1px solid rgba(74,74,74,0.3);
+                border-left: 1px dashed rgba(74,74,74,0.3);
+            }
+        }
+
+        .connected-field__input,
+        .Select-control {
+            &:disabled {
+                opacity: 1;
+                color: transparentize($black, 0.7);
+            }
+        }
+
+        &--filled {
+            & > :not(:last-child) {
+
+                .connected-field__input,
+                .Select-control {
+                    border: 1px solid $black;
+                    border-right: 0;
+                }
+            }
+
+            & > :not(:first-child) {
+                padding-left: 0;
+
+                .connected-field__input,
+                .Select-control {
+                    border: 1px solid $black;
+                    border-left: 1px dashed $black;
+                }
+            }
+        }
+
+        &--disabled {
+            opacity: 0.3;
+
+            .connected-field__input,
+            .Select-control {
+                &:disabled {
+                    opacity: 1;
+                    color: $black;
+                }
+            }
+        }
     }
 
     .start,
     .pause,
     .stop {
+        @extend .button;
         display: inline-block;
         width: 14px;
         height: 14px;
@@ -41,11 +77,18 @@
         cursor: pointer;
         margin-left: 9px;
         float: left;
+
+        &[disabled],
+        &.disabled {
+            opacity: 1;
+            filter: grayscale(100%);
+            cursor: default;
+        }
     }
 
     .start {
         background: url(../images/play.svg) no-repeat center;
-        margin-left: -3px;
+        margin-left: 0;
     }
 
     .pause {
@@ -61,66 +104,61 @@
             position: absolute;
             top: 0;
             display: flex;
-            width: 420px;
+            width: 100%;
             max-width: 100%;
             height: 100%;
             align-items: center;
             font-size: 18px;
             text-align: center;
             justify-content: center;
+            opacity: 0.7;
+
+            span {
+                padding-top: 32px;
+                text-shadow: 1px 1px 1px white, -1px -1px 1px white, 1px -1px 1px white, -1px 1px 1px white;
+            }
         }
 
         &__form {
             position: relative;
 
             &--disabled {
-                opacity: .3;
                 pointer-events: none;
+                position: relative;
+
+                & > *:not(.stream__disabled) {
+                    opacity: 0.3;
+                }
             }
         }
+
+        &__actions {
+            position: absolute;
+            right: 0;
+            padding: 10px 10px 10px 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            opacity: 0;
+            transition: opacity .3s ease-in-out;
+            z-index: 1;
+        }
     }
-}
 
-@media screen and (max-width: 480px) {
-    .stream {
-        &__price-time {
-            padding-right: 5px;
-        }
-
-        &__time {
-            padding-left: 5px;
-        }
-    }
-}
-
-@media screen and (max-width: 406px) {
-    .tabs {
-        &__wrapper {
-            overflow: hidden;
-        }
-
-        &__container {
-            transition: right .2s ease-in-out, margin .2s ease-in-out;
-
-            &.tabs__stream {
-                right: 20px;
-                margin: 0;
+    .ReactTable {
+        .rt-tbody {
+            .rt-tr:not(.-padRow):hover {
+                position: relative;
+                
+                .stream__actions {
+                    opacity: 1;
+                    pointer-events: all;
+                    font-size: 12px;
+                    background:
+                            linear-gradient(to right, transparent 0%, $yellow10 20%, $yellow10 100%),
+                            linear-gradient(to right, transparent 0%, $white 20%, $white 100%);
+                }
             }
-        }
-    }
-}
-
-@media screen and (max-width: 406px) {
-    .stream {
-        &__price-time {
-            width: 100%;
-            padding-right: 20px;
-        }
-
-        &__time {
-            width: 100%;
-            margin-top: 14px;
-            padding-left: 20px;
         }
     }
 }

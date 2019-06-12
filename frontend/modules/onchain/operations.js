@@ -1,7 +1,8 @@
-import * as statusCodes from "config/status-codes";
-import { appActions } from "modules/app";
+import { exceptions } from "config";
+import { appOperations, appActions } from "modules/app";
 import { accountOperations, accountTypes } from "modules/account";
-import { db, successPromise, errorPromise, unsuccessPromise } from "additional";
+import { db, successPromise, errorPromise, unsuccessPromise, logger } from "additional";
+import { MAX_DB_NUM_CONFIRMATIONS, TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY } from "config/consts";
 import { store } from "store/configure-store";
 import orderBy from "lodash/orderBy";
 import keyBy from "lodash/keyBy";
@@ -9,7 +10,6 @@ import uniq from "lodash/uniq";
 import has from "lodash/has";
 import * as actions from "./actions";
 import * as types from "./types";
-
 
 function openSendCoinsModal() {
     return dispatch => dispatch(appActions.setModalState(types.MODAL_STATE_SEND_COINS));
@@ -20,13 +20,13 @@ function openWarningModal() {
 }
 
 async function getChainTxns() {
-    console.log("LND ONCHAIN TRANSACTIONS");
+    logger.log("LND ON-CHAIN TRANSACTIONS");
     const response = await window.ipcClient("getTransactions");
     if (!response.ok) {
-        console.error(response);
+        logger.error(response);
         return errorPromise(response.error, getChainTxns);
     }
-    console.log(response);
+    logger.log(response);
     return successPromise({ chainTxns: keyBy(response.response.transactions, "tx_hash") });
 }
 
@@ -65,6 +65,70 @@ function getOnchainHistory() {
                     blockHash = chainTxns[txn].block_hash;
                     blockHeight = chainTxns[txn].block_height;
                     totalFees = parseInt(chainTxns[txn].total_fees, 10);
+                    if (!has(dbTxns, txn)) {
+                        if (amount > 0 && numConfirmations >= TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY) {
+                            const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
+                                title: "Incoming On-chain transaction",
+                            }));
+                        }
+                        db.onchainBuilder()
+                            .insert()
+                            .values({
+                                address,
+                                amount,
+                                blockHash,
+                                blockHeight,
+                                name: "Regular payment",
+                                numConfirmations: Math.min(numConfirmations, MAX_DB_NUM_CONFIRMATIONS),
+                                status,
+                                timeStamp: chainTxns[txn].time_stamp,
+                                totalFees,
+                                txHash: txn,
+                            })
+                            .execute();
+                    } else if (
+                        dbTxns[txn].amount !== amount
+                        || dbTxns[txn].blockHeight !== blockHeight
+                        || dbTxns[txn].blockHash !== blockHash
+                        || dbTxns[txn].status !== status
+                        || dbTxns[txn].timeStamp !== chainTxns[txn].time_stamp
+                        || dbTxns[txn].totalFees !== totalFees
+                        || dbTxns[txn].name === ""
+                        || (
+                            dbTxns[txn].numConfirmations < MAX_DB_NUM_CONFIRMATIONS
+                            && dbTxns[txn].numConfirmations !== numConfirmations
+                        )
+                    ) {
+                        if (
+                            amount > 0
+                            && (!dbTxns[txn].numConfirmations
+                                || dbTxns[txn].numConfirmations < TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY)
+                            && numConfirmations >= TX_NUM_CONFIRMATIONS_TO_SHOW_NOTIFY
+                        ) {
+                            const convertedAmount = dispatch(appOperations.convertSatoshiToCurrentMeasure(amount, 10));
+                            dispatch(appOperations.sendSystemNotification({
+                                body: `You received ${convertedAmount} ${getState().account.bitcoinMeasureType}`,
+                                title: "Incoming On-chain transaction",
+                            }));
+                        }
+                        db.onchainBuilder()
+                            .update()
+                            .set({
+                                amount,
+                                blockHash,
+                                blockHeight,
+                                name: dbTxns[txn].name ? dbTxns[txn].name : "Regular payment",
+                                numConfirmations: Math.min(numConfirmations, MAX_DB_NUM_CONFIRMATIONS),
+                                status,
+                                timeStamp: chainTxns[txn].time_stamp,
+                                totalFees,
+                                txHash: txn,
+                            })
+                            .where("txHash = :txID", { txID: txn })
+                            .execute();
+                    }
                 } else {
                     amount = parseInt(dbTxns[txn].amount, 10);
                     ({
@@ -115,7 +179,7 @@ function clearSendCoinsDetails() {
 function sendCoins() {
     return async (dispatch, getState) => {
         if (!getState().onchain.sendCoinsDetails) {
-            return errorPromise(statusCodes.EXCEPTION_SEND_COINS_DETAILS_REQUIRED, sendCoins);
+            return errorPromise(exceptions.SEND_COINS_DETAILS_REQUIRED, sendCoins);
         }
         const { name, recepient, amount } = getState().onchain.sendCoinsDetails;
         const response = await window.ipcClient("sendCoins", {
@@ -133,7 +197,7 @@ function sendCoins() {
                         amount: -amount - getState().onchain.fee,
                         blockHash: "",
                         blockHeight: 0,
-                        name,
+                        name: name || "Regular payment",
                         numConfirmations: 0,
                         status: "pending",
                         timeStamp: Math.floor(Date.now() / 1000),
@@ -143,7 +207,7 @@ function sendCoins() {
                     .execute();
             } catch (e) {
                 /* istanbul ignore next */
-                console.error(statusCodes.EXCEPTION_EXTRA, e);
+                logger.error(exceptions.EXTRA, e);
             }
             return successPromise({ amount, tx_hash: txHash });
         }
@@ -151,22 +215,6 @@ function sendCoins() {
         return errorPromise(response.error, sendCoins);
     };
 }
-
-/* function getInitOnChainFee() {
-    return async (dispatch, getState) => {
-        const response = await window.ipcClient("get-onchain-fee");
-        dispatch(actions.setOnChainFee(parseInt(response.response.fee_per_kb, 10)));
-        return successPromise();
-    };
-}
-
-function setOnChainFee(fee) {
-    return async (dispatch, getState) => {
-        await window.ipcClient("set-onchain-fee", { fee });
-        const response = await window.ipcClient("get-onchain-fee");
-        return successPromise();
-    };
-} */
 
 function clearSendCoinsError() {
     return dispatch => dispatch(actions.setSendCoinsPaymentDetails(""));
@@ -195,8 +243,6 @@ export {
     prepareSendCoins,
     clearSendCoinsDetails,
     sendCoins,
-    // getInitOnChainFee,
-    // setOnChainFee,
     clearSendCoinsError,
     subscribeTransactions,
     unSubscribeTransactions,

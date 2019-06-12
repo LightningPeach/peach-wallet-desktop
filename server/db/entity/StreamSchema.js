@@ -1,7 +1,9 @@
+const { EntitySchema } = require("typeorm");
+
 const { Stream } = require("../model/Stream");
 const { StreamPart } = require("../model/StreamPart");
 
-module.exports = {
+module.exports = new EntitySchema({
     target: Stream,
     columns: {
         id: {
@@ -13,13 +15,17 @@ module.exports = {
             type: "varchar",
         },
         totalParts: {
-            type: "int",
+            type: "integer",
         },
-        currentPart: {
-            type: "int",
+        partsPaid: {
+            type: "integer",
         },
         price: {
-            type: "int",
+            type: "integer",
+        },
+        totalAmount: {
+            type: "integer",
+            default: 0,
         },
         memo: {
             type: "varchar",
@@ -28,14 +34,22 @@ module.exports = {
             type: "varchar",
         },
         date: {
-            type: "int",
+            type: "integer",
+            default: 0,
+        },
+        lastPayment: {
+            type: "integer",
+            default: 0,
         },
         status: {
             type: "varchar",
             default: "active",
         },
         delay: {
-            type: "int",
+            type: "integer",
+        },
+        currency: {
+            type: "varchar",
         },
     },
     relations: {
@@ -46,4 +60,4 @@ module.exports = {
             JoinColumn: true,
         },
     },
-};
+});

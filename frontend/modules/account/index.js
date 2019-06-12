@@ -1,13 +1,7 @@
 import accountReducer from "./reducers";
 
-import * as accountActions from "./actions";
-import * as accountOperations from "./operations";
-import * as accountTypes from "./types";
-
-export {
-    accountActions,
-    accountOperations,
-    accountTypes,
-};
+export * as accountActions from "./actions";
+export * as accountOperations from "./operations";
+export * as accountTypes from "./types";
 
 export default accountReducer;

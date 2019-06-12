@@ -1,9 +1,22 @@
 class Config {
-    constructor(lightningId, createChannelViewed, lightningPaymentViewed, activeMeasure) {
+    constructor(
+        lightningId,
+        createChannelViewed,
+        activeMeasure,
+        systemNotifications,
+        analytics,
+        terms,
+        walletMode,
+        legalVersion,
+    ) {
         this.lightningId = lightningId;
         this.createChannelViewed = createChannelViewed;
-        this.lightningPaymentViewed = lightningPaymentViewed;
         this.activeMeasure = activeMeasure;
+        this.systemNotifications = systemNotifications;
+        this.analytics = analytics;
+        this.terms = terms;
+        this.walletMode = walletMode;
+        this.legalVersion = legalVersion;
     }
 }
 

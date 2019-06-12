@@ -5,7 +5,6 @@ const { app } = require("electron");
 const configSchema = require("./config-schema");
 const settingsFiles = require("./settings-app");
 const settingsPeach = require("./settings-peach");
-const settingsAgreement = require("./settings-agreement");
 const calculated = require("./calculated");
 const baseLogger = require("../utils/logger");
 
@@ -13,32 +12,32 @@ const logger = baseLogger.child("electron");
 const readSettings = ({ appPath, dataPath, config }) => {
     const baseSettings = settingsFiles(appPath);
     const peachSettings = settingsPeach(appPath);
-    const agreementSettings = settingsAgreement(dataPath);
     config.load(baseSettings);
-    config.load(agreementSettings);
     config.load(peachSettings);
     return {
         baseSettings,
-        agreementSettings,
         peachSettings,
     };
 };
-const lndName = (() => {
+const binaryName = (name) => {
     switch (os.platform()) {
         case "win32":
-            return "lnd.exe";
+            return `${name}.exe`;
         default:
-            return "lnd";
+            return name;
     }
-})();
+};
+
 const appPath = app.getAppPath();
 const config = convict(configSchema);
 
 config.set("userDataPath", app.getPath("userData"));
+config.set("preloadBasePath", join(appPath, "node_modules", "preload").replace("app.asar", "app.asar.unpacked"));
 config.set("binariesBasePath", join(appPath, "node_modules", "executable").replace("app.asar", "app.asar.unpacked"));
-config.set("binariesLndPath", join(config.get("binariesBasePath"), lndName));
+config.set("binariesLndPath", join(config.get("binariesBasePath"), binaryName("lnd")));
 const dataPath = join(config.get("userDataPath"), ".lnd");
 config.set("dataPath", dataPath);
+config.set("lndPath", dataPath);
 config.set("logFolder", join(config.get("dataPath"), "logs"));
 
 const baseSettings = readSettings({ appPath, dataPath, config });
@@ -72,24 +71,26 @@ module.exports = Object.freeze({
     }),
     /**
      * @param {String} prop
-     * @param {Array} values
+     * @param {Array|String} values
      * @returns {Promise<*>}
      */
     set: async (prop, values) => {
         logger.info("[SETTINGS] - requested set prop", prop);
-        if (prop === "agreement") {
-            return calculatedBase.setAgreement(...values);
-        } else if (prop === "lndPeer") {
+        if (prop === "lndPeer") {
             return calculatedBase.setListenPort(...values);
+        }
+        if (prop === "lndPath") {
+            return config.set("lndPath", values);
         }
         throw new Error(`Set method not available for ${prop} property`);
     },
+    saveLndPath: (walletName, lndPath) => calculatedBase.saveLndPath(walletName, lndPath),
     preload: {
         getAnalytics: config.get("analytics"),
-        getAgreement: config.get("agreement"),
         getBitcoin: config.get("bitcoin"),
         getDatabasePath: calculatedBase.databasePath,
         getPeach: config.get("peach"),
+        getVersion: config.get("version"),
         getDevMode: config.get("backend.devMode"),
         getInitListenPort: config.get("lnd.init_listen"),
     },

@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations } from "modules/app";
+
+import Modal from "components/modal";
+import Ellipsis from "components/common/ellipsis";
 
 class UnSuccessPayment extends Component {
     closeModal = () => {
@@ -15,37 +19,47 @@ class UnSuccessPayment extends Component {
     };
 
     render() {
-        const errorMsg = this.props.error ?
-            <div className="col-xs-12 payment_result__info text-center">{this.props.error}</div> : null;
+        const { error, showRetryHelper } = this.props;
         return (
-            <div className="modal-wrapper">
-                <div className="modal-layout" onClick={this.closeModal} />
-                <div className="modal modal-payment_result modal-payment_result__fail" tabIndex="-1" role="dialog">
-                    <div className="row">
-                        <div className="col-xs-12">
-                            <img
-                                src={`${window.STATIC_FILES}public/assets/images/failed.svg`}
-                                alt=""
-                                className="payment_result__icon"
-                            />
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-12 payment_result__title">
+            <Modal theme="payment_result payment_result-error" onClose={this.closeModal}>
+                <div className="modal__body">
+                    <div className="modal__icon" />
+                    <div className="block__row row--no-col justify-center-xs">
+                        <div className="block__title-lg text-yellow">
                             Oops!
                         </div>
                     </div>
-                    <div className="row">
-                        <div className="col-xs-12 text-center payment_result__info">
+                    <div className="block__row-lg">
+                        <div className="col-xs-12 text-center">
                             Your payment was failed!
                         </div>
-                        {errorMsg}
                     </div>
-                    <div className="row payment_result__btn-row">
+                    {error &&
+                    <div className="block__row">
+                        <div className="col-xs-12 text-center">
+                            <Ellipsis>
+                                {error}
+                            </Ellipsis>
+                        </div>
+                    </div>
+                    }
+                    {showRetryHelper &&
+                    <div className="block__row">
+                        <div className="col-xs-12">
+                            <span className="helper__header">Please, try the following actions:</span>
+                            <ul className="helper__list">
+                                <li>Wait for some time and try again later.</li>
+                                <li>Open a direct channel with the recipient.</li>
+                                <li>Send the on-chain payment to recipient.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    }
+                    <div className="block__row-lg">
                         <div className="col-xs-12">
                             <button
                                 type="button"
-                                className="button button__orange button__close button__side-padding50"
+                                className="button button__solid button--fullwide"
                                 onClick={this.closeModal}
                             >
                                 Ok
@@ -53,7 +67,7 @@ class UnSuccessPayment extends Component {
                         </div>
                     </div>
                 </div>
-            </div>
+            </Modal>
         );
     }
 }
@@ -63,6 +77,7 @@ UnSuccessPayment.propTypes = {
     dispatch: PropTypes.func.isRequired,
     error: PropTypes.string,
     onClose: PropTypes.func,
+    showRetryHelper: PropTypes.bool,
 };
 
 export default connect(null)(UnSuccessPayment);

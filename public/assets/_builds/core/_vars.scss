@@ -1,21 +1,52 @@
-$Geometria: Geometria, sans-serif;
-$ultrablack: #000000;
-$black: #252525;
-$pumpkin-orange: #ff7700;
-$warm-grey: #9b9b9b;
-$warm-grey-5: rgba(111, 111, 111, 0.05);
-$greyish-50: rgba(181, 181, 181, 0.5);
-$cornflower: #7259fe;
-$lightblue: #4a90e2;
-$apple-green: #7ed321;
-$scarlet: #d0021b;
+// Fonts
+
+$Biosans: "Biosans";
+
+// Colors
+
+$yellow: #ffb700;
+$yellow10: transparentize($yellow, .9);
+$yellow30: transparentize($yellow, .7);
+$yellow-dim: #f1ad00;
+$yellow-bright: #ffca43;
+
+$black: #000000;
+$black10: transparentize($black, .9);
+$black30: transparentize($black, .7);
+
 $white: #ffffff;
-$pastel-orange: #ff9b44;
-$orange: #f17203;
-$scarlet-two: #bc0017;
-$darkish-pink: #e6485c;
+
+$red: #fc1531;
+$red10: transparentize($red, .9);
+$red30: transparentize($red, .7);
+$red-bright: #e6485c;
+$red-shadow: #f8c3c4;
+
+$grey: #aaaaaa;
+$grey30: transparentize($grey, .7);
+$grey50: transparentize($grey, .5);
+
+$grey-light: #b5b5b5;
+$grey-light50: transparentize($grey-light, .5);
+
+$grey-lighter: #d8d8d8;
+
+$grey-extralight: #f4f4f4;
+
+$green: #7ed321;
+
+$transparent: transparent;
+
+// Values
+
+$default-transition: .3s ease-in-out;
 
 $border-radius: 4px;
+$border-radius-sm: 2px;
 
-$tablet-width: 760px;
-$desktop-width: 800px;
+$box-shadow-big: 0 0 20px 0 rgba(194, 194, 194, 0.4);
+
+$phone-width: 480px;
+$phablet-width: 768px;
+$tablet-width: 992px;
+$desktop-width: 1200px;

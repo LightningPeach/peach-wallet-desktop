@@ -1,0 +1,107 @@
+.overlay {
+  box-shadow: 0 0 0 9999px $black30;
+  position: absolute;
+
+  &__shadow {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+  }
+
+  &__hole {
+    box-shadow: inset 1px 1px 7px 0 $grey50;
+    height: 100%;
+  }
+
+  &__item {
+    position: relative;
+    z-index: 6;
+  }
+
+  &__tooltip {
+    margin-top: 16px;
+    background-color: $white;
+    padding: 12px 16px;
+    box-shadow: 0 2px 4px 0 $grey50;
+    border-radius: $border-radius;
+    position: relative;
+
+    &:before {
+      content: "";
+      position: absolute;
+      display: block;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 10px solid $white;
+      border-top-color: transparent;
+      border-left-color: transparent;
+      border-right-color: transparent;
+    }
+  }
+
+  &__close {
+    width: 14px;
+    height: 14px;
+    top: 12px;
+    right: 12px;
+    cursor: pointer;
+    position: absolute;
+
+    &:before,
+    &:after {
+      content: "";
+      height: 1px;
+      background: $black30;
+      display: block;
+      top: calc(50% - 1px);
+      position: absolute;
+      width: 18px;
+      transform-origin: center;
+      left: -2px;
+    }
+
+    &:before {
+      transform: rotate(-45deg);
+    }
+
+    &:after {
+      transform: rotate(45deg);
+    }
+  }
+
+  &__content {
+    line-height: 18px;
+  }
+
+  &__title {
+    font-weight: bold;
+    line-height: 14px;
+    padding-bottom: 8px;
+  }
+
+
+  &--create-channel {
+    width: 184px;
+    height: 60px;
+    top: 90px;
+    right: calc(50vw - 485px);
+    z-index: 5;
+    border-radius: $border-radius;
+
+    .overlay__tooltip {
+      width: 204px;
+      left: -20px;
+    }
+  }
+}
+
+@media screen and (max-width: 1020px) {
+  .overlay {
+    &--create-channel {
+      right: 5px;
+    }
+  }
+}

@@ -13,7 +13,8 @@ const lndInitingError = error => ({
     type: types.LND_INITING_ERROR,
 });
 
-const lndSynced = () => ({
+const lndSynced = payload => ({
+    payload,
     type: types.LND_SYNCED,
 });
 
@@ -22,14 +23,14 @@ const setLndInitStatus = payload => ({
     type: types.SET_LND_INIT_STATUS,
 });
 
-const setNetworkBlocksHeight = payload => ({
-    payload,
-    type: types.SET_NETWORK_BLOCKS,
-});
-
 const setLndBlocksHeight = payload => ({
     payload,
-    type: types.SET_LND_BLOCKS,
+    type: types.SET_LND_BLOCKS_HEIGHT,
+});
+
+const setLndBlocksHeightOnLogin = payload => ({
+    payload,
+    type: types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN,
 });
 
 export {
@@ -37,7 +38,7 @@ export {
     lndInitingSuccess,
     lndInitingError,
     lndSynced,
-    setNetworkBlocksHeight,
     setLndBlocksHeight,
+    setLndBlocksHeightOnLogin,
     setLndInitStatus,
 };

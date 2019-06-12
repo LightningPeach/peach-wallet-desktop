@@ -1,157 +1,240 @@
-.button_with_spinner {
-    position: relative;
-    display: inline-block;
-
-    .spinner {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 20px;
-        height: 20px;
-    }
-}
-
 .button {
+    white-space: nowrap;
     cursor: pointer;
     user-select: none;
-    transition: box-shadow .2s, background-color .2s, color .2s;
+    transition: box-shadow $default-transition, background-color $default-transition, color $default-transition;
     text-decoration: none;
     position: relative;
     border: 0;
     line-height: 40px;
     height: 40px;
     display: inline-block;
-    letter-spacing: -0.3px;
 
-    & + .button,
-    & + .button_with_spinner {
+    & + &,
+    & + .link,
+    & + .button__spinner {
         margin-left: 20px;
     }
 
-    &__orange {
-        background: $pumpkin-orange;
-        font-weight: 600;
-        color: $white;
+    &__solid {
+        background: $yellow;
+        font-weight: bold;
+        color: $black;
         border-radius: $border-radius;
-        padding: 0 15px;
+        padding: 0 20px;
         font-size: 14px;
         text-transform: uppercase;
+        min-width: 120px;
 
-        &:hover,
-        &:focus {
-            background-color: $pastel-orange;
+        &:hover {
+            background-color: $yellow-bright;
         }
 
-        &.disabled,
-        &:disabled {
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
+        &:focus,
         &:active {
-            box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.5);
-            background-color: $orange;
-        }
-    }
-
-    &__scarlett-two {
-        padding: 0 49px;
-        background: $scarlet-two;
-        font-weight: 600;
-        color: $white;
-        border-radius: $border-radius;
-        font-size: 14px;
-        text-transform: uppercase;
-
-        &:hover,
-        &:focus {
-            background-color: $darkish-pink;
+            background-color: $yellow-dim;
         }
 
-        &:active {
-            box-shadow: inset 0 1px 3px 0 rgba(0, 0, 0, 0.5);
-            background-color: $scarlet-two;
+        &--red {
+            background-color: $red;
+            color: $white;
+
+            &:hover,
+            &:focus {
+                background-color: $red-bright;
+            }
+
+            &:active {
+                background-color: $red;
+            }
+        }
+
+        &--transparent {
+            background-color: $transparent;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background-color: $transparent;
+            }
         }
     }
 
     &__link {
-        color: $pumpkin-orange;
-        font-size: 12px;
-        background: none;
+        background-color: $transparent;
+        color: $yellow;
+        font-size: 14px;
+        font-weight: normal;
         padding-left: 0;
         padding-right: 0;
         padding-top: 0;
         padding-bottom: 0;
-        letter-spacing: -0.4px;
 
         &:hover,
         &:focus {
-            color: $pastel-orange;
             text-decoration: underline;
         }
 
         &:active {
-            color: $orange;
-        }
-
-        &:disabled {
-            opacity: 0.3;
-            text-decoration: none;
-            cursor: default;
-        }
-
-        &--logout {
-            padding-left: 25px;
-            background: url(../images/logout.svg) no-repeat left center;
-            color: $scarlet;
-            font-size: 14px;
-
-            &:hover,
-            &:focus {
-                color: $darkish-pink;
-            }
-
-            &:active {
-                color: $scarlet-two;
-            }
+            color: $yellow-bright;
         }
 
         &--red {
-            color: $scarlet-two;
+            color: $red;
 
             &:hover,
             &:focus {
-                color: $darkish-pink;
+                color: $red-bright;
             }
 
             &:active {
-                color: $scarlet-two;
+                color: $red;
             }
         }
     }
 
-    &__under-button {
-        margin-top: 5px;
+    &__hollow {
+        background-color: transparent;
+        height: 40px;
+        line-height: 38px;
+        padding: 0 20px;
+        border-radius: $border-radius;
+        border: 1px solid $yellow;
+        color: $yellow;
+        font-weight: 600;
+
+        &:active,
+        &.active {
+            background-color: $yellow10;
+        }
+
+        &--red {
+            color: $red;
+            border: 1px solid $red;
+
+            &:active,
+            &.active {
+                background-color: $red10;
+            }
+        }
     }
 
-    &__fullwide {
+    &__spinner {
+        position: relative;
+
+        .button {
+            padding-right: 45px;
+            padding-left: 45px;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    &--fullwide {
         width: 100%;
     }
+}
 
-    &__create {
-        padding: 0 30px;
-        letter-spacing: 0.5px;
+.link {
+    background-color: $transparent;
+    cursor: pointer;
+    user-select: none;
+    transition: color $default-transition;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    border: 0;
+    display: inline;
+    font-size: inherit;
+    line-height: inherit;
+    font-weight: normal;
+    color: $yellow;
+
+    & + &,
+    & + .button,
+    & + .button__spinner {
+        margin-left: 20px;
     }
 
-    &__close {
-        padding: 0 35px;
+    &:hover {
+        text-decoration: underline;
     }
 
-    &__side-padding45 {
-        padding: 0 45px;
+    &--bold {
+        font-weight: 600;
+
+        &:hover {
+            color: $yellow-dim;
+            text-decoration: none;
+        }
     }
 
-    &__side-padding50 {
-        padding: 0 50px;
+    &--red {
+        color: $red;
+    }
+
+    &--logout {
+        padding-left: 30px;
+        line-height: 20px;
+        background: url(../images/icons/logout.svg) no-repeat left center;
+        background-size: 20px 20px;
+    }
+}
+
+.locked {
+    position: relative;
+    padding-right: calc(1em + 5px);
+
+    &:after {
+        content: '';
+        position: absolute;
+        display: block;
+        height: calc(1em - 2px);
+        width: calc(1em - 2px);
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        background-image: url(../images/icons/lock.svg);
+        background-size: contain;
+    }
+}
+
+.switcher {
+    @extend .button;
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: $grey;
+    position: relative;
+    cursor: pointer;
+    transition: background-color $default-transition;
+
+    &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        height: 14px;
+        width: 14px;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        background-color: $white;
+        transition: left $default-transition;
+    }
+
+    &.active {
+        background-color: $yellow;
+
+        &:after {
+            left: 23px;
+        }
     }
 }

@@ -169,7 +169,6 @@ const isBtcdAvailable = async () => {
  * @property {string} params.userPath - path for test user data
  */
 const beforeTestPrepare = async (params) => {
-    fileBackup(params.baseDir, config.agreementFile);
     fileBackup(params.baseDir, config.localSettings);
     await writeLocalSettings(params.baseDir);
     startBtcd();
@@ -208,7 +207,6 @@ const beforeTestPrepare = async (params) => {
  * @property {string} params.userPath - path for test user data
  */
 const afterTestClear = (params) => {
-    fileBackup(params.baseDir, config.agreementFile, true);
     fileBackup(params.baseDir, config.localSettings, true);
     process.kill(btcdPid);
     process.kill(fundsLndPid);

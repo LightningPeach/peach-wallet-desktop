@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+
 import { analytics } from "additional";
 import { appOperations, appActions, appTypes } from "modules/app";
 import { lightningOperations } from "modules/lightning";
+import { routes } from "config";
+
 import BtcToUsd from "components/common/btc-to-usd";
 import BalanceWithMeasure from "components/common/balance-with-measure";
-import { LightningFullPath } from "routes";
 import Modal from "components/modal";
 import Ellipsis from "components/common/ellipsis";
 
@@ -19,7 +21,7 @@ class LightningDetails extends Component {
             processing: false,
         };
 
-        analytics.pageview(`${LightningFullPath}/regular/details`, "Lightning / Regular Payment / Details");
+        analytics.pageview(`${routes.LightningFullPath}/regular/details`, "Lightning / Regular Payment / Details");
     }
 
     closeModal = () => {
@@ -35,7 +37,6 @@ class LightningDetails extends Component {
         const { dispatch } = this.props;
         this.setState({ processing: true });
         analytics.event({ action: "Regular Payment Modal", category: "Lightning", label: "Pay" });
-        dispatch(lightningOperations.pendingPayment());
         const response = await dispatch(lightningOperations.makePayment());
         dispatch(lightningOperations.getHistory());
         this.setState({ processing: false });
@@ -50,11 +51,11 @@ class LightningDetails extends Component {
         const { paymentDetails, bitcoinMeasureType } = this.props;
         return (
             <Modal title="Check your data" onClose={this.closeModal}>
-                <div className="modal-body send-form">
+                <div className="modal__body">
                     <div className="row send-form__row">
                         <div className="col-xs-12">
                             <div className="send-form__label">
-                                Name of payment
+                                Description
                             </div>
                             <div className="send-form__value">
                                 {!paymentDetails[0].name ? "-" : paymentDetails[0].name}
@@ -78,6 +79,9 @@ class LightningDetails extends Component {
                             </div>
                             <div className="send-form__value">
                                 ~ <BalanceWithMeasure satoshi={paymentDetails[0].fee.max} />
+                                &nbsp;({
+                                    Math.round((paymentDetails[0].fee.max * 10000) / paymentDetails[0].amount) / 100
+                                }%)
                             </div>
                         </div>
                     </div>
@@ -88,7 +92,7 @@ class LightningDetails extends Component {
                             </div>
                             <div className="send-form__value send-form__value--no-overflow">
                                 {paymentDetails[0].contact_name ?
-                                    <Ellipsis classList="send-form__contact_name">
+                                    <Ellipsis className="send-form__contact_name">
                                         {paymentDetails[0].contact_name}
                                     </Ellipsis>
                                     : ""}
@@ -103,26 +107,26 @@ class LightningDetails extends Component {
                                 Amount
                             </div>
                             <div className="send-form__value send-form__summary">
-                                <BtcToUsd satoshi={paymentDetails[0].amount + paymentDetails[0].fee.max} />
+                                <BtcToUsd amount={paymentDetails[0].amount + paymentDetails[0].fee.max} />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="modal-footer">
+                <div className="modal__footer">
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button
-                                className="button button__link text-uppercase"
+                                className="button button__link"
                                 type="button"
                                 onClick={this.closeModal}
                                 disabled={this.state.processing}
                             >
                                 Cancel
                             </button>
-                            <span className="button_with_spinner">
+                            <span className="button__spinner">
                                 <button
                                     type="button"
-                                    className="button button__orange button__close button__side-padding45"
+                                    className="button button__solid"
                                     onClick={this.sendLightning}
                                     disabled={this.state.processing}
                                 >
@@ -149,6 +153,7 @@ LightningDetails.propTypes = {
         lightningID: PropTypes.string.isRequired,
         name: PropTypes.string.isRequired,
         pay_req: PropTypes.string,
+        pay_req_decoded: PropTypes.shape(),
     }).isRequired).isRequired,
 };
 

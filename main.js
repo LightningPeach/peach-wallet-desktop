@@ -1,5 +1,9 @@
 const {
-    app, Menu, ipcMain, BrowserWindow,
+    app,
+    Menu,
+    BrowserWindow,
+    ipcMain,
+    Notification,
 } = require("electron");
 const path = require("path");
 const url = require("url");
@@ -8,18 +12,20 @@ const contextMenu = require("./server/utils/context-menu");
 const server = require("./server/ipc");
 const settings = require("./server/settings");
 const helpers = require("./server/utils/helpers");
+const { updaterManager } = require("./server/utils/updater");
 
 const APP_ICON = path.join(__dirname, "public", "app_icons", "png", "256x256.png");
 const logger = baseLogger.child("electron");
+const updater = updaterManager();
 
 let mainWindow = null;
-let agreementWindow = null;
+let notification = null;
 
 let deepLinkUrl;
 
 const template = [
     {
-        label: app.getName(),
+        label: "Peach Wallet",
         submenu: [
             { label: "Hide", accelerator: "CmdOrCtrl+H", role: "hide" },
             { label: "Minimize", accelerator: "CmdOrCtrl+M", role: "minimize" },
@@ -50,6 +56,14 @@ const template = [
                         mainWindow.webContents.openDevTools();
                     }
                 },
+            },
+        ],
+    },
+    {
+        label: "About",
+        submenu: [
+            {
+                label: "Check update", click: updater.manualCheckUpdate,
             },
         ],
     },
@@ -85,25 +99,13 @@ const devTools = (window) => {
 
 const menu = Menu.buildFromTemplate(template);
 
-const isSecondInstance = app.makeSingleInstance((argv) => {
-    if (process.platform === "win32") {
-        deepLinkUrl = argv.slice(1);
-        helpers.ipcSend("handleUrlReceive", deepLinkUrl);
-    }
+const gotInstanceLock = app.requestSingleInstanceLock();
 
-    if (mainWindow) {
-        if (mainWindow.isMinimized()) {
-            mainWindow.restore();
-        }
-        mainWindow.focus();
-    }
-});
-
-if (isSecondInstance) {
+if (!gotInstanceLock) {
     app.quit();
 }
 
-function createWindow() {
+function createMainWindow() {
     mainWindow = new BrowserWindow(defaultWindowSettings);
     mainWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
     mainWindow.loadURL(url.format({
@@ -128,6 +130,7 @@ function createWindow() {
 
         const isDefautLighningProtocol = app.isDefaultProtocolClient("lightning");
         helpers.ipcSend("isDefaultLightningApp", isDefautLighningProtocol);
+        updater.init();
     });
 
     mainWindow.webContents.on("new-window", event => event.preventDefault());
@@ -135,42 +138,21 @@ function createWindow() {
     Menu.setApplicationMenu(menu);
 }
 
-const checkAgreement = async () => {
-    if (settings.get.agreement.eula) {
-        createWindow();
-        return;
-    }
-    agreementWindow = new BrowserWindow(defaultWindowSettings);
-    agreementWindow.webContents.isMain = true; // to check if this window is main in server.utils.helpers.ipcSend
-
-    agreementWindow.loadURL(url.format({
-        pathname: path.join(__dirname, "agreement.html"),
-        protocol: "file:",
-        slashes: true,
-    }));
-    devTools(agreementWindow);
-    agreementWindow.setMenu(null);
-    agreementWindow.maximize();
-    agreementWindow.show();
-
-    agreementWindow.webContents.on("close", () => {
-        if (settings.get.agreement.eula) {
-            createWindow();
-        }
-    });
-};
-
-app.on("ready", checkAgreement);
+app.on("ready", createMainWindow);
 
 app.on("window-all-closed", () => {
-    if (process.platform !== "darwin") {
-        app.quit();
-    }
+    app.quit();
 });
 
 app.on("activate", () => {
-    if (!mainWindow && !agreementWindow) {
-        checkAgreement();
+    if (!mainWindow) {
+        createMainWindow();
+    }
+});
+
+app.on("browser-window-focus", () => {
+    if (process.platform === "darwin") {
+        app.dock.setBadge("");
     }
 });
 
@@ -180,14 +162,45 @@ app.on("before-quit", async (e) => {
     app.exit();
 });
 
-app.on("open-url", (event, arg) => {
-    event.preventDefault();
+app.on("open-url", (e, arg) => {
+    e.preventDefault();
     deepLinkUrl = arg;
     helpers.ipcSend("handleUrlReceive", deepLinkUrl);
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+        mainWindow.focus();
+    }
 });
 
-ipcMain.on("setDefaultLightningApp", () => {
-    app.setAsDefaultProtocolClient("lightning");
+app.on("second-instance", (e, arg) => {
+    if (process.platform === "win32") {
+        deepLinkUrl = arg.slice(1);
+        helpers.ipcSend("handleUrlReceive", deepLinkUrl);
+    }
+
+    if (mainWindow) {
+        if (mainWindow.isMinimized()) {
+            mainWindow.restore();
+        }
+        mainWindow.focus();
+    }
+});
+
+ipcMain.on("showNotification", (event, sender) => {
+    notification = new Notification({
+        title: sender.title || "Peach Wallet",
+        subtitle: sender.subtitle,
+        body: sender.body,
+        silent: sender.silent,
+    });
+    notification.show();
+    if (!mainWindow.isFocused()) {
+        if (process.platform === "darwin") {
+            app.dock.setBadge("•");
+        }
+    }
 });
 
 process.on("unhandledRejection", (error) => {
@@ -197,3 +210,5 @@ process.on("unhandledRejection", (error) => {
 process.on("uncaughtException", (error) => {
     logger.error(error);
 });
+
+module.exports.getMainWindow = () => mainWindow;

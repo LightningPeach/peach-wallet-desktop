@@ -1,5 +1,8 @@
 .ReactTable {
+    padding-bottom: 50px;
     border: 0;
+    margin-left: -20px;
+    margin-right: -20px;
 
     .rt-table {
         overflow: inherit;
@@ -10,21 +13,40 @@
         overflow: visible;
     }
 
+    .rt-tr {
+        align-items: center;
+        border-bottom: 1px solid $black10;
+        padding-left: 20px;
+        padding-right: 20px;
+        transition:
+                background-color .3s ease-in-out,
+                padding .3s ease-in-out,
+                margin .3s ease-in-out,
+    }
+
     .rt-thead {
+        min-width: 980px!important;
+
         &.-header {
             box-shadow: none;
+
+            .rt-tr {
+                border-bottom: 1px solid $black;
+                padding-top: 15px;
+                padding-bottom: 12px;
+                text-transform: uppercase;
+            }
         }
 
         .rt-th,
         .rt-td {
             border: 0;
             box-shadow: none;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             line-height: 1.3;
             padding: 0;
             text-align: left;
-            letter-spacing: -0.3px;
 
             &.-sort-asc,
             &.-sort-desc {
@@ -42,7 +64,7 @@
                         left: calc(100% + 10px);
                         top: 7px;
                         border-width: 0 3px 4px 3px;
-                        border-color: transparent transparent #071017 transparent;
+                        border-color: transparent transparent $black transparent;
                         transition: transform .2s;
                     }
                 }
@@ -56,10 +78,14 @@
                 transform: rotate(180deg);
             }
         }
+
+        .tooltip-wp {
+            position: relative;
+        }
     }
 
     .rt-tbody {
-        padding-top: 10px;
+        min-width: 980px!important;
         padding-bottom: 5px;
         overflow: visible;
 
@@ -71,15 +97,13 @@
             border: 0;
             font-size: 14px;
             line-height: 1;
-            padding: 11px 10px 9px 0;
-            letter-spacing: -0.5px;
+            padding: 15px 10px 12px 0;
 
             &:first-child {
                 padding-right: 10px;
             }
 
             &:first-child > span {
-                /*padding-left: 17px;*/
                 position: relative;
                 display: inline-block;
 
@@ -94,37 +118,38 @@
                     border-radius: 100%;
                     transform: translateY(-50%);
                 }
-
-                &.green:before {
-                    /*background-color: #7ed321;*/
-                }
-
-                &.orange:before {
-                    /*background-color: #ff864b;*/
-                }
-
-                &.red:before {
-                    /*background-color: $scarlet;*/
-                }
             }
 
             .visible-on-hover:hover {
                 overflow: visible;
 
                 > * {
-                    background: #fff;
+                    background: $white;
                     z-index: 1;
                     position: absolute;
                     padding: 8px 10px;
                     margin-top: -8px;
                     margin-left: -10px;
-                    box-shadow: 0 2px 4px 0 $greyish-50;
                 }
             }
         }
 
         .-padRow {
             display: none;
+        }
+
+        .rt-tr:not(.-padRow):hover {
+            background-color: $yellow10;
+
+            .table__button {
+                opacity: 1;
+                pointer-events: all;
+                font-size: 12px;
+            }
+        }
+
+        .green {
+            color: $green;
         }
     }
 
@@ -154,7 +179,7 @@
             &:hover:not(.pagination__not-item),
             &:focus:not(.pagination__not-item),
             &.pagination__current {
-                color: $pumpkin-orange;
+                color: $yellow;
             }
 
             &.pagination__prev,
@@ -179,10 +204,34 @@
     }
 }
 
+.table {
+    &__button {
+        opacity: 0;
+        pointer-events: none;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        font-size: 0;
+        line-height: 1;
+        color: $yellow;
+        font-weight: 600;
+        padding: 0 5px;
+        margin-top: 2px;
+        transition: opacity $default-transition, font-size $default-transition;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
 @media screen and (max-width: 980px) {
     .ReactTable {
-        overflow-y: visible;
-        padding-bottom: 50px;
+        overflow-y: hidden;
+
+        .rt-table {
+            overflow-y: auto;
+        }
     }
 }
 

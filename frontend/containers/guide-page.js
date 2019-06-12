@@ -3,13 +3,12 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Slider from "react-slick";
 import { push } from "react-router-redux";
-import { WalletPath } from "routes";
+
+import { routes } from "config";
 import { accountOperations } from "modules/account";
 import { appTypes, appActions, appOperations } from "modules/app";
-import ForceLogout from "components/modal/force-logout";
-import { GITHUB_USERGUIDE_LINK } from "config/consts";
 
-const background = <div className="tourgide__background" />;
+import ForceLogout from "components/modal/window/force-logout";
 
 class GuidePage extends Component {
     constructor(props) {
@@ -26,8 +25,8 @@ class GuidePage extends Component {
     }
 
     initAccount = async () => {
-        const { dispatch, username } = this.props;
-        const response = await dispatch(accountOperations.initAccount(username, true));
+        const { dispatch, walletName } = this.props;
+        const response = await dispatch(accountOperations.initAccount(walletName, true));
         if (!response.ok) {
             dispatch(appOperations.openForceLogoutModal());
             dispatch(appActions.setForceLogoutError(response.error));
@@ -45,18 +44,14 @@ class GuidePage extends Component {
                 <button
                     className="tourgide__top-btn"
                     onClick={() => {
-                        dispatch(push(WalletPath));
+                        dispatch(push(routes.WalletPath));
                     }}
                 >
                     Open wallet
                 </button>
             );
         }
-        return `LND ${currentPercent}%`;
-    };
-
-    openUserGuide = () => {
-        window.ELECTRON_SHELL.openExternal(GITHUB_USERGUIDE_LINK);
+        return `Synchronization - ${currentPercent}%`;
     };
 
     firstSlide = () => (
@@ -87,9 +82,9 @@ class GuidePage extends Component {
                         </div>
                     </nav>
                     <div className="s-channels__header">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-channels__btc">1BTC ~ $6,934.98</div>
-                        <div className="s-channels__btn button button__orange">CREATE CHANNEL</div>
+                        <div className="s-channels__btn button button__solid">CREATE CHANNEL</div>
                     </div>
                 </div>
             </div>
@@ -111,10 +106,10 @@ class GuidePage extends Component {
                 <div className="s-regular">
                     <h4 className="s-regular__title">History</h4>
                     <div className="s-regular__table">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-regular__column s-regular__column--5">
-                            <div className="s-regular__row text-medium">
-                                Name of payment
+                            <div className="s-regular__row text-semibold">
+                                Description
                             </div>
                             <div className="s-regular__row">
                                 Spanish Lessons
@@ -127,7 +122,7 @@ class GuidePage extends Component {
                             </div>
                         </div>
                         <div className="s-regular__column s-regular__column--20">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 Amount
                             </div>
                             <div className="s-regular__row">
@@ -141,7 +136,7 @@ class GuidePage extends Component {
                             </div>
                         </div>
                         <div className="s-regular__column s-regular__column--25">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 To
                             </div>
                             <div className="s-regular__row">
@@ -155,7 +150,7 @@ class GuidePage extends Component {
                             </div>
                         </div>
                         <div className="s-regular__column s-regular__column--22">
-                            <div className="s-regular__row text-medium">
+                            <div className="s-regular__row text-semibold">
                                 <span className="s-regular__sortable">Date</span>
                             </div>
                             <div className="s-regular__row">
@@ -182,17 +177,17 @@ class GuidePage extends Component {
     thirdSlide = () => (
         <div className="guide__slide">
             <div className="guide__header">
-                <h2 className="guide__title">Stream Lightning payments</h2>
+                <h2 className="guide__title">Recurring Lightning payments</h2>
                 <div className="guide__status">{this.status()}</div>
             </div>
             <div className="guide__img">
                 <div className="s-stream">
                     <div className="s-stream__tabs">
                         <h4 className="s-stream__tabname">REGULAR PAYMENT</h4>
-                        <h4 className="s-stream__tabname s-stream__tabname--active">STREAM PAYMENT</h4>
+                        <h4 className="s-stream__tabname s-stream__tabname--active">RECURRING PAYMENT</h4>
                     </div>
                     <div className="s-stream__row">
-                        <div className="s-stream__label">Stream name</div>
+                        <div className="s-stream__label">Description</div>
                         <div className="s-stream__input">
                             <span>Spanish Lessons</span>
                         </div>
@@ -213,7 +208,7 @@ class GuidePage extends Component {
                         <div className="s-stream__row-50">
                             <div className="s-stream__label">Time limit in seconds</div>
                             <div className="s-stream__input s-stream__input--active">
-                                {background}
+                                <div className="tourgide__background" />
                                 <span>3600|</span>
                             </div>
                         </div>
@@ -222,8 +217,8 @@ class GuidePage extends Component {
             </div>
             <div className="guide__description">
                 Apart from regular Lightning payments, there is a possibility to
-                make <span className="guide__orange">STREAM</span> Lightning payments. This type of payment can be used
-                in services based on spent time (for example, online lessons).
+                make <span className="guide__orange">RECURRING</span> Lightning payments. This type of payment can be
+                used in services based on spent time (for example, online lessons).
             </div>
         </div>
     );
@@ -237,7 +232,7 @@ class GuidePage extends Component {
             <div className="guide__img">
                 <div className="s-profile">
                     <div className="s-profile__block">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-profile__head">
                             <img src={`${window.STATIC_FILES}public/assets/images/user-white.svg`} alt="" />
                             <h3 className="s-profile__title">Your Name</h3>
@@ -261,7 +256,7 @@ class GuidePage extends Component {
                         </div>
                     </div>
                     <div className="s-profile__block">
-                        {background}
+                        <div className="tourgide__background" />
                         <div className="s-profile__head">
                             <img src={`${window.STATIC_FILES}public/assets/images/payment-request-white.svg`} alt="" />
                             <h3 className="s-profile__title">Payment Request</h3>
@@ -277,9 +272,7 @@ class GuidePage extends Component {
             <div className="guide__description">
                 On the <span className="guide__orange">PROFILE</span> page users can find their Lightning ID and BTC
                 Address, generate a payment request for another Lightning Network participant to pay it, and other
-                options.<br />
-                For a detailed description on how to navigate around our wallet see
-                the <span className="guide__link" onClick={this.openUserGuide}>User Guide.</span>
+                options.
             </div>
         </div>
     );
@@ -311,7 +304,7 @@ class GuidePage extends Component {
         if (this.state.slideIndex === 3) {
             btnText = "OPEN WALLET";
             btnFunc = () => {
-                dispatch(push(WalletPath));
+                dispatch(push(routes.WalletPath));
             };
         }
         return (
@@ -363,14 +356,14 @@ GuidePage.propTypes = {
     lndBlocks: PropTypes.number.isRequired,
     modalState: PropTypes.string.isRequired,
     networkBlocks: PropTypes.number.isRequired,
-    username: PropTypes.string.isRequired,
+    walletName: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => ({
     lndBlocks: state.lnd.lndBlocks,
     modalState: state.app.modalState,
-    networkBlocks: state.lnd.networkBlocks,
-    username: state.auth.tempUsername,
+    networkBlocks: state.server.networkBlocks,
+    walletName: state.auth.tempWalletName,
 });
 
 export default connect(mapStateToProps)(GuidePage);

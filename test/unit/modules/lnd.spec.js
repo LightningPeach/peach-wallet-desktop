@@ -1,12 +1,11 @@
 import configureStore from "redux-mock-store";
 import thunk from "redux-thunk";
-import nock from "nock";
 
-import * as statusCodes from "config/status-codes";
+import { exceptions, statuses } from "config";
 import { lndActions as actions, lndTypes as types, lndOperations as operations } from "modules/lnd";
 import lndReducer, { initStateLnd } from "modules/lnd/reducers";
 import { accountTypes } from "modules/account";
-import { BLOCK_HEIGHT_HOST, BLOCK_HEIGHT_QUERY } from "config/node-settings";
+import { appOperations } from "modules/app";
 import { db, errorPromise, successPromise, unsuccessPromise } from "additional";
 import { store as defaultStore } from "store/configure-store";
 
@@ -45,11 +44,9 @@ describe("Lnd Unit Tests", () => {
             expect(actions.lndInitingError(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to set lnd synched status", () => {
-            expectedData = {
-                type: types.LND_SYNCED,
-            };
-            expect(actions.lndSynced()).to.deep.equal(expectedData);
+        it("should create an action to set lnd synced status", () => {
+            expectedData.type = types.LND_SYNCED;
+            expect(actions.lndSynced(data)).to.deep.equal(expectedData);
         });
 
         it("should create an action to set lnd initialization status", () => {
@@ -57,19 +54,18 @@ describe("Lnd Unit Tests", () => {
             expect(actions.setLndInitStatus(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to set network blocks height", () => {
-            expectedData.type = types.SET_NETWORK_BLOCKS;
-            expect(actions.setNetworkBlocksHeight(data)).to.deep.equal(expectedData);
+        it("should create an action to set lnd blocks height", () => {
+            expectedData.type = types.SET_LND_BLOCKS_HEIGHT;
+            expect(actions.setLndBlocksHeight(data)).to.deep.equal(expectedData);
         });
 
-        it("should create an action to set lnd blocks height", () => {
-            expectedData.type = types.SET_LND_BLOCKS;
-            expect(actions.setLndBlocksHeight(data)).to.deep.equal(expectedData);
+        it("should create an action to set lnd blocks height on login", () => {
+            expectedData.type = types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN;
+            expect(actions.setLndBlocksHeightOnLogin(data)).to.deep.equal(expectedData);
         });
     });
 
     describe("Operations tests", () => {
-        let sandbox;
         let data;
         let store;
         let initState;
@@ -82,6 +78,7 @@ describe("Lnd Unit Tests", () => {
         let fakeDispatchReturnSuccess;
         let fakeDispatchReturnUnsuccess;
         let fakeStore;
+        let fakeApp;
 
         beforeEach(async () => {
             errorResp = await errorPromise(undefined, { name: undefined });
@@ -90,10 +87,10 @@ describe("Lnd Unit Tests", () => {
             fakeDispatchReturnError = () => errorResp;
             fakeDispatchReturnSuccess = () => successResp;
             fakeDispatchReturnUnsuccess = () => unsuccessResp;
-            sandbox = sinon.sandbox.create();
-            window.ipcClient.reset();
-            window.ipcRenderer.send.reset();
-            fakeStore = sandbox.stub(defaultStore);
+            window.ipcClient.resetHistory();
+            window.ipcRenderer.send.resetHistory();
+            fakeStore = sinon.stub(defaultStore);
+            fakeApp = sinon.stub(appOperations);
             data = {};
             initState = {
                 lnd: { ...initStateLnd },
@@ -106,7 +103,7 @@ describe("Lnd Unit Tests", () => {
         });
 
         afterEach(() => {
-            sandbox.restore();
+            sinon.restore();
         });
 
         describe("ipcRenderer", () => {
@@ -185,32 +182,6 @@ describe("Lnd Unit Tests", () => {
             });
         });
 
-        describe("getBlocksHeight()", () => {
-            it("error response", async () => {
-                nock(BLOCK_HEIGHT_HOST).get(BLOCK_HEIGHT_QUERY).reply(404);
-                expectedData = {
-                    payload: 0,
-                    type: types.SET_NETWORK_BLOCKS,
-                };
-                expectedActions = [expectedData];
-                expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-
-            it("success", async () => {
-                nock(BLOCK_HEIGHT_HOST).get(BLOCK_HEIGHT_QUERY).reply(200, { height: 1000000 });
-                expectedData = { ...successResp };
-                expectedActions = [
-                    {
-                        payload: 1000000,
-                        type: types.SET_NETWORK_BLOCKS,
-                    },
-                ];
-                expect(await store.dispatch(operations.getBlocksHeight())).to.deep.equal(expectedData);
-                expect(store.getActions()).to.deep.equal(expectedActions);
-            });
-        });
-
         describe("waitLndSync()", () => {
             beforeEach(() => {
                 window.ipcClient
@@ -248,6 +219,7 @@ describe("Lnd Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
             });
 
             it("not synced -> synced in retry", async () => {
@@ -255,21 +227,26 @@ describe("Lnd Unit Tests", () => {
                 expectedActions = [
                     {
                         payload: 50,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN,
                     },
                     {
-                        payload: statusCodes.STATUS_LND_SYNCING,
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
+                    },
+                    {
+                        payload: statuses.LND_SYNCING,
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {
                         payload: 100,
-                        type: types.SET_LND_BLOCKS,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
                     },
                     {
-                        payload: statusCodes.STATUS_LND_FULLY_SYNCED,
+                        payload: statuses.LND_FULLY_SYNCED,
                         type: types.SET_LND_INIT_STATUS,
                     },
                     {
+                        payload: true,
                         type: types.LND_SYNCED,
                     },
                 ];
@@ -277,6 +254,136 @@ describe("Lnd Unit Tests", () => {
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
                 expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
+            });
+        });
+
+        describe("checkLndSync()", () => {
+            beforeEach(() => {
+                window.ipcClient
+                    .withArgs("getInfo")
+                    .onFirstCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: false,
+                            block_height: 50,
+                        },
+                    })
+                    .onSecondCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: false,
+                            block_height: 75,
+                        },
+                    })
+                    .onThirdCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: true,
+                            block_height: 100,
+                        },
+                    });
+                fakeApp.sendSystemNotification.returns(fakeDispatchReturnSuccess);
+            });
+
+            it("ipc error", async () => {
+                window.ipcClient
+                    .withArgs("getInfo")
+                    .onFirstCall()
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    ...errorResp,
+                    f: "checkLndSync",
+                };
+                expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledOnce;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
+            });
+
+            it("not synced in check -> ipc error in wait sync", async () => {
+                window.ipcClient
+                    .withArgs("getInfo")
+                    .onFirstCall()
+                    .returns({
+                        ok: true,
+                        response: {
+                            synced_to_chain: false,
+                            block_height: 50,
+                        },
+                    })
+                    .onSecondCall()
+                    .returns({
+                        ok: false,
+                    });
+                expectedData = {
+                    ...errorResp,
+                    f: "checkLndSync",
+                };
+                expectedActions = [
+                    {
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
+                    },
+                ];
+                expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledTwice;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).not.to.be.called;
+            });
+
+            it("not synced in check -> synced in wait sync", async () => {
+                expectedData = { ...successResp };
+                expectedActions = [
+                    {
+                        payload: 50,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
+                    },
+                    {
+                        payload: 75,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
+                    },
+                    {
+                        payload: false,
+                        type: types.LND_SYNCED,
+                    },
+                    {
+                        payload: statuses.LND_SYNCING,
+                        type: types.SET_LND_INIT_STATUS,
+                    },
+                    {
+                        payload: 100,
+                        type: types.SET_LND_BLOCKS_HEIGHT,
+                    },
+                    {
+                        payload: statuses.LND_FULLY_SYNCED,
+                        type: types.SET_LND_INIT_STATUS,
+                    },
+                    {
+                        payload: true,
+                        type: types.LND_SYNCED,
+                    },
+                ];
+                expect(await store.dispatch(operations.checkLndSync())).to.deep.equal(expectedData);
+                expect(store.getActions()).to.deep.equal(expectedActions);
+                expect(window.ipcClient).to.be.calledThrice;
+                expect(window.ipcClient).to.be.calledWith("getInfo");
+                expect(appOperations.sendSystemNotification).to.be.calledTwice;
+                expect(appOperations.sendSystemNotification).to.be.calledWithExactly({
+                    body: "Please wait for synchronization recovery",
+                    title: "Synchronization is lost",
+                });
+                expect(appOperations.sendSystemNotification).to.be.calledWithExactly({
+                    body: "The node has been fully synchronized with blockchain",
+                    title: "Synchronization is recovered",
+                });
             });
         });
 
@@ -313,7 +420,7 @@ describe("Lnd Unit Tests", () => {
                 expect(await store.dispatch(operations.startLnd(data.attr))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledOnce;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data.attr });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data.attr });
             });
 
             it("lnd initializing error", async () => {
@@ -344,8 +451,8 @@ describe("Lnd Unit Tests", () => {
                 expect(await store.dispatch(operations.startLnd(data))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data });
-                expect(window.ipcClient).to.be.calledWith("startLnd", { username: data });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data });
+                expect(window.ipcClient).to.be.calledWith("startLnd", { walletName: data });
             });
 
             it("success", async () => {
@@ -361,8 +468,8 @@ describe("Lnd Unit Tests", () => {
                 expect(await store.dispatch(operations.startLnd(data))).to.deep.equal(expectedData);
                 expect(store.getActions()).to.deep.equal(expectedActions);
                 expect(window.ipcClient).to.be.calledTwice;
-                expect(window.ipcClient).to.be.calledWith("checkUser", { username: data });
-                expect(window.ipcClient).to.be.calledWith("startLnd", { username: data });
+                expect(window.ipcClient).to.be.calledWith("checkUser", { walletName: data });
+                expect(window.ipcClient).to.be.calledWith("startLnd", { walletName: data });
             });
         });
     });
@@ -396,10 +503,8 @@ describe("Lnd Unit Tests", () => {
         });
 
         it("should handle LND_SYNCED action", () => {
-            action = {
-                type: types.LND_SYNCED,
-            };
-            expectedData.lndSyncedToChain = true;
+            action.type = types.LND_SYNCED;
+            expectedData.lndSyncedToChain = data;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
 
@@ -436,17 +541,17 @@ describe("Lnd Unit Tests", () => {
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle SET_NETWORK_BLOCKS action", () => {
-            action.type = types.SET_NETWORK_BLOCKS;
+        it("should handle SET_LND_BLOCKS_HEIGHT action", () => {
+            action.type = types.SET_LND_BLOCKS_HEIGHT;
             action.payload = 10;
-            expectedData.networkBlocks = 10;
+            expectedData.lndBlocks = 10;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
 
-        it("should handle SET_LND_BLOCKS action", () => {
-            action.type = types.SET_LND_BLOCKS;
+        it("should handle SET_LND_BLOCKS_HEIGHT_ON_LOGIN action", () => {
+            action.type = types.SET_LND_BLOCKS_HEIGHT_ON_LOGIN;
             action.payload = 10;
-            expectedData.lndBlocks = 10;
+            expectedData.lndBlocksOnLogin = 10;
             expect(lndReducer(state, action)).to.deep.equal(expectedData);
         });
     });
