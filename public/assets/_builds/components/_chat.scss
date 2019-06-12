@@ -12,7 +12,7 @@
         margin-bottom: 10px;
 
         &--invoice {
-            $bColor: transparentize($lightblue, .7);
+            $bColor: $red30;
             background: $bColor;
             align-self: flex-end;
             margin-right: 10px;
@@ -25,7 +25,7 @@
         }
 
         &--payment {
-            $bColor: transparentize($orange, .7);
+            $bColor: $yellow30;
             background: $bColor;
             align-self: flex-start;
             margin-left: 10px;

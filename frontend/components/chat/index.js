@@ -9,7 +9,7 @@ import { chatOperations, chatSelectors } from "modules/chat";
 import { LIGHTNING_ID_LENGTH } from "config/consts";
 
 import SubHeader from "components/subheader";
-import ErrorFieldTooltip from "components/ui/error_field_tooltip";
+import ErrorFieldTooltip from "components/ui/error-field-tooltip";
 
 class ChatPage extends Component {
     constructor(props) {

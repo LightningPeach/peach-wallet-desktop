@@ -213,7 +213,8 @@ class WalletPage extends Component {
                 break;
             case 5:
                 Panel = <ChatPage />;
-            case 5:
+                break;
+            case 6:
                 Panel = <ProfilePage />;
                 break;
             default:

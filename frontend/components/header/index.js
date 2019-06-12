@@ -18,6 +18,7 @@ class Header extends Component {
                 { fullPath: routes.ChannelsFullPath, name: "channels" },
                 { fullPath: routes.AddressBookFullPath, name: "address" },
                 { fullPath: routes.MerchantsFullPath, name: "merchants" },
+                { fullPath: routes.ChatFullPath, name: "chat" },
                 { fullPath: routes.ProfileFullPath, name: "profile" },
             ],
         };
@@ -117,6 +118,13 @@ class Header extends Component {
                                 onClick={this.hideBurger}
                             >
                                 Merchants
+                            </Link>
+                            <Link
+                                to={routes.ChatFullPath}
+                                className={`nav__link ${routes.ChatPanel.includes(path) ? "active" : ""}`}
+                                onClick={this.hideBurger}
+                            >
+                                Chat
                             </Link>
                             <span className="separator" />
                             <Link

@@ -42,3 +42,4 @@ export const OnchainPanel = [OnchainFullPath];
 export const ChannelsPanel = [ChannelsFullPath];
 export const AddressBookPanel = [AddressBookFullPath];
 export const MerchantsPanel = [MerchantsFullPath];
+export const ChatPanel = [ChatFullPath];

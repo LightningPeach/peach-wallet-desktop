@@ -18,6 +18,7 @@ import {
     OnchainPath,
     ProfilePath,
     WalletPath,
+    ChatPath,
 } from "config/routes";
 import Onchain from "components/onchain";
 import WalletPage from "containers/wallet-page";
@@ -27,6 +28,7 @@ import ContactsPage from "components/contacts";
 import HomePage from "containers/home-page";
 import Lightning from "components/lightning";
 import ProfilePage from "components/profile";
+import ChatPage from "components/chat";
 
 analytics.init();
 
@@ -45,6 +47,7 @@ render(
                     <Route path={AddressBookPath} component={ContactsPage} />
                     <Route path={ProfilePath} component={ProfilePage} />
                     <Route path={MerchantsPath} components={MerchantsPage} />
+                    <Route path={ChatPath} components={ChatPage} />
                 </Route>
                 <Route path={HomePath} component={HomePage} />
                 <Route path={GuidePath} component={GuidePage} />
