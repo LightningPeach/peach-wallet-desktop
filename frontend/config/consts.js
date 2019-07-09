@@ -128,3 +128,10 @@ export const MAX_PAYMENT_REQUEST = Math.round((2 ** 32) * MILISATOSHI_MEASURE.mu
  */
 /* eslint-enable */
 export const MAX_CHANNEL_SIZE = 2 ** 24;
+
+export const LIGHTNING_INVOICE_STATE = {
+    ACCEPTED: 3,
+    CANCELED: 2,
+    OPEN: 0,
+    SETTLED: 1,
+};
