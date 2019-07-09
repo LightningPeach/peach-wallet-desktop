@@ -1128,9 +1128,11 @@ describe("Lightning Unit Tests", () => {
                 invoices = [
                     {
                         settled: false,
+                        state: 0,
                     },
                     {
                         settled: true,
+                        state: 1,
                         payment_request: "foo",
                         memo: "bar",
                         value: 100,
@@ -1138,6 +1140,7 @@ describe("Lightning Unit Tests", () => {
                     },
                     {
                         settled: true,
+                        state: 1,
                         payment_request: "bar",
                         memo: "stream_payment_baz",
                         value: 101,
@@ -1382,6 +1385,7 @@ describe("Lightning Unit Tests", () => {
                 invoices = [
                     {
                         settled: true,
+                        state: 1,
                         payment_request: "foo",
                         memo: "bar",
                         value: 100,
