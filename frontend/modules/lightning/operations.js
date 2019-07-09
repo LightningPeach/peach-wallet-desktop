@@ -15,7 +15,7 @@ function getLightningFee(lightningID, amount) {
     return async (dispatch, getState) => {
         const routes = await window.ipcClient("queryRoutes", {
             amt: amount,
-            num_routes: consts.LIGHTNING_NUM_ROUTES,
+            num_routes: consts.LIGHTNING_NUM_ROUTES, // TODO not used in rpc.proto?
             pub_key: lightningID,
         });
         if (!routes.ok) {
@@ -96,7 +96,7 @@ async function getInvoices() {
     // const response = await window.ipcClient("listInvoices", { num_max_invoices: consts.MAX_INVOICES });
     const allInvoices = await getPaginatedInvoices();
     const streamInvoices = {};
-    const settledInvoices = allInvoices.filter(invoice => invoice.settled);
+    const settledInvoices = allInvoices.filter(invoice => invoice.state === consts.LIGHTNING_INVOICE_STATE.SETTLED);
     const invoices = await settledInvoices.reduce(async (invoicePromise, invoice) => {
         const newInvoices = await invoicePromise;
         const payReq = await window.ipcClient("decodePayReq", { pay_req: invoice.payment_request });
