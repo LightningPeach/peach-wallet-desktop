@@ -74,7 +74,7 @@ describe("Settings tests", () => {
         });
 
         it("correct neutrino.connect url", () => {
-            expect(settings.neutrino.connect).to.deep.equal("proxy.lightningpeach.com:8333");
+            expect(settings.neutrino.connect).to.deep.equal("btcd-mainnet.lightning.computer");
         });
 
         it("autopilot active mode set to false", () => {
@@ -186,7 +186,7 @@ describe("Settings tests", () => {
         });
 
         it("correct neutrino.connect url", () => {
-            expect(settings.neutrino.connect).to.deep.equal("testnetwallet.lightningpeach.com:18333");
+            expect(settings.neutrino.connect).to.deep.equal("btcd-testnet.lightning.computer");
         });
 
         it("autopilot active mode set to false", () => {
