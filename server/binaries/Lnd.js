@@ -411,6 +411,14 @@ class Lnd extends Exec {
                 "--btcd.rpchost", settings.get.btcd.rpchost,
                 "--btcd.rpccert", settings.get.btcd.rpccert,
             );
+        } else if (settings.get.bitcoin.node === "bitcoind") {
+            options.push(
+                "--bitcoind.rpchost", settings.get.bitcoind.rpchost,
+                "--bitcoind.rpcuser", settings.get.bitcoind.rpcuser,
+                "--bitcoind.rpcpass", settings.get.bitcoind.rpcpass,
+                "--bitcoind.zmqpubrawblock", settings.get.bitcoind.zmqpubrawblock,
+                "--bitcoind.zmqpubrawtx", settings.get.bitcoind.zmqpubrawtx,
+            );
         }
         if (settings.get.autopilot.active) {
             options.push("--autopilot.active");
@@ -632,7 +640,10 @@ class Lnd extends Exec {
 
     async unlockWallet(password) {
         ipcSend("setLndInitStatus", "Unlocking wallet in LND");
-        let response = await this.call("unlockWallet", { wallet_password: Buffer.from(password, "binary") });
+        let response = await this.call("unlockWallet", {
+            wallet_password: Buffer.from(password, "binary"),
+            recovery_window: 50000,
+        });
         if (!response.ok) {
             logger.error(response.message);
             ipcSend("setLndInitStatus", "");
