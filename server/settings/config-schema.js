@@ -127,6 +127,9 @@ module.exports = {
         legal: {
             format: String,
         },
+        syncedVersion: {
+            format: Number,
+        },
     },
     logger: {
         level: {

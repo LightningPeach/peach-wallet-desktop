@@ -47,6 +47,7 @@ const INVOICE_MACAROON_FILE = "invoice.macaroon";
 const BLOCK_HEADERS_FILE = "block_headers.bin";
 const NEUTRINO_FILE = "neutrino.db";
 const REG_FILTER_HEADERS_FILE = "reg_filter_headers.bin";
+const CHECK_LND_SYNC = "sync.json";
 
 process.env.GRPC_SSL_CIPHER_SUITES = "HIGH+ECDSA";
 
@@ -271,6 +272,77 @@ class Lnd extends Exec {
         });
     }
 
+    async checkRemovingSyncFiles() {
+        // checking if last sync was up to date
+        logger.info("Checking Sync files");
+        let checkedSync = false;
+        if (fs.existsSync(path.join(settings.get.lndPath, this.name, CHECK_LND_SYNC))) {
+            const contents = fs.readFileSync(path.join(settings.get.lndPath, this.name, CHECK_LND_SYNC));
+            const jsonContent = JSON.parse(contents);
+            if (jsonContent.syncedVersion >= settings.preload.getVersion.syncedVersion) {
+                checkedSync = true;
+            }
+        }
+        if (checkedSync) {
+            return { ok: true };
+        }
+        try {
+            if (!this.name) {
+                return { ok: false, error: "No name for LND given" };
+            }
+            // default value is mainnet
+            let dataDir = path.join("data", "chain", "bitcoin", "mainnet");
+            if (settings.get.bitcoin.network === "testnet") {
+                dataDir = path.join("data", "chain", "bitcoin", "testnet");
+            }
+            const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
+            const blockHeadersPath = path.join(userDataDir, BLOCK_HEADERS_FILE);
+            const neutrinoPath = path.join(userDataDir, NEUTRINO_FILE);
+            const regFiltersHeadersPath = path.join(userDataDir, REG_FILTER_HEADERS_FILE);
+            return new Promise(async (resolve) => {
+                if (fs.existsSync(blockHeadersPath)) {
+                    await rmrf(blockHeadersPath, (err) => {
+                        if (err) {
+                            logger.error({ func: this.clearData }, err);
+                            resolve({
+                                ok: false,
+                                error: err.message,
+                            });
+                        }
+                    });
+                }
+                if (fs.existsSync(neutrinoPath)) {
+                    await rmrf(neutrinoPath, (err) => {
+                        if (err) {
+                            logger.error({ func: this.clearData }, err);
+                            resolve({
+                                ok: false,
+                                error: err.message,
+                            });
+                        }
+                    });
+                }
+                if (fs.existsSync(regFiltersHeadersPath)) {
+                    await rmrf(regFiltersHeadersPath, (err) => {
+                        if (err) {
+                            logger.error({ func: this.clearData }, err);
+                            resolve({
+                                ok: false,
+                                error: err.message,
+                            });
+                        }
+                    });
+                }
+                fs.writeFileSync(path.join(settings.get.lndPath, this.name, CHECK_LND_SYNC), JSON.stringify({
+                    syncedVersion: settings.preload.getVersion.syncedVersion,
+                }));
+                logger.info("Successfully deleted sync files");
+                resolve({ ok: true });
+            });
+        } catch (e) {
+            return { ok: false, error: e.message, type: "internal" };
+        }
+    }
     /**
      * Lightning rpc call
      * @param {string} method
@@ -537,11 +609,19 @@ class Lnd extends Exec {
             this.starting = false;
             return validStartup;
         }
-        const injectPreload = await this.injectPreload();
-        if (!injectPreload.ok) {
-            logger.error("Preload injection failed:", injectPreload);
-        }
+        // const injectPreload = await this.injectPreload();
+        // if (!injectPreload.ok) {
+        //     logger.error("Preload injection failed:", injectPreload);
+        // }
         // check if lnd cert is available for external (0.0.0.0) usage
+        const syncCheck = await this.checkRemovingSyncFiles();
+        if (!syncCheck.ok) {
+            logger.error("syncCheck failed:", syncCheck);
+            return {
+                ok: false,
+                error: syncCheck.error,
+            };
+        }
         if (fs.existsSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE))) {
             const tlsCert = fs.readFileSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE)).toString();
             const issuer = Certificate.fromPEM(tlsCert);
