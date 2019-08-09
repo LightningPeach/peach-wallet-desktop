@@ -1,16 +1,17 @@
 {
   "version": {
-    "legal": "03/25/2019"
+    "legal": "03/25/2019",
+    "syncedVersion": "1"
   },
   "analytics": {
-    "trackingID": "UA-117106160-4",
+    "trackingID": "UA-117106160-2",
     "appUrl": "https://peach-wallet.local.com"
   },
   "peach": {
-    "pubKey": "02a0bc43557fae6af7be8e3a29fdebda819e439bea9c0f8eb8ed6a0201f3471ca9",
-    "host": "hub.lightningpeach.com",
-    "peerPort": "29735",
-    "replenishUrl": "proxy.lightningpeach.com:7000",
+    "pubKey": "0389a4d10d30e6176ea7cd0a7060344108061fc9ca88b02fa52dacea4b0114b316",
+    "host": "testnetwallet.lightningpeach.com",
+    "peerPort": "9735",
+    "replenishUrl": "testnetwallet.lightningpeach.com",
     "replenishTLS": true
   }
 }
