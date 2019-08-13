@@ -25,7 +25,7 @@ ipcMain.on("setDefaultLightningApp", () => {
 });
 
 async function _startLndIpc(arg) {
-    console.log("Stating lnd");
+    logger.debug("Stating lnd");
     const response = await lnd.start(arg.walletName);
     logger.info(response);
     if (!response.ok) {
