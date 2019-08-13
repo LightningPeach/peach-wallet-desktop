@@ -296,6 +296,15 @@ class Lnd extends Exec {
                 dataDir = path.join("data", "chain", "bitcoin", "testnet");
             }
             const userDataDir = path.join(settings.get.lndPath, this.name, dataDir);
+            // if folder is not created we just create a file inside the folder
+            if (!fs.existsSync(userDataDir)) {
+                await helpers.mkDirRecursive(userDataDir);
+                fs.writeFileSync(path.join(settings.get.lndPath, this.name, CHECK_LND_SYNC), JSON.stringify({
+                    syncedVersion: settings.preload.getVersion.syncedVersion,
+                }));
+                logger.info("Successfully created sync files checker");
+                return { ok: true };
+            }
             const blockHeadersPath = path.join(userDataDir, BLOCK_HEADERS_FILE);
             const neutrinoPath = path.join(userDataDir, NEUTRINO_FILE);
             const regFiltersHeadersPath = path.join(userDataDir, REG_FILTER_HEADERS_FILE);
@@ -622,6 +631,7 @@ class Lnd extends Exec {
                 error: syncCheck.error,
             };
         }
+        logger.debug("Finished checking sync files");
         if (fs.existsSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE))) {
             const tlsCert = fs.readFileSync(path.join(settings.get.lndPath, this.name, LND_CERT_FILE)).toString();
             const issuer = Certificate.fromPEM(tlsCert);
