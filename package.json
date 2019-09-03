@@ -165,7 +165,7 @@
     "react": "^16.0.0",
     "react-addons-css-transition-group": "^15.6.2",
     "react-datepicker": "^1.6.0",
-    "react-dom": "^16.0.0",
+    "react-dom": "^16.2.1",
     "react-ga": "^2.4.1",
     "react-notification-system": "^0.2.16",
     "react-redux": "^4.4.5",
