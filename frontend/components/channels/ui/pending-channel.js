@@ -46,6 +46,7 @@ PendingChannel.propTypes = {
         commit_fee: PropTypes.number.isRequired,
         local_balance: PropTypes.number.isRequired,
         maturity: PropTypes.number.isRequired,
+        name: PropTypes.string,
         remote_pubkey: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
     }).isRequired,

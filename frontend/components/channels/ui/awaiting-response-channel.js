@@ -41,6 +41,7 @@ const AwaitingResponseChannel = ({ channel, contacts, clickCopy }) => {
 AwaitingResponseChannel.propTypes = {
     channel: PropTypes.shape({
         lightningID: PropTypes.string.isRequired,
+        name: PropTypes.string,
     }).isRequired,
     clickCopy: PropTypes.func.isRequired,
     contacts: PropTypes.arrayOf(PropTypes.shape({

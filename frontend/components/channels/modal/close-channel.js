@@ -101,6 +101,7 @@ CloseChannel.propTypes = {
         channel_point: PropTypes.string.isRequired,
         commit_fee: PropTypes.number.isRequired,
         local_balance: PropTypes.number.isRequired,
+        name: PropTypes.string,
         remote_pubkey: PropTypes.string.isRequired,
         status: PropTypes.string.isRequired,
     }),

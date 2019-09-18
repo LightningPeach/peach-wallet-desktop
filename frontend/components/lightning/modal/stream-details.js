@@ -169,6 +169,7 @@ StreamDetails.propTypes = {
     onClose: PropTypes.func,
     streamDetails: PropTypes.shape({
         contact_name: PropTypes.string,
+        currency: PropTypes.string.isRequired,
         date: PropTypes.number.isRequired,
         delay: PropTypes.number.isRequired,
         description: PropTypes.string,
